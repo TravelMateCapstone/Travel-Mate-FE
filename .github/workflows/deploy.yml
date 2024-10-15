@@ -21,5 +21,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Run tests
+        run: npm test
+        continue-on-error: false  # This ensures the job fails if tests do not pass
+
       - name: Build the project
         run: npm run build
+        if: success()  # This ensures the build runs only if the previous steps succeeded
