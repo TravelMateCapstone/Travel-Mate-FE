@@ -1,0 +1,148 @@
+/* Base styles for the sidebar (Desktop) */
+.sidebar {
+    width: 350px;
+    height: 100vh;
+    margin-top: 100px;
+    background-color: #ffffff !important;
+    /* Optional background color */
+    overflow-y: auto;
+    /* Ensures the sidebar scrolls if content exceeds viewport height */
+}
+
+.menu {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+}
+
+.menu-item:hover {
+    background-color: #409034;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+    width: 250px;
+    color: white;
+}
+
+.menu-item.active {
+    background-color: #409034;
+    color: white;
+    width: 250px;
+}
+
+.menu-item .icon {
+    font-size: 20px;
+    margin-right: 10px;
+    color: black;
+}
+
+.menu-item .text {
+    font-size: 16px;
+}
+
+/* Active menu item colors */
+.menu-item.active .icon,
+.menu-item.active .text {
+    color: white;
+}
+
+
+/* Tablet (max-width: 1024px) */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 200px;
+        /* Reduced width for tablets */
+    }
+
+    .menu-item {
+        border-top-right-radius: 30px;
+        border-bottom-right-radius: 30px;
+        padding: 10px 15px;
+        /* Smaller padding */
+    }
+
+    .menu-item .icon {
+        font-size: 12px;
+        /* Slightly smaller icon size */
+    }
+
+    .menu-item .text {
+        font-size: 12px;
+        /* Smaller text size */
+    }
+
+
+    .menu-item:hover {
+        background-color: #409034;
+        border-top-right-radius: 30px;
+        border-bottom-right-radius: 30px;
+        width: 170px;
+    }
+
+    .menu-item.active {
+        background-color: #409034;
+        color: white;
+        width: 170px;
+    }
+}
+
+/* Mobile (max-width: 767px) */
+@media (max-width: 767px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        /* Sidebar collapses into a top-bar on mobile */
+        position: relative;
+        margin-top: 0;
+        z-index: 1000;
+    }
+
+    .menu-item:hover {
+        background-color: #e0e0e0;
+        border-top-right-radius: 20px;
+        border-bottom-right-radius: 20px;
+        width: 100%;
+    }
+
+    .menu-item {
+        border-top-right-radius: 20px;
+        border-bottom-right-radius: 20px;
+        padding: 8px 10px;
+        /* Smaller padding for mobile */
+        justify-content: center;
+    }
+
+    .menu-item.active {
+        background-color: #409034;
+        color: white;
+        width: 100%;
+    }
+
+    .menu-item .icon {
+        font-size: 16px;
+    }
+
+    .menu-item .text {
+        display: none;
+        /* Hide text on mobile to save space */
+    }
+
+    .menu-item.active {
+        border-radius: 0;
+        /* No rounded corners on mobile */
+    }
+
+    /* Optional: Hide the sidebar by default on mobile and show a button to toggle it */
+    .sidebar.hidden {
+        display: none;
+    }
+}

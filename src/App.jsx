@@ -1,35 +1,70 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import { publishRoutes, privateRoutes } from "./routes/AppRoute";
+import { Fragment } from "react"; 
+import DefaultLayout from "./layouts/DefaultLayout";
+import { ToastContainer } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux"; 
+import { openLoginModal } from "./redux/actions/modalActions"; 
 
-function App() {
-  const [count, setCount] = useState(0)
+const RouteWrapper = ({ component: Component, layout: Layout, path }) => {
+  const dispatch = useDispatch(); 
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated); 
+
+  // if (privateRoutes.some(route => route.path === path) && !isAuthenticated) {
+    
+  //   dispatch(openLoginModal());
+  //   return <Navigate to="/" replace />;
+  // } 
+
+  if (Layout === null) {
+    return (
+      <Fragment>
+        <Component />
+      </Fragment>
+    );
+  }
+
+  const AppliedLayout = Layout || DefaultLayout;
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <AppliedLayout>
+      <ToastContainer
+        position="bottom-right" 
+        autoClose={3000} 
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+      <Component />
+    </AppliedLayout>
+  );
+};
+
+function App() {
+  return (
+    <Router >
+      <Routes>
+        {publishRoutes.map(({ path, component: Component, layout: Layout }, index) => (
+          <Route
+            key={index}
+            path={path}
+            element={<RouteWrapper component={Component} layout={Layout} path={path} />}
+          />
+        ))}
+        {privateRoutes.map(({ path, component: Component, layout: Layout }, index) => (
+          <Route
+            key={index}
+            path={path}
+            element={<RouteWrapper component={Component} layout={Layout} path={path} />}
+          />
+        ))}
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;

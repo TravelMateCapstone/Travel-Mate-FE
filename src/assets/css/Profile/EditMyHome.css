@@ -1,0 +1,141 @@
+.edit-pro-container-myhome{
+    border: 1px solid rgba(0,0,0,0.2);
+    width: 1187px !important;
+    /* height: 1900px !important; */
+    padding: 28px;
+    border-radius: 20px !important;
+    font-size: 24px !important;
+    margin-top: 100px;
+}
+.vertical-divider {
+    border-left: 1px solid #ddd;
+    height: 100%;
+    width: 0; 
+  }
+  
+  .label-middel-form-myhome {
+   
+    height: 40px;
+    border-radius: 20px;
+    border: 1px solid black;
+  }
+  .edit-pro-container-myhome {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 2rem;
+  }
+ 
+  .img-thumbnail {
+    object-fit: cover;
+    margin: 10px; 
+  }
+  
+  .image-grid-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+  }
+
+  .image-grid-container img{
+    width: 280px;
+    height: 280px;
+    object-fit: cover;
+  }
+  .form-input-myhome{
+    width: 252.43px;
+    height: 30px;
+    border-radius: 20px;
+}
+.text-form-myhome{
+    border-radius: 20px;
+    height: 164px !important;
+    border: 1px solid black;}
+
+.text-form-myhome-2{
+    border-radius: 20px;
+    height: 140px !important;
+    border: 1px solid black;}
+
+.label-small-form-myhome{
+        /* width: 252.43px; */
+        height: 40px;
+        border-radius: 20px;
+        border: 1px solid black;}
+.display-form-myhome{
+    display: flex;
+    justify-content: space-between;
+    align-items: center !important;
+}
+.image-tiltle{
+  font-size: 40px !important;
+}
+.input-save{
+  border-radius: 19px;
+  border: 1px dashed rgb(68, 176, 200) !important;
+}
+
+@media (max-width: 1024px) and (min-width: 768px) {
+ 
+  .edit-pro-container-myhome{
+    border: 1px solid rgba(0,0,0,0.2);
+    width: 500px !important;
+    /* height: 1900px !important; */
+    padding: 28px;
+    border-radius: 20px;
+    font-size: 18px !important;
+    margin-top: 40px !important;
+}
+.display-form-myhome{
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+
+.input-save{
+  border-radius: 19px;
+  border: 1px dashed rgb(68, 176, 200) !important;
+}
+  
+}
+
+@media (max-width: 767px) {
+  .edit-pro-container-myhome{
+    border: 1px solid rgba(0,0,0,0.2);
+    width: 366px !important;
+    /* height: 1900px !important; */
+    padding: 28px;
+    border-radius: 20px;
+    font-size: 10px !important;
+    display: block !important;
+    margin: 0 auto !important;
+    margin-top: 0px;
+}
+.display-form-myhome{
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+.image-tiltle{
+  font-size: 10px !important;
+}
+.img-thumbnail {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+
+.display-form-myhome {
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+.input-save{
+  border-radius: 19px;
+  border: 1px dashed rgb(68, 176, 200) !important;
+}
+  
+}
+

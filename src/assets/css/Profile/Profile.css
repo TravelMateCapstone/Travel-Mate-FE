@@ -1,0 +1,176 @@
+:root {
+  --sidebar-height-desktop: 80px;
+  /* Default height for desktop */
+  --sidebar-height-tablet: 50px;
+  /* Height for tablet */
+  --sidebar-height-mobile: 40px;
+  /* Height for mobile */
+
+  --font-size-desktop: 18px;
+  /* Default font size for desktop */
+  --font-size-tablet: 16px;
+  /* Font size for tablet */
+  --font-size-mobile: 12px;
+  /* Font size for mobile */
+}
+
+.tabs {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.tabs .tab-header {
+  position: relative;
+  width: 70%;
+  display: flex;
+  align-items: center;
+  height: var(--sidebar-height-desktop);
+  z-index: 2;
+}
+
+.tabs .tab-header>div {
+
+  border-right: 1px solid #D9D9D9;
+  width: 20%;
+  /* Each tab takes 20% width */
+  text-align: center;
+  padding: 15px 0px;
+  color: #000000;
+  font-size: var(--font-size-desktop);
+  /* Use desktop font size by default */
+  cursor: pointer;
+  transition: color 300ms ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tabs .tab-header>div:last-child {
+  border-right: none;
+}
+
+.tabs .tab-header>div.active {
+  font-weight: 800;
+  color: green;
+  position: relative;
+}
+
+.tabs .tab-header>div.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 15%;
+  height: 3px;
+  background-color: green;
+  width: 90%;
+  margin-left: 5%;
+}
+
+.tabs .tab-indicator {
+  position: relative;
+  height: var(--sidebar-height-desktop);
+  /* Use desktop height by default */
+  margin-top: calc(-1 * var(--sidebar-height-desktop));
+}
+
+.tabs .tab-indicator>div {
+  position: absolute;
+  left: 0;
+  width: 20%;
+  height: 100%;
+  transition: all 300ms ease-in-out;
+}
+
+.tabs .tab-body {
+  position: relative;
+  padding: 20px 5px;
+  font-size: var(--font-size-desktop);
+  /* Use desktop font size by default */
+}
+
+.tabs .tab-header div i {
+  font-size: 24px;
+  /* Default icon size for desktop */
+  margin-bottom: 5px;
+}
+
+/* Media queries for tablet */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-height-tablet: 55px;
+    --font-size-tablet: 16px;
+  }
+
+  .tabs .tab-header {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    height: var(--sidebar-height-desktop);
+    z-index: 2;
+  }
+
+  .tabs .tab-indicator {
+    height: var(--sidebar-height-tablet);
+    /* Use tablet height */
+    margin-top: calc(-1 * var(--sidebar-height-tablet));
+  }
+
+  .tabs .tab-header>div {
+    width: 25%;
+    /* Each tab takes 25% width */
+    font-size: var(--font-size-tablet);
+    /* Use tablet font size */
+    padding: 12px 0px;
+  }
+
+  .tabs .tab-header div i {
+    font-size: 20px;
+    /* Icon size for tablet */
+  }
+
+  .tabs .tab-body {
+    font-size: var(--font-size-tablet);
+    /* Use tablet font size */
+  }
+}
+
+/* Media queries for mobile */
+@media (max-width: 576px) {
+  :root {
+    --sidebar-height-mobile: 40px;
+    --font-size-mobile: 12px;
+  }
+
+  .tabs .tab-header {
+    width: 100%;
+    height: var(--sidebar-height-desktop);
+  }
+
+  .tabs .tab-indicator {
+    height: var(--sidebar-height-mobile);
+    /* Use mobile height */
+    margin-top: calc(-1 * var(--sidebar-height-mobile));
+  }
+
+  .tabs .tab-header>div {
+    width: 33.33%;
+    /* Each tab takes 1/3rd width */
+    font-size: var(--font-size-mobile);
+    /* Use mobile font size */
+    padding: 10px 0px;
+  }
+
+  .tabs .tab-header div i {
+    font-size: 12px;
+    /* Icon size for mobile */
+  }
+
+  .tabs .tab-body {
+    font-size: var(--font-size-mobile);
+    /* Use mobile font size */
+  }
+
+}

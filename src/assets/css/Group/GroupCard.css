@@ -1,0 +1,176 @@
+.group-card {
+  width: 300px;
+  height: 390px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.group-card-img {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  height: 193px;
+  object-fit: cover;
+}
+
+.group-card-body {
+  height: 193px;
+  padding: 18px 22.5px 5px 22.5px;
+}
+
+.group-card-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: black;
+  font-size: 14px;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+.icon-margin {
+  margin-right: 5px;
+}
+
+.group-card-members {
+  margin-left: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.group-card-text {
+  font-size: 14px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  height: 40px;
+  margin-bottom: 15px;
+}
+
+.group-card-button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 30px;
+  height: 34px;
+}
+
+.group-card-icon {
+  width: 24px;
+  font-size: 24px;
+}
+
+.group-card-button {
+  transition: all 0.3s ease; /* Thêm transition để tạo hiệu ứng mượt mà */
+}
+
+/* Hiệu ứng hover cho nút */
+.group-card-button:hover {
+  color: white !important; /* Đổi màu chữ khi hover */
+  background-color: #007931; /* Đổi màu nền (tùy chọn) */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Thêm shadow để tạo cảm giác nổi lên */
+}
+
+/* Hiệu ứng khi nhấn nút */
+.group-card-button:active {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5); /* Giảm độ cao của bóng */
+}
+
+/* Tablet: screen width between 768px and 1024px */
+@media (max-width: 1024px) {
+  .group-card {
+    width: 150px !important;
+    height: 200px !important;
+  }
+
+  .group-card-img {
+    height: 90px !important;
+  }
+
+  .group-name {
+    font-size: 10px;
+    margin: 0px;
+    margin-bottom: 3px;
+    white-space: nowrap;       
+    overflow: hidden;         
+    text-overflow: ellipsis;   
+}
+.group-card-body {
+  height: 193px;
+  padding: 10px;
+}
+
+
+  .group-card-info {
+    font-size: 7px !important;
+    margin: 0px !important;
+  }
+
+  .group-card-text {
+    font-size: 8px !important;
+    margin: 0px !important;
+  }
+
+  .group-card-button {
+    height: 20px !important;
+    font-size: 10px !important;
+    margin-top: 5px !important;
+  }
+
+  .group-card-icon {
+    width: 22px;
+    font-size: 22px;
+  }
+}
+
+/* Mobile: screen width below 768px */
+@media (max-width: 768px) {
+  .group-name {
+    font-size: 10px;
+    margin: 0px;
+    margin-bottom: 3px;
+    height: 20px;
+  }
+
+  .group-card {
+    width: 100%;
+    max-width: 350px;
+    height: auto;
+  }
+
+  .group-card-img {
+    height: 140px;
+    /* Adjusted height for smaller screens */
+  }
+
+  .group-card-body {
+    padding: 10px;
+    /* Reduced padding for mobile */
+    height: auto;
+  }
+
+  .group-card-info {
+    margin-bottom: 10px;
+  }
+
+  .group-card-text {
+    font-size: 12px;
+    /* Adjusted font size for mobile */
+    height: auto;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .group-card-button {
+    height: 28px;
+    font-size: 12px;
+    /* Adjusted button font size */
+  }
+
+  .group-card-icon {
+    width: 20px;
+    font-size: 20px;
+  }
+}

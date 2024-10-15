@@ -1,0 +1,67 @@
+.local-trip-management {
+    padding: 20px;
+}
+
+.table-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.actions .action-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.actions .action-btn i {
+    font-size: 1.2rem;
+}
+
+.pagination-container {
+    margin-top: 20px;
+}
+
+.button-custom {
+    font-size: 0.8rem;
+    width: 106px;
+    height: 35px;
+    margin-bottom: 20px;
+    border-radius: 30px;
+    background: white;
+    border: 0px;
+    color: green;
+}
+
+
+.btn-detail {
+    font-size: 0.8rem;
+    width: 106px;
+    height: 35px;
+    margin-bottom: 20px;
+    border-radius: 30px;
+    background: #007931;
+    border: 0px;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .local-trip-management {
+        padding: 0px;
+    }
+
+    .trip-history {
+        margin: 0px !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .local-trip-management {
+        padding: 0px !important;
+    }
+
+    .body-dashboard-trip {
+        padding: 0px !important;
+    }
+}

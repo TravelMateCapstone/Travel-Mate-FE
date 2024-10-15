@@ -1,0 +1,19 @@
+.container-padding {
+  padding-top: 92px;
+}
+
+.column-1 {
+  background-color: #007bff; /* bg-primary */
+}
+
+.column-2 {
+  background-color: #f8f9fa; /* bg-light */
+}
+
+.column-3 {
+  background-color: #17a2b8; /* bg-info */
+}
+
+.column-4 {
+  background-color: #dc3545; /* bg-danger */
+}

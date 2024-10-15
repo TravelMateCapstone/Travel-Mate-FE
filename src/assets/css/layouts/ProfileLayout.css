@@ -1,0 +1,20 @@
+@media only screen and (min-width: 1440px) and (max-width: 1920px) {
+  .container-profile {
+    margin-top: 139px;
+    padding-right: 169px;
+    padding-left: 169px;
+  }
+}
+@media (max-width: 576px) {
+  .container-profile {
+    margin-top: 110px;
+  }
+  .left-side {
+    height: 450px;
+  }
+}
+@media only screen and (min-width: 768px) and (max-width: 1024px) {
+  .container-profile {
+    margin-top: 110px;
+  }
+}

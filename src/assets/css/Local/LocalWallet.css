@@ -1,0 +1,170 @@
+.local-wallet-management {
+    padding: 20px;
+}
+
+.wallet-overview {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    /* Allow wrapping on smaller screens */
+    width: 100%;
+    /* Ensure width adjusts with screen size */
+}
+
+.overview-card-wallet {
+    padding: 20px;
+    border-radius: 20px;
+    border: 1px solid #409034 !important;
+    height: 200px;
+    width: 100%;
+    max-width: 360px;
+    /* Limit max width */
+    flex: 1;
+    /* Allow flexibility on resizing */
+    box-sizing: border-box;
+    /* Ensure padding is considered in width calculation */
+}
+
+.overview-card-wallet h4 {
+    margin-bottom: 10px;
+}
+
+.balance h4 {
+    color: white;
+}
+
+.overview-card-wallet .bank {
+    font-size: 20px;
+}
+
+.table-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+    /* Ensure table responsiveness */
+}
+
+.actions .action-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.actions .action-btn i {
+    font-size: 1.2rem;
+}
+
+.pagination-container {
+    margin-top: 20px;
+}
+
+.button-custom {
+    font-size: 0.8rem;
+    width: 106px;
+    height: 35px;
+    margin-bottom: 20px;
+    border-radius: 30px;
+    background: white;
+    border: 1px;
+    color: green;
+}
+
+.balance {
+    background-color: #409034;
+    color: white;
+}
+
+.value {
+    font-size: 200%;
+    font-weight: bold;
+}
+
+.icon-bank {
+    margin-right: 1%;
+}
+
+/* Media Query for Large Screens */
+@media (min-width: 1024px) {
+    .body-dashboard {
+        width: 100%;
+    }
+
+    .wallet-overview {
+        width: 100%;
+        /* Keep width constraint on large screens */
+    }
+
+    .overview-card-wallet {
+        width: 100%;
+    }
+
+    .table-search {
+        border: 1px solid #409034;
+        border-radius: 20px;
+        margin: 50px;
+        padding: 20px;
+    }
+}
+
+/* Media Query for Tablets (screens between 768px and 1024px) */
+@media (max-width: 1024px) {
+    .body-dashboard {
+        width: 100%;
+        font-size: 90%;
+    }
+
+    .wallet-overview {
+        width: 100% !important;
+        /* Keep width constraint on large screens */
+    }
+
+    .overview-card-wallet {
+        width: 50%;
+    }
+
+    .overview-card-wallet {
+        max-width: 100%;
+        /* Make cards flexible on tablet screens */
+        width: 100%;
+    }
+}
+
+/* Media Query for Mobile (screens less than 768px wide) */
+@media (max-width: 768px) {
+    .wallet {
+        margin: 0px !important;
+    }
+
+    .body-dashboard {
+        width: 100%;
+        font-size: 80%;
+        padding: 0 !important;
+    }
+
+    .wallet-overview {
+        width: 100% !important;
+        /* Keep width constraint on large screens */
+    }
+
+    .overview-card-wallet {
+        width: 100%;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        /* Allow horizontal scroll for the table if needed */
+    }
+
+    .local-wallet-management {
+        padding: 0;
+    }
+}
+
+@media (max-width: 375px) {
+    .local-wallet-management {
+        padding: 0 !important;
+    }   
+}

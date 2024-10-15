@@ -1,0 +1,59 @@
+.sidebar-custom {
+    width: 100% !important;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center !important;
+    text-decoration: none;
+    color: black;
+    height: 51.66px;
+    padding-left: 44px;
+    gap: 15px;
+
+}
+
+.sidebar-item ion-icon {
+    font-size: 37px;
+}
+
+.create-btn {
+    margin-top: 19px;
+    width: 100% !important;
+    height: 36px;
+    border-radius: 36px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.create-btn:hover {
+    background-color: #409034;
+
+}
+
+.active-sidebar {
+    color: white !important;
+    background-color: #409034;
+    border-radius: 60px;
+}
+
+.active .sidebar-item {
+    font-weight: bold;
+}
+
+@media (max-width: 1024px) {
+    .sidebar-item {
+        padding-left: 20px;
+        font-size: 12px;
+        height: 40px;
+    }
+
+    .sidebar-item ion-icon {
+        font-size: 25px;
+    }
+
+    .create-btn {
+        font-size: 12px;
+        height: 40px;
+    }
+}

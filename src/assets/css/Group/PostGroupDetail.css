@@ -1,0 +1,30 @@
+
+.post-group-detail-img img{
+    width: 32%;
+    height: 32%;
+}
+
+
+@media (max-width: 1024px) {
+    .post-group-detail-container{
+     width: 100% !important;
+     
+    }
+
+    .post-group-detail-img{
+        padding: 10px !important;
+    }
+    .post-group-detail-img img{
+        width: 160px !important;
+        height: 160px !important;
+        border-radius: 10px !important;
+    }
+ }
+ 
+ @media (max-width: 480px){
+    .post-group-detail-img img{
+        width: 110px !important;
+        height: 110px !important;
+        border-radius: 10px !important;
+    }
+ }
