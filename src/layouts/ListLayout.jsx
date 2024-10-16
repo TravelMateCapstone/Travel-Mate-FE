@@ -25,7 +25,7 @@ function ListLayout({ children }) {
                 </Col>
 
                 {/* Sidebar for lg and md screens */}
-                <Col lg={3} md={3} className='bg-danger p-0 d-none d-md-block d-lg-block'>
+                <Col lg={2} md={3} className='bg-danger p-0 d-none d-md-block d-lg-block'>
                     Sidebar
                 </Col>
 
@@ -40,12 +40,12 @@ function ListLayout({ children }) {
                 </Offcanvas>
 
                 {/* Main content - full width on xs */}
-                <Col lg={6} md={9} xs={12} className='bg-success p-0'>
+                <Col lg={8} md={9} xs={12} className='bg-success p-0'>
                     {children}
                 </Col>
 
                 {/* Propose column - Hidden on xs screens */}
-                <Col lg={3} className='bg-secondary p-0 d-none d-lg-block'>
+                <Col lg={2} className='bg-secondary p-0 d-none d-lg-block'>
                     Propose
                 </Col>
 
