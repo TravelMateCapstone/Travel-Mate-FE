@@ -1,11 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Form, InputGroup } from 'react-bootstrap';
+import '../../assets/css/Shared/SearchBar.css';
 
-function SearchBar() {
+function SearchBar({ onSearch }) {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleClear = () => {
+    setSearchTerm('');
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && searchTerm) {
+      onSearch(searchTerm);
+    }
+  };
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ccc', borderRadius: '5px', padding: '5px', height: '38px' }}>
-      <link rel="stylesheet" href="https://unpkg.com/ionicons@5.5.2/dist/ionicons.min.css" />
-      <ion-icon name="search" style={{ marginRight: '5px' }}></ion-icon>
-      <input type="text" placeholder="Tìm kiếm..." style={{ border: 'none', outline: 'none', flex: 1 }} />
+    <div style={{ position: 'relative', width: '100%' }}>
+      <InputGroup className="rounded-5" style={{ height: '38px' }}>
+        <InputGroup.Text className='rounded-start-5' style={{ border: '1px solid #ccc', backgroundColor: 'transparent' }}>
+          <ion-icon name="search" style={{ marginRight: '0px', padding: '0px' }}></ion-icon>
+        </InputGroup.Text>
+        <Form.Control
+          type="text"
+          placeholder="Nhập từ khóa..."
+          className='border-start-0 rounded-end-5 fw-medium'
+          style={{ border: '1px solid #ccc', outline: 'none', fontSize: '12px' }}
+          value={searchTerm}
+          onChange={handleChange}
+          onKeyPress={handleKeyPress}
+        />
+      </InputGroup>
+      {searchTerm && (
+        <span 
+          onClick={handleClear} 
+          style={{ 
+            position: 'absolute', 
+            right: '10px', 
+            top: '50%', 
+            transform: 'translateY(-50%)', 
+            cursor: 'pointer', 
+            color: '#ccc' 
+          }}
+        >
+          <ion-icon name="close"></ion-icon>
+        </span>
+      )}
     </div>
   );
 }
