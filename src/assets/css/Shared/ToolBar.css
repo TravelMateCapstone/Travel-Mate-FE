@@ -1,0 +1,20 @@
+.toolbar {
+  position: fixed; /* Cố định vị trí */
+  bottom: 0; /* Đặt nó ở dưới cùng */
+  left: 50%; /* Đặt giữa chiều ngang */
+  transform: translateX(-50%); /* Dịch chuyển để căn giữa chính xác */
+  background-color: white; /* Màu nền */
+  padding: 10px 15px; /* Padding cho toolbar */
+  z-index: 1000; /* Đảm bảo nằm trên các thành phần khác */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+}
+.toolbar a{
+  display: flex;
+  align-items: center;
+}
+.toolbar a ion-icon{
+  font-size: 30px;
+}
