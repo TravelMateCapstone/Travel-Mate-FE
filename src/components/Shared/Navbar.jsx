@@ -1,15 +1,38 @@
 import React, { useState } from 'react';
 import { Navbar as BootstrapNavbar, Nav, Row, Col, Container, Dropdown, Button, Offcanvas } from 'react-bootstrap';
-import SearchBar from './SearchBar';
 import { Link, NavLink } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
 import '../../assets/css/Shared/NavBar.css';
 import logo from '../../assets/images/logo.png';
 import logoMobile from '../../assets/images/logo.svg'
+import { useDispatch, useSelector } from "react-redux";
+import Login from './Login';
+import Register from './Register'
+import { openLoginModal, closeLoginModal, openRegisterModal, closeRegisterModal } from "../../redux/actions/modalActions";
 
 function Navbar() {
   const [selectedItem, setSelectedItem] = useState('Địa điểm du lịch');
   const [showOffcanvas, setShowOffcanvas] = useState(false); // State để điều khiển Offcanvas
+  const dispatch = useDispatch();
+
+  const isLoginModalOpen = useSelector((state) => state.modal.isLoginModalOpen);
+  const isRegisterModalOpen = useSelector((state) => state.modal.isRegisterModalOpen);
+
+  const handleLoginModal = () => {
+    if (isLoginModalOpen) {
+      dispatch(closeLoginModal());
+    } else {
+      dispatch(openLoginModal());
+    }
+  };
+
+  const handleRegisterModal = () => {
+    if (isRegisterModalOpen) {
+      dispatch(closeRegisterModal());
+    } else {
+      dispatch(openRegisterModal());
+    }
+  };
 
   const handleSelect = (eventKey) => {
     setSelectedItem(eventKey);
@@ -100,11 +123,13 @@ function Navbar() {
             </div>
           </Col>
           <Col xs={4} className="d-flex justify-content-end gap-2 align-items-center pe-0">
-            <Button variant='' className='text-nowrap btn-action rounded-5 fw-normal'>Đăng kí</Button>
-            <Button variant='' className='text-nowrap btn-action rounded-5 fw-normal' style={{
-              background: '#007931',
-              color: 'white',
-            }}>Đăng nhập</Button>
+            <Button variant='' className='text-nowrap btn-action rounded-5 fw-normal' onClick={handleRegisterModal}>Đăng kí</Button>
+            <Button variant='' className='text-nowrap btn-action rounded-5 fw-normal'
+              onClick={handleLoginModal}
+              style={{
+                background: '#007931',
+                color: 'white',
+              }}>Đăng nhập</Button>
             {/* Nút để mở Offcanvas */}
             <Button variant='outline-secondary' className='d-lg-none' onClick={handleShow}><ion-icon name="menu-outline"></ion-icon></Button>
           </Col>
@@ -144,6 +169,8 @@ function Navbar() {
           </Nav>
         </Offcanvas.Body>
       </Offcanvas>
+      <Login show={isLoginModalOpen} handleClose={handleLoginModal} />
+      <Register show={isRegisterModalOpen} handleClose={handleRegisterModal} />
     </BootstrapNavbar>
   );
 }
