@@ -1,0 +1,15 @@
+.cus-prioritize {
+    color: black;
+}
+
+.cus-home {
+    color: black;
+}
+
+.cus-details {
+    color: black;
+}
+
+.cus-prioritize h4, .cus-home h4, .cus-details h4{
+    color: #ED6542;
+}

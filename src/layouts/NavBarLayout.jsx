@@ -1,8 +1,12 @@
 import React from 'react'
+import Navbar from '../components/Shared/Navbar'
 
-function NavBarLayout() {
+function NavBarLayout({children}) {
   return (
-    <div>NavBarLayout</div>
+    <div>
+      <Navbar />
+      {children}
+    </div>
   )
 }
 

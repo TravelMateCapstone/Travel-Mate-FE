@@ -2,6 +2,7 @@ import AdminLayout from "../layouts/AdminLayout"
 import DetailLayout from "../layouts/DetailLayout"
 import HomeFeedLayout from "../layouts/HomeFeedLayout"
 import ListLayout from "../layouts/ListLayout"
+import ProfileLayout from "../layouts/ProfileLayout"
 import AccountList from "../pages/Admin/AccountList"
 import IncomeStatistic from "../pages/Admin/IncomeStatistic"
 import EventCreated from "../pages/Events/EventCreated"
@@ -14,6 +15,12 @@ import GroupJoined from "../pages/Groups/GroupJoined"
 import GroupList from "../pages/Groups/GroupList"
 import Home from "../pages/Home"
 import RoutePath from "./RoutePath"
+import EditProfile from "../pages/Profile/EditProfile"
+import EditMyHome from "../pages/Profile/EditMyHome"
+import Setting from "../pages/Setting"
+import NavBarLayout from "../layouts/NavBarLayout"
+import Profile from "../pages/Profile/Profile"
+
 
 
 
@@ -32,6 +39,10 @@ const privateRoutes = [
     { path: RoutePath.GROUP_JOINED, component: GroupJoined, layout: ListLayout },
     { path: RoutePath.EVENT_CREATED, component: EventCreated, layout: ListLayout },
     { path: RoutePath.EVENT_JOINED, component: EventJoined, layout: ListLayout },
+    { path: RoutePath.PROFILE, component: Profile, layout: ProfileLayout },
+    { path: RoutePath.PROFILE_EDIT, component: EditProfile, layout: ProfileLayout},
+    { path: RoutePath.PROFILE_EDIT_MY_HOME, component: EditMyHome, layout: ProfileLayout},
+    { path: RoutePath.SETTING, component: Setting, layout: NavBarLayout},
 ]
 
 export { publishRoutes, privateRoutes }

@@ -1,0 +1,75 @@
+/* ProfileCard.css */
+
+.profile-card {
+  padding: 0 24px 33px 24px;
+  width: 332px;
+  height: 550px;
+  margin-top: 30%;
+  box-shadow: 0 0 7px rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+}
+
+.profile-card-container {
+  width: 100%;
+  position: relative;
+}
+
+.profile-image-wrapper {
+  position: absolute;
+  top: -20%;
+  left: 45px;
+  z-index: 1;
+}
+
+.profile-name {
+  font-size: 24px;
+}
+
+.profile-info {
+  position: relative;
+  top: 101px;
+}
+
+.profile-location,
+.profile-education,
+.profile-language,
+.profile-joined,
+.profile-completion {
+  display: flex;
+  gap: 1rem;
+  font-size: 16px;
+  align-items: center;
+}
+
+.profile-completion {
+  color: #007931;
+}
+
+.profile-buttons {
+  display: flex;
+  justify-content: space-around;
+}
+
+.profile-button {
+  width: 105px;
+  height: 35px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  border-radius: 25px !important;
+}
+
+.profile-button-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.profile-button-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.border-line {
+  border: 1px solid black;
+}

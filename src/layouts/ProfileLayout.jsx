@@ -1,8 +1,28 @@
 import React from 'react'
+import { Col, Container, Row } from 'react-bootstrap'
+import Navbar from '../components/Shared/Navbar'
+import Footer from '../components/Shared/Footer'
+import ProfileCard from '../components/Profile/ProfileCard'
 
-function ProfileLayout() {
+function ProfileLayout({ children }) {
   return (
-    <div>ProfileLayout</div>
+    <Container fluid>
+      <Row><Navbar /></Row>
+      <div className='mt-5' style={{
+        padding: '0 180px'
+      }}>
+        <Row>
+          <Col md={3}>
+            <ProfileCard />
+          </Col>
+          <Col md={9}>
+            
+            {children}
+          </Col>
+        </Row>
+      </div>
+      <Row><Footer /></Row>
+    </Container>
   )
 }
 

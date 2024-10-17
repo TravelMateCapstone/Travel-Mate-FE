@@ -43,6 +43,14 @@ const RoutePath = {
     LOCAL_WALLET_MANAGEMENT: '/local/wallet-management',
     LOCAL_TRIP_HISTORY: '/local/trip-history',
     LOCAL_CALENDAR_MANAGEMENT: '/local/calendar-management',
+
+    //Profile
+    PROFILE: '/profile',
+    PROFILE_EDIT: '/profile/edit/my-profile',
+    PROFILE_EDIT_MY_HOME: '/profile/edit/my-home',
+    PROFILE_FAVOURITE_LOCATION: '/profile/favourite-location',
+    PROFILE_FRIEND_LIST: '/profile/friend-list',
+    PROFILE_MY_HOME: '/profile/my-home',
 }
 
 export default RoutePath;
