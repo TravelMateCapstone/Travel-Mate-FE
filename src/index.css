@@ -1,6 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -8,7 +9,9 @@ html, body {
   font-optical-sizing: auto;
   font-style: normal;
 }
-
 ::-webkit-scrollbar {
-    width: 0px;
-  }
+  width: 0px;
+}
+a{
+  text-decoration: none !important;
+}

@@ -16,10 +16,10 @@ import GroupList from "../pages/Groups/GroupList"
 import Home from "../pages/Home"
 import RoutePath from "./RoutePath"
 import EditProfile from "../pages/Profile/EditProfile"
-import EditMyHome from "../pages/Profile/EditMyHome"
 import Setting from "../pages/Setting"
 import NavBarLayout from "../layouts/NavBarLayout"
 import Profile from "../pages/Profile/Profile"
+import EditMyHome from "../pages/Profile/EditMyHome"
 
 
 
