@@ -34,7 +34,7 @@ function ListLayout({ children }) {
     const isEventRouteBtn = currentPath === RoutePath.EVENT
 
     return (
-        <Container fluid>
+        <Container fluid className='container-main '>
             <Row>
                 {/* Navbar */}
                 <Col lg={12} className='p-0 mb-5'>

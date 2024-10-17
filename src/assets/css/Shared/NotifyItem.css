@@ -1,0 +1,10 @@
+.btn-accept, .btn-decline{
+    height: 18px;
+    font-size: 10.44px !important;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+
+}
+

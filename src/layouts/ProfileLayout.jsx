@@ -6,7 +6,7 @@ import ProfileCard from '../components/Profile/ProfileCard'
 
 function ProfileLayout({ children }) {
   return (
-    <Container fluid>
+    <Container fluid className='container-main'>
       <Row><Navbar /></Row>
       <div className='mt-5' style={{
         padding: '0 180px'
@@ -16,7 +16,7 @@ function ProfileLayout({ children }) {
             <ProfileCard />
           </Col>
           <Col md={9}>
-            
+
             {children}
           </Col>
         </Row>
