@@ -42,6 +42,9 @@
   border: 0px !important;
   border-radius: 16px !important;
 }
+.avatar{
+  border: 1px solid #ccc !important;
+}
 .messege-more{
   font-size: 12px;
 }

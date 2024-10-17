@@ -24,7 +24,9 @@ function ProposeEvent() {
     },
   ];
   return (
-    <div className='d-flex flex-column gap-4'>
+    <div className='d-flex flex-column gap-4' style={{
+      padding: '0 85px',
+    }}>
       {eventData.map((card) => (
         <EventCard
           img={card.imageURL}

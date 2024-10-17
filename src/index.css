@@ -12,7 +12,13 @@ body {
 ::-webkit-scrollbar {
   width: 0px;
 }
-
+a{
+  text-decoration: none !important;
+}
 .container-main {
   padding-top: 68px; /* Điều chỉnh tùy theo chiều cao thực tế của Navbar */
+}
+.form-control:focus{
+  box-shadow: none !important; /* Loại bỏ shadow khi focus */
+  border-color: #ccc !important; /* Giữ lại border màu mặc định hoặc tùy chỉnh */
 }

@@ -1,0 +1,107 @@
+/* Mặc định cho màn hình lớn */
+.container-layout-list {
+    margin-top: 122px;
+    padding: 0 85px;
+}
+
+.container-list {
+    display: flex !important;
+    gap: 10px !important;
+}
+
+.btn-filter {
+    padding: 8px 15px;
+}
+
+.search-list-container .searchBar-list {
+    height: 42px;
+    border: 1px solid black;
+    border-top-right-radius: 20px !important;
+    border-bottom-right-radius: 20px !important;
+}
+
+.searchBar-list:focus {
+    height: 42px;
+    border-left: 0px;
+}
+
+.search-icon-list {
+    border: 1px solid #ccc !important;
+    border-right: 0 !important;
+}
+
+.search-list-container {
+    flex: 8;
+}
+
+.location-container {
+    flex: 3;
+}
+
+.btn-filter {
+    flex: 1;
+    background: white;
+    color: black;
+}
+
+.container-layout {
+    margin: 0 85px;
+    display: flex;
+    background: red;
+}
+
+.searchBar-list {
+    border-left: 0 !important;
+}
+
+.searchBar-lis:focus{
+    border-left: 0 !important;  
+}
+.search-filter{
+     flex: 3 !important;
+}
+
+@media (max-width: 1024px) {
+    .container-list {
+        padding: 0 30px;
+    }
+    .container-layout-list {
+        margin-top: 122px;
+        padding: 0 15px;
+    }
+    .propose {
+        display: none;
+    }
+
+    .search-icon-list,
+    .searchBar-list
+    {
+        height: 30px !important;
+        font-size: 12px;
+    }
+    
+    .btn-filter {
+        height: 30px;
+        padding: 8px;
+        font-size: 12px;
+        color: gray;
+    }
+}
+
+@media (max-width: 480px) {
+    .container-list {
+        padding: 0 10px; 
+    }
+    .container-layout-list {
+        margin-top: 75px;
+    }
+    .btn-filter {
+        flex: 0 0 auto; 
+        padding: 6px; 
+    }
+
+    .searchBar-list {
+        height: 30px !important; 
+       
+    }
+}

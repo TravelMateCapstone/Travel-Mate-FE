@@ -24,6 +24,10 @@ function Navbar() {
   const isLoginModalOpen = useSelector((state) => state.modal.isLoginModalOpen);
   const isRegisterModalOpen = useSelector((state) => state.modal.isRegisterModalOpen);
 
+  const handelShowOffcanvas = () => {
+    setShowOffcanvas(true);
+  }
+
   const notifications = [
     {
       "id": 1,
@@ -196,10 +200,10 @@ function Navbar() {
               <>
                 <Dropdown align="end">
                   <Dropdown.Toggle className="messages_action bg-white rounded-5 border-0 d-flex justify-content-center align-items-center">
-                  <ion-icon name="chatbubbles-outline" style={{
-                    color: 'black',
-                    fontSize: '20px'
-                  }}></ion-icon>
+                    <ion-icon name="chatbubbles-outline" style={{
+                      color: 'black',
+                      fontSize: '20px'
+                    }}></ion-icon>
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu className="py-3 messenger-dropdown-menu">
@@ -213,21 +217,23 @@ function Navbar() {
                         />
                       </Dropdown.Item>
                     ))}
-                    <div className="d-flex align-items-center justify-content-center mt-2 gap-1">
-                      <p className="m-0 messege-more">Mở tin nhắn</p>
-                      <ion-icon name="chevron-forward-circle-outline" style={{
-                        fontSize: '20px'
-                      }}></ion-icon>
-                    </div>
+                    <Link to={RoutePath.CHAT} className='text-black'>
+                      <div className="d-flex align-items-center justify-content-center mt-2 gap-1">
+                        <p className="m-0 messege-more">Mở tin nhắn</p>
+                        <ion-icon name="chevron-forward-circle-outline" style={{
+                          fontSize: '20px'
+                        }}></ion-icon>
+                      </div>
+                    </Link>
                   </Dropdown.Menu>
                 </Dropdown>
 
                 <Dropdown align="end">
                   <Dropdown.Toggle className="notify_action bg-white rounded-5 border-0 d-flex justify-content-center align-items-center">
-                  <ion-icon name="notifications-outline" style={{
-                    color: 'black',
-                    fontSize: '20px'
-                  }}></ion-icon>
+                    <ion-icon name="notifications-outline" style={{
+                      color: 'black',
+                      fontSize: '20px'
+                    }}></ion-icon>
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu className="py-3 dropdown-menu-notify">
@@ -246,7 +252,7 @@ function Navbar() {
                 </Dropdown>
 
                 <Dropdown align="end">
-                  <Dropdown.Toggle className="avatar bg-secondary rounded-5 border-0 p-1 d-flex justify-content-between px-2 align-items-center gap-1">
+                  <Dropdown.Toggle className="avatar bg-white text-secondary rounded-5 p-1 d-flex justify-content-between px-2 align-items-center gap-1">
                     <img
                       className="object-fit-cover rounded-5"
                       src="https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj"
@@ -278,10 +284,11 @@ function Navbar() {
                 <Button
                   variant="link"
                   className="p-0 d-lg-none text-black btn-canvas"
-                  onClick={showOffcanvas}
+                  onClick={handelShowOffcanvas}
                 >
                   <i className="bi bi-list fs-1"></i>
                 </Button>
+                <Button variant='outline-secondary' className='d-lg-none' onClick={handleShow}><ion-icon name="menu-outline"></ion-icon></Button>
               </>
             ) : (
               <>
@@ -336,7 +343,7 @@ function Navbar() {
       </Offcanvas>
       <Login show={isLoginModalOpen} handleClose={handleLoginModal} />
       <Register show={isRegisterModalOpen} handleClose={handleRegisterModal} />
-             
+
     </BootstrapNavbar>
   );
 }

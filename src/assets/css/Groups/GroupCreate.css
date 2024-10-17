@@ -1,0 +1,16 @@
+
+.container-group-create{
+    padding: 0 85px;
+}
+
+@media (max-width: 1024px) {
+    .container-group-create{
+        padding: 0 20px;
+    }
+}
+
+@media (max-width: 480px){
+    .container-group-create{
+        padding: 0px;
+    }
+}

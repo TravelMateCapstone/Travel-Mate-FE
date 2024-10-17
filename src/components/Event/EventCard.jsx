@@ -50,6 +50,7 @@ const EventCard = ({ id, img, time, title, location, members, text }) => {
                     variant="outline-success"
                     className="btn-join rounded-5"
                     onClick={handleJoinEvent}  
+                    
                 >
                     <div></div>
                     <div>Tham gia</div>

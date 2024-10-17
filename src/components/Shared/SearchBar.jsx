@@ -26,30 +26,16 @@ function SearchBar({ onSearch }) {
           <ion-icon name="search" style={{ marginRight: '0px', padding: '0px' }}></ion-icon>
         </InputGroup.Text>
         <Form.Control
-          type="text"
+          type="search"
           placeholder="Nhập từ khóa..."
-          className='border-start-0 rounded-end-5 fw-medium'
+          className='border-start-0 rounded-end-5 fw-medium rounded-start-0'
           style={{ border: '1px solid #ccc', outline: 'none', fontSize: '12px' }}
           value={searchTerm}
           onChange={handleChange}
           onKeyPress={handleKeyPress}
         />
       </InputGroup>
-      {searchTerm && (
-        <span 
-          onClick={handleClear} 
-          style={{ 
-            position: 'absolute', 
-            right: '10px', 
-            top: '50%', 
-            transform: 'translateY(-50%)', 
-            cursor: 'pointer', 
-            color: '#ccc' 
-          }}
-        >
-          <ion-icon name="close"></ion-icon>
-        </span>
-      )}
+     
     </div>
   );
 }

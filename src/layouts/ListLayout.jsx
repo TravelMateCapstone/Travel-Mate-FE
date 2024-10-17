@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import Navbar from '../components/Shared/Navbar';
-import { Col, Container, Row, Offcanvas, Button } from 'react-bootstrap';
+import { Col, Container, Row, Offcanvas, Button, InputGroup, FormControl } from 'react-bootstrap';
 import Footer from '../components/Shared/Footer';
 import SidebarList from '../components/Shared/SidebarList';
 import RoutePath from '../routes/RoutePath';
+import ProposeGroup from '../components/Group/ProposeGroup';
+import ProposeEvent from '../components/Event/ProposeEvent';
+import SearchBar from '../components/Shared/SearchBar'
+import '../assets/css/layouts/ListLayout.css'
 
 function ListLayout({ children }) {
     const [show, setShow] = useState(false);
@@ -30,11 +34,20 @@ function ListLayout({ children }) {
         currentPath.startsWith(RoutePath.EVENT_JOINED) ||
         currentPath.startsWith(RoutePath.EVENT_CREATED);
 
-    const isGroupRoutebtn = currentPath === RoutePath.GROUP
-    const isEventRouteBtn = currentPath === RoutePath.EVENT
+    const isGroupRoutebtn = currentPath === RoutePath.GROUP;
+    const isEventRouteBtn = currentPath === RoutePath.EVENT;
+
+    // Tạo danh sách các mục cho SidebarList
+    const sidebarData = isEventRoute ? sidebarItemsEvent : sidebarItems;
+
+    // Thêm trạng thái active cho từng mục
+    const sidebarItemsWithActiveState = sidebarData.map(item => ({
+        ...item,
+        isActive: currentPath === item.route,
+    }));
 
     return (
-        <Container fluid className='container-main '>
+        <Container fluid className='container-main'>
             <Row>
                 {/* Navbar */}
                 <Col lg={12} className='p-0 mb-5'>
@@ -51,16 +64,7 @@ function ListLayout({ children }) {
                 {/* Sidebar for lg and md screens */}
                 <Col lg={3} md={3} className='p-0 d-none d-md-block d-lg-block'>
                     <div style={{ margin: '0 85px' }}>
-                        {/* Sử dụng sidebarItemsEvent nếu đường dẫn là của sự kiện */}
-                        {(isEventRoute ? sidebarItemsEvent : sidebarItems).map((item, index) => (
-                            <SidebarList
-                                key={index}
-                                iconName={item.iconName}
-                                title={item.title}
-                                route={item.route}
-                                isActive={currentPath === item.route}
-                            />
-                        ))}
+                        <SidebarList items={sidebarItemsWithActiveState} />
                         {isGroupRoutebtn && (
                             <Button variant='outline-dark w-100 rounded-5 mt-3'>Tạo nhóm</Button>
                         )}
@@ -76,18 +80,50 @@ function ListLayout({ children }) {
                         <Offcanvas.Title>Sidebar</Offcanvas.Title>
                     </Offcanvas.Header>
                     <Offcanvas.Body>
-                        Sidebar content goes here
+                        <SidebarList items={sidebarItemsWithActiveState} />
                     </Offcanvas.Body>
                 </Offcanvas>
 
                 {/* Main content - full width on xs */}
                 <Col lg={6} md={9} xs={12} className='p-0'>
+                    <Container className='container-list d-none d-md-flex mb-3'>
+
+                        <div className='search-list-container'><SearchBar /></div>
+
+                        <InputGroup className='search-list-container location-container'>
+                            <InputGroup.Text  className="search-icon bg-white search-icon-list border-end-0 rounded-start-5">
+                                <ion-icon name="location-outline"></ion-icon>
+                            </InputGroup.Text>
+                            <FormControl
+                                type="search"
+                                placeholder="Địa điểm"
+                                aria-label="Search"
+                                className="searchBar-list rounded-start-0 rounded-end-5 border-start-0"
+                                style={{
+                                    border: '1px solid #ccc',
+                                }}
+                            />
+                        </InputGroup>
+
+                        <Button variant='outline-dark' className='d-flex align-items-center gap-2 rounded-5 btn-filter'>
+                            <ion-icon name="filter-outline"></ion-icon>
+                            Lọc
+                        </Button>
+                    </Container>
                     {children}
                 </Col>
 
                 {/* Propose column - Hidden on xs screens */}
                 <Col lg={3} className='p-0 d-none d-lg-block'>
-                    Propose
+                    {isEventRoute ? (
+                        <>
+                            <ProposeEvent />
+                        </>
+                    ) : (
+                        <>
+                            <ProposeGroup />
+                        </>
+                    )}
                 </Col>
 
                 {/* Footer */}
