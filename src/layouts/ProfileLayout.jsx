@@ -15,7 +15,7 @@ function ProfileLayout({ children }) {
           <Col md={3}>
             <ProfileCard />
           </Col>
-          <Col md={9}>
+          <Col md={9} className='mt-2'>
             
             {children}
           </Col>

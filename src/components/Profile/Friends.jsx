@@ -27,10 +27,10 @@ function Friends() {
     setCurrentPage(selected);
   };
 
+
   return (
     <div style={{
-      border: '1px solid #ccc',
-      
+       boxShadow: '0 0 4px rgba(0, 0, 0, 0.25)'
     }} className='rounded-5 py-3 px-0'>
       <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">
         BẠN BÈ

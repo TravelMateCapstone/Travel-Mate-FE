@@ -25,7 +25,9 @@ function Favorites() {
   const displayedFavorites = favoritesData.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
 
   return (
-    <Container className='py-3 px-0 border rounded-5'>
+    <Container className='py-3 px-0 border-0 rounded-5' style={{
+      boxShadow: '0 0 4px rgba(0, 0, 0, 0.25)'
+    }}>
       <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">
         ĐỊA ĐIỂM ƯA THÍCH
       </h2>
