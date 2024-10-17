@@ -1,0 +1,14 @@
+.message-container {
+  width: 316px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.mess-inf {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  width: 210px !important;
+}
+

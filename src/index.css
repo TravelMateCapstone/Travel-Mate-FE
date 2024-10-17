@@ -12,6 +12,7 @@ body {
 ::-webkit-scrollbar {
   width: 0px;
 }
-a{
-  text-decoration: none !important;
+
+.container-main {
+  padding-top: 68px; /* Điều chỉnh tùy theo chiều cao thực tế của Navbar */
 }

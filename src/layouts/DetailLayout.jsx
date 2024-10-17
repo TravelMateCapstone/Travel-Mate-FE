@@ -5,7 +5,7 @@ import Footer from '../components/Shared/Footer'
 
 function DetailLayout({children}) {
   return (
-    <Container fluid>
+    <Container fluid className='container-main '>
         <Row>
             <Col xs={12} className='p-0'><Navbar/></Col>
             <Col lg={3} className='p-0'>
