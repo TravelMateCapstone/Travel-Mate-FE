@@ -23,19 +23,19 @@ function DetailLayout({ children }) {
       { iconName: 'add-circle', title: 'Sự kiện đã tạo', route: RoutePath.EVENT_CREATED },
   ];
 
+
+  
   // Lấy đường dẫn hiện tại
   const currentPath = location.pathname;
 
   useEffect(() => {
     // Lưu đường dẫn vào localStorage
-    localStorage.setItem('previousPath', currentPath);
-    
-    // Lấy đường dẫn trước đó từ localStorage
-    const storedPath = localStorage.getItem('previousPath');
-    if (storedPath) {
-        setPreviousPath(storedPath);
-    }
-  }, [currentPath]);
+    const currentPath = location.pathname;
+    const previousPath = localStorage.getItem('lastPath');
+    console.log('Đường dẫn trước đó:', previousPath);
+    // Cập nhật đường dẫn mới
+    localStorage.setItem('lastPath', currentPath);
+}, [location]);
 
   // Kiểm tra xem đường dẫn có thuộc về sự kiện hay không
   const isEventRoute = currentPath.startsWith(RoutePath.EVENT) ||

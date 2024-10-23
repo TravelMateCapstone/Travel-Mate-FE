@@ -17,6 +17,7 @@ import { logout } from "../../redux/actions/authActions";
 
 function Navbar() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  //const isAuthenticated = useState(true);
   const [selectedItem, setSelectedItem] = useState('Địa điểm du lịch');
   const [showOffcanvas, setShowOffcanvas] = useState(false); // State để điều khiển Offcanvas
   const dispatch = useDispatch();
@@ -90,9 +91,6 @@ function Navbar() {
       dispatch(openLoginModal());
     }
   };
-
-  console.log(isAuthenticated ? 'Logged in' : 'Logged out');
-
 
   const handleRegisterModal = () => {
     if (isRegisterModalOpen) {

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Shared/Navbar';
-import { Col, Container, Row, Offcanvas, Button, InputGroup, FormControl } from 'react-bootstrap';
+import { Col, Container, Row, Offcanvas, Button, InputGroup, FormControl, Form } from 'react-bootstrap';
 import Footer from '../components/Shared/Footer';
 import SidebarList from '../components/Shared/SidebarList';
 import RoutePath from '../routes/RoutePath';
@@ -8,6 +8,8 @@ import ProposeGroup from '../components/Group/ProposeGroup';
 import ProposeEvent from '../components/Event/ProposeEvent';
 import SearchBar from '../components/Shared/SearchBar'
 import '../assets/css/layouts/ListLayout.css'
+import { useLocation } from 'react-router-dom';
+import FormSubmit from '../components/Shared/FormSubmit';
 
 function ListLayout({ children }) {
     const [show, setShow] = useState(false);
@@ -25,6 +27,17 @@ function ListLayout({ children }) {
         { iconName: 'calendar-number', title: 'Sự kiện đã tham gia', route: RoutePath.EVENT_JOINED },
         { iconName: 'add-circle', title: 'Sự kiện đã tạo', route: RoutePath.EVENT_CREATED },
     ];
+
+    const location = useLocation();
+    const [lastPath, setLastPath] = useState(null);
+
+    useEffect(() => {
+        // Lưu đường dẫn vào state
+        setLastPath(location.pathname);
+
+        // Hoặc lưu vào localStorage
+        localStorage.setItem('lastPath', location.pathname);
+    }, [location]);
 
     // Lấy đường dẫn hiện tại
     const currentPath = location.pathname;
@@ -46,6 +59,10 @@ function ListLayout({ children }) {
         isActive: currentPath === item.route,
     }));
 
+    const handleCreateGroup = () => {
+        alert("Created group");
+      };
+
     return (
         <Container fluid className='container-main'>
             <Row>
@@ -66,10 +83,61 @@ function ListLayout({ children }) {
                     <div style={{ margin: '0 85px' }}>
                         <SidebarList items={sidebarItemsWithActiveState} />
                         {isGroupRoutebtn && (
-                            <Button variant='outline-dark w-100 rounded-5 mt-3'>Tạo nhóm</Button>
+                            <FormSubmit buttonText={'Tạo nhóm'} onButtonClick={handleCreateGroup} title={'Tạo nhóm'} openModalText={'Tạo nhóm'}>
+                            <h5 className='fw-bolder'>Bảng thông tin</h5>
+                            <p>Nhập thông tin chi tiết cho sự kiện của bạn</p>
+                        
+                            <Form>
+                                <Form.Group controlId="eventName">
+                                    <Form.Label>Tên sự kiện</Form.Label>
+                                    <Form.Control style={{
+                                        fontSize: '12px'
+                                    }} type="text" placeholder="Nhập tên sự kiện..." className='rounded-5 p-3'/>
+                                </Form.Group>
+                        
+                                <Form.Group controlId="eventDescription">
+                                    <Form.Label>Mô tả sự kiện</Form.Label>
+                                    <textarea rows={3} placeholder="Nhập mô tả sự kiện..."  style={{
+                                        fontSize: '12px',
+                                        borderColor: '#d9d9d9'
+                                    }}  className='rounded-5 w-100 p-3'/>
+                                </Form.Group>
+                        
+                                <Row style={{
+                                        fontSize: '12px',
+                                    }} >
+                                    <Col md={6}>
+                                        <Form.Group controlId="startDateTime">
+                                            <Form.Label>Ngày giờ bắt đầu</Form.Label>
+                                            <Form.Control type="datetime-local"  className='rounded-5 p-3'/>
+                                        </Form.Group>
+                                    </Col>
+                                    <Col md={6}>
+                                        <Form.Group controlId="endDateTime">
+                                            <Form.Label>Ngày giờ kết thúc</Form.Label>
+                                            <Form.Control type="datetime-local" className='rounded-5' />
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
+                        
+                                <Form.Group controlId="location">
+                                    <Form.Label>Địa điểm</Form.Label>
+                                    <Form.Control type="text" className='rounded-5 p-3' style={{
+                                        fontSize: '12px',
+                                    }}  placeholder="Nhập địa điểm..." />
+                                </Form.Group>
+                        
+                                <Form.Group controlId="eventImage">
+                                    <Form.Label>Ảnh sự kiện</Form.Label>
+                                    <Form.Control type="file" className='w-25'/>
+                                </Form.Group>
+                            </Form>
+                        </FormSubmit>
                         )}
                         {isEventRouteBtn && (
-                            <Button variant='outline-dark w-100 rounded-5 mt-3'>Tạo sự kiện</Button>
+                             <FormSubmit buttonText={'Tạo sự kiện'} onButtonClick={handleCreateGroup} title={'Tạo sự kiện'} openModalText={'Tạo sự kiện'}>
+                             form
+                         </FormSubmit>
                         )}
                     </div>
                 </Col>

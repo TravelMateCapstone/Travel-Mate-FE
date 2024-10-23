@@ -1,10 +1,12 @@
-import React, { memo } from 'react'
-import EventCard from './EventCard'
+import React, { memo } from 'react';
+import EventCard from './EventCard';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+
 function ProposeEvent() {
   const eventData = [
     {
+      id: 1,
       title: "Surfing Club Surfing Club Surfing Club",
       location: "Da Nang, Viet Nam",
       membersCount: 35,
@@ -14,6 +16,7 @@ function ProposeEvent() {
       imageURL: "https://toquoc.mediacdn.vn/280518851207290880/2024/1/7/dsdgtdy-1704616308047440689926.jpg"
     },
     {
+      id: 2,
       title: "Yoga Retreat Surfing Club Club",
       location: "Hoi An, Viet Nam",
       membersCount: 20,
@@ -23,12 +26,12 @@ function ProposeEvent() {
       imageURL: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHoMev2VPeG81wrzcm0l7YanrC8N8rkApsCQ&s"
     },
   ];
+
   return (
-    <div className='d-flex flex-column gap-4' style={{
-      padding: '0 85px',
-    }}>
+    <div className='d-flex flex-column gap-4' style={{ padding: '0 85px' }}>
       {eventData.map((card) => (
         <EventCard
+          key={card.id} // Sử dụng id làm key
           img={card.imageURL}
           time={card.time}
           title={card.title}
@@ -38,7 +41,7 @@ function ProposeEvent() {
         />
       ))}
     </div>
-  )
+  );
 }
 
 export default memo(ProposeEvent);

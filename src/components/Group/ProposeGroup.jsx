@@ -26,6 +26,7 @@ function ProposeGroup() {
             <h3>Nhóm đề xuất</h3>
             {cardData.map((card) => (
                 <GroupCard
+                key={card.id}
                     img={card.img}
                     title={card.title}
                     location={card.location}
