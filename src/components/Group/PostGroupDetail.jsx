@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import CommentPostGroupDetail from './CommentPostGroupDetail';
 import { Dropdown } from 'react-bootstrap';
 import '../../assets/css/Groups/PostGroupDetail.css';
+import FormSubmit from '../Shared/FormSubmit';
 
 const comments = [
   {
@@ -77,7 +78,46 @@ function PostGroupDetail() {
           </Dropdown.Toggle>
 
           <Dropdown.Menu align="end" style={{ zIndex: '1000' }}>
-            <Dropdown.Item onClick={() => console.log('Chỉnh sửa bình luận')}>Chỉnh sửa</Dropdown.Item>
+            <Dropdown.Item onClick={() => console.log('Chỉnh sửa bình luận')} className='btn-edit-post'>
+              <FormSubmit openModalText={'Chỉnh sửa'} buttonText={'Cập Nhập'} title={'Chiến Đi'}>
+                <div>
+                  {/* Địa điểm */}
+                  <div className="mb-3">
+                    <label className="fw-bold">Địa điểm</label>
+                    <input type="text" className="form-control" placeholder="Phố cổ Hội An, Quảng Nam" />
+                  </div>
+
+                  {/* Nội dung */}
+                  <div className="mb-3">
+                    <label className="fw-bold">Nội dung</label>
+                    <textarea className="form-control" style={{
+                    }} rows="6" placeholder="Hội An – phố cổ với những con hẻm nhỏ, đèn lồng lung linh và không khí yên bình. Mỗi góc phố đều mang trong mình dấu ấn thời gian, khiến mình như lạc vào một khung cảnh hoài cổ, thơ mộng. Đêm xuống, phố lên đèn, cảm giác thật bình yên và dịu dàng. Nhất định phải ghé thăm lần nữa! 🌕✨"></textarea>
+                  </div>
+
+                  {/* Hình ảnh */}
+                  <div className="mb-3">
+                    <label className="fw-bold">Ảnh</label>
+                    <input type="file" className="form-control mb-3" />
+
+                    {/* Hình ảnh đã chọn */}
+                    <div className="d-flex justify-content-between flex-wrap">
+                      <div className="position-relative" style={{ flex: '1 1 30%', margin: '5px' }}>
+                        <img src="https://tiki.vn/blog/wp-content/uploads/2023/03/cau-rong-da-nang.jpg" alt="Ảnh 1" className="img-fluid rounded" />
+                        <button className="btn btn-danger btn-sm position-absolute" style={{ top: '5px', right: '5px' }}>Xóa</button>
+                      </div>
+                      <div className="position-relative" style={{ flex: '1 1 30%', margin: '5px' }}>
+                        <img src="https://tiki.vn/blog/wp-content/uploads/2023/03/cau-rong-da-nang.jpg" alt="Ảnh 2" className="img-fluid rounded" />
+                        <button className="btn btn-danger btn-sm position-absolute" style={{ top: '5px', right: '5px' }}>Xóa</button>
+                      </div>
+                      <div className="position-relative" style={{ flex: '1 1 30%', margin: '5px' }}>
+                        <img src="https://tiki.vn/blog/wp-content/uploads/2023/03/cau-rong-da-nang.jpg" alt="Ảnh 3" className="img-fluid rounded" />
+                        <button className="btn btn-danger btn-sm position-absolute" style={{ top: '5px', right: '5px' }}>Xóa</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </FormSubmit>
+            </Dropdown.Item>
             <Dropdown.Item onClick={() => console.log('Xóa bình luận')}>Xóa</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>

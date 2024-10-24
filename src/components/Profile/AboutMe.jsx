@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import "../../assets/css/Profile/AboutMe.css";
-
+import FormSubmit from '../../components/Shared/FormSubmit'
 function AboutMe() {
   return (
     <Container className='py-3 px-0 border-0 rounded-5' style={{
@@ -9,7 +9,54 @@ function AboutMe() {
     }}>
       <Row>
         <Col md={12}>
-          <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">GIỚI THIỆU</h2>
+        <div className='d-flex align-items-center justify-content-between'>
+        <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">GIỚI THIỆU</h2>
+        <FormSubmit buttonText={'Lưu thay đổi'} openModalText={'Tạo mẫu thông tin'} title={'Mẫu câu hỏi thông tin'}>
+        <div>
+    {/* Câu hỏi 1 */}
+    <div className="mb-4">
+      <label className="fw-bold">Tôn giáo của bạn là gì?</label>
+      <div>
+        <input type="checkbox" id="buddhism" name="religion" value="Buddhism" checked />
+        <label htmlFor="buddhism" className="ms-2">Phật giáo</label>
+      </div>
+      <div>
+        <input type="checkbox" id="catholic" name="religion" value="Catholic" />
+        <label htmlFor="catholic" className="ms-2">Công giáo</label>
+      </div>
+      <div>
+        <input type="checkbox" id="none" name="religion" value="None" />
+        <label htmlFor="none" className="ms-2">Không</label>
+      </div>
+    </div>
+
+    {/* Câu hỏi 2 */}
+    <div className="mb-4">
+      <label className="fw-bold">Bạn hay chơi vị trí nào trong bóng đá?</label>
+      <div>
+        <input type="checkbox" id="forward" name="position" value="Forward" checked />
+        <label htmlFor="forward" className="ms-2">Tiền đạo</label>
+      </div>
+      <div>
+        <input type="checkbox" id="defender" name="position" value="Defender" checked />
+        <label htmlFor="defender" className="ms-2">Hậu vệ</label>
+      </div>
+      <div>
+        <input type="checkbox" id="goalkeeper" name="position" value="Goalkeeper" />
+        <label htmlFor="goalkeeper" className="ms-2">Thủ môn</label>
+      </div>
+    </div>
+
+    {/* Nút thêm mẫu câu hỏi */}
+    <div className="mt-4">
+      <a href="#" className="text-primary" style={{ display: 'inline-flex', alignItems: 'center' }}>
+        <i className="zmdi zmdi-plus-circle-outline me-1"></i> Tạo thêm mẫu câu hỏi
+      </a>
+    </div>
+  </div>
+        </FormSubmit>
+        </div>
+         
           <ul className="cbp_tmtimeline">
             <li>
               <div className="cbp_tmicon "><i className="zmdi zmdi-label"></i></div>
