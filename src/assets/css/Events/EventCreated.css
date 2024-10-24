@@ -1,0 +1,164 @@
+.join-event-detail-container {
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border-left: 2px #f2f2f2 solid;
+}
+
+
+.event-time {
+    color: red;
+    font-size: 16px;
+    font-weight: 500;
+    flex: 1;
+}
+
+.event-name-inf {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.event-location-inf {
+    font-size: 16px;
+    font-weight: 500px;
+}
+
+.event-end-date {
+    font-size: 16px;
+    font-weight: 500;
+    width: 209px;
+    height: 40px;
+}
+
+.event-end-date {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: #f2f2f2;
+    border-radius: 20px;
+    color: red;
+    width: 209px;
+    height: 40px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.members {
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 0 !important;
+}
+
+.member-icon {
+    margin-right: 7px;
+    font-size: 24px;
+}
+
+.member-text {
+    font-size: 16px;
+    font-weight: 500;
+    padding-top: 4px;
+}
+
+.section-container {
+    display: flex;
+    gap: 20px;
+    border-top: 2px #f2f2f2 solid;
+}
+
+.section-left {
+    flex: 64%;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.left-content {
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px white solid;
+    background-color: white;
+    font-size: 20px;
+    font-weight: 300;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.section-right {
+    flex: 34%;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.icon-margin {
+    margin-right: 5px;
+}
+
+
+.members-list {
+    margin-top: 10px;
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.members-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.member-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.member-name {
+    font-size: 14px;
+    font-weight: 400;
+    margin: 0;
+}
+
+.member-location {
+    font-size: 12px;
+    font-weight: 400;
+    color: gray;
+    margin: 0;
+}
+
+.view-all-link {
+    color: green !important;
+    font-size: 12px;
+    font-weight: 400;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+
+@media (max-width: 768px) {
+    .section-container {
+        flex-direction: column;
+    }
+
+    .section-left,
+    .section-right {
+        flex: 100%;
+    }
+
+    .event-time {
+        flex: 100%;
+        justify-content: space-between;
+        padding: 10px 0;
+    }
+}
