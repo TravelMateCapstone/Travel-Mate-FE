@@ -88,18 +88,19 @@ function ListLayout({ children }) {
             alert('Vui lòng điền đủ thông tin và tải lên ảnh bìa');
             return;
         }
-    
+
         // Thông tin nhóm mới
         const newGroup = {
-            name: groupName,
+            groupName: groupName,
             description: groupDescription,
             location: groupLocation,
-            imageUrl: uploadedUrl,
+            groupImageUrl: uploadedUrl,
+            createAt: new Date().toISOString(),
         };
-    
+
         try {
-            // Gửi yêu cầu POST với dữ liệu nhóm mới
-            const response = await axios.post('https://your-api-endpoint.com/api/groups', newGroup);
+            const apiUrl = import.meta.env.VITE_BASE_API_URL;
+            const response = await axios.post(`${apiUrl}/groups`, newGroup);
             console.log('Tạo nhóm mới thành công:', response.data);
             alert('Nhóm mới đã được tạo thành công');
         } catch (error) {
@@ -107,7 +108,7 @@ function ListLayout({ children }) {
             alert('Đã xảy ra lỗi khi tạo nhóm');
         }
     };
-    
+
 
     const handleButtonClick = () => {
         document.getElementById('fileInput').click();

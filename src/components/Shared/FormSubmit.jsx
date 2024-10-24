@@ -14,7 +14,7 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText 
   return (
     <div>
       {/* Nút mở modal */}
-      <Button onClick={openModal} variant='outline-dark' className='w-100 rounded-5'>{openModalText}</Button>
+      <Button onClick={openModal} variant='outline-dark' className='w-100 rounded-5 mybutton'>{openModalText}</Button>
 
       {/* React Modal */}
       <Modal
