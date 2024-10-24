@@ -1,0 +1,20 @@
+@media (max-width: 1024px) {
+  .card-group-container {
+    height: 63px !important;
+    padding: 8px !important;
+  }
+  .card-img {
+    height: 45px !important;
+    width: 60px !important;
+  }
+  .card-title{
+    font-size: 12px !important;
+    margin: 0px !important;
+    margin-bottom: 3px !important;
+    max-width: 110px !important;
+  }
+}
+
+@media (max-width: 768px) {
+   
+}

@@ -1,12 +1,13 @@
 import React from 'react'
 import Navbar from '../components/Shared/Navbar'
+import { Container } from 'react-bootstrap'
 
-function NavBarLayout({children}) {
+function NavBarLayout({ children }) {
   return (
-    <div>
+    <Container fluid className='container-main '>
       <Navbar />
       {children}
-    </div>
+    </Container>
   )
 }
 

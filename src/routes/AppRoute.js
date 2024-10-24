@@ -16,11 +16,11 @@ import GroupList from "../pages/Groups/GroupList"
 import Home from "../pages/Home"
 import RoutePath from "./RoutePath"
 import EditProfile from "../pages/Profile/EditProfile"
-import EditMyHome from "../pages/Profile/EditMyHome"
 import Setting from "../pages/Setting"
 import NavBarLayout from "../layouts/NavBarLayout"
 import Profile from "../pages/Profile/Profile"
-
+import EditMyHome from "../pages/Profile/EditMyHome"
+import Chat from "../pages/Chat"
 
 
 
@@ -38,11 +38,12 @@ const privateRoutes = [
     { path: RoutePath.GROUP_CREATED, component: GroupCreated, layout: ListLayout },
     { path: RoutePath.GROUP_JOINED, component: GroupJoined, layout: ListLayout },
     { path: RoutePath.EVENT_CREATED, component: EventCreated, layout: ListLayout },
-    { path: RoutePath.EVENT_JOINED, component: EventJoined, layout: ListLayout },
+    { path: RoutePath.EVENT_JOINED, component: EventJoined, layout: DetailLayout },
     { path: RoutePath.PROFILE, component: Profile, layout: ProfileLayout },
     { path: RoutePath.PROFILE_EDIT, component: EditProfile, layout: ProfileLayout},
     { path: RoutePath.PROFILE_EDIT_MY_HOME, component: EditMyHome, layout: ProfileLayout},
     { path: RoutePath.SETTING, component: Setting, layout: NavBarLayout},
+    { path: RoutePath.CHAT, component: Chat, layout: NavBarLayout},
 ]
 
 export { publishRoutes, privateRoutes }

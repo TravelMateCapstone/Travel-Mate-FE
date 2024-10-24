@@ -72,8 +72,8 @@ function PostGroupDetail() {
         </div>
 
         <Dropdown>
-          <Dropdown.Toggle variant="link" id="dropdown-basic" style={{ padding: '0', marginLeft: 'auto', color: 'black' }}>
-            <i className="bi bi-three-dots" style={{ cursor: 'pointer', fontSize: '24px' }}></i>
+          <Dropdown.Toggle variant="link" id="dropdown-basic" className='bg-transparent border-0' style={{ padding: '0', marginLeft: 'auto', color: 'black', }}>
+            <ion-icon name="ellipsis-horizontal-outline" style={{ cursor: 'pointer', fontSize: '24px' }}></ion-icon>
           </Dropdown.Toggle>
 
           <Dropdown.Menu align="end" style={{ zIndex: '1000' }}>
