@@ -59,6 +59,16 @@ function ListLayout({ children }) {
         isActive: currentPath === item.route,
     }));
 
+    const [eventName, setEventName] = useState('');
+    const [eventDescription, setEventDescription] = useState('');
+    const [startTime, setStartTime] = useState('');
+    const [endTime, setEndTime] = useState('');
+    const [eventLocation, setEventLocation] = useState('');
+    const [eventImage, setEventImage] = useState(null);
+    const handleImageChange = (e) => {
+        setEventImage(e.target.files[0]);
+    };
+
     const handleCreateGroup = () => {
         alert("Created group");
     };
@@ -89,18 +99,18 @@ function ListLayout({ children }) {
                         )}
                         {isEventRouteBtn && (
                             <FormSubmit buttonText={'Tạo sự kiện'} onButtonClick={handleCreateGroup} title={'Tạo sự kiện'} openModalText={'Tạo sự kiện'}>
-                                <h5 className='fw-bolder'>Bảng thông tin</h5>
-                                <p>Nhập thông tin chi tiết cho sự kiện của bạn</p>
+                                <h5 className='fw-bolder eventInfo'>Bảng thông tin</h5>
+                                <p className='eventDetails'>Nhập thông tin chi tiết cho sự kiện của bạn</p>
                                 <Form>
                                     <Form.Group controlId="eventName">
-                                        <Form.Label>Tên sự kiện</Form.Label>
+                                        <Form.Label className='title-modal'>Tên sự kiện</Form.Label>
                                         <Form.Control style={{
                                             fontSize: '12px'
                                         }} type="text" placeholder="Nhập tên sự kiện..." className='rounded-5 p-3' />
                                     </Form.Group>
 
                                     <Form.Group controlId="eventDescription">
-                                        <Form.Label>Mô tả sự kiện</Form.Label>
+                                        <Form.Label className='title-modal'>Mô tả sự kiện</Form.Label>
                                         <textarea rows={3} placeholder="Nhập mô tả sự kiện..." style={{
                                             fontSize: '12px',
                                             borderColor: '#d9d9d9'
@@ -112,27 +122,27 @@ function ListLayout({ children }) {
                                     }} >
                                         <Col md={6}>
                                             <Form.Group controlId="startDateTime">
-                                                <Form.Label>Ngày giờ bắt đầu</Form.Label>
+                                                <Form.Label className='title-modal'>Ngày giờ bắt đầu</Form.Label>
                                                 <Form.Control type="datetime-local" className='rounded-5 p-3' />
                                             </Form.Group>
                                         </Col>
                                         <Col md={6}>
                                             <Form.Group controlId="endDateTime">
-                                                <Form.Label>Ngày giờ kết thúc</Form.Label>
+                                                <Form.Label className='title-modal'>Ngày giờ kết thúc</Form.Label>
                                                 <Form.Control type="datetime-local" className='rounded-5' />
                                             </Form.Group>
                                         </Col>
                                     </Row>
 
                                     <Form.Group controlId="location">
-                                        <Form.Label>Địa điểm</Form.Label>
+                                        <Form.Label className='title-modal'>Địa điểm</Form.Label>
                                         <Form.Control type="text" className='rounded-5 p-3' style={{
                                             fontSize: '12px',
                                         }} placeholder="Nhập địa điểm..." />
                                     </Form.Group>
 
-                                    <Form.Group controlId="eventImage">
-                                        <Form.Label>Ảnh sự kiện</Form.Label>
+                                    {/* <Form.Group controlId="eventImage">
+                                        <Form.Label className='title-modal'>Ảnh sự kiện</Form.Label>
                                         <div>
                                             <Form.Control
                                                 type="file"
@@ -147,6 +157,15 @@ function ListLayout({ children }) {
                                                 Chọn ảnh
                                             </Button>
                                         </div>
+                                    </Form.Group> */}
+                                    <Form.Group controlId="eventImage" className="mt-3">
+                                        <Form.Label className='event-image title-modal'>Ảnh sự kiện</Form.Label>
+                                        <Form.Control
+                                            className='upload-image'
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleImageChange}
+                                        />
                                     </Form.Group>
                                 </Form>
                             </FormSubmit>
