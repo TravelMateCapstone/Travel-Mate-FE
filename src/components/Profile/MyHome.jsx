@@ -1,7 +1,6 @@
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import "../../assets/css/Profile/MyHome.css";
-
 function MyHome() {
   return (
     <Container className='py-3 px-0 border rounded-5'>
