@@ -1,17 +1,18 @@
 import { initializeApp } from 'firebase/app';
 import { getStorage } from 'firebase/storage';
 
+// Cấu hình Firebase với biến môi trường từ Vite
 const firebaseConfig = {
-    apiKey: "AIzaSyAc89mKa0gSF-x5Khm55OOg8OPWSs9Dkow",
-    authDomain: "travelmate-15583.firebaseapp.com",
-    projectId: "travelmate-15583",
-    storageBucket: "travelmate-15583.appspot.com",
-    messagingSenderId: "532465699415",
-    appId: "1:532465699415:web:fded48b938589a4e7a7112",
-    measurementId: "G-CSYZDFG38D"
-  };
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
+};
 
-// Initialize Firebase
+// Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 

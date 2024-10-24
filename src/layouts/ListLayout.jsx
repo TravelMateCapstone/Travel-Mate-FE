@@ -6,11 +6,13 @@ import SidebarList from '../components/Shared/SidebarList';
 import RoutePath from '../routes/RoutePath';
 import ProposeGroup from '../components/Group/ProposeGroup';
 import ProposeEvent from '../components/Event/ProposeEvent';
-import SearchBar from '../components/Shared/SearchBar'
-import '../assets/css/layouts/ListLayout.css'
+import SearchBar from '../components/Shared/SearchBar';
+import '../assets/css/layouts/ListLayout.css';
 import { useLocation } from 'react-router-dom';
 import FormSubmit from '../components/Shared/FormSubmit';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../firebaseConfig';
+
 function ListLayout({ children }) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
@@ -54,6 +56,9 @@ function ListLayout({ children }) {
 
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploadedUrl, setUploadedUrl] = useState(null);
+    const [groupName, setGroupName] = useState('');
+    const [groupDescription, setGroupDescription] = useState('');
+    const [groupLocation, setGroupLocation] = useState('');
 
     const handleFileSelect = (event) => {
         const file = event.target.files[0];
@@ -70,7 +75,7 @@ function ListLayout({ children }) {
             await uploadBytes(storageRef, selectedFile);
             const url = await getDownloadURL(storageRef);
             setUploadedUrl(url);
-            alert("Upload successful");
+            alert("Upload successful " + url);
         } catch (error) {
             console.error("Error uploading file:", error);
             alert("Upload failed");
@@ -78,7 +83,22 @@ function ListLayout({ children }) {
     };
 
     const handleCreateGroup = () => {
-        alert("Created group");
+        if (!groupName || !groupDescription || !uploadedUrl) {
+            alert('Vui lòng điền đủ thông tin và tải lên ảnh bìa');
+            return;
+        }
+
+        // Thông tin nhóm mới
+        const newGroup = {
+            name: groupName,
+            description: groupDescription,
+            location: groupLocation,
+            imageUrl: uploadedUrl,
+        };
+
+        // In ra console hoặc gọi API để lưu nhóm
+        console.log('Tạo nhóm mới:', newGroup);
+        alert('Nhóm mới đã được tạo thành công');
     };
 
     const handleButtonClick = () => {
@@ -103,21 +123,22 @@ function ListLayout({ children }) {
                         <SidebarList items={sidebarItemsWithActiveState} />
                         {isGroupRoutebtn && (
                             <FormSubmit buttonText={'Tạo nhóm'} onButtonClick={handleCreateGroup} title={'Tạo nhóm'} openModalText={'Tạo nhóm'}>
-                                <h2>Tạo nhóm</h2>
+                                <h3>Bảng thông tin</h3>
+                                <small>Nhập thông tin chi tiết cho nhóm mới của bạn</small>
                                 <Form>
-                                    <Form.Group controlId="groupName" className="mb-3">
-                                        <Form.Label>Tên nhóm</Form.Label>
-                                        <Form.Control type="text" placeholder="Nhập tên nhóm" />
+                                    <Form.Group id="groupName" className="mb-3 mt-3">
+                                        <Form.Label className='fw-bold'>Tên nhóm</Form.Label>
+                                        <Form.Control type="text" placeholder="Nhập tên nhóm" value={groupName} onChange={(e) => setGroupName(e.target.value)} />
                                     </Form.Group>
 
-                                    <Form.Group controlId="groupDescription" className="mb-3">
-                                        <Form.Label>Mô tả nhóm</Form.Label>
-                                        <Form.Control as="textarea" rows={3} placeholder="Nhập mô tả nhóm" />
+                                    <Form.Group id="groupDescription" className="mb-3">
+                                        <Form.Label className='fw-bold'>Mô tả nhóm</Form.Label>
+                                        <Form.Control as="textarea" rows={3} placeholder="Nhập mô tả nhóm" value={groupDescription} onChange={(e) => setGroupDescription(e.target.value)} />
                                     </Form.Group>
 
-                                    <Form.Group controlId="location" className="mb-3">
-                                        <Form.Label>Địa điểm</Form.Label>
-                                        <Form.Select>
+                                    <Form.Group id="location" className="mb-3">
+                                        <Form.Label className='fw-bold'>Địa điểm</Form.Label>
+                                        <Form.Select value={groupLocation} onChange={(e) => setGroupLocation(e.target.value)}>
                                             <option>Chọn địa điểm</option>
                                             <option value="1">Địa điểm 1</option>
                                             <option value="2">Địa điểm 2</option>
@@ -125,31 +146,31 @@ function ListLayout({ children }) {
                                         </Form.Select>
                                     </Form.Group>
 
-                                    <Form.Group controlId="groupImage" className="mb-3">
-                                    <Form.Label>Ảnh bìa nhóm</Form.Label>
-                                    <div className="d-flex align-items-center">
-                                        <Button variant="secondary" onClick={handleButtonClick}>
-                                            Chọn ảnh
-                                        </Button>
-                                        <Form.Control
-                                            type="file"
-                                            id="fileInput"
-                                            onChange={handleFileSelect}
-                                            style={{ display: 'none' }}
-                                        />
-                                        <Button variant="primary" className="ms-3" onClick={handleUpload}>
-                                            Tải lên
-                                        </Button>
-                                    </div>
-                                    {uploadedUrl && (
-                                        <img
-                                            src={uploadedUrl}
-                                            alt="Ảnh bìa nhóm"
-                                            className="ms-3"
-                                            style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
-                                        />
-                                    )}
-                                </Form.Group>
+                                    <Form.Group id="groupImage" className="mb-3">
+                                        <Form.Label>Ảnh bìa nhóm</Form.Label>
+                                        <div className="d-flex align-items-center">
+                                            <Button variant="secondary" onClick={handleButtonClick}>
+                                                Chọn ảnh
+                                            </Button>
+                                            <Form.Control
+                                                type="file"
+                                                id="fileInput"
+                                                onChange={handleFileSelect}
+                                                style={{ display: 'none' }}
+                                            />
+                                            <Button variant="primary" className="ms-3" onClick={handleUpload}>
+                                                Tải lên
+                                            </Button>
+                                        </div>
+                                        {uploadedUrl && (
+                                            <img
+                                                src={uploadedUrl}
+                                                alt="Ảnh bìa nhóm"
+                                                className="ms-3"
+                                                style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
+                                            />
+                                        )}
+                                    </Form.Group>
                                 </Form>
                             </FormSubmit>
                         )}
