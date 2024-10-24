@@ -12,6 +12,7 @@ import { useLocation } from 'react-router-dom';
 import FormSubmit from '../components/Shared/FormSubmit';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../firebaseConfig';
+import axios from 'axios';
 
 function ListLayout({ children }) {
     const [show, setShow] = useState(false);
@@ -82,12 +83,12 @@ function ListLayout({ children }) {
         }
     };
 
-    const handleCreateGroup = () => {
+    const handleCreateGroup = async () => {
         if (!groupName || !groupDescription || !uploadedUrl) {
             alert('Vui lòng điền đủ thông tin và tải lên ảnh bìa');
             return;
         }
-
+    
         // Thông tin nhóm mới
         const newGroup = {
             name: groupName,
@@ -95,11 +96,18 @@ function ListLayout({ children }) {
             location: groupLocation,
             imageUrl: uploadedUrl,
         };
-
-        // In ra console hoặc gọi API để lưu nhóm
-        console.log('Tạo nhóm mới:', newGroup);
-        alert('Nhóm mới đã được tạo thành công');
+    
+        try {
+            // Gửi yêu cầu POST với dữ liệu nhóm mới
+            const response = await axios.post('https://your-api-endpoint.com/api/groups', newGroup);
+            console.log('Tạo nhóm mới thành công:', response.data);
+            alert('Nhóm mới đã được tạo thành công');
+        } catch (error) {
+            console.error('Lỗi khi tạo nhóm:', error);
+            alert('Đã xảy ra lỗi khi tạo nhóm');
+        }
     };
+    
 
     const handleButtonClick = () => {
         document.getElementById('fileInput').click();
