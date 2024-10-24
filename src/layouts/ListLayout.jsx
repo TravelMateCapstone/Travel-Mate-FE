@@ -10,7 +10,7 @@ import SearchBar from '../components/Shared/SearchBar'
 import '../assets/css/layouts/ListLayout.css'
 import { useLocation } from 'react-router-dom';
 import FormSubmit from '../components/Shared/FormSubmit';
-
+import { storage } from '../../firebaseConfig';
 function ListLayout({ children }) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
@@ -32,17 +32,12 @@ function ListLayout({ children }) {
     const [lastPath, setLastPath] = useState(null);
 
     useEffect(() => {
-        // Lưu đường dẫn vào state
         setLastPath(location.pathname);
-
-        // Hoặc lưu vào localStorage
         localStorage.setItem('lastPath', location.pathname);
     }, [location]);
 
-    // Lấy đường dẫn hiện tại
     const currentPath = location.pathname;
 
-    // Kiểm tra xem đường dẫn có thuộc về sự kiện hay không
     const isEventRoute = currentPath.startsWith(RoutePath.EVENT) ||
         currentPath.startsWith(RoutePath.EVENT_JOINED) ||
         currentPath.startsWith(RoutePath.EVENT_CREATED);
@@ -50,111 +45,117 @@ function ListLayout({ children }) {
     const isGroupRoutebtn = currentPath === RoutePath.GROUP;
     const isEventRouteBtn = currentPath === RoutePath.EVENT;
 
-    // Tạo danh sách các mục cho SidebarList
     const sidebarData = isEventRoute ? sidebarItemsEvent : sidebarItems;
 
-    // Thêm trạng thái active cho từng mục
     const sidebarItemsWithActiveState = sidebarData.map(item => ({
         ...item,
         isActive: currentPath === item.route,
     }));
 
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [uploadedUrl, setUploadedUrl] = useState(null);
+
+    const handleFileSelect = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+        }
+    };
+
+    const handleUpload = async () => {
+        if (!selectedFile) return;
+
+        const storageRef = ref(storage, `images/${selectedFile.name}`);
+        try {
+            await uploadBytes(storageRef, selectedFile);
+            const url = await getDownloadURL(storageRef);
+            setUploadedUrl(url);
+            alert("Upload successful");
+        } catch (error) {
+            console.error("Error uploading file:", error);
+            alert("Upload failed");
+        }
+    };
+
     const handleCreateGroup = () => {
         alert("Created group");
+    };
+
+    const handleButtonClick = () => {
+        document.getElementById('fileInput').click();
     };
 
     return (
         <Container fluid className='container-main'>
             <Row>
-                {/* Navbar */}
                 <Col lg={12} className='p-0 mb-5'>
                     <Navbar />
                 </Col>
 
-                {/* Toggle button for xs screen to show sidebar */}
                 <Col xs={12} className="d-lg-none d-md-none p-0 mb-2">
                     <Button variant="outline-dark" onClick={handleShow} className="w-100">
                         Open Sidebar
                     </Button>
                 </Col>
 
-                {/* Sidebar for lg and md screens */}
                 <Col lg={3} md={3} className='p-0 d-none d-md-block d-lg-block'>
                     <div style={{ margin: '0 85px' }}>
                         <SidebarList items={sidebarItemsWithActiveState} />
                         {isGroupRoutebtn && (
                             <FormSubmit buttonText={'Tạo nhóm'} onButtonClick={handleCreateGroup} title={'Tạo nhóm'} openModalText={'Tạo nhóm'}>
-
-                            </FormSubmit>
-                        )}
-                        {isEventRouteBtn && (
-                            <FormSubmit buttonText={'Tạo sự kiện'} onButtonClick={handleCreateGroup} title={'Tạo sự kiện'} openModalText={'Tạo sự kiện'}>
-                                <h5 className='fw-bolder'>Bảng thông tin</h5>
-                                <p>Nhập thông tin chi tiết cho sự kiện của bạn</p>
+                                <h2>Tạo nhóm</h2>
                                 <Form>
-                                    <Form.Group controlId="eventName">
-                                        <Form.Label>Tên sự kiện</Form.Label>
-                                        <Form.Control style={{
-                                            fontSize: '12px'
-                                        }} type="text" placeholder="Nhập tên sự kiện..." className='rounded-5 p-3' />
+                                    <Form.Group controlId="groupName" className="mb-3">
+                                        <Form.Label>Tên nhóm</Form.Label>
+                                        <Form.Control type="text" placeholder="Nhập tên nhóm" />
                                     </Form.Group>
 
-                                    <Form.Group controlId="eventDescription">
-                                        <Form.Label>Mô tả sự kiện</Form.Label>
-                                        <textarea rows={3} placeholder="Nhập mô tả sự kiện..." style={{
-                                            fontSize: '12px',
-                                            borderColor: '#d9d9d9'
-                                        }} className='rounded-5 w-100 p-3' />
+                                    <Form.Group controlId="groupDescription" className="mb-3">
+                                        <Form.Label>Mô tả nhóm</Form.Label>
+                                        <Form.Control as="textarea" rows={3} placeholder="Nhập mô tả nhóm" />
                                     </Form.Group>
 
-                                    <Row style={{
-                                        fontSize: '12px',
-                                    }} >
-                                        <Col md={6}>
-                                            <Form.Group controlId="startDateTime">
-                                                <Form.Label>Ngày giờ bắt đầu</Form.Label>
-                                                <Form.Control type="datetime-local" className='rounded-5 p-3' />
-                                            </Form.Group>
-                                        </Col>
-                                        <Col md={6}>
-                                            <Form.Group controlId="endDateTime">
-                                                <Form.Label>Ngày giờ kết thúc</Form.Label>
-                                                <Form.Control type="datetime-local" className='rounded-5' />
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-
-                                    <Form.Group controlId="location">
+                                    <Form.Group controlId="location" className="mb-3">
                                         <Form.Label>Địa điểm</Form.Label>
-                                        <Form.Control type="text" className='rounded-5 p-3' style={{
-                                            fontSize: '12px',
-                                        }} placeholder="Nhập địa điểm..." />
+                                        <Form.Select>
+                                            <option>Chọn địa điểm</option>
+                                            <option value="1">Địa điểm 1</option>
+                                            <option value="2">Địa điểm 2</option>
+                                            <option value="3">Địa điểm 3</option>
+                                        </Form.Select>
                                     </Form.Group>
 
-                                    <Form.Group controlId="eventImage">
-                                        <Form.Label>Ảnh sự kiện</Form.Label>
-                                        <div>
-                                            <Form.Control
-                                                type="file"
-                                                className="d-none"
-                                                id="custom-file-input"
-                                            />
-                                            <Button
-                                                variant="primary"
-                                                className="w-25"
-                                                onClick={() => document.getElementById('custom-file-input').click()}
-                                            >
-                                                Chọn ảnh
-                                            </Button>
-                                        </div>
-                                    </Form.Group>
+                                    <Form.Group controlId="groupImage" className="mb-3">
+                                    <Form.Label>Ảnh bìa nhóm</Form.Label>
+                                    <div className="d-flex align-items-center">
+                                        <Button variant="secondary" onClick={handleButtonClick}>
+                                            Chọn ảnh
+                                        </Button>
+                                        <Form.Control
+                                            type="file"
+                                            id="fileInput"
+                                            onChange={handleFileSelect}
+                                            style={{ display: 'none' }}
+                                        />
+                                        <Button variant="primary" className="ms-3" onClick={handleUpload}>
+                                            Tải lên
+                                        </Button>
+                                    </div>
+                                    {uploadedUrl && (
+                                        <img
+                                            src={uploadedUrl}
+                                            alt="Ảnh bìa nhóm"
+                                            className="ms-3"
+                                            style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
+                                        />
+                                    )}
+                                </Form.Group>
                                 </Form>
                             </FormSubmit>
                         )}
                     </div>
                 </Col>
 
-                {/* Offcanvas for xs screens */}
                 <Offcanvas show={show} onHide={handleClose} className="d-lg-none d-md-none">
                     <Offcanvas.Header closeButton>
                         <Offcanvas.Title>Sidebar</Offcanvas.Title>
@@ -164,12 +165,9 @@ function ListLayout({ children }) {
                     </Offcanvas.Body>
                 </Offcanvas>
 
-                {/* Main content - full width on xs */}
                 <Col lg={6} md={9} xs={12} className='p-0'>
                     <Container className='container-list d-none d-md-flex mb-3'>
-
                         <div className='search-list-container'><SearchBar /></div>
-
                         <InputGroup className='search-list-container location-container'>
                             <InputGroup.Text className="search-icon bg-white search-icon-list border-end-0 rounded-start-5">
                                 <ion-icon name="location-outline"></ion-icon>
@@ -184,7 +182,6 @@ function ListLayout({ children }) {
                                 }}
                             />
                         </InputGroup>
-
                         <Button variant='outline-dark' className='d-flex align-items-center gap-2 rounded-5 btn-filter'>
                             <ion-icon name="filter-outline"></ion-icon>
                             Lọc
@@ -193,20 +190,14 @@ function ListLayout({ children }) {
                     {children}
                 </Col>
 
-                {/* Propose column - Hidden on xs screens */}
                 <Col lg={3} className='p-0 d-none d-lg-block'>
                     {isEventRoute ? (
-                        <>
-                            <ProposeEvent />
-                        </>
+                        <ProposeEvent />
                     ) : (
-                        <>
-                            <ProposeGroup />
-                        </>
+                        <ProposeGroup />
                     )}
                 </Col>
 
-                {/* Footer */}
                 <Col lg={12} className='p-0'>
                     <Footer />
                 </Col>
