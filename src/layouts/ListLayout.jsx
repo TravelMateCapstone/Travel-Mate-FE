@@ -60,32 +60,52 @@ function ListLayout({ children }) {
     const [groupName, setGroupName] = useState('');
     const [groupDescription, setGroupDescription] = useState('');
     const [groupLocation, setGroupLocation] = useState('');
+    const [errors, setErrors] = useState({});
 
-    const handleFileSelect = (event) => {
+    useEffect(() => {
+        const newErrors = { ...errors };
+        if (groupName && groupName.length >= 10 && groupName.length <= 25) {
+            delete newErrors.groupName;
+        }
+        if (groupDescription) {
+            delete newErrors.groupDescription;
+        }
+        if (uploadedUrl) {
+            delete newErrors.groupImageUrl;
+        }
+        setErrors(newErrors);
+    }, [groupName, groupDescription, uploadedUrl]);
+
+    const handleFileSelect = async (event) => {
         const file = event.target.files[0];
         if (file) {
             setSelectedFile(file);
-        }
-    };
-
-    const handleUpload = async () => {
-        if (!selectedFile) return;
-
-        const storageRef = ref(storage, `images/${selectedFile.name}`);
-        try {
-            await uploadBytes(storageRef, selectedFile);
-            const url = await getDownloadURL(storageRef);
-            setUploadedUrl(url);
-            alert("Upload successful " + url);
-        } catch (error) {
-            console.error("Error uploading file:", error);
-            alert("Upload failed");
+            const storageRef = ref(storage, `images/${file.name}`);
+            try {
+                await uploadBytes(storageRef, file);
+                const url = await getDownloadURL(storageRef);
+                setUploadedUrl(url);
+            } catch (error) {
+                console.error("Error uploading file:", error);
+                setErrors(prevErrors => ({ ...prevErrors, groupImageUrl: 'Lỗi khi tải lên ảnh bìa' }));
+            }
         }
     };
 
     const handleCreateGroup = async () => {
-        if (!groupName || !groupDescription || !uploadedUrl) {
-            alert('Vui lòng điền đủ thông tin và tải lên ảnh bìa');
+        const newErrors = {};
+        if (!groupName || groupName.length < 10 || groupName.length > 25) {
+            newErrors.groupName = 'Tên nhóm phải từ 10-25 ký tự';
+        }
+        if (!groupDescription) {
+            newErrors.groupDescription = 'Vui lòng nhập mô tả nhóm';
+        }
+        if (!uploadedUrl) {
+            newErrors.groupImageUrl = 'Vui lòng tải lên ảnh bìa';
+        }
+        setErrors(newErrors);
+
+        if (Object.keys(newErrors).length > 0) {
             return;
         }
 
@@ -95,23 +115,18 @@ function ListLayout({ children }) {
             description: groupDescription,
             location: groupLocation,
             groupImageUrl: uploadedUrl,
-            createAt: new Date().toISOString(),
+            createAt: new Date().toISOString(), // Lấy ngày hiện tại
         };
 
         try {
-            const apiUrl = import.meta.env.VITE_BASE_API_URL;
-            const response = await axios.post(`${apiUrl}/groups`, newGroup);
+            const apiUrl =  import.meta.env.VITE_BASE_API_URL; 
+            const response = await axios.post(`${apiUrl}/api/groups`, newGroup);
             console.log('Tạo nhóm mới thành công:', response.data);
             alert('Nhóm mới đã được tạo thành công');
         } catch (error) {
             console.error('Lỗi khi tạo nhóm:', error);
             alert('Đã xảy ra lỗi khi tạo nhóm');
         }
-    };
-
-
-    const handleButtonClick = () => {
-        document.getElementById('fileInput').click();
     };
 
     return (
@@ -137,12 +152,31 @@ function ListLayout({ children }) {
                                 <Form>
                                     <Form.Group id="groupName" className="mb-3 mt-3">
                                         <Form.Label className='fw-bold'>Tên nhóm</Form.Label>
-                                        <Form.Control type="text" placeholder="Nhập tên nhóm" value={groupName} onChange={(e) => setGroupName(e.target.value)} />
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Nhập tên nhóm (10-25 ký tự)"
+                                            value={groupName}
+                                            onChange={(e) => setGroupName(e.target.value)}
+                                            isInvalid={!!errors.groupName}
+                                        />
+                                        <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
+                                            {errors.groupName}
+                                        </Form.Control.Feedback>
                                     </Form.Group>
 
                                     <Form.Group id="groupDescription" className="mb-3">
                                         <Form.Label className='fw-bold'>Mô tả nhóm</Form.Label>
-                                        <Form.Control as="textarea" rows={3} placeholder="Nhập mô tả nhóm" value={groupDescription} onChange={(e) => setGroupDescription(e.target.value)} />
+                                        <Form.Control
+                                            as="textarea"
+                                            rows={3}
+                                            placeholder="Nhập mô tả nhóm"
+                                            value={groupDescription}
+                                            onChange={(e) => setGroupDescription(e.target.value)}
+                                            isInvalid={!!errors.groupDescription}
+                                        />
+                                        <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
+                                            {errors.groupDescription}
+                                        </Form.Control.Feedback>
                                     </Form.Group>
 
                                     <Form.Group id="location" className="mb-3">
@@ -158,24 +192,22 @@ function ListLayout({ children }) {
                                     <Form.Group id="groupImage" className="mb-3">
                                         <Form.Label>Ảnh bìa nhóm</Form.Label>
                                         <div className="d-flex align-items-center">
-                                            <Button variant="secondary" onClick={handleButtonClick}>
-                                                Chọn ảnh
-                                            </Button>
                                             <Form.Control
                                                 type="file"
                                                 id="fileInput"
                                                 onChange={handleFileSelect}
-                                                style={{ display: 'none' }}
                                             />
-                                            <Button variant="primary" className="ms-3" onClick={handleUpload}>
-                                                Tải lên
-                                            </Button>
                                         </div>
+                                        {errors.groupImageUrl && (
+                                            <div style={{ color: 'red', marginTop: '5px' }}>
+                                                {errors.groupImageUrl}
+                                            </div>
+                                        )}
                                         {uploadedUrl && (
                                             <img
                                                 src={uploadedUrl}
                                                 alt="Ảnh bìa nhóm"
-                                                className="ms-3"
+                                                className="ms-3 mt-3"
                                                 style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
                                             />
                                         )}

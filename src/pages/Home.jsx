@@ -4,6 +4,7 @@ import { Container } from 'react-bootstrap'
 import ToolBar from '../components/Shared/ToolBar'
 import SidebarList from '../components/Shared/SidebarList';
 import FormSubmit from '../components/Shared/FormSubmit'
+import { useSelector } from 'react-redux';
 function Home() {
   const sidebarItems = [
     { iconName: 'home', title: 'Trang Chủ', route: '/' },
@@ -17,24 +18,18 @@ function Home() {
   const handleFormSubmit = () => {
     alert("Đã lưu event");
   };
+  // Lấy thông tin người dùng từ Redux store
+  const user = useSelector((state) => state.auth.user);
+  
   return (
     <div>
-      <FormSubmit title="Registration Form" 
-        buttonText="Submit Form" 
-        onButtonClick={handleFormSubmit}>
-        <form>
-          <label>
-            Name:
-            <input type="text" />
-          </label>
-          <br />
-          <label>
-            Email:
-            <input type="email" />
-          </label>
-          <br />
-        </form>
-      </FormSubmit>
+
+     {/* Hiển thị thông tin người dùng nếu đã đăng nhập */}
+     {user ? (
+        <h2>Chào mừng {user["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]}!</h2>
+      ) : (
+        <h2>Chào mừng khách!</h2>
+      )}
       <ToolBar />
     </div>
   )
