@@ -1,14 +1,29 @@
 import React, { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import Modal from 'react-modal';
+import { useDispatch, useSelector } from 'react-redux';
+import { openLoginModal } from '../../redux/actions/modalActions';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Đặt vị trí modal vào root của ứng dụng để đảm bảo nó hiển thị chính xác
 Modal.setAppElement('#root');
 
-function FormSubmit({ children, buttonText, onButtonClick, title, openModalText }) {
+function FormSubmit({ children, buttonText, onButtonClick, title, openModalText, needAuthorize }) {
   const [isOpen, setIsOpen] = useState(false);
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.auth.token); // Get token from Redux store
 
-  const openModal = () => setIsOpen(true);
+  const openModal = () => {
+    // Check if authorization is needed
+    if (needAuthorize && !token) {
+      dispatch(openLoginModal()); // Open login modal if not authenticated
+      toast.warning('Vui lòng đăng nhập để tiếp tục sử dụng tính năng này.');
+      return;
+    }
+    setIsOpen(true);
+  };
+
   const closeModal = () => setIsOpen(false);
 
   return (

@@ -13,6 +13,7 @@ import FormSubmit from '../components/Shared/FormSubmit';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../firebaseConfig';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 function ListLayout({ children }) {
     const [show, setShow] = useState(false);
@@ -61,6 +62,10 @@ function ListLayout({ children }) {
     const [groupDescription, setGroupDescription] = useState('');
     const [groupLocation, setGroupLocation] = useState('');
     const [errors, setErrors] = useState({});
+
+    const token = useSelector((state) => state.auth.token); // Get token from Redux store
+    const user = useSelector((state) => state.auth.user); // Get user from Redux store
+
 
     useEffect(() => {
         const newErrors = { ...errors };
@@ -115,12 +120,21 @@ function ListLayout({ children }) {
             description: groupDescription,
             location: groupLocation,
             groupImageUrl: uploadedUrl,
+            createdById: user["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
             createAt: new Date().toISOString(), // Lấy ngày hiện tại
         };
 
         try {
-            const apiUrl =  import.meta.env.VITE_BASE_API_URL; 
-            const response = await axios.post(`${apiUrl}/api/groups`, newGroup);
+            const apiUrl = import.meta.env.VITE_BASE_API_URL;
+            const response = await axios.post(
+                `${apiUrl}/api/groups`,
+                newGroup,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token.result}` // Pass token in the Authorization header
+                    }
+                }
+            );
             console.log('Tạo nhóm mới thành công:', response.data);
             alert('Nhóm mới đã được tạo thành công');
         } catch (error) {
@@ -145,8 +159,8 @@ function ListLayout({ children }) {
                 <Col lg={3} md={3} className='p-0 d-none d-md-block d-lg-block'>
                     <div style={{ margin: '0 85px' }}>
                         <SidebarList items={sidebarItemsWithActiveState} />
-                        {isGroupRoutebtn && (
-                            <FormSubmit buttonText={'Tạo nhóm'} onButtonClick={handleCreateGroup} title={'Tạo nhóm'} openModalText={'Tạo nhóm'}>
+                        {isGroupRoutebtn ? (
+                            <FormSubmit buttonText={'Tạo nhóm'} onButtonClick={handleCreateGroup} title={'Tạo nhóm'} openModalText={'Tạo nhóm'} needAuthorize={true}>
                                 <h3>Bảng thông tin</h3>
                                 <small>Nhập thông tin chi tiết cho nhóm mới của bạn</small>
                                 <Form>
@@ -211,6 +225,37 @@ function ListLayout({ children }) {
                                                 style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
                                             />
                                         )}
+                                    </Form.Group>
+                                </Form>
+                            </FormSubmit>
+                        ) : (
+                            <FormSubmit buttonText={'Tạo sự kiện'} title={'Tạo sự kiện'} openModalText={'Tạo sự kiện'} needAuthorize={true}>
+                                <h3>Bảng thông tin</h3>
+                                <small>Nhập thông tin chi tiết cho sự kiện mới của bạn</small>
+                                <Form>
+                                    <Form.Group id="eventName" className="mb-3 mt-3">
+                                        <Form.Label className='fw-bold'>Tên sự kiện</Form.Label>
+                                        <Form.Control type="text" placeholder="Nhập tên sự kiện" />
+                                    </Form.Group>
+
+                                    <Form.Group id="eventDescription" className="mb-3">
+                                        <Form.Label className='fw-bold'>Mô tả sự kiện</Form.Label>
+                                        <Form.Control as="textarea" rows={3} placeholder="Nhập mô tả sự kiện" />
+                                    </Form.Group>
+
+                                    <Form.Group id="location" className="mb-3">
+                                        <Form.Label className='fw-bold'>Địa điểm</Form.Label>
+                                        <Form.Select>
+                                            <option>Chọn địa điểm</option>
+                                            <option value="1">Địa điểm 1</option>
+                                            <option value="2">Địa điểm 2</option>
+                                            <option value="3">Địa điểm 3</option>
+                                        </Form.Select>
+                                    </Form.Group>
+
+                                    <Form.Group id="eventImage" className="mb-3">
+                                        <Form.Label>Ảnh đại diện sự kiện</Form.Label>
+                                        <Form.Control type="file" id="fileInput" />
                                     </Form.Group>
                                 </Form>
                             </FormSubmit>

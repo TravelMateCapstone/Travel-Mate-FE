@@ -27,12 +27,12 @@ import Chat from "../pages/Chat"
 const publishRoutes = [
     { path: RoutePath.HOMEPAGE, component: Home, layout: HomeFeedLayout },
     { path: RoutePath.EVENT, component: EventList, layout: ListLayout },
-    { path: RoutePath.EVENT_DETAILS, component: EventDetail, layout: DetailLayout },
     { path: RoutePath.GROUP, component: GroupList, layout: ListLayout },
-    { path: RoutePath.GROUP_DETAILS, component: GroupDetail, layout: DetailLayout },
 ]
 
 const privateRoutes = [
+    { path: RoutePath.EVENT_DETAILS, component: EventDetail, layout: DetailLayout },
+    { path: RoutePath.GROUP_DETAILS, component: GroupDetail, layout: DetailLayout },
     { path: RoutePath.ADMIN, component: IncomeStatistic, layout: AdminLayout },
     { path: RoutePath.ADMIN_ACCOUNT_LIST, component: AccountList, layout: AdminLayout },
     { path: RoutePath.GROUP_CREATED, component: GroupCreated, layout: ListLayout },
