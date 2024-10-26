@@ -7,10 +7,10 @@
     padding-right: 85px;
 }
 
-
 .event-time {
     color: red;
-    font-size: 18px;
+    font-size: 16px;
+    font-weight: 500;
     flex: 1;
 }
 
@@ -21,24 +21,31 @@
 }
 
 .form-event-status {
-    height: 44px;
-    width: 200px;
-    font-size: 18px;
-    padding: 10px;
-    border-radius: 22px;
-    color: green;
+    height: 44px !important;
+    width: 200px !important;
+    font-size: 18px !important;
+    padding: 10px !important;
+    border-radius: 22px !important;
+    color: green !important;
 }
 
 
 .event-name-inf {
-    font-size: 40px;
-    font-weight: bold;
+    font-size: 32px;
+    font-weight: 700;
 }
 
 .event-location-inf {
-    font-size: 20px;
+    font-size: 16px;
+    font-weight: 500px;
 }
 
+.event-end-date {
+    font-size: 16px;
+    font-weight: 500;
+    width: 209px;
+    height: 40px;
+}
 
 .event-end-date {
     display: flex;
@@ -48,7 +55,27 @@
     background-color: #f2f2f2;
     border-radius: 20px;
     color: red;
-    width: 189px;
+    width: 209px;
+    height: 40px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.members {
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 0 !important;
+}
+
+.member-icon {
+    margin-right: 7px;
+    font-size: 24px;
+}
+
+.member-text {
+    font-size: 16px;
+    font-weight: 500;
+    padding-top: 4px;
 }
 
 .section-container {
@@ -59,7 +86,7 @@
 
 .section-left {
     flex: 64%;
-    background-color: #f2f2f2;
+    background-color: #f9f9f9;
     padding: 15px;
     border-radius: 10px;
 }
@@ -67,17 +94,27 @@
 .left-content {
     padding: 15px;
     border-radius: 10px;
-    border: 1px #fdfdef solid;
-    background-color: #fdfdef;
+    border: 1px white solid;
+    background-color: white;
+    font-size: 20px;
+    font-weight: 300;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 700;
 }
 
 .section-right {
     flex: 34%;
-    background-color: #f2f2f2;
+    background-color: #f9f9f9;
     padding: 15px;
     border-radius: 10px;
 }
 
+.icon-margin {
+    margin-right: 5px;
+}
 
 
 .members-list {
@@ -104,18 +141,22 @@
 }
 
 .member-name {
-    font-weight: bold;
+    font-size: 14px;
+    font-weight: 400;
     margin: 0;
 }
 
 .member-location {
+    font-size: 12px;
+    font-weight: 400;
     color: gray;
     margin: 0;
 }
 
 .view-all-link {
-    color: green;
-    font-size: 14px;
+    color: green !important;
+    font-size: 12px;
+    font-weight: 400;
     text-decoration: underline;
     cursor: pointer;
 }
