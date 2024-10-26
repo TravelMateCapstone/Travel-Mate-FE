@@ -159,7 +159,7 @@ function ListLayout({ children }) {
                 <Col lg={3} md={3} className='p-0 d-none d-md-block d-lg-block'>
                     <div style={{ margin: '0 85px' }}>
                         <SidebarList items={sidebarItemsWithActiveState} />
-                        {isGroupRoutebtn ? (
+                        {isGroupRoutebtn && (
                             <FormSubmit buttonText={'Tạo nhóm'} onButtonClick={handleCreateGroup} title={'Tạo nhóm'} openModalText={'Tạo nhóm'} needAuthorize={true}>
                                 <h3>Bảng thông tin</h3>
                                 <small>Nhập thông tin chi tiết cho nhóm mới của bạn</small>
@@ -228,37 +228,41 @@ function ListLayout({ children }) {
                                     </Form.Group>
                                 </Form>
                             </FormSubmit>
-                        ) : (
-                            <FormSubmit buttonText={'Tạo sự kiện'} title={'Tạo sự kiện'} openModalText={'Tạo sự kiện'} needAuthorize={true}>
-                                <h3>Bảng thông tin</h3>
-                                <small>Nhập thông tin chi tiết cho sự kiện mới của bạn</small>
-                                <Form>
-                                    <Form.Group id="eventName" className="mb-3 mt-3">
-                                        <Form.Label className='fw-bold'>Tên sự kiện</Form.Label>
-                                        <Form.Control type="text" placeholder="Nhập tên sự kiện" />
-                                    </Form.Group>
+                        ) }
 
-                                    <Form.Group id="eventDescription" className="mb-3">
-                                        <Form.Label className='fw-bold'>Mô tả sự kiện</Form.Label>
-                                        <Form.Control as="textarea" rows={3} placeholder="Nhập mô tả sự kiện" />
-                                    </Form.Group>
-
-                                    <Form.Group id="location" className="mb-3">
-                                        <Form.Label className='fw-bold'>Địa điểm</Form.Label>
-                                        <Form.Select>
-                                            <option>Chọn địa điểm</option>
-                                            <option value="1">Địa điểm 1</option>
-                                            <option value="2">Địa điểm 2</option>
-                                            <option value="3">Địa điểm 3</option>
-                                        </Form.Select>
-                                    </Form.Group>
-
-                                    <Form.Group id="eventImage" className="mb-3">
-                                        <Form.Label>Ảnh đại diện sự kiện</Form.Label>
-                                        <Form.Control type="file" id="fileInput" />
-                                    </Form.Group>
-                                </Form>
-                            </FormSubmit>
+                        {isEventRouteBtn && (
+                             (
+                                <FormSubmit buttonText={'Tạo sự kiện'} title={'Tạo sự kiện'} openModalText={'Tạo sự kiện'} needAuthorize={true}>
+                                    <h3>Bảng thông tin</h3>
+                                    <small>Nhập thông tin chi tiết cho sự kiện mới của bạn</small>
+                                    <Form>
+                                        <Form.Group id="eventName" className="mb-3 mt-3">
+                                            <Form.Label className='fw-bold'>Tên sự kiện</Form.Label>
+                                            <Form.Control type="text" placeholder="Nhập tên sự kiện" />
+                                        </Form.Group>
+    
+                                        <Form.Group id="eventDescription" className="mb-3">
+                                            <Form.Label className='fw-bold'>Mô tả sự kiện</Form.Label>
+                                            <Form.Control as="textarea" rows={3} placeholder="Nhập mô tả sự kiện" />
+                                        </Form.Group>
+    
+                                        <Form.Group id="location" className="mb-3">
+                                            <Form.Label className='fw-bold'>Địa điểm</Form.Label>
+                                            <Form.Select>
+                                                <option>Chọn địa điểm</option>
+                                                <option value="1">Địa điểm 1</option>
+                                                <option value="2">Địa điểm 2</option>
+                                                <option value="3">Địa điểm 3</option>
+                                            </Form.Select>
+                                        </Form.Group>
+    
+                                        <Form.Group id="eventImage" className="mb-3">
+                                            <Form.Label>Ảnh đại diện sự kiện</Form.Label>
+                                            <Form.Control type="file" id="fileInput" />
+                                        </Form.Group>
+                                    </Form>
+                                </FormSubmit>
+                            )
                         )}
                     </div>
                 </Col>
