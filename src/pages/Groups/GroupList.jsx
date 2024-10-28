@@ -1,48 +1,83 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
-import axios from 'axios';
 import GroupCard from '../../components/Group/GroupCard'; // Import GroupCard
 
 // Memoize GroupCard to prevent unnecessary re-renders
 const MemoizedGroupCard = React.memo(GroupCard);
 
+// Dữ liệu mẫu (mock data)
+const mockGroups = [
+  {
+    groupId: 1,
+    groupImageUrl: 'https://example.com/image1.jpg',
+    groupName: 'Group 1',
+    location: 'Location 1',
+    numberOfParticipants: 10,
+    description: 'This is Group 1 description',
+  },
+  {
+    groupId: 2,
+    groupImageUrl: 'https://example.com/image2.jpg',
+    groupName: 'Group 2',
+    location: 'Location 2',
+    numberOfParticipants: 15,
+    description: 'This is Group 2 description',
+  },
+  {
+    groupId: 3,
+    groupImageUrl: 'https://example.com/image3.jpg',
+    groupName: 'Group 3',
+    location: 'Location 3',
+    numberOfParticipants: 8,
+    description: 'This is Group 3 description',
+  },
+  {
+    groupId: 4,
+    groupImageUrl: 'https://example.com/image1.jpg',
+    groupName: 'Group 4',
+    location: 'Location 4',
+    numberOfParticipants: 10,
+    description: 'This is Group 1 description',
+  },
+  {
+    groupId: 5,
+    groupImageUrl: 'https://example.com/image2.jpg',
+    groupName: 'Group 5',
+    location: 'Location 5',
+    numberOfParticipants: 15,
+    description: 'This is Group 2 description',
+  },
+  {
+    groupId: 6,
+    groupImageUrl: 'https://example.com/image3.jpg',
+    groupName: 'Group 6',
+    location: 'Location 6',
+    numberOfParticipants: 8,
+    description: 'This is Group 3 description',
+  },
+];
+
 function GroupList() {
-  const [groups, setGroups] = useState([]);
-  const [totalPages, setTotalPages] = useState(0);
+  const PAGE_SIZE = 3; // Số nhóm hiển thị mỗi trang
   const [currentPage, setCurrentPage] = useState(
     parseInt(localStorage.getItem('currentPage')) || 1
   );
 
-  const fetchGroups = useCallback(async (pageNumber) => {
-    const cachedGroups = localStorage.getItem(`groupsPage_${pageNumber}`);
-    if (cachedGroups) {
-      const parsedData = JSON.parse(cachedGroups);
-      setGroups(parsedData.groups);
-      setTotalPages(parsedData.totalPages);
-    } else {
-      try {
-        const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/groups?pageNumber=${pageNumber}`);
-        const data = {
-          groups: response.data.groups,
-          totalPages: response.data.totalPages,
-        };
-        setGroups(data.groups);
-        setTotalPages(data.totalPages);
-        localStorage.setItem(`groupsPage_${pageNumber}`, JSON.stringify(data));
-      } catch (error) {
-        console.error('Error fetching groups:', error);
-      }
-    }
+  const totalPages = Math.ceil(mockGroups.length / PAGE_SIZE);
+
+  // Lấy danh sách các nhóm cho trang hiện tại
+  const getGroupsForPage = useCallback((pageNumber) => {
+    const startIndex = (pageNumber - 1) * PAGE_SIZE;
+    const endIndex = startIndex + PAGE_SIZE;
+    return mockGroups.slice(startIndex, endIndex);
   }, []);
 
-  const refreshGroups = useCallback(() => {
-    fetchGroups(currentPage);
-  }, [fetchGroups, currentPage]);
+  const [groups, setGroups] = useState(getGroupsForPage(currentPage));
 
   useEffect(() => {
-    fetchGroups(currentPage);
-  }, [currentPage, fetchGroups]);
+    setGroups(getGroupsForPage(currentPage));
+  }, [currentPage, getGroupsForPage]);
 
   const handlePageChange = useCallback((data) => {
     const selectedPage = data.selected + 1;

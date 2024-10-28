@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState } from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import ReactPaginate from 'react-paginate';
@@ -8,39 +7,66 @@ import GroupCard from '../../components/Group/GroupCard';
 import '../../assets/css/Groups/GroupCreate.css';
 
 function GroupCreated() {
-  const [groups, setGroups] = useState([]); // State to hold fetched groups
-  const [totalPages, setTotalPages] = useState(0); // State for total pages
   const [currentPage, setCurrentPage] = useState(0); // State for current page
-  const itemsPerPage = 6; // Items per page
+  const itemsPerPage = 3; // Items per page
 
-  // Retrieve token from Redux store
-  const token = useSelector((state) => state.auth.token); // Adjust according to your state structure
+  // Static group data
+  const groups = [
+    {
+      groupId: 1,
+      groupImageUrl: 'https://example.com/image1.jpg',
+      groupName: 'Group 1',
+      location: 'Location 1',
+      numberOfParticipants: 10,
+      description: 'This is Group 1 description',
+    },
+    {
+      groupId: 2,
+      groupImageUrl: 'https://example.com/image2.jpg',
+      groupName: 'Group 2',
+      location: 'Location 2',
+      numberOfParticipants: 15,
+      description: 'This is Group 2 description',
+    },
+    {
+      groupId: 3,
+      groupImageUrl: 'https://example.com/image3.jpg',
+      groupName: 'Group 3',
+      location: 'Location 3',
+      numberOfParticipants: 8,
+      description: 'This is Group 3 description',
+    },
+    {
+      groupId: 4,
+      groupImageUrl: 'https://example.com/image1.jpg',
+      groupName: 'Group 4',
+      location: 'Location 4',
+      numberOfParticipants: 10,
+      description: 'This is Group 1 description',
+    },
+    {
+      groupId: 5,
+      groupImageUrl: 'https://example.com/image2.jpg',
+      groupName: 'Group 5',
+      location: 'Location 5',
+      numberOfParticipants: 15,
+      description: 'This is Group 2 description',
+    },
+    {
+      groupId: 6,
+      groupImageUrl: 'https://example.com/image3.jpg',
+      groupName: 'Group 6',
+      location: 'Location 6',
+      numberOfParticipants: 8,
+      description: 'This is Group 3 description',
+    },
+  ];
 
-  // Fetch data from API
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`https://travelmateapp.azurewebsites.net/api/Groups/CreatedGroups?pageNumber=${currentPage + 1}`, {
-          headers: {
-            'Authorization': `${token}`,
-          },
-        });
-        
-        const data = await response.json();
+  // Calculate total pages
+  const totalPages = Math.ceil(groups.length / itemsPerPage);
 
-        console.log(data);
-        
-        
-        // Update states with API data
-        setGroups(data.groups.$values);
-        setTotalPages(data.totalPages);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, [currentPage, token]); // Add token to dependency array in case it changes
+  // Get current page items
+  const currentGroups = groups.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
 
   // Handle page change
   const handlePageChange = (data) => {
@@ -50,7 +76,7 @@ function GroupCreated() {
   return (
     <div>
       <Row className='p-0 m-0'>
-        {groups.map((group) => (
+        {currentGroups.map((group) => (
           <Col md={4} xs={6} key={group.groupId} className="mb-4 d-flex justify-content-center">
             <GroupCard
               img={group.groupImageUrl}
