@@ -1,108 +1,88 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Spinner from 'react-bootstrap/Spinner';
 import ReactPaginate from 'react-paginate';
 import '../../assets/css/Shared/Pagination.css';
 import GroupCard from '../../components/Group/GroupCard';
 import '../../assets/css/Groups/GroupCreate.css';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
 
 function GroupCreated() {
-  const [currentPage, setCurrentPage] = useState(0); // State for current page
-  const itemsPerPage = 3; // Items per page
+  const [data, setData] = useState([]);
+  const [pageCount, setPageCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true); // Loading state
+  const token = useSelector((state) => state.auth.token);
 
-  // Static group data
-  const groups = [
-    {
-      groupId: 1,
-      groupImageUrl: 'https://example.com/image1.jpg',
-      groupName: 'Group 1',
-      location: 'Location 1',
-      numberOfParticipants: 10,
-      description: 'This is Group 1 description',
-    },
-    {
-      groupId: 2,
-      groupImageUrl: 'https://example.com/image2.jpg',
-      groupName: 'Group 2',
-      location: 'Location 2',
-      numberOfParticipants: 15,
-      description: 'This is Group 2 description',
-    },
-    {
-      groupId: 3,
-      groupImageUrl: 'https://example.com/image3.jpg',
-      groupName: 'Group 3',
-      location: 'Location 3',
-      numberOfParticipants: 8,
-      description: 'This is Group 3 description',
-    },
-    {
-      groupId: 4,
-      groupImageUrl: 'https://example.com/image1.jpg',
-      groupName: 'Group 4',
-      location: 'Location 4',
-      numberOfParticipants: 10,
-      description: 'This is Group 1 description',
-    },
-    {
-      groupId: 5,
-      groupImageUrl: 'https://example.com/image2.jpg',
-      groupName: 'Group 5',
-      location: 'Location 5',
-      numberOfParticipants: 15,
-      description: 'This is Group 2 description',
-    },
-    {
-      groupId: 6,
-      groupImageUrl: 'https://example.com/image3.jpg',
-      groupName: 'Group 6',
-      location: 'Location 6',
-      numberOfParticipants: 8,
-      description: 'This is Group 3 description',
-    },
-  ];
+  useEffect(() => {
+    const fetchData = async (page = 1) => {
+      setLoading(true); // Start loading
+      try {
+        const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Groups/CreatedGroups?pageNumber=${page}`, {
+          headers: {
+            Authorization: `${token}`
+          }
+        });
+        console.log(response.data.groups.$values);
+        setData(response.data.groups.$values);
+        setPageCount(response.data.totalPages); // Set page count from API response
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+      setLoading(false); // End loading
+    };
 
-  // Calculate total pages
-  const totalPages = Math.ceil(groups.length / itemsPerPage);
+    fetchData(currentPage); // Fetch data for the current page on load
+  }, [currentPage, token]);
 
-  // Get current page items
-  const currentGroups = groups.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
-
-  // Handle page change
-  const handlePageChange = (data) => {
-    setCurrentPage(data.selected);
-  };
+  const handlePageChange = useCallback((data) => {
+    const selectedPage = data.selected + 1;
+    setCurrentPage(selectedPage); // Update current page
+    localStorage.setItem('currentPage', selectedPage); // Save current page in local storage if needed
+  }, []);
 
   return (
     <div>
-      <Row className='p-0 m-0'>
-        {currentGroups.map((group) => (
-          <Col md={4} xs={6} key={group.groupId} className="mb-4 d-flex justify-content-center">
-            <GroupCard
-              img={group.groupImageUrl}
-              title={group.groupName}
-              location={group.location}
-              members={`${group.numberOfParticipants} thành viên`}
-              text={group.description}
-            />
-          </Col>
-        ))}
-      </Row>
+      {loading ? (
+        <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        </div>
+      ) : (
+        <>
+          <Row className='p-0 m-0'>
+            {data.map((group) => (
+              <Col md={4} xs={6} key={group.groupId} className="mb-4 d-flex justify-content-center">
+                <GroupCard
+                  img={group.groupImageUrl}
+                  title={group.groupName}
+                  location={group.location}
+                  members={`${group.numberOfParticipants} thành viên`}
+                  text={group.description}
+                />
+              </Col>
+            ))}
+          </Row>
 
-      <ReactPaginate
-        previousLabel={'<'}
-        nextLabel={'>'}
-        breakLabel={'...'}
-        breakClassName={'break-me'}
-        pageCount={totalPages}
-        marginPagesDisplayed={2}
-        pageRangeDisplayed={2}
-        onPageChange={handlePageChange}
-        containerClassName={'pagination'}
-        activeClassName={'active-pagination'}
-        previousClassName={'previous'}
-        nextClassName={'next'}
-      />
+          <ReactPaginate
+            previousLabel={'<'}
+            nextLabel={'>'}
+            breakLabel={'...'}
+            breakClassName={'break-me'}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={2}
+            onPageChange={handlePageChange}
+            containerClassName={'pagination'}
+            activeClassName={'active-pagination'}
+            previousClassName={'previous'}
+            nextClassName={'next'}
+          />
+        </>
+      )}
     </div>
   );
 }
