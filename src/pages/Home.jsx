@@ -1,10 +1,12 @@
-import React from 'react'
-import SearchBar from '../components/Shared/SearchBar'
-import { Container } from 'react-bootstrap'
-import ToolBar from '../components/Shared/ToolBar'
+import React, { useEffect } from 'react';
+import axios from 'axios';
+import SearchBar from '../components/Shared/SearchBar';
+import { Container } from 'react-bootstrap';
+import ToolBar from '../components/Shared/ToolBar';
 import SidebarList from '../components/Shared/SidebarList';
-import FormSubmit from '../components/Shared/FormSubmit'
+import FormSubmit from '../components/Shared/FormSubmit';
 import { useSelector } from 'react-redux';
+
 function Home() {
   const sidebarItems = [
     { iconName: 'home', title: 'Trang Chủ', route: '/' },
@@ -18,21 +20,32 @@ function Home() {
   const handleFormSubmit = () => {
     alert("Đã lưu event");
   };
+
   // Lấy thông tin người dùng từ Redux store
   const user = useSelector((state) => state.auth.user);
-  
+
+  useEffect(() => {
+    // Gọi API và in ra console
+    axios.get('https://travelmateapp.azurewebsites.net/api/groups?pageNumber=1')
+      .then(response => {
+        console.log("API Response:", response.data);
+      })
+      .catch(error => {
+        console.error("API Error:", error);
+      });
+  }, []);
+
   return (
     <div>
-
-     {/* Hiển thị thông tin người dùng nếu đã đăng nhập */}
-     {user ? (
+      {/* Hiển thị thông tin người dùng nếu đã đăng nhập */}
+      {user ? (
         <h2>Chào mừng {user["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"]}!</h2>
       ) : (
         <h2>Chào mừng khách!</h2>
       )}
       <ToolBar />
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;

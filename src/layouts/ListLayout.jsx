@@ -19,6 +19,8 @@ function ListLayout({ children }) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+    const [filePlaceholder, setFilePlaceholder] = useState("Nhấn vào đây để upload"); // Initial placeholder text
+
 
     const sidebarItems = [
         { iconName: 'list-circle', title: 'Danh sách nhóm', route: RoutePath.GROUP },
@@ -79,12 +81,14 @@ function ListLayout({ children }) {
             delete newErrors.groupImageUrl;
         }
         setErrors(newErrors);
+
     }, [groupName, groupDescription, uploadedUrl]);
 
     const handleFileSelect = async (event) => {
         const file = event.target.files[0];
         if (file) {
             setSelectedFile(file);
+            setFilePlaceholder(file.name); // Update placeholder with file name
             const storageRef = ref(storage, `images/${file.name}`);
             try {
                 await uploadBytes(storageRef, file);
@@ -96,6 +100,7 @@ function ListLayout({ children }) {
             }
         }
     };
+
 
     const handleCreateGroup = async () => {
         const newErrors = {};
@@ -120,18 +125,18 @@ function ListLayout({ children }) {
             description: groupDescription,
             location: groupLocation,
             groupImageUrl: uploadedUrl,
-            createdById: user["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
             createAt: new Date().toISOString(), // Lấy ngày hiện tại
         };
-
+        console.log(token);
         try {
+            console.log(cleanedToken);
             const apiUrl = import.meta.env.VITE_BASE_API_URL;
             const response = await axios.post(
                 `${apiUrl}/api/groups`,
                 newGroup,
                 {
                     headers: {
-                        Authorization: `Bearer ${token.result}` // Pass token in the Authorization header
+                        Authorization: `${token}` // Pass token in the Authorization header
                     }
                 }
             );
@@ -197,7 +202,7 @@ function ListLayout({ children }) {
                                         <Form.Label className='fw-bold'>Địa điểm</Form.Label>
                                         <Form.Select value={groupLocation} onChange={(e) => setGroupLocation(e.target.value)}>
                                             <option>Chọn địa điểm</option>
-                                            <option value="1">Địa điểm 1</option>
+                                            <option value="Đà Nẵng">Đà Nẵng</option>
                                             <option value="2">Địa điểm 2</option>
                                             <option value="3">Địa điểm 3</option>
                                         </Form.Select>
@@ -210,6 +215,7 @@ function ListLayout({ children }) {
                                                 type="file"
                                                 id="fileInput"
                                                 onChange={handleFileSelect}
+                                                placeholder={filePlaceholder} // Set placeholder here
                                             />
                                         </div>
                                         {errors.groupImageUrl && (

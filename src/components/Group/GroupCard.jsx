@@ -15,6 +15,7 @@ const GroupCard = ({ img, title, location, members, text }) => {
     const groupDetails = { img, title, location, members, text }; 
     dispatch(viewGroup(groupDetails)); // Dispatch action viewGroup
   };
+  
 
   return (
     <Card className="group-card">
