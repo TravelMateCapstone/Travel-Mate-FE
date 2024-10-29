@@ -21,6 +21,9 @@ import NavBarLayout from "../layouts/NavBarLayout"
 import Profile from "../pages/Profile/Profile"
 import EditMyHome from "../pages/Profile/EditMyHome"
 import Chat from "../pages/Chat"
+import AdminReport from "../pages/Admin/AdminReport"
+import WalletManagement from "../pages/Admin/WalletManagement"
+import TripHistory from "../pages/Admin/TripHistory"
 
 
 
@@ -35,6 +38,10 @@ const privateRoutes = [
     { path: RoutePath.GROUP_DETAILS, component: GroupDetail, layout: DetailLayout },
     { path: RoutePath.ADMIN, component: IncomeStatistic, layout: AdminLayout },
     { path: RoutePath.ADMIN_ACCOUNT_LIST, component: AccountList, layout: AdminLayout },
+    { path: RoutePath.ADMIN_REPORT, component: AdminReport, layout: AdminLayout},
+    { path: RoutePath.ADMIN_WALLET_MANAGEMENT, component: WalletManagement, layout: AdminLayout},
+    { path: RoutePath.ADMIN_TRIP_HISTORY, component: TripHistory, layout: AdminLayout},
+
     { path: RoutePath.GROUP_CREATED, component: GroupCreated, layout: ListLayout },
     { path: RoutePath.GROUP_JOINED, component: GroupJoined, layout: ListLayout },
     { path: RoutePath.EVENT_CREATED, component: EventCreated, layout: ListLayout },
@@ -44,6 +51,9 @@ const privateRoutes = [
     { path: RoutePath.PROFILE_EDIT_MY_HOME, component: EditMyHome, layout: ProfileLayout},
     { path: RoutePath.SETTING, component: Setting, layout: NavBarLayout},
     { path: RoutePath.CHAT, component: Chat, layout: NavBarLayout},
+
+    
+
 ]
 
 export { publishRoutes, privateRoutes }
