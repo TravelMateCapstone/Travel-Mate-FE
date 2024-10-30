@@ -15,22 +15,38 @@ function AboutMe() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const profileResponse = await axios.get(`${url}/api/profile`, {
-          headers: {
-            Authorization: `${token}`,
-          },
-        });
-        if (profileResponse.data?.$values && Array.isArray(profileResponse.data.$values)) {
-          setProfile(profileResponse.data.$values[6]);
-        } else {
-          console.log("Không tìm thấy dữ liệu profile.");
-        }
+        const storedProfile = localStorage.getItem('profileData');
+        const storedActivities = localStorage.getItem('activitiesData');
 
-        const activitiesResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserActivitiesWOO/current-user`, {
-          headers: { Authorization: `${token}` },
-        });
-        if (activitiesResponse.data?.$values) {
-          setActivities(activitiesResponse.data.$values);
+        // If data is already in localStorage, use it
+        if (storedProfile && storedActivities) {
+          setProfile(JSON.parse(storedProfile));
+          setActivities(JSON.parse(storedActivities));
+        } else {
+          // Otherwise, fetch from API
+          const profileResponse = await axios.get(`${url}/api/profile`, {
+            headers: {
+              Authorization: `${token}`,
+            },
+          });
+
+          if (profileResponse.data?.$values && Array.isArray(profileResponse.data.$values)) {
+            const profileData = profileResponse.data.$values[6];
+            setProfile(profileData);
+            localStorage.setItem('profileData', JSON.stringify(profileData));
+          } else {
+            console.log("Không tìm thấy dữ liệu profile.");
+          }
+
+          const activitiesResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserActivitiesWOO/current-user`, {
+            headers: { Authorization: `${token}` },
+          });
+
+          if (activitiesResponse.data?.$values) {
+            const activitiesData = activitiesResponse.data.$values;
+            setActivities(activitiesData);
+            localStorage.setItem('activitiesData', JSON.stringify(activitiesData));
+          }
         }
       } catch (error) {
         console.error('Lỗi khi lấy dữ liệu:', error);
@@ -38,7 +54,7 @@ function AboutMe() {
     };
 
     fetchData();
-  }, [token]);
+  }, [token, url]);
 
   return (
     <Container className='py-3 px-0 border-0 rounded-5' style={{
@@ -68,7 +84,7 @@ function AboutMe() {
                 <h4>SỞ THÍCH</h4>
                 <div className='d-flex favorite-tag'>
                   {activities ? (
-                    <p>{activities.map(activity => activity.activityName).join(", ")}</p>
+                    <p className="small border border-dark btn mx-3 rounded-pill">{activities.map(activity => activity.activityName).join(", ")}</p>
                   ) : (
                     <Skeleton width={200} height={20} />
                   )}
@@ -80,7 +96,6 @@ function AboutMe() {
               <div className="cbp_tmlabel">
                 <h4>ÂM NHẠC, PHIM ẢNH & SÁCH</h4>
                 <p>{profile ? profile.musicMoviesBooks : <Skeleton width={200} height={20} />}</p>
-
               </div>
             </li>
             <li>

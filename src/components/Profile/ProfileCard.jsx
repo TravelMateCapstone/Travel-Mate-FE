@@ -16,28 +16,43 @@ function ProfileCard() {
   const url = import.meta.env.VITE_BASE_API_URL;
 
   useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        const profileResponse = await axios.get(`${url}/api/Profile/current-profile`, {
-          headers: { Authorization: `${token}` },
-        });
-        setProfile(profileResponse.data);
+    // Lấy dữ liệu từ localStorage nếu có
+    const storedProfile = localStorage.getItem("profile");
+    const storedLanguages = localStorage.getItem("languages");
+    const storedEducation = localStorage.getItem("education");
 
-        const languagesResponse = await axios.get(`${url}/api/SpokenLanguages/current-user`, {
-          headers: { Authorization: `${token}` },
-        });
-        setLanguages(languagesResponse.data.$values);
+    if (storedProfile && storedLanguages && storedEducation) {
+      setProfile(JSON.parse(storedProfile));
+      setLanguages(JSON.parse(storedLanguages));
+      setEducation(JSON.parse(storedEducation));
+    } else {
+      // Nếu chưa có trong localStorage, gọi API và lưu dữ liệu vào localStorage
+      const fetchProfileData = async () => {
+        try {
+          const profileResponse = await axios.get(`${url}/api/Profile/current-profile`, {
+            headers: { Authorization: `${token}` },
+          });
+          setProfile(profileResponse.data);
+          localStorage.setItem("profile", JSON.stringify(profileResponse.data));
 
-        const educationResponse = await axios.get(`${url}/api/UserEducation/current-user`, {
-          headers: { Authorization: `${token}` },
-        });
-        setEducation(educationResponse.data.$values);
-      } catch (error) {
-        console.error("Lỗi khi lấy dữ liệu:", error);
-      }
-    };
+          const languagesResponse = await axios.get(`${url}/api/SpokenLanguages/current-user`, {
+            headers: { Authorization: `${token}` },
+          });
+          setLanguages(languagesResponse.data.$values);
+          localStorage.setItem("languages", JSON.stringify(languagesResponse.data.$values));
 
-    fetchProfileData();
+          const educationResponse = await axios.get(`${url}/api/UserEducation/current-user`, {
+            headers: { Authorization: `${token}` },
+          });
+          setEducation(educationResponse.data.$values);
+          localStorage.setItem("education", JSON.stringify(educationResponse.data.$values));
+        } catch (error) {
+          console.error("Lỗi khi lấy dữ liệu:", error);
+        }
+      };
+
+      fetchProfileData();
+    }
   }, [token]);
 
   if (!profile || !languages || !education) {
