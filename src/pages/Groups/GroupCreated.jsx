@@ -1,56 +1,84 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Spinner from 'react-bootstrap/Spinner';
 import ReactPaginate from 'react-paginate';
 import '../../assets/css/Shared/Pagination.css';
 import GroupCard from '../../components/Group/GroupCard';
 import '../../assets/css/Groups/GroupCreate.css';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 function GroupCreated() {
-  const [data, setData] = useState([]);
-  const [pageCount, setPageCount] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState(true); // Loading state
   const token = useSelector((state) => state.auth.token);
 
+  const savedPage = parseInt(localStorage.getItem('currentPageCreated')) || 1;
+  const savedData = JSON.parse(localStorage.getItem('pageDataCreated')) || {};
+
+  const [data, setData] = useState(savedData[savedPage] || []);
+  const [pageCount, setPageCount] = useState(savedData.totalPages || 0);
+  const [currentPage, setCurrentPage] = useState(savedPage);
+  const [loading, setLoading] = useState(!savedData[savedPage]); 
+
   useEffect(() => {
+    if (savedData[currentPage]) {
+      setData(savedData[currentPage]);
+      setPageCount(savedData.totalPages || 0);
+      setLoading(false);
+      return;
+    }
+    
     const fetchData = async (page = 1) => {
-      setLoading(true); // Start loading
+      setLoading(true);
       try {
-        const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Groups/CreatedGroups?pageNumber=${page}`, {
+        const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Groups/CreatedGroups?pageNumber=${page}`, {
           headers: {
             Authorization: `${token}`
           }
         });
-        console.log(response.data.groups.$values);
-        setData(response.data.groups.$values);
-        setPageCount(response.data.totalPages); // Set page count from API response
+        const groupsData = response.data.groups.$values;
+        const totalPages = response.data.totalPages;
+
+        setData(groupsData);
+        setPageCount(totalPages);
+
+        const updatedData = { ...savedData, [page]: groupsData, totalPages };
+        localStorage.setItem('pageDataCreated', JSON.stringify(updatedData));
+        localStorage.setItem('currentPageCreated', page);
       } catch (error) {
         console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false); // End loading
     };
 
-    fetchData(currentPage); // Fetch data for the current page on load
+    fetchData(currentPage);
   }, [currentPage, token]);
 
   const handlePageChange = useCallback((data) => {
     const selectedPage = data.selected + 1;
-    setCurrentPage(selectedPage); // Update current page
-    localStorage.setItem('currentPage', selectedPage); // Save current page in local storage if needed
+    setCurrentPage(selectedPage);
+    localStorage.setItem('currentPage', selectedPage);
   }, []);
 
   return (
     <div>
       {loading ? (
-        <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-        </div>
+        <Row className='p-0 m-0'>
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Col md={4} xs={6} key={index} className="mb-4 d-flex justify-content-center">
+              <div style={{ width: '100%' }}>
+                <Skeleton height={200} />
+                <Skeleton height={30} style={{ marginTop: '10px' }} />
+                <Skeleton height={20} style={{ marginTop: '5px' }} />
+                <Skeleton height={20} style={{ marginTop: '5px' }} />
+              </div>
+            </Col>
+          ))}
+        </Row>
+      ) : data.length === 0 ? (
+        <p className='text-center'>Bạn chưa tạo nhóm nào</p>
       ) : (
         <>
           <Row className='p-0 m-0'>
