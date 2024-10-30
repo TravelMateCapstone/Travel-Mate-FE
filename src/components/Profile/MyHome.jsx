@@ -14,17 +14,33 @@ function MyHome() {
 
   useEffect(() => {
     const fetchHomeData = async () => {
-      try {
-        const response = await axios.get(`${url}/api/UserHome/current-user`, {
-          headers: {
-            Authorization: `${token}`,
-          },
-        });
-        setHomeData(response.data);
-      } catch (error) {
-        console.error('Lỗi khi lấy dữ liệu:', error);
-      } finally {
+      // Kiểm tra xem dữ liệu có sẵn trong localStorage hay không
+      const storedData = localStorage.getItem('homeData');
+
+      if (storedData) {
+        console.log("storage", storedData);
+        // Nếu có, chuyển dữ liệu từ localStorage vào state và dừng loading
+        setHomeData(JSON.parse(storedData));
         setLoading(false);
+      } else {
+        try {
+          // Nếu không có, gọi API để lấy dữ liệu
+          const response = await axios.get(`${url}/api/UserHome/current-user`, {
+            headers: {
+              Authorization: `${token}`,
+            },
+          });
+
+          console.log("api");
+          setHomeData(response.data);
+
+          // Lưu dữ liệu vào localStorage
+          localStorage.setItem('homeData', JSON.stringify(response.data));
+        } catch (error) {
+          console.error('Lỗi khi lấy dữ liệu:', error);
+        } finally {
+          setLoading(false);
+        }
       }
     };
 
