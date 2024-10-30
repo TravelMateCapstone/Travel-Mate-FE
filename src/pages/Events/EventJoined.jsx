@@ -28,7 +28,7 @@ function EventJoined() {
 
             <div className='d-flex'>
                 <div className='event-time'>
-                    <p>{selectedEvent.time}</p>
+                    <p>{selectedEvent.startTime}</p>
                 </div>
                 <div className='event-status'>
                     <Form.Select aria-label="Default select example" className='form-event-status'>
@@ -45,10 +45,10 @@ function EventJoined() {
                 </div>
                 <div className='d-flex align-items-center'>
                     <div className='event-start-date'>
-                        <p className='my-4'>{selectedEvent.time}</p>
+                        <p className='my-4'>{selectedEvent.startTime}</p>
                     </div>
                     <div className='m-2 event-end-date'>
-                        <p className='m-2'>{selectedEvent.time}</p>
+                        <p className='m-2'>{selectedEvent.endTime}</p>
                     </div>
                 </div>
 
