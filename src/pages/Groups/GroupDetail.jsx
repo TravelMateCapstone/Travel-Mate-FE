@@ -23,6 +23,41 @@ function GroupDetail() {
       image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSp3HUU-eAMPAQL0wpBBY2taVQkWH4EwUWeHw&s',
     }
   ];
+  const postDetailsList = [
+    {
+      id: 1,
+      authorAvatar: 'https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj',
+      authorName: 'Nhơn Trần',
+      date: '24 tháng 09 lúc 9:01',
+      content: 'Xin chào mọi người, Hôm nay chúng tôi chia sẻ đến mọi người chuyến đi Đà Nẵng 2 ngày 1 đêm của chúng tôi.',
+      images: [
+        'https://tiki.vn/blog/wp-content/uploads/2023/03/cau-rong-da-nang.jpg',
+        'https://tiki.vn/blog/wp-content/uploads/2023/03/cau-rong-da-nang.jpg',
+        'https://tiki.vn/blog/wp-content/uploads/2023/03/cau-rong-da-nang.jpg',
+      ],
+      comments: [
+        { id: 1, avatar: 'https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj', name: 'Nhơn Trần', location: 'Quảng Nam', content: 'Đăng là người bạn đồng hành tuyệt vời!' },
+        { id: 2, avatar: 'https://randomuser.me/api/portraits/men/32.jpg', name: 'Huy Nguyễn', location: 'Hà Nội', content: 'Một trải nghiệm thật tuyệt vời!' },
+      ],
+    },
+    {
+      id: 2,
+      authorAvatar: 'https://randomuser.me/api/portraits/men/45.jpg',
+      authorName: 'Minh Tuấn',
+      date: '22 tháng 09 lúc 10:45',
+      content: 'Cảm giác yên bình tại Hội An thật tuyệt!',
+      images: [
+        'https://vcdn1-dulich.vnecdn.net/2022/06/01/Hoi-An-VnExpress-5851-16488048-4863-2250-1654057244.jpg?w=0&h=0&q=100&dpr=1&fit=crop&s=Z2ea_f0O7kgGZllKmJF92g',
+        'https://www.vietnamairlines.com/~/media/SEO-images/visit-hoi-an-ancient-town/festival-at-hoi-an.jpg?la=en',
+        'https://blisshoian.com/wp-content/uploads/2024/07/hoi-an-ancient-town-2_1689872701.webp',
+      ],
+      comments: [
+        { id: 1, avatar: 'https://randomuser.me/api/portraits/women/44.jpg', name: 'Thảo Phạm', location: 'Đà Nẵng', content: 'Chuyến đi rất tuyệt vời!' },
+        { id: 2, avatar: 'https://randomuser.me/api/portraits/men/32.jpg', name: 'Huy Nguyễn', location: 'Hà Nội', content: 'Hội An rất đẹp!' },
+      ],
+    },
+  ];
+
 
   const [isGroupCreate, setIsGroupCreate] = useState(false);
 
@@ -73,52 +108,52 @@ function GroupDetail() {
 
               <Dropdown.Menu>
                 <Dropdown.Item className='dropdown-edit-group-item'>
-                <FormSubmit openModalText={'Chỉnh sửa thông tin'} title={'Chỉnh sửa thông tin nhóm'} buttonText={'Lưu thay đổi'}>
-    <h3>Bảng thông tin</h3>
-    <small>Thay đổi thông tin chi tiết cho nhóm của bạn</small>
-    <Form>
-        <Form.Group className="mb-3 mt-3">
-            <Form.Label className='fw-bold'>Tên nhóm</Form.Label>
-            <Form.Control type="text" placeholder="Nhập tên nhóm" className='rounded-5'/>
-        </Form.Group>
+                  <FormSubmit openModalText={'Chỉnh sửa thông tin'} title={'Chỉnh sửa thông tin nhóm'} buttonText={'Lưu thay đổi'}>
+                    <h3>Bảng thông tin</h3>
+                    <small>Thay đổi thông tin chi tiết cho nhóm của bạn</small>
+                    <Form>
+                      <Form.Group className="mb-3 mt-3">
+                        <Form.Label className='fw-bold'>Tên nhóm</Form.Label>
+                        <Form.Control type="text" placeholder="Nhập tên nhóm" className='rounded-5' />
+                      </Form.Group>
 
-        <Form.Group className="mb-3" style={{
-          height: '120px'
-        }}>
-            <Form.Label className='fw-bold'>Miêu tả</Form.Label>
-            <textarea
-                placeholder="Nhập miêu tả về nhóm của bạn"
-                style={{ height: '85%', width: '100%' }} // Điều chỉnh chiều cao của textarea
-                className='border-1 rounded-4'
-            />
-        </Form.Group>
+                      <Form.Group className="mb-3" style={{
+                        height: '120px'
+                      }}>
+                        <Form.Label className='fw-bold'>Miêu tả</Form.Label>
+                        <textarea
+                          placeholder="Nhập miêu tả về nhóm của bạn"
+                          style={{ height: '85%', width: '100%' }} // Điều chỉnh chiều cao của textarea
+                          className='border-1 rounded-4'
+                        />
+                      </Form.Group>
 
-        <Form.Group className="mb-3">
-            <Form.Label className='fw-bold'>Địa điểm</Form.Label>
-            <Form.Select>
-                <option>Chọn địa điểm</option>
-                <option value="Da Nang, Viet Nam">Đà Nẵng, Việt Nam</option>
-                <option value="Ha Noi, Viet Nam">Hà Nội, Việt Nam</option>
-                <option value="Ho Chi Minh City, Viet Nam">Thành phố Hồ Chí Minh, Việt Nam</option>
-            </Form.Select>
-        </Form.Group>
+                      <Form.Group className="mb-3">
+                        <Form.Label className='fw-bold'>Địa điểm</Form.Label>
+                        <Form.Select>
+                          <option>Chọn địa điểm</option>
+                          <option value="Da Nang, Viet Nam">Đà Nẵng, Việt Nam</option>
+                          <option value="Ha Noi, Viet Nam">Hà Nội, Việt Nam</option>
+                          <option value="Ho Chi Minh City, Viet Nam">Thành phố Hồ Chí Minh, Việt Nam</option>
+                        </Form.Select>
+                      </Form.Group>
 
-        <Form.Group className="mb-3">
-            <Form.Label>Ảnh bìa</Form.Label>
-            <div>
-                <Button variant="secondary" onClick={() => document.getElementById('fileInput').click()}>
-                    Nhấn vào đây để upload
-                </Button>
-                <Form.Control
-                    type="file"
-                    id="fileInput"
-                    onChange={() => {}}
-                    style={{ display: 'none' }}
-                />
-            </div>
-        </Form.Group>
-    </Form>
-</FormSubmit>
+                      <Form.Group className="mb-3">
+                        <Form.Label>Ảnh bìa</Form.Label>
+                        <div>
+                          <Button variant="secondary" onClick={() => document.getElementById('fileInput').click()}>
+                            Nhấn vào đây để upload
+                          </Button>
+                          <Form.Control
+                            type="file"
+                            id="fileInput"
+                            onChange={() => { }}
+                            style={{ display: 'none' }}
+                          />
+                        </div>
+                      </Form.Group>
+                    </Form>
+                  </FormSubmit>
 
                 </Dropdown.Item>
                 <Dropdown.Item href="#/action-2">Quản lí nhóm</Dropdown.Item>
@@ -217,8 +252,9 @@ function GroupDetail() {
       <hr style={{ border: '1px solid #7F7F7F' }} />
 
       <div style={{ padding: '0px 32px' }} className='group-input'>
-        <PostGroupDetail />
-        <PostGroupDetail />
+      {postDetailsList.map(postDetails => (
+          <PostGroupDetail key={postDetails.id} postDetails={postDetails} />
+        ))}
       </div>
     </div>
   )

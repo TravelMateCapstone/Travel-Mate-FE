@@ -1,58 +1,24 @@
 import React, { useState } from 'react';
 import CommentPostGroupDetail from './CommentPostGroupDetail';
-import { Dropdown } from 'react-bootstrap';
+import { Container, Dropdown } from 'react-bootstrap';
 import '../../assets/css/Groups/PostGroupDetail.css';
+import FormSubmit from '../Shared/FormSubmit';
 
-const comments = [
-  {
-    id: 1,
-    avatar: 'https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj',
-    name: 'Nhơn Trần',
-    location: 'Quảng Nam',
-    content: 'Đăng là người bạn đồng hành tuyệt vời! Vui vẻ, thân thiện và rất am hiểu về Hội An. Nhờ cậu ấy mà chuyến đi của mình thêm phần thú vị. Rất vui được gặp và đi cùng bạn!',
-  },
-  {
-    id: 2,
-    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-    name: 'Huy Nguyễn',
-    location: 'Hà Nội',
-    content: 'Một trải nghiệm thật tuyệt vời, mình đã có khoảng thời gian đáng nhớ tại Hội An!',
-  },
-  {
-    id: 3,
-    avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-    name: 'Thảo Phạm',
-    location: 'Đà Nẵng',
-    content: 'Chuyến đi rất tuyệt vời, Hội An đẹp và đồ ăn rất ngon!',
-  },
-  {
-    id: 4,
-    avatar: 'https://randomuser.me/api/portraits/men/55.jpg',
-    name: 'Minh Tuấn',
-    location: 'Hồ Chí Minh',
-    content: 'Mình rất thích chuyến đi này, cảm giác yên bình và thư giãn.',
-  },
-  {
-    id: 5,
-    avatar: 'https://randomuser.me/api/portraits/women/60.jpg',
-    name: 'Lan Phạm',
-    location: 'Hải Phòng',
-    content: 'Những món ăn ở Hội An thật sự rất tuyệt!',
-  },
-];
-
-function PostGroupDetail() {
+function PostGroupDetail({ postDetails }) {
   const [visibleComments, setVisibleComments] = useState(2);
 
   const handleShowMore = () => {
-    setVisibleComments(prev => prev + 2);
+    setVisibleComments((prev) => prev + 2);
   };
+  const handelEditPostDetail = () => {
+    console.log('Edit post detail');
+  }
 
   return (
     <div className='mb-5 post-group-detail-container'>
       <div className='d-flex'>
         <div className='w-100 p-2 d-flex gap-3 align-items-center'>
-          <img src="https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj" alt="" style={{
+          <img src={postDetails.authorAvatar} alt="" style={{
             width: '72px',
             height: '72px',
             objectFit: 'cover',
@@ -63,11 +29,11 @@ function PostGroupDetail() {
             <strong style={{
               fontWeight: '600',
               fontSize: '20px'
-            }}>Nhơn Trần</strong>
+            }}>{postDetails.authorName}</strong>
             <p className='m-0' style={{
               fontWeight: '500',
               fontSize: '16px'
-            }}>24 tháng 09 lúc 9:01</p>
+            }}>{postDetails.date}</p>
           </div>
         </div>
 
@@ -76,8 +42,63 @@ function PostGroupDetail() {
             <ion-icon name="ellipsis-horizontal-outline" style={{ cursor: 'pointer', fontSize: '24px' }}></ion-icon>
           </Dropdown.Toggle>
 
-          <Dropdown.Menu align="end" style={{ zIndex: '1000' }}>
-            <Dropdown.Item onClick={() => console.log('Chỉnh sửa bình luận')}>Chỉnh sửa</Dropdown.Item>
+          <Dropdown.Menu align="end" style={{ zIndex: '1000' }} className='edit-post-detail-dropdown'>
+            <Dropdown.Item onClick={() => console.log('Chỉnh sửa bình luận')}>
+              <FormSubmit buttonText={'Cập nhật'} title={'Chỉnh sửa bài viết'} openModalText={'Chỉnh sửa'} onButtonClick={handelEditPostDetail}>
+                <h4>Địa điểm</h4>
+                <input placeholder='Nhập địa điểm' className='w-100 rounded-5 px-3' style={{
+                  height: '46px'
+                }} />
+                <h4>Nội dung</h4>
+                <textarea placeholder='Nhập nội dung' className='w-100 rounded-5 p-3' style={{
+                  height: '100px'
+                }} />
+                <h4>Ảnh</h4>
+                <div className='rounded-5' style={{
+                  border: '1px solid black',
+                  display: 'flex',
+                  height: '46px',
+                  alignItems: 'center',
+                }}>
+                  <input type='file' className=' rounded-5 px-3' style={{
+                    
+                  }} />
+                </div>
+                <div className='mt-3 d-flex gap-4 flex-wrap'>
+                  <img src='https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg' alt='' style={{
+                    width: '30%',
+                    height: '150px',
+                    objectFit: 'cover',
+                    marginBottom: '10px',
+                  }}/>
+                   <img src='https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg' alt='' style={{
+                    width: '30%',
+                    height: '150px',
+                    objectFit: 'cover',
+                    marginBottom: '10px',
+                  }}/>
+                   <img src='https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg' alt='' style={{
+                    width: '30%',
+                    height: '150px',
+                    objectFit: 'cover',
+                    marginBottom: '10px',
+                  }}/>
+                   <img src='https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg' alt='' style={{
+                    width: '30%',
+                    height: '150px',
+                    objectFit: 'cover',
+                    marginBottom: '10px',
+                  }}/>
+                   <img src='https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg' alt='' style={{
+                    width: '30%',
+                    height: '150px',
+                    objectFit: 'cover',
+                    marginBottom: '10px',
+                  }}/>
+                </div>
+              </FormSubmit>
+
+            </Dropdown.Item>
             <Dropdown.Item onClick={() => console.log('Xóa bình luận')}>Xóa</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
@@ -87,7 +108,7 @@ function PostGroupDetail() {
         margin: '14px 0 18px 0',
         fontSize: '16px',
         fontWeight: '500'
-      }}>Xin chào mọi người, Hôm nay chúng tôi chia sẻ đến mọi người chuyến đi Đà Nẵng 2 ngày 1 đêm của chúng tôi.</p>
+      }}>{postDetails.content}</p>
 
       <div style={{
         border: '1px solid #D9D9D9',
@@ -97,18 +118,12 @@ function PostGroupDetail() {
         borderRadius: '10px',
         boxShadow: '4px 4px 4px rgba(0, 0, 0, 0.25)',
       }} className='post-group-detail-img'>
-        <img src="https://tiki.vn/blog/wp-content/uploads/2023/03/cau-rong-da-nang.jpg" alt="địa điểm" style={{
-          objectFit: 'cover',
-          borderRadius: '20px'
-        }} />
-        <img src="https://tiki.vn/blog/wp-content/uploads/2023/03/cau-rong-da-nang.jpg" alt="địa điểm" style={{
-          objectFit: 'cover',
-          borderRadius: '20px'
-        }} />
-        <img src="https://tiki.vn/blog/wp-content/uploads/2023/03/cau-rong-da-nang.jpg" alt="địa điểm" style={{
-          objectFit: 'cover',
-          borderRadius: '20px'
-        }} />
+        {postDetails.images.map((img, index) => (
+          <img key={index} src={img} alt="địa điểm" style={{
+            objectFit: 'cover',
+            borderRadius: '20px'
+          }} />
+        ))}
       </div>
 
       <div style={{
@@ -126,12 +141,12 @@ function PostGroupDetail() {
       </div>
 
       {/* Pass visible comments to CommentPostGroupDetail */}
-      {comments.slice(0, visibleComments).map((comment) => (
+      {postDetails.comments.slice(0, visibleComments).map((comment) => (
         <CommentPostGroupDetail key={comment.id} comment={comment} />
       ))}
 
       {/* Show "Show More" button if there are more comments to show */}
-      {visibleComments < comments.length && (
+      {visibleComments < postDetails.comments.length && (
         <button onClick={handleShowMore} className='btn btn-outline-dark' style={{
           padding: '10px 20px',
           cursor: 'pointer',

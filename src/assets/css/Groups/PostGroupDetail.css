@@ -3,4 +3,12 @@
     width: 32%;
     height: 32%;
 }
-
+.edit-post-detail-dropdown .mybutton{
+    border: 0px ;
+    padding: 0px;
+    text-align: left;
+}
+.edit-post-detail-dropdown .mybutton:hover{
+    background-color: white !important;
+    color: black !important;
+}
