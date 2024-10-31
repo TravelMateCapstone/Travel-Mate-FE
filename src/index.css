@@ -15,6 +15,9 @@ body {
 a{
   text-decoration: none !important;
 }
+a span{
+  color: black;
+}
 .container-main {
   padding-top: 68px; /* Điều chỉnh tùy theo chiều cao thực tế của Navbar */
 }

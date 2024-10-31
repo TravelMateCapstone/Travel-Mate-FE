@@ -23,7 +23,7 @@ function EventCreated() {
   };
 
   return (
-    <div className='join-event-detail-container'>
+    <div className='event-create-container'>
       <img src={selectedEvent.img} alt={selectedEvent.title} style={{
         height: '331px',
         objectFit: 'cover',

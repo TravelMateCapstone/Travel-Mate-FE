@@ -1,43 +1,31 @@
-import React from 'react'
-import SearchBar from '../components/Shared/SearchBar'
-import { Container } from 'react-bootstrap'
-import ToolBar from '../components/Shared/ToolBar'
-import SidebarList from '../components/Shared/SidebarList';
-import FormSubmit from '../components/Shared/FormSubmit'
-function Home() {
-  const sidebarItems = [
-    { iconName: 'home', title: 'Trang Chủ', route: '/' },
-    { iconName: 'add-circle', title: 'Thêm', route: '/add' },
-    { iconName: 'people', title: 'Người Dùng', route: '/people' },
-    { iconName: 'calendar', title: 'Lịch', route: '/calendar' },
-    { iconName: 'car', title: 'Xe Hơi', route: '/car' },
-    { iconName: 'wallet', title: 'Ví', route: '/wallet' }
-  ];
+import React from 'react';
+import { Container, Row, Col, Card, ProgressBar } from 'react-bootstrap';
+import ToolBar from '../components/Shared/ToolBar';
 
-  const handleFormSubmit = () => {
-    alert("Đã lưu event");
-  };
+function Home() {
   return (
     <div>
-      <FormSubmit title="Registration Form" 
-        buttonText="Submit Form" 
-        onButtonClick={handleFormSubmit}>
-        <form>
-          <label>
-            Name:
-            <input type="text" />
-          </label>
-          <br />
-          <label>
-            Email:
-            <input type="email" />
-          </label>
-          <br />
-        </form>
-      </FormSubmit>
       <ToolBar />
+      <Container fluid className='mt-4' style={{
+        padding: '0 85px'
+      }}>
+        <Row>
+          {/* Left Sidebar */}
+          <Col md={2} className="sidebar">
+            sidebar
+          </Col>
+          {/* Main Content */}
+          <Col md={8}>
+            body
+          </Col>
+          {/* Right Sidebar */}
+          <Col md={2}>
+            right
+          </Col>
+        </Row>
+      </Container>
     </div>
-  )
+  );
 }
 
-export default Home
+export default Home;

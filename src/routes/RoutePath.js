@@ -38,6 +38,7 @@ const RoutePath = {
     ADMIN_REPORT: '/admin/report',
     ADMIN_TRANSACTION: '/admin/transaction',
     ADMIN_TRIP_HISTORY: '/admin/trip-history',
+    ADMIN_WALLET_MANAGEMENT: '/admin/wallet-management',
 
     // Local routes
     LOCAL_WALLET_MANAGEMENT: '/local/wallet-management',

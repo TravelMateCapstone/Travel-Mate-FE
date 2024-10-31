@@ -10,11 +10,11 @@ const RouteWrapper = ({ component: Component, layout: Layout, path }) => {
   const dispatch = useDispatch(); 
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated); 
 
-  // if (privateRoutes.some(route => route.path === path) && !isAuthenticated) {
+  if (privateRoutes.some(route => route.path === path) && !isAuthenticated) {
     
-  //   dispatch(openLoginModal());
-  //   return <Navigate to="/" replace />;
-  // } 
+    dispatch(openLoginModal());
+    return <Navigate to="/" replace />;
+  } 
 
   if (Layout === null) {
     return (
