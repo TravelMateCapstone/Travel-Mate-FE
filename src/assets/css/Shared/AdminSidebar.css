@@ -54,6 +54,10 @@
     color: white;
 }
 
+.menu-item span{
+    color: black;
+}
+
 .actions {
     padding: 10px 20px;
     cursor: pointer;
