@@ -101,6 +101,10 @@ function ListLayout({ children }) {
         }
     };
 
+    const [eventName, setEventName] = useState('');
+    const [eventDescription, setEventDescription] = useState('');
+    const [uploadedEventUrl, setUploadedEventUrl] = useState('');
+    const [eventLocation, setEventLocation] = useState('');
 
     const handleCreateGroup = async () => {
         const newErrors = {};
@@ -147,6 +151,71 @@ function ListLayout({ children }) {
             alert('Đã xảy ra lỗi khi tạo nhóm');
         }
     };
+
+
+    // Hàm chọn file cho ảnh sự kiện (tách biệt với ảnh nhóm)
+    const handleFileSelectForEvent = async (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setFilePlaceholder(file.name); // Cập nhật tên file
+            const storageRef = ref(storage, `events/${file.name}`);
+            try {
+                await uploadBytes(storageRef, file);
+                const url = await getDownloadURL(storageRef);
+                setUploadedEventUrl(url); // Đảm bảo URL cho sự kiện được cập nhật
+            } catch (error) {
+                console.error("Error uploading file:", error);
+                setErrors(prevErrors => ({ ...prevErrors, uploadedEventUrl: 'Lỗi khi tải lên ảnh sự kiện' }));
+            }
+        }
+    };
+
+    const handleCreateEvent = async () => {
+        const newErrors = {};
+
+        if (!eventName) {
+            newErrors.eventName = 'Vui lòng nhập tên sự kiện';
+        }
+        if (!eventDescription) {
+            newErrors.eventDescription = 'Vui lòng nhập mô tả sự kiện';
+        }
+        if (!uploadedEventUrl) {
+            newErrors.uploadedEventUrl = 'Vui lòng tải lên ảnh đại diện sự kiện';
+        }
+
+        setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) return;
+
+        const newEvent = {
+            eventName,
+            description: eventDescription,
+            eventImageUrl: uploadedEventUrl,
+            createAt: new Date().toISOString(),
+            startAt: new Date().toISOString(), // Thời gian bắt đầu
+            endAt: new Date().toISOString(), // Thời gian kết thúc
+            eventLocation,
+        };
+
+        try {
+            const apiUrl = import.meta.env.VITE_BASE_API_URL;
+            const response = await axios.post(
+                `${apiUrl}/api/EventControllerWOO/add-by-current-user`,
+                newEvent,
+                {
+                    headers: {
+                        Authorization: `${token}`,
+                    },
+                }
+            );
+            alert('Sự kiện mới đã được tạo thành công');
+            localStorage.removeItem('eventData');
+            window.location.reload();
+        } catch (error) {
+            console.error('Lỗi khi tạo sự kiện:', error);
+            alert('Đã xảy ra lỗi khi tạo sự kiện');
+        }
+    };
+
 
     return (
         <Container fluid className='container-main'>
@@ -235,42 +304,81 @@ function ListLayout({ children }) {
                                     </Form.Group>
                                 </Form>
                             </FormSubmit>
-                        ) }
+                        )}
 
                         {isEventRouteBtn && (
-                             (
-                                <FormSubmit buttonText={'Tạo sự kiện'} title={'Tạo sự kiện'} openModalText={'Tạo sự kiện'} needAuthorize={true}>
-                                    <h3>Bảng thông tin</h3>
-                                    <small>Nhập thông tin chi tiết cho sự kiện mới của bạn</small>
-                                    <Form>
-                                        <Form.Group id="eventName" className="mb-3 mt-3">
-                                            <Form.Label className='fw-bold'>Tên sự kiện</Form.Label>
-                                            <Form.Control type="text" placeholder="Nhập tên sự kiện" />
-                                        </Form.Group>
-    
-                                        <Form.Group id="eventDescription" className="mb-3">
-                                            <Form.Label className='fw-bold'>Mô tả sự kiện</Form.Label>
-                                            <Form.Control as="textarea" rows={3} placeholder="Nhập mô tả sự kiện" />
-                                        </Form.Group>
-    
-                                        <Form.Group id="location" className="mb-3">
-                                            <Form.Label className='fw-bold'>Địa điểm</Form.Label>
-                                            <Form.Select>
-                                                <option>Chọn địa điểm</option>
-                                                <option value="1">Địa điểm 1</option>
-                                                <option value="2">Địa điểm 2</option>
-                                                <option value="3">Địa điểm 3</option>
-                                            </Form.Select>
-                                        </Form.Group>
-    
-                                        <Form.Group id="eventImage" className="mb-3">
-                                            <Form.Label>Ảnh đại diện sự kiện</Form.Label>
-                                            <Form.Control type="file" id="fileInput" />
-                                        </Form.Group>
-                                    </Form>
-                                </FormSubmit>
-                            )
+                            <FormSubmit buttonText={'Tạo sự kiện'} onButtonClick={handleCreateEvent} title={'Tạo sự kiện'} openModalText={'Tạo sự kiện'} needAuthorize={true}>
+                                <h3>Bảng thông tin</h3>
+                                <small>Nhập thông tin chi tiết cho sự kiện mới của bạn</small>
+                                <Form>
+                                    <Form.Group id="eventName" className="mb-3 mt-3">
+                                        <Form.Label className='fw-bold'>Tên sự kiện</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Nhập tên sự kiện"
+                                            value={eventName}
+                                            onChange={(e) => setEventName(e.target.value)}
+                                            isInvalid={!!errors.eventName}
+                                        />
+                                        <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
+                                            {errors.eventName}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+
+                                    <Form.Group id="eventDescription" className="mb-3">
+                                        <Form.Label className='fw-bold'>Mô tả sự kiện</Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            rows={3}
+                                            placeholder="Nhập mô tả sự kiện"
+                                            value={eventDescription}
+                                            onChange={(e) => setEventDescription(e.target.value)}
+                                            isInvalid={!!errors.eventDescription}
+                                        />
+                                        <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
+                                            {errors.eventDescription}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+
+                                    <Form.Group id="location" className="mb-3">
+                                        <Form.Label className='fw-bold'>Địa điểm</Form.Label>
+                                        <Form.Select
+                                            value={eventLocation}
+                                            onChange={(e) => setEventLocation(e.target.value)}
+                                        >
+                                            <option>Chọn địa điểm</option>
+                                            <option value="Đà Nẵng">Đà Nẵng</option>
+                                            <option value="2">Địa điểm 2</option>
+                                            <option value="3">Địa điểm 3</option>
+                                        </Form.Select>
+                                    </Form.Group>
+
+                                    <Form.Group id="eventImage" className="mb-3">
+                                        <Form.Label>Ảnh đại diện sự kiện</Form.Label>
+                                        <Form.Control
+                                            type="file"
+                                            id="fileInput"
+                                            onChange={handleFileSelectForEvent} // Sử dụng hàm chọn file mới
+                                        />
+
+                                        {errors.uploadedEventUrl && (
+                                            <div style={{ color: 'red', marginTop: '5px' }}>
+                                                {errors.uploadedEventUrl}
+                                            </div>
+                                        )}
+                                        {uploadedEventUrl && (
+                                            <img
+                                                src={uploadedEventUrl}
+                                                alt="Ảnh đại diện sự kiện"
+                                                className="ms-3 mt-3"
+                                                style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
+                                            />
+                                        )}
+                                    </Form.Group>
+                                </Form>
+                            </FormSubmit>
                         )}
+
                     </div>
                 </Col>
 
