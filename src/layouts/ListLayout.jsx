@@ -129,7 +129,7 @@ function ListLayout({ children }) {
         };
         console.log(token);
         try {
-            console.log(cleanedToken);
+            
             const apiUrl = import.meta.env.VITE_BASE_API_URL;
             const response = await axios.post(
                 `${apiUrl}/api/groups`,
