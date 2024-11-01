@@ -13,6 +13,9 @@
     background: transparent !important;
     color: black !important;
 }
+.post-group-detail-textarea:focus{
+    outline: none ;
+}
 @media (max-width: 1024px){
     .join-group-detail-container{
         padding: 0 20px !important;

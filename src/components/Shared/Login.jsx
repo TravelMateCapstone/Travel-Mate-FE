@@ -5,7 +5,7 @@ import { loginSuccess } from "../../redux/actions/authActions";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
-import { decodeToken } from "react-jwt"; // Import decodeToken từ react-jwt
+import { decodeToken } from "react-jwt";
 import google from "../../assets/images/google.png";
 import facebook from "../../assets/images/facebook.png";
 import "../../assets/css/Shared/Login.css";
@@ -27,18 +27,16 @@ const Login = ({ show, handleClose }) => {
         password,
       });
       const { token } = response.data;
-      // Giải mã token để lấy thông tin người dùng
-      const user = decodeToken(token.result);
+      const claim = decodeToken(token);
 
-      // Lưu token vào localStorage
-      localStorage.setItem("token", token);
-      //localStorage.setItem("userInfo", JSON.stringify(userInfo));
-      // Dispatch login success action để cập nhật Redux state
+      const user = {
+        id: claim["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
+        username: claim["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
+        role: claim["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
+        avatarUrl: response.data.avataUrl,
+      }
+      console.log(user);
       dispatch(loginSuccess({ user, token }));
-
-
-
-      // Hiển thị thông báo thành công
       toast.success('Đăng nhập thành công!', {
         position: "bottom-right",
       });

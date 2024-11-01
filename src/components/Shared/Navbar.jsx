@@ -17,13 +17,13 @@ import { logout } from "../../redux/actions/authActions";
 
 function Navbar() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  //const isAuthenticated = useState(true);
   const [selectedItem, setSelectedItem] = useState('Địa điểm du lịch');
-  const [showOffcanvas, setShowOffcanvas] = useState(false); // State để điều khiển Offcanvas
+  const [showOffcanvas, setShowOffcanvas] = useState(false); 
   const dispatch = useDispatch();
 
   const isLoginModalOpen = useSelector((state) => state.modal.isLoginModalOpen);
   const isRegisterModalOpen = useSelector((state) => state.modal.isRegisterModalOpen);
+  const user = useSelector((state) => state.auth.user);
 
   const handelShowOffcanvas = () => {
     setShowOffcanvas(true);
@@ -253,7 +253,7 @@ function Navbar() {
                   <Dropdown.Toggle className="avatar bg-white text-secondary rounded-5 p-1 d-flex justify-content-between px-2 align-items-center gap-1">
                     <img
                       className="object-fit-cover rounded-5"
-                      src="https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj"
+                      src={user.avataUrl}
                       alt="avatar"
                       width={31}
                       height={31}

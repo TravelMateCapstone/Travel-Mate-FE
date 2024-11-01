@@ -1,18 +1,31 @@
 import React, { useState } from 'react';
 import CommentPostGroupDetail from './CommentPostGroupDetail';
-import { Container, Dropdown } from 'react-bootstrap';
+import { Button, Dropdown } from 'react-bootstrap';
 import '../../assets/css/Groups/PostGroupDetail.css';
 import FormSubmit from '../Shared/FormSubmit';
+import EmojiPicker from 'emoji-picker-react';
 
 function PostGroupDetail({ postDetails }) {
   const [visibleComments, setVisibleComments] = useState(2);
+  const [showComments, setShowComments] = useState(false); // New state to toggle comments visibility
+  const [comment, setComment] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const handleShowMore = () => {
     setVisibleComments((prev) => prev + 2);
   };
+
   const handelEditPostDetail = () => {
     console.log('Edit post detail');
-  }
+  };
+
+  const handleEmojiClick = (emoji) => {
+    setComment((prevComment) => prevComment + emoji.emoji);
+  };
+
+  const toggleComments = () => {
+    setShowComments((prev) => !prev); // Toggle visibility of comments
+  };
 
   return (
     <div className='mb-5 post-group-detail-container'>
@@ -24,7 +37,6 @@ function PostGroupDetail({ postDetails }) {
             objectFit: 'cover',
             borderRadius: '50%'
           }} />
-
           <div>
             <strong style={{
               fontWeight: '600',
@@ -41,7 +53,6 @@ function PostGroupDetail({ postDetails }) {
           <Dropdown.Toggle variant="link" id="dropdown-basic" className='bg-transparent border-0' style={{ padding: '0', marginLeft: 'auto', color: 'black', }}>
             <ion-icon name="ellipsis-horizontal-outline" style={{ cursor: 'pointer', fontSize: '24px' }}></ion-icon>
           </Dropdown.Toggle>
-
           <Dropdown.Menu align="end" style={{ zIndex: '1000' }} className='edit-post-detail-dropdown'>
             <Dropdown.Item onClick={() => console.log('Chỉnh sửa bình luận')}>
               <FormSubmit buttonText={'Cập nhật'} title={'Chỉnh sửa bài viết'} openModalText={'Chỉnh sửa'} onButtonClick={handelEditPostDetail}>
@@ -60,44 +71,9 @@ function PostGroupDetail({ postDetails }) {
                   height: '46px',
                   alignItems: 'center',
                 }}>
-                  <input type='file' className=' rounded-5 px-3' style={{
-                    
-                  }} />
-                </div>
-                <div className='mt-3 d-flex gap-4 flex-wrap'>
-                  <img src='https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg' alt='' style={{
-                    width: '30%',
-                    height: '150px',
-                    objectFit: 'cover',
-                    marginBottom: '10px',
-                  }}/>
-                   <img src='https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg' alt='' style={{
-                    width: '30%',
-                    height: '150px',
-                    objectFit: 'cover',
-                    marginBottom: '10px',
-                  }}/>
-                   <img src='https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg' alt='' style={{
-                    width: '30%',
-                    height: '150px',
-                    objectFit: 'cover',
-                    marginBottom: '10px',
-                  }}/>
-                   <img src='https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg' alt='' style={{
-                    width: '30%',
-                    height: '150px',
-                    objectFit: 'cover',
-                    marginBottom: '10px',
-                  }}/>
-                   <img src='https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg' alt='' style={{
-                    width: '30%',
-                    height: '150px',
-                    objectFit: 'cover',
-                    marginBottom: '10px',
-                  }}/>
+                  <input type='file' className=' rounded-5 px-3' />
                 </div>
               </FormSubmit>
-
             </Dropdown.Item>
             <Dropdown.Item onClick={() => console.log('Xóa bình luận')}>Xóa</Dropdown.Item>
           </Dropdown.Menu>
@@ -134,30 +110,68 @@ function PostGroupDetail({ postDetails }) {
       }}>
         <ion-icon name="chatbubble-outline" style={{
           fontSize: '36px',
-        }}></ion-icon>
+          cursor: 'pointer' // Make it clickable
+        }} onClick={toggleComments}></ion-icon>
         <ion-icon name="share-social-outline" style={{
           fontSize: '36px',
         }}></ion-icon>
       </div>
 
-      {/* Pass visible comments to CommentPostGroupDetail */}
-      {postDetails.comments.slice(0, visibleComments).map((comment) => (
-        <CommentPostGroupDetail key={comment.id} comment={comment} />
-      ))}
+      {/* Show comments and comment input if showComments is true */}
+      {showComments && (
+        <>
+          {postDetails.comments.slice(0, visibleComments).map((comment) => (
+            <CommentPostGroupDetail key={comment.id} comment={comment} />
+          ))}
 
-      {/* Show "Show More" button if there are more comments to show */}
-      {visibleComments < postDetails.comments.length && (
-        <button onClick={handleShowMore} className='btn btn-outline-dark' style={{
-          padding: '10px 20px',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '5px',
-          borderRadius: '20px',
-          fontSize: '12px'
-        }}>
-          Tải thêm các bình luận <ion-icon name="chevron-down-outline"></ion-icon>
-        </button>
+          <div className='d-flex gap-2'>
+            <img
+              src="https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg"
+              className='rounded-circle object-fit-cover'
+              height={60}
+              width={60}
+              alt=""
+            />
+            <div className='w-100 position-relative'>
+              <p className='m-0 fw-bold'>Nhơn Trần</p>
+              <textarea
+                placeholder='Nhập bình luận'
+                className='mb-2 w-100 rounded-4 p-2'
+                style={{ height: '80px' }}
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              />
+              <div className='w-100 d-flex justify-content-end gap-2'>
+                <Button variant='' className='d-flex justify-content-center align-items-center' onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+                  <ion-icon name="happy-outline" style={{
+                    fontSize: '24px'
+                  }}></ion-icon>
+                </Button>
+                <Button>Bình luận</Button>
+              </div>
+              {showEmojiPicker && (
+                <div style={{ position: 'absolute', zIndex: 1000, right: '0', bottom: '30px' }}>
+                  <EmojiPicker onEmojiClick={handleEmojiClick} />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Show "Show More" button if there are more comments to show */}
+          {visibleComments < postDetails.comments.length && (
+            <button onClick={handleShowMore} className='btn btn-outline-dark' style={{
+              padding: '10px 20px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              borderRadius: '20px',
+              fontSize: '12px'
+            }}>
+              Tải thêm các bình luận <ion-icon name="chevron-down-outline"></ion-icon>
+            </button>
+          )}
+        </>
       )}
     </div>
   );
