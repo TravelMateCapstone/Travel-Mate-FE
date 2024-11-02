@@ -11,6 +11,16 @@
   object-fit: cover;
 }
 
+.group-name {
+  font-size: 14px;
+  margin: 0;
+  margin-bottom: 5px;
+  white-space: nowrap;      /* Prevents text from wrapping */
+  overflow: hidden;         /* Hides any overflow */
+  text-overflow: ellipsis;  /* Adds ellipsis (…) for overflow */
+}
+
+
 .group-card-body {
   height: 193px;
   padding: 18px 22.5px 5px 22.5px;

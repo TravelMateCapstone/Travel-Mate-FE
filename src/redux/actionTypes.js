@@ -13,3 +13,5 @@ export const CLOSE_REGISTER_MODAL = "CLOSE_REGISTER_MODAL";
 
 export const VIEW_GROUP = 'VIEW_GROUP';
 export const VIEW_EVENT = 'VIEW_EVENT';
+
+export const REFRESH_GROUPS = 'REFRESH_GROUPS';

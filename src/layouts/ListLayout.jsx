@@ -13,13 +13,15 @@ import FormSubmit from '../components/Shared/FormSubmit';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../firebaseConfig';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { refreshGroups } from '../redux/actions/groupActions';
 
 function ListLayout({ children }) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const [filePlaceholder, setFilePlaceholder] = useState("Nhấn vào đây để upload"); // Initial placeholder text
+    const dispatch = useDispatch();
 
 
     const sidebarItems = [
@@ -133,7 +135,6 @@ function ListLayout({ children }) {
         };
         console.log(token);
         try {
-            console.log(cleanedToken);
             const apiUrl = import.meta.env.VITE_BASE_API_URL;
             const response = await axios.post(
                 `${apiUrl}/api/groups`,
@@ -146,6 +147,7 @@ function ListLayout({ children }) {
             );
             console.log('Tạo nhóm mới thành công:', response.data);
             alert('Nhóm mới đã được tạo thành công');
+            dispatch(refreshGroups());
         } catch (error) {
             console.error('Lỗi khi tạo nhóm:', error);
             alert('Đã xảy ra lỗi khi tạo nhóm');
@@ -392,7 +394,7 @@ function ListLayout({ children }) {
                 </Offcanvas>
 
                 <Col lg={6} md={9} xs={12} className='p-0'>
-                    <Container className='container-list d-none d-md-flex mb-3'>
+                    <Container className='container-list d-none d-md-flex mb-4'>
                         <div className='search-list-container'><SearchBar /></div>
                         <InputGroup className='search-list-container location-container'>
                             <InputGroup.Text className="search-icon bg-white search-icon-list border-end-0 rounded-start-5">
