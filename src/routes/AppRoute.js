@@ -23,6 +23,8 @@ import Chat from "../pages/Chat"
 import AdminReport from "../pages/Admin/AdminReport"
 import WalletManagement from "../pages/Admin/WalletManagement"
 import TripHistory from "../pages/Admin/TripHistory"
+import GroupManagement from "../pages/Groups/GroupManagement"
+import DefaultLayout from "../layouts/DefaultLayout"
 
 
 
@@ -40,10 +42,12 @@ const privateRoutes = [
     { path: RoutePath.ADMIN_WALLET_MANAGEMENT, component: WalletManagement, layout: AdminLayout },
     { path: RoutePath.ADMIN_TRIP_HISTORY, component: TripHistory, layout: AdminLayout },
 
+
     { path: RoutePath.GROUP_CREATED, component: GroupCreated, layout: ListLayout },
     { path: RoutePath.GROUP_JOINED, component: GroupJoined, layout: ListLayout },
     { path: RoutePath.EVENT_CREATED, component: EventCreated, layout: ListLayout },
     { path: RoutePath.EVENT_JOINED, component: EventJoined, layout: DetailLayout },
+    { path: RoutePath.GROUP_MANAGEMENT, component: GroupManagement, layout: DefaultLayout },
     { path: RoutePath.PROFILE, component: Profile, layout: ProfileLayout },
     { path: RoutePath.PROFILE_EDIT, component: EditProfile, layout: ProfileLayout },
     { path: RoutePath.PROFILE_EDIT_MY_HOME, component: EditMyHome, layout: ProfileLayout },
