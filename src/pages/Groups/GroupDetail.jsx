@@ -66,7 +66,7 @@ function GroupDetail() {
     if (localStorage.getItem('lastPath') == RoutePath.GROUP_CREATED) {
       setIsGroupCreate(true)
     }
-    console.log(isGroupCreate);
+    console.log(selectedGroup);
 
   })
 
@@ -74,7 +74,7 @@ function GroupDetail() {
     <div className='join-group-detail-container' style={{
       paddingRight: '85px'
     }}>
-      <img src={selectedGroup.img} alt={selectedGroup.title} style={{
+      <img src={selectedGroup.img || selectedGroup.groupImageUrl} alt={selectedGroup.title || selectedGroup.groupName} style={{
         height: '331px',
         objectFit: 'cover',
         borderRadius: '20px',
@@ -88,7 +88,7 @@ function GroupDetail() {
             fontWeight: 'bold',
             margin: '0',
             marginBottom: '10px'
-          }}>{selectedGroup.title}</p>
+          }}>{selectedGroup.title || selectedGroup.groupName}</p>
 
           <div className='group-location-inf' style={{
             fontSize: '20px',
