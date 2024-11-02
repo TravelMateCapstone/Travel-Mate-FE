@@ -8,6 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 function GroupList() {
   const token = useSelector((state) => state.auth.token);
+  const refreshGroups = useSelector((state) => state.group.refreshGroups); 
 
   const [data, setData] = useState([]);
   const [pageCount, setPageCount] = useState(0);
@@ -35,7 +36,7 @@ function GroupList() {
     };
 
     fetchData(currentPage);
-  }, [currentPage, token]);
+  }, [currentPage, token, refreshGroups]);
 
   const handlePageChange = useCallback((data) => {
     const selectedPage = data.selected + 1;

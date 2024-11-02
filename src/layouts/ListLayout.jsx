@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Shared/Navbar';
-import { Col, Container, Row, Offcanvas, Button, InputGroup, FormControl, Form } from 'react-bootstrap';
+import { Col, Container, Row, Offcanvas, Button, InputGroup, FormControl, Form, Placeholder } from 'react-bootstrap';
 import Footer from '../components/Shared/Footer';
 import SidebarList from '../components/Shared/SidebarList';
 import RoutePath from '../routes/RoutePath';
@@ -8,19 +8,24 @@ import ProposeGroup from '../components/Group/ProposeGroup';
 import ProposeEvent from '../components/Event/ProposeEvent';
 import SearchBar from '../components/Shared/SearchBar';
 import '../assets/css/layouts/ListLayout.css';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import FormSubmit from '../components/Shared/FormSubmit';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../firebaseConfig';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { refreshGroups, viewGroup } from '../redux/actions/groupActions';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function ListLayout({ children }) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-    const [filePlaceholder, setFilePlaceholder] = useState("Nhấn vào đây để upload"); // Initial placeholder text
-
+    const [filePlaceholder, setFilePlaceholder] = useState("Nhấn vào đây để upload");
+    const dispatch = useDispatch();
+    const [isUploading, setIsUploading] = useState(false);
+    const [tempImageUrl, setTempImageUrl] = useState(null);
 
     const sidebarItems = [
         { iconName: 'list-circle', title: 'Danh sách nhóm', route: RoutePath.GROUP },
@@ -65,9 +70,8 @@ function ListLayout({ children }) {
     const [groupLocation, setGroupLocation] = useState('');
     const [errors, setErrors] = useState({});
 
-    const token = useSelector((state) => state.auth.token); // Get token from Redux store
-    const user = useSelector((state) => state.auth.user); // Get user from Redux store
-
+    const token = useSelector((state) => state.auth.token);
+    const user = useSelector((state) => state.auth.user);
 
     useEffect(() => {
         const newErrors = { ...errors };
@@ -81,30 +85,45 @@ function ListLayout({ children }) {
             delete newErrors.groupImageUrl;
         }
         setErrors(newErrors);
-
     }, [groupName, groupDescription, uploadedUrl]);
 
     const handleFileSelect = async (event) => {
         const file = event.target.files[0];
         if (file) {
             setSelectedFile(file);
-            setFilePlaceholder(file.name); // Update placeholder with file name
+            setFilePlaceholder(file.name);
+            setTempImageUrl(URL.createObjectURL(file));
+            setIsUploading(true);
             const storageRef = ref(storage, `images/${file.name}`);
             try {
                 await uploadBytes(storageRef, file);
                 const url = await getDownloadURL(storageRef);
                 setUploadedUrl(url);
+                toast.success('Ảnh đã được tải lên thành công');
             } catch (error) {
-                console.error("Error uploading file:", error);
                 setErrors(prevErrors => ({ ...prevErrors, groupImageUrl: 'Lỗi khi tải lên ảnh bìa' }));
+                toast.error('Lỗi khi tải lên ảnh bìa');
+            }
+            finally {
+                setIsUploading(false);
             }
         }
+    };
+
+    const triggerFileInput = () => {
+        document.getElementById('fileInputGroup').click();
+    };
+
+    const triggerFileInputEvent = () => {
+        document.getElementById('fileInputEvent').click();
     };
 
     const [eventName, setEventName] = useState('');
     const [eventDescription, setEventDescription] = useState('');
     const [uploadedEventUrl, setUploadedEventUrl] = useState('');
     const [eventLocation, setEventLocation] = useState('');
+
+    const navigate = useNavigate();    
 
     const handleCreateGroup = async () => {
         const newErrors = {};
@@ -123,49 +142,53 @@ function ListLayout({ children }) {
             return;
         }
 
-        // Thông tin nhóm mới
         const newGroup = {
             groupName: groupName,
             description: groupDescription,
             location: groupLocation,
             groupImageUrl: uploadedUrl,
-            createAt: new Date().toISOString(), // Lấy ngày hiện tại
+            createAt: new Date().toISOString(),
         };
         console.log(token);
         try {
-            console.log(cleanedToken);
             const apiUrl = import.meta.env.VITE_BASE_API_URL;
             const response = await axios.post(
                 `${apiUrl}/api/groups`,
                 newGroup,
                 {
                     headers: {
-                        Authorization: `${token}` // Pass token in the Authorization header
+                        Authorization: `${token}`
                     }
                 }
             );
-            console.log('Tạo nhóm mới thành công:', response.data);
-            alert('Nhóm mới đã được tạo thành công');
+            toast.success('Nhóm mới đã được tạo thành công');
+            dispatch(viewGroup(newGroup)); 
+            dispatch(refreshGroups());
+            navigate(RoutePath.GROUP_DETAILS);
         } catch (error) {
-            console.error('Lỗi khi tạo nhóm:', error);
-            alert('Đã xảy ra lỗi khi tạo nhóm');
+            console.log(error);
+            toast.error('Đã xảy ra lỗi khi tạo nhóm');
         }
     };
 
-
-    // Hàm chọn file cho ảnh sự kiện (tách biệt với ảnh nhóm)
     const handleFileSelectForEvent = async (event) => {
         const file = event.target.files[0];
         if (file) {
-            setFilePlaceholder(file.name); // Cập nhật tên file
+            setFilePlaceholder(file.name);
+            setTempImageUrl(URL.createObjectURL(file));
+            setIsUploading(true);
             const storageRef = ref(storage, `events/${file.name}`);
             try {
                 await uploadBytes(storageRef, file);
                 const url = await getDownloadURL(storageRef);
-                setUploadedEventUrl(url); // Đảm bảo URL cho sự kiện được cập nhật
+                setUploadedEventUrl(url);
+                toast.success('Ảnh đã được tải lên thành công');
             } catch (error) {
                 console.error("Error uploading file:", error);
                 setErrors(prevErrors => ({ ...prevErrors, uploadedEventUrl: 'Lỗi khi tải lên ảnh sự kiện' }));
+                toast.error('Lỗi khi tải lên ảnh sự kiện');
+            } finally {
+                setIsUploading(false);
             }
         }
     };
@@ -191,8 +214,8 @@ function ListLayout({ children }) {
             description: eventDescription,
             eventImageUrl: uploadedEventUrl,
             createAt: new Date().toISOString(),
-            startAt: new Date().toISOString(), // Thời gian bắt đầu
-            endAt: new Date().toISOString(), // Thời gian kết thúc
+            startAt: new Date().toISOString(),
+            endAt: new Date().toISOString(),
             eventLocation,
         };
 
@@ -207,15 +230,13 @@ function ListLayout({ children }) {
                     },
                 }
             );
-            alert('Sự kiện mới đã được tạo thành công');
+            toast.success('Sự kiện mới đã được tạo thành công');
             localStorage.removeItem('eventData');
             window.location.reload();
         } catch (error) {
-            console.error('Lỗi khi tạo sự kiện:', error);
-            alert('Đã xảy ra lỗi khi tạo sự kiện');
+            toast.error('Đã xảy ra lỗi khi tạo sự kiện');
         }
     };
-
 
     return (
         <Container fluid className='container-main'>
@@ -239,7 +260,7 @@ function ListLayout({ children }) {
                                 <small>Nhập thông tin chi tiết cho nhóm mới của bạn</small>
                                 <Form>
                                     <Form.Group id="groupName" className="mb-3 mt-3">
-                                        <Form.Label className='fw-bold'>Tên nhóm</Form.Label>
+                                        <Form.Label className='fw-medium'>Tên nhóm</Form.Label>
                                         <Form.Control
                                             type="text"
                                             placeholder="Nhập tên nhóm (10-25 ký tự)"
@@ -253,7 +274,7 @@ function ListLayout({ children }) {
                                     </Form.Group>
 
                                     <Form.Group id="groupDescription" className="mb-3">
-                                        <Form.Label className='fw-bold'>Mô tả nhóm</Form.Label>
+                                        <Form.Label className='fw-medium'>Mô tả nhóm</Form.Label>
                                         <Form.Control
                                             as="textarea"
                                             rows={3}
@@ -268,7 +289,7 @@ function ListLayout({ children }) {
                                     </Form.Group>
 
                                     <Form.Group id="location" className="mb-3">
-                                        <Form.Label className='fw-bold'>Địa điểm</Form.Label>
+                                        <Form.Label className='fw-medium'>Địa điểm</Form.Label>
                                         <Form.Select value={groupLocation} onChange={(e) => setGroupLocation(e.target.value)}>
                                             <option>Chọn địa điểm</option>
                                             <option value="Đà Nẵng">Đà Nẵng</option>
@@ -277,29 +298,39 @@ function ListLayout({ children }) {
                                         </Form.Select>
                                     </Form.Group>
 
-                                    <Form.Group id="groupImage" className="mb-3">
-                                        <Form.Label>Ảnh bìa nhóm</Form.Label>
-                                        <div className="d-flex align-items-center">
-                                            <Form.Control
-                                                className='upload-image'
-                                                type="file"
-                                                id="fileInput"
-                                                onChange={handleFileSelect}
-                                                placeholder={filePlaceholder} // Set placeholder here
-                                            />
-                                        </div>
+                                    <Form.Group id="groupImage" className="mb-3 d-flex flex-column">
+                                        <Form.Label className='fw-medium'>Ảnh bìa nhóm</Form.Label>
+                                        <Button variant="outline-primary" onClick={triggerFileInput} className="d-flex rounded-5 gap-1 alignItems-center mb-2 text-black" style={{
+                                            width: '30%',
+                                            borderStyle: 'dashed',
+                                            backgroundColor: '#f2f7ff',
+                                        }}>
+                                            Nhấn vào đây để <p className='text-primary m-0'>upload</p>
+                                        </Button>
+                                        <Form.Control
+                                            type="file"
+                                            id="fileInputGroup"
+                                            onChange={handleFileSelect}
+                                            className="d-none"
+                                        />
+                                        {isUploading ? (
+                                            <Placeholder as="div" animation="glow" className="mt-3">
+                                                <Placeholder xs={12} style={{ height: '100px', width: '100px', borderRadius: '5px' }} />
+                                            </Placeholder>
+                                        ) : (
+                                            uploadedUrl && (
+                                                <img
+                                                    src={uploadedUrl}
+                                                    alt="Ảnh bìa nhóm"
+                                                    className="mt-3"
+                                                    style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
+                                                />
+                                            )
+                                        )}
                                         {errors.groupImageUrl && (
                                             <div style={{ color: 'red', marginTop: '5px' }}>
                                                 {errors.groupImageUrl}
                                             </div>
-                                        )}
-                                        {uploadedUrl && (
-                                            <img
-                                                src={uploadedUrl}
-                                                alt="Ảnh bìa nhóm"
-                                                className="ms-3 mt-3"
-                                                style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
-                                            />
                                         )}
                                     </Form.Group>
                                 </Form>
@@ -355,24 +386,33 @@ function ListLayout({ children }) {
 
                                     <Form.Group id="eventImage" className="mb-3">
                                         <Form.Label>Ảnh đại diện sự kiện</Form.Label>
+                                        <Button variant="outline-primary" onClick={triggerFileInputEvent} className="w-100 mb-2">
+                                            Chọn ảnh đại diện sự kiện
+                                        </Button>
                                         <Form.Control
                                             type="file"
-                                            id="fileInput"
-                                            onChange={handleFileSelectForEvent} // Sử dụng hàm chọn file mới
+                                            id="fileInputEvent"
+                                            onChange={handleFileSelectForEvent}
+                                            className="d-none"
                                         />
-
+                                        {isUploading ? (
+                                            <Placeholder as="div" animation="glow" className="mt-3">
+                                                <Placeholder xs={12} style={{ height: '100px', width: '100px', borderRadius: '5px' }} />
+                                            </Placeholder>
+                                        ) : (
+                                            uploadedEventUrl && (
+                                                <img
+                                                    src={uploadedEventUrl}
+                                                    alt="Ảnh đại diện sự kiện"
+                                                    className="ms-3 mt-3"
+                                                    style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
+                                                />
+                                            )
+                                        )}
                                         {errors.uploadedEventUrl && (
                                             <div style={{ color: 'red', marginTop: '5px' }}>
                                                 {errors.uploadedEventUrl}
                                             </div>
-                                        )}
-                                        {uploadedEventUrl && (
-                                            <img
-                                                src={uploadedEventUrl}
-                                                alt="Ảnh đại diện sự kiện"
-                                                className="ms-3 mt-3"
-                                                style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
-                                            />
                                         )}
                                     </Form.Group>
                                 </Form>
@@ -392,24 +432,27 @@ function ListLayout({ children }) {
                 </Offcanvas>
 
                 <Col lg={6} md={9} xs={12} className='p-0'>
-                    <Container className='container-list d-none d-md-flex mb-3'>
+                    <Container className='container-list d-none d-md-flex mb-4'>
                         <div className='search-list-container'><SearchBar /></div>
                         <InputGroup className='search-list-container location-container'>
-                            <InputGroup.Text className="search-icon bg-white search-icon-list border-end-0 rounded-start-5">
-                                <ion-icon name="location-outline"></ion-icon>
+                            <InputGroup.Text className="search-icon bg-white search-icon-list rounded-start-5" style={{
+                                border: '1px solid black'
+                            }}>
+                                <ion-icon name="location-outline" style={{
+                                    fontSize: '24px',
+                                }}></ion-icon>
                             </InputGroup.Text>
                             <FormControl
                                 type="search"
                                 placeholder="Địa điểm"
                                 aria-label="Search"
                                 className="searchBar-list rounded-start-0 rounded-end-5 border-start-0"
-                                style={{
-                                    border: '1px solid #ccc',
-                                }}
                             />
                         </InputGroup>
                         <Button variant='outline-dark' className='d-flex align-items-center gap-2 rounded-5 btn-filter'>
-                            <ion-icon name="filter-outline"></ion-icon>
+                            <ion-icon name="filter-outline" style={{
+                                fontSize: '24px',
+                            }}></ion-icon>
                             Lọc
                         </Button>
                     </Container>

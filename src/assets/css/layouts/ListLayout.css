@@ -7,6 +7,10 @@
 .container-list {
     display: flex !important;
     gap: 10px !important;
+    height: 42px !important;
+}
+.container-list .myInput{
+    height: 42px !important;
 }
 
 .btn-filter {
@@ -14,12 +18,10 @@
 }
 
 .search-list-container .searchBar-list {
-    height: 42px;
-    border: 1px solid black;
+    height: 42px !important;
     border-top-right-radius: 20px !important;
     border-bottom-right-radius: 20px !important;
 }
-
 .searchBar-list:focus {
     height: 42px;
     border-left: 0px;
@@ -90,6 +92,24 @@
     width: 260px;
     height: 44px !important;
 }
+
+/* Ensure border remains black on focus */
+.search-list-container .searchBar-list,
+.location-container .FormControl .myInput{
+    border-color: black !important;
+}
+
+.search-list-container .searchBar-list:focus,
+.location-container .FormControl:focus,
+.search-icon-list:focus {
+    border-color: black !important; /* Keeps border black on focus */
+    box-shadow: none !important; /* Removes any focus outline or shadow */
+}
+
+.search-icon-list {
+    border-color: black !important;
+}
+
 
 @media (max-width: 1024px) {
     .container-list {
