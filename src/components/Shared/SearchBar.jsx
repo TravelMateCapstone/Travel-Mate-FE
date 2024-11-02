@@ -20,16 +20,16 @@ function SearchBar({ onSearch }) {
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%' }}>
+    <div style={{ position: 'relative', width: '100%' }} className='search-bar-component'>
       <InputGroup className="rounded-5" style={{ height: '38px' }}>
-        <InputGroup.Text className='rounded-start-5' style={{ border: '1px solid #ccc', backgroundColor: 'transparent' }}>
-          <ion-icon name="search" style={{ marginRight: '0px', padding: '0px' }}></ion-icon>
+        <InputGroup.Text className='rounded-start-5' style={{ border: '1px solid black', backgroundColor: 'transparent' }}>
+          <ion-icon name="search" style={{ marginRight: '0px', padding: '0px', fontSize: '24px' }}></ion-icon>
         </InputGroup.Text>
         <Form.Control
           type="search"
           placeholder="Nhập từ khóa..."
-          className='border-start-0 rounded-end-5 fw-medium rounded-start-0'
-          style={{ border: '1px solid #ccc', outline: 'none', fontSize: '12px' }}
+          className='border-start-0 rounded-end-5 fw-medium rounded-start-0 myInput'
+          style={{ border: '1px solid black', outline: 'none', fontSize: '12px' }}
           value={searchTerm}
           onChange={handleChange}
           onKeyPress={handleKeyPress}

@@ -77,10 +77,10 @@ function GroupDetail() {
   return (
     <div className='join-group-detail-container' style={{ paddingRight: '85px' }}>
       <ToastContainer />
-      <img src={selectedGroup.img} alt={selectedGroup.title} style={{ height: '331px', objectFit: 'cover', borderRadius: '20px', marginBottom: '23px', width: '100%' }} />
+      <img src={selectedGroup.img || selectedGroup.groupImageUrl} alt={selectedGroup.title || selectedGroup.groupName} style={{ height: '331px', objectFit: 'cover', borderRadius: '20px', marginBottom: '23px', width: '100%' }} />
       <div className='d-flex justify-content-between'>
         <div className='d-flex gap-4'>
-          <p className='group-name-inf' style={{ fontSize: '40px', fontWeight: 'bold', margin: '0', marginBottom: '10px' }}>{selectedGroup.title}</p>
+          <p className='group-name-inf' style={{ fontSize: '40px', fontWeight: 'bold', margin: '0', marginBottom: '10px' }}>{selectedGroup.title || selectedGroup.groupName}</p>
           <div className='group-location-inf' style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '15px' }}>{selectedGroup.location}</div>
         </div>
         {isGroupCreate ? (

@@ -1,50 +1,33 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Col, Row } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
 import GroupCard from '../../components/Group/GroupCard';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import { Placeholder, Card } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function GroupList() {
   const token = useSelector((state) => state.auth.token);
-  const savedPage = parseInt(localStorage.getItem('currentPageList')) || 1;
-  const savedData = JSON.parse(localStorage.getItem('pageDataList')) || {};
-  
-  const [data, setData] = useState(savedData[savedPage] || []);
+  const refreshGroups = useSelector((state) => state.group.refreshGroups); 
+
+  const [data, setData] = useState([]);
   const [pageCount, setPageCount] = useState(0);
-  const [currentPage, setCurrentPage] = useState(savedPage);
-  const [isLoading, setIsLoading] = useState(!savedData[savedPage]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Nếu dữ liệu trang hiện tại đã có trong localStorage, không gọi API
-    if (savedData[currentPage]) {
-     
-      setData(savedData[currentPage]);
-      console.log("call local tại " + currentPage);
-      setIsLoading(false);
-      setPageCount(savedData.totalPages || 0);
-      return;
-    }
-    // Gọi API khi không có dữ liệu trang hiện tại trong localStorage
     const fetchData = async (page = 1) => {
-      console.log("call api");
       setIsLoading(true);
       try {
         const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/groups?pageNumber=${page}`, {
           headers: {
-            Authorization: `${token}`
-          }
+            Authorization: `${token}`,
+          },
         });
         const groupsData = response.data.groups.$values;
         const totalPages = response.data.totalPages;
         setData(groupsData);
         setPageCount(totalPages);
-        // Lưu dữ liệu và trang vào localStorage
-        const updatedData = { ...savedData, [page]: groupsData, totalPages };
-        localStorage.setItem('pageDataList', JSON.stringify(updatedData));
-        localStorage.setItem('currentPageList', page);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -52,8 +35,8 @@ function GroupList() {
       }
     };
 
-    fetchData(currentPage); // Fetch data for the current page
-  }, [currentPage, token]);
+    fetchData(currentPage);
+  }, [currentPage, token, refreshGroups]);
 
   const handlePageChange = useCallback((data) => {
     const selectedPage = data.selected + 1;
@@ -62,32 +45,47 @@ function GroupList() {
 
   return (
     <div>
-      <Row className="p-0 m-0">
-        {isLoading ? (
-          Array.from({ length: 6 }).map((_, index) => (
-            <Col md={4} xs={6} key={index} className="mb-4 d-flex justify-content-center">
-              <div style={{ width: '100%' }}>
-                <Skeleton height={200} />
-                <Skeleton height={30} style={{ marginTop: '10px' }} />
-                <Skeleton height={20} style={{ marginTop: '5px' }} />
-                <Skeleton height={20} style={{ marginTop: '5px' }} />
-              </div>
-            </Col>
-          ))
-        ) : (
-          data.map((group) => (
-            <Col md={4} xs={6} key={group.groupId} className="mb-4 d-flex justify-content-center">
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+          gap: '42px',
+        }}
+      >
+        {isLoading
+          ? Array.from({ length: 6 }).map((_, index) => (
+              <Card key={index} className="group-card" style={{ width: '100%' }}>
+                <Placeholder as={Card.Img} variant="top" className="group-card-img" />
+                <Card.Body className="group-card-body">
+                  <Placeholder as={Card.Title} animation="glow" className="group-name">
+                    <Placeholder xs={6} />
+                  </Placeholder>
+                  <div className="group-card-info">
+                    <Placeholder animation="glow">
+                      <Placeholder xs={4} />
+                    </Placeholder>
+                    <Placeholder animation="glow">
+                      <Placeholder xs={3} />
+                    </Placeholder>
+                  </div>
+                  <Placeholder as={Card.Text} animation="glow" className="group-card-text">
+                    <Placeholder xs={8} />
+                    <Placeholder xs={6} />
+                  </Placeholder>
+                </Card.Body>
+              </Card>
+            ))
+          : data.map((group) => (
               <GroupCard
+                key={group.groupId}
                 img={group.groupImageUrl}
                 title={group.groupName}
                 location={group.location}
-                members={`${group.numberOfParticipants} thành viên`}
+                members={`${group.numberOfParticipants}`}
                 text={group.description}
               />
-            </Col>
-          ))
-        )}
-      </Row>
+            ))}
+      </div>
 
       <ReactPaginate
         previousLabel={'<'}
