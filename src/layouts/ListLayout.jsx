@@ -435,21 +435,24 @@ function ListLayout({ children }) {
                     <Container className='container-list d-none d-md-flex mb-4'>
                         <div className='search-list-container'><SearchBar /></div>
                         <InputGroup className='search-list-container location-container'>
-                            <InputGroup.Text className="search-icon bg-white search-icon-list border-end-0 rounded-start-5">
-                                <ion-icon name="location-outline"></ion-icon>
+                            <InputGroup.Text className="search-icon bg-white search-icon-list rounded-start-5" style={{
+                                border: '1px solid black'
+                            }}>
+                                <ion-icon name="location-outline" style={{
+                                    fontSize: '24px',
+                                }}></ion-icon>
                             </InputGroup.Text>
                             <FormControl
                                 type="search"
                                 placeholder="Địa điểm"
                                 aria-label="Search"
                                 className="searchBar-list rounded-start-0 rounded-end-5 border-start-0"
-                                style={{
-                                    border: '1px solid #ccc',
-                                }}
                             />
                         </InputGroup>
                         <Button variant='outline-dark' className='d-flex align-items-center gap-2 rounded-5 btn-filter'>
-                            <ion-icon name="filter-outline"></ion-icon>
+                            <ion-icon name="filter-outline" style={{
+                                fontSize: '24px',
+                            }}></ion-icon>
                             Lọc
                         </Button>
                     </Container>

@@ -1,0 +1,8 @@
+.myInput {
+    border-color: black !important;
+}
+.search-bar-component .form-control:focus {
+    border-color: black !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
