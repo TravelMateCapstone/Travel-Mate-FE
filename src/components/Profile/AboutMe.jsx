@@ -38,7 +38,7 @@ function AboutMe() {
             console.log("Không tìm thấy dữ liệu profile.");
           }
 
-          const activitiesResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserActivitiesWOO/current-user`, {
+          const activitiesResponse = await axios.get(`${url}/api/UserActivitiesWOO/current-user`, {
             headers: { Authorization: `${token}` },
           });
 
@@ -84,11 +84,16 @@ function AboutMe() {
                 <h4>SỞ THÍCH</h4>
                 <div className='d-flex favorite-tag'>
                   {activities ? (
-                    <p className="small border border-dark btn mx-3 rounded-pill">{activities.map(activity => activity.activityName).join(", ")}</p>
+                    activities.map((activity, index) => (
+                      <div key={index} className="small border border-dark btn mx-3 rounded-pill">
+                        {activity.activityName}
+                      </div>
+                    ))
                   ) : (
                     <Skeleton width={200} height={20} />
                   )}
                 </div>
+
               </div>
             </li>
             <li>
