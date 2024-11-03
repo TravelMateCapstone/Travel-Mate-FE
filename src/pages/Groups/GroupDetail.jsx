@@ -68,6 +68,8 @@ function GroupDetail() {
       .catch(error => {
         console.error('Error fetching locations:', error);
       });
+      console.log(user);
+      
   }, []);
 
   const handleViewImage = (url) => {

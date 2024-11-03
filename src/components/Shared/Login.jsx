@@ -38,8 +38,6 @@ const Login = ({ show, handleClose }) => {
       toast.success('Đăng nhập thành công!', {
         position: "bottom-right",
       });
-
-      // Đóng modal sau khi đăng nhập thành công
       handleClose();
     } catch (error) {
       setErrorMessage(error.response?.data?.error || "Sai tài khoản hoặc mật khẩu.");

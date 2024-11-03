@@ -253,7 +253,7 @@ function Navbar() {
                   <Dropdown.Toggle className="avatar bg-white text-secondary rounded-5 p-1 d-flex justify-content-between px-2 align-items-center gap-1">
                     <img
                       className="object-fit-cover rounded-5"
-                      src={user.avatarUrl}
+                      src={ 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'}
                       alt="avatar"
                       width={31}
                       height={31}
