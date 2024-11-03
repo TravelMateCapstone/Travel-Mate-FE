@@ -253,7 +253,7 @@ function Navbar() {
                   <Dropdown.Toggle className="avatar bg-white text-secondary rounded-5 p-1 d-flex justify-content-between px-2 align-items-center gap-1">
                     <img
                       className="object-fit-cover rounded-5"
-                      src={user.avataUrl}
+                      src={user.avatarUrl}
                       alt="avatar"
                       width={31}
                       height={31}

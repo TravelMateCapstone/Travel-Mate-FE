@@ -23,3 +23,15 @@ a{
   box-shadow: none !important; /* Loại bỏ shadow khi focus */
   border-color: #ccc !important; /* Giữ lại border màu mặc định hoặc tùy chỉnh */
 }
+
+/* Khi hover vào item của dropdown */
+.dropdown-menu .dropdown-item:hover {
+  background-color: #ffffff; /* Màu nền khi hover, ví dụ màu đen */
+  color: #000000; /* Màu chữ khi hover, ví dụ màu trắng */
+}
+
+/* Khi mục được kích */
+.dropdown-menu .dropdown-item:active {
+  background-color: #ffffff; /* Màu nền khi kích vào, ví dụ màu xám */
+  color: #000000; /* Màu chữ khi kích */
+}

@@ -8,7 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 function GroupList() {
   const token = useSelector((state) => state.auth.token);
-  const refreshGroups = useSelector((state) => state.group.refreshGroups); 
+  const refreshGroups = useSelector((state) => state.group.refreshGroups);
 
   const [data, setData] = useState([]);
   const [pageCount, setPageCount] = useState(0);
@@ -54,37 +54,38 @@ function GroupList() {
       >
         {isLoading
           ? Array.from({ length: 6 }).map((_, index) => (
-              <Card key={index} className="group-card" style={{ width: '100%' }}>
-                <Placeholder as={Card.Img} variant="top" className="group-card-img" />
-                <Card.Body className="group-card-body">
-                  <Placeholder as={Card.Title} animation="glow" className="group-name">
-                    <Placeholder xs={6} />
+            <Card key={index} className="group-card" style={{ width: '100%' }}>
+              <Placeholder as={Card.Img} variant="top" className="group-card-img" />
+              <Card.Body className="group-card-body">
+                <Placeholder as={Card.Title} animation="glow" className="group-name">
+                  <Placeholder xs={6} />
+                </Placeholder>
+                <div className="group-card-info">
+                  <Placeholder animation="glow">
+                    <Placeholder xs={4} />
                   </Placeholder>
-                  <div className="group-card-info">
-                    <Placeholder animation="glow">
-                      <Placeholder xs={4} />
-                    </Placeholder>
-                    <Placeholder animation="glow">
-                      <Placeholder xs={3} />
-                    </Placeholder>
-                  </div>
-                  <Placeholder as={Card.Text} animation="glow" className="group-card-text">
-                    <Placeholder xs={8} />
-                    <Placeholder xs={6} />
+                  <Placeholder animation="glow">
+                    <Placeholder xs={3} />
                   </Placeholder>
-                </Card.Body>
-              </Card>
-            ))
+                </div>
+                <Placeholder as={Card.Text} animation="glow" className="group-card-text">
+                  <Placeholder xs={8} />
+                  <Placeholder xs={6} />
+                </Placeholder>
+              </Card.Body>
+            </Card>
+          ))
           : data.map((group) => (
-              <GroupCard
-                key={group.groupId}
-                img={group.groupImageUrl}
-                title={group.groupName}
-                location={group.location}
-                members={`${group.numberOfParticipants}`}
-                text={group.description}
-              />
-            ))}
+            <GroupCard
+              id={group.groupId}
+              key={group.groupId}
+              img={group.groupImageUrl}
+              title={group.groupName}
+              location={group.location}
+              members={`${group.numberOfParticipants}`}
+              text={group.description}
+            />
+          ))}
       </div>
 
       <ReactPaginate

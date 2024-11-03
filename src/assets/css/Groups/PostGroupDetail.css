@@ -1,14 +1,51 @@
+.post-group-detail-img img {
+  width: 32%;
+  height: 32%;
+}
+.edit-post-detail-dropdown .mybutton {
+  border: 0px;
+  padding: 0px;
+  text-align: left;
+}
+.edit-post-detail-dropdown .mybutton:hover {
+  background-color: white !important;
+  color: black !important;
+}
 
-.post-group-detail-img img{
-    width: 32%;
-    height: 32%;
+/* Custom CSS for transparent modal */
+.transparent-modal .modal-content {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
-.edit-post-detail-dropdown .mybutton{
-    border: 0px ;
-    padding: 0px;
-    text-align: left;
+
+.transparent-modal .modal-dialog {
+  max-width: unset; /* Allows the image to determine the size */
+  width: auto;
+  margin: 0;
+  padding: 0;
 }
-.edit-post-detail-dropdown .mybutton:hover{
-    background-color: white !important;
-    color: black !important;
+/* In your CSS file or inline */
+.placeholder-container {
+  position: relative !important;
+  z-index: 2050 !important; /* Higher than the modal backdrop (usually 1040) */
 }
+
+@keyframes zoomIn {
+    from {
+      transform: scale(0.5); /* Bắt đầu với kích thước nhỏ hơn */
+      opacity: 0; /* Bắt đầu với độ mờ */
+    }
+    50% {
+      transform: scale(1.1); /* Tăng nhẹ kích thước giữa chừng */
+    }
+    to {
+      transform: scale(1); /* Đạt kích thước đầy đủ */
+      opacity: 1; /* Độ trong suốt đạt tối đa */
+    }
+  }
+  
+  .zoom-in-image {
+    animation: zoomIn 0.5s ease-out; /* Điều chỉnh thời gian hiệu ứng */
+  }
+  

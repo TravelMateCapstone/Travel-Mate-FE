@@ -5,13 +5,13 @@ import { Link, useLocation } from 'react-router-dom'; // Import useLocation
 import RoutePath from '../../routes/RoutePath';
 import { viewGroup } from '../../redux/actions/groupActions';
 import { useDispatch } from 'react-redux';
-const GroupCard = ({ img, title, location, members, text }) => {
+const GroupCard = ({ id, img, title, location, members, text }) => {
   const locationRoute = useLocation(); 
   const dispatch = useDispatch(); 
   const isCreatedOrJoined = locationRoute.pathname === RoutePath.GROUP_CREATED || locationRoute.pathname === RoutePath.GROUP_JOINED;
   const buttonText = isCreatedOrJoined ? 'Vào nhóm' : 'Tham gia';
   const handleJoinGroup = () => {
-    const groupDetails = { img, title, location, members, text }; 
+    const groupDetails = { id, img, title, location, members, text }; 
     dispatch(viewGroup(groupDetails)); 
   };
   return (

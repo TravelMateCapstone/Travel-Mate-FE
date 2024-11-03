@@ -1,15 +1,37 @@
 import React, { useState } from 'react';
 import CommentPostGroupDetail from './CommentPostGroupDetail';
-import { Button, Dropdown } from 'react-bootstrap';
+import { Button, Dropdown, Form, Modal, Placeholder } from 'react-bootstrap';
 import '../../assets/css/Groups/PostGroupDetail.css';
 import FormSubmit from '../Shared/FormSubmit';
 import EmojiPicker from 'emoji-picker-react';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { storage } from '../../../firebaseConfig';
+import { toast } from 'react-toastify';
 
 function PostGroupDetail({ postDetails }) {
   const [visibleComments, setVisibleComments] = useState(2);
+  const [filePlaceholders, setFilePlaceholders] = useState([]);
+  const [tempImageUrls, setTempImageUrls] = useState([]);
   const [showComments, setShowComments] = useState(false); // New state to toggle comments visibility
   const [comment, setComment] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedUrls, setUploadedUrls] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [uploadedFileRefs, setUploadedFileRefs] = useState([]); // References for deleting the files from Firebase
+  const [showModal, setShowModal] = useState(false); // State for modal visibility
+  const [modalImageUrl, setModalImageUrl] = useState(null); // State for image URL in modal
+
+
+  const triggerFileInput = () => {
+    document.getElementById('fileInputPostGroup').click();
+  };
+
+  const handleViewImage = (url) => {
+    setModalImageUrl(url); // Set the image URL for the modal
+    setShowModal(true); // Show the modal
+  };
 
   const handleShowMore = () => {
     setVisibleComments((prev) => prev + 2);
@@ -23,8 +45,62 @@ function PostGroupDetail({ postDetails }) {
     setComment((prevComment) => prevComment + emoji.emoji);
   };
 
+  const handleDeleteImage = async (index) => {
+    if (uploadedFileRefs[index]) {
+      try {
+        await deleteObject(uploadedFileRefs[index]);
+        setUploadedUrls((prevUrls) => prevUrls.filter((_, i) => i !== index));
+        setUploadedFileRefs((prevRefs) => prevRefs.filter((_, i) => i !== index));
+        toast.success('Ảnh đã được xóa thành công');
+      } catch (error) {
+        console.log('Error deleting image:', error);
+        toast.error('Lỗi khi xóa ảnh');
+      }
+    }
+  };
+
+  const handleFileSelect = async (event) => {
+    const files = Array.from(event.target.files);
+    if (files.length > 0) {
+      setSelectedFiles(files);
+      setFilePlaceholders(files.map((file) => file.name));
+      setTempImageUrls(files.map((file) => URL.createObjectURL(file)));
+      setIsUploading(true);
+
+      const newUploadedUrls = [];
+      const newUploadedFileRefs = [];
+
+      for (const file of files) {
+        const storageRef = ref(storage, `images/${file.name}`);
+        newUploadedFileRefs.push(storageRef);
+        try {
+          await uploadBytes(storageRef, file);
+          const url = await getDownloadURL(storageRef);
+          newUploadedUrls.push(url);
+        } catch (error) {
+          setErrors((prevErrors) => ({ ...prevErrors, groupImageUrl: 'Lỗi khi tải lên ảnh bìa' }));
+          toast.error(`Lỗi khi tải lên ảnh ${file.name}`);
+        }
+      }
+
+      setUploadedUrls((prevUrls) => [...prevUrls, ...newUploadedUrls]);
+      setUploadedFileRefs((prevRefs) => [...prevRefs, ...newUploadedFileRefs]);
+      setIsUploading(false);
+
+      if (newUploadedUrls.length > 0) {
+        toast.success('Tất cả ảnh đã được tải lên thành công');
+      }
+    }
+  };
   const toggleComments = () => {
     setShowComments((prev) => !prev); // Toggle visibility of comments
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      console.log("File selected:", file.name);
+    }
   };
 
   return (
@@ -54,25 +130,119 @@ function PostGroupDetail({ postDetails }) {
             <ion-icon name="ellipsis-horizontal-outline" style={{ cursor: 'pointer', fontSize: '24px' }}></ion-icon>
           </Dropdown.Toggle>
           <Dropdown.Menu align="end" style={{ zIndex: '1000' }} className='edit-post-detail-dropdown'>
-            <Dropdown.Item onClick={() => console.log('Chỉnh sửa bình luận')}>
+            <Dropdown.Item>
               <FormSubmit buttonText={'Cập nhật'} title={'Chỉnh sửa bài viết'} openModalText={'Chỉnh sửa'} onButtonClick={handelEditPostDetail}>
-                <h4>Địa điểm</h4>
-                <input placeholder='Nhập địa điểm' className='w-100 rounded-5 px-3' style={{
-                  height: '46px'
-                }} />
-                <h4>Nội dung</h4>
+                <h3>Bảng thông tin</h3>
+                <small>Nhập thông tin chi tiết cho nhóm mới của bạn</small>
+
+                <h4 style={{
+                  marginTop: '20px'
+                }}>Nội dung</h4>
                 <textarea placeholder='Nhập nội dung' className='w-100 rounded-5 p-3' style={{
-                  height: '100px'
+                  height: '105px'
                 }} />
-                <h4>Ảnh</h4>
-                <div className='rounded-5' style={{
-                  border: '1px solid black',
-                  display: 'flex',
-                  height: '46px',
-                  alignItems: 'center',
-                }}>
-                  <input type='file' className=' rounded-5 px-3' />
+         <Form.Group id="groupImage" className="mb-3 d-flex flex-column">
+        <h4 style={{ marginTop: '20px' }}>Ảnh</h4>
+        <Button
+          variant="outline-primary"
+          onClick={triggerFileInput}
+          className="d-flex rounded-5 gap-1 alignItems-center mb-2 text-black"
+          style={{
+            width: '30%',
+            borderStyle: 'dashed',
+            backgroundColor: '#f2f7ff',
+          }}
+        >
+          Nhấn vào đây để <p className='text-primary m-0'>upload</p>
+        </Button>
+        <Form.Control
+          type="file"
+          id="fileInputPostGroup"
+          onClick={(e) => e.stopPropagation()}
+          onChange={handleFileSelect}
+          className="d-none"
+          multiple
+        />
+        {isUploading ? (
+          <Placeholder as="div" animation="glow" className="mt-3 d-flex flex-wrap gap-3">
+            {filePlaceholders.map((_, index) => (
+              <Placeholder key={index} xs={12} style={{ height: '100px', width: '100px', borderRadius: '5px' }} />
+            ))}
+          </Placeholder>
+        ) : (
+          <div className="d-flex flex-wrap gap-3">
+            {uploadedUrls.map((url, index) => (
+              <div
+                key={index}
+                style={{
+                  position: 'relative',
+                  width: '100px',
+                  height: '100px',
+                }}
+              >
+                <img
+                  src={url}
+                  alt="Ảnh bìa nhóm"
+                  className="mt-3"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '5px',
+                  }}
+                />
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '17px',
+                    left: '0',
+                    right: '0',
+                    bottom: '0',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    borderRadius: '5px',
+                    opacity: '0',
+                    transition: 'opacity 0.3s ease',
+                    cursor: 'pointer',
+                    height: '100%',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = '1';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = '0';
+                  }}
+                >
+                  <ion-icon
+                    name="eye-outline"
+                    style={{
+                      fontSize: '24px',
+                      color: 'white',
+                      marginRight: '10px',
+                    }}
+                    onClick={() => handleViewImage(url)}
+                  ></ion-icon>
+                  <ion-icon
+                    name="trash-outline"
+                    style={{
+                      fontSize: '24px',
+                      color: 'white',
+                    }}
+                    onClick={() => handleDeleteImage(index)}
+                  ></ion-icon>
                 </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {errors.groupImageUrl && (
+          <div style={{ color: 'red', marginTop: '5px' }}>
+            {errors.groupImageUrl}
+          </div>
+        )}
+      </Form.Group>
               </FormSubmit>
             </Dropdown.Item>
             <Dropdown.Item onClick={() => console.log('Xóa bình luận')}>Xóa</Dropdown.Item>
@@ -173,6 +343,40 @@ function PostGroupDetail({ postDetails }) {
           )}
         </>
       )}
+
+      <Modal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        centered
+        backdrop={false}
+        dialogClassName="transparent-modal"
+      >
+        <div
+          onClick={() => setShowModal(false)} // Close modal when clicking on overlay
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+            zIndex: 1040, // Ensure it sits below the modal content
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100%',
+            }}
+          >
+            <img src={modalImageUrl} alt="Ảnh lớn" style={{ width: '50%', borderRadius: '5px' }} />
+          </div>
+        </div>
+      </Modal>
+
+
     </div>
   );
 }

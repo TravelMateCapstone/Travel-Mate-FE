@@ -16,7 +16,6 @@ import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { refreshGroups, viewGroup } from '../redux/actions/groupActions';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 function ListLayout({ children }) {
     const [show, setShow] = useState(false);
@@ -26,6 +25,8 @@ function ListLayout({ children }) {
     const dispatch = useDispatch();
     const [isUploading, setIsUploading] = useState(false);
     const [tempImageUrl, setTempImageUrl] = useState(null);
+    const [locations, setLocations] = useState([]);
+    
 
     const sidebarItems = [
         { iconName: 'list-circle', title: 'Danh sách nhóm', route: RoutePath.GROUP },
@@ -45,6 +46,21 @@ function ListLayout({ children }) {
     useEffect(() => {
         setLastPath(location.pathname);
         localStorage.setItem('lastPath', location.pathname);
+        const fetchLocations = async () => {
+            try {
+                const response = await axios.get('https://provinces.open-api.vn/api/p/');
+                const locationData = response.data.map((location) => {
+                    return {
+                        ...location,
+                        name: location.name.replace(/^Tỉnh |^Thành phố /, ''),
+                    };
+                });
+                setLocations(locationData);
+            } catch (error) {
+                console.error("Error fetching locations:", error);
+            }
+        };
+        fetchLocations();
     }, [location]);
 
     const currentPath = location.pathname;
@@ -123,7 +139,7 @@ function ListLayout({ children }) {
     const [uploadedEventUrl, setUploadedEventUrl] = useState('');
     const [eventLocation, setEventLocation] = useState('');
 
-    const navigate = useNavigate();    
+    const navigate = useNavigate();
 
     const handleCreateGroup = async () => {
         const newErrors = {};
@@ -132,9 +148,6 @@ function ListLayout({ children }) {
         }
         if (!groupDescription) {
             newErrors.groupDescription = 'Vui lòng nhập mô tả nhóm';
-        }
-        if (!uploadedUrl) {
-            newErrors.groupImageUrl = 'Vui lòng tải lên ảnh bìa';
         }
         setErrors(newErrors);
 
@@ -162,7 +175,7 @@ function ListLayout({ children }) {
                 }
             );
             toast.success('Nhóm mới đã được tạo thành công');
-            dispatch(viewGroup(newGroup)); 
+            dispatch(viewGroup(newGroup));
             dispatch(refreshGroups());
             navigate(RoutePath.GROUP_DETAILS);
         } catch (error) {
@@ -292,9 +305,11 @@ function ListLayout({ children }) {
                                         <Form.Label className='fw-medium'>Địa điểm</Form.Label>
                                         <Form.Select value={groupLocation} onChange={(e) => setGroupLocation(e.target.value)}>
                                             <option>Chọn địa điểm</option>
-                                            <option value="Đà Nẵng">Đà Nẵng</option>
-                                            <option value="2">Địa điểm 2</option>
-                                            <option value="3">Địa điểm 3</option>
+                                            {locations.map((location) => (
+                                                <option key={location.code} value={location.name}>
+                                                    {location.name}
+                                                </option>
+                                            ))}
                                         </Form.Select>
                                     </Form.Group>
 
@@ -378,9 +393,11 @@ function ListLayout({ children }) {
                                             onChange={(e) => setEventLocation(e.target.value)}
                                         >
                                             <option>Chọn địa điểm</option>
-                                            <option value="Đà Nẵng">Đà Nẵng</option>
-                                            <option value="2">Địa điểm 2</option>
-                                            <option value="3">Địa điểm 3</option>
+                                            {locations.map((location) => (
+                                                <option key={location.code} value={location.name}>
+                                                    {location.name}
+                                                </option>
+                                            ))}
                                         </Form.Select>
                                     </Form.Group>
 
