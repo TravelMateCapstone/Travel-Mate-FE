@@ -3,25 +3,50 @@ import { Card, Button } from 'react-bootstrap';
 import '../../assets/css/Events/EventCard.css';
 import { Link } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { viewEvent } from '../../redux/actions/eventActions';
+import { toast } from 'react-toastify';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
 const EventCard = ({ id, img, startTime, endTime, title, location, members, text, loading }) => {
-
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const token = useSelector((state) => state.auth.token);
+    const url = import.meta.env.VITE_BASE_API_URL;
 
-    const handleJoinEvent = () => {
+    const handleJoinEvent = async () => {
         const eventDetails = { img, startTime, endTime, title, location, members, text };
         dispatch(viewEvent(eventDetails));
-        navigate(RoutePath.JOINEVENTDETAILS);
+
+        try {
+            // Prepare the payload to match the API requirements
+            const payload = {
+                eventId: id,
+                joinedAt: new Date().toISOString(), // Current timestamp in ISO format
+                notification: true
+            };
+
+            await axios.post(
+                `${url}/api/EventParticipants/current-user-join-event`,
+                payload,
+                {
+                    headers: {
+                        Authorization: `${token}`,
+                    },
+                }
+            );
+            toast.success('Tham gia sự kiện thành công!');
+            navigate(RoutePath.EVENT_JOINED);
+        } catch (error) {
+            console.error('Lỗi khi tham gia sự kiện:', error);
+            toast.error('Đã có lỗi xảy ra khi tham gia sự kiện.');
+        }
     };
 
     if (loading) {
-        // Render skeleton placeholders when loading is true
         return (
             <Card className="eventlist-card">
                 <Skeleton height={200} width="100%" />
