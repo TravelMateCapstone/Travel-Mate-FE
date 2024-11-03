@@ -44,48 +44,60 @@ function GroupJoined() {
 
   return (
     <div>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-          gap: '42px',
-        }}
-      >
-        {isLoading
-          ? Array.from({ length: 6 }).map((_, index) => (
-              <Card key={index} className="group-card" style={{ width: '100%' }}>
-                <Placeholder as={Card.Img} variant="top" className="group-card-img" />
-                <Card.Body className="group-card-body">
-                  <Placeholder as={Card.Title} animation="glow" className="group-name">
-                    <Placeholder xs={6} />
+      {isLoading ? (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+            gap: '42px',
+          }}
+        >
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Card key={index} className="group-card" style={{ width: '100%' }}>
+              <Placeholder as={Card.Img} variant="top" className="group-card-img" />
+              <Card.Body className="group-card-body">
+                <Placeholder as={Card.Title} animation="glow" className="group-name">
+                  <Placeholder xs={6} />
+                </Placeholder>
+                <div className="group-card-info">
+                  <Placeholder animation="glow">
+                    <Placeholder xs={4} />
                   </Placeholder>
-                  <div className="group-card-info">
-                    <Placeholder animation="glow">
-                      <Placeholder xs={4} />
-                    </Placeholder>
-                    <Placeholder animation="glow">
-                      <Placeholder xs={3} />
-                    </Placeholder>
-                  </div>
-                  <Placeholder as={Card.Text} animation="glow" className="group-card-text">
-                    <Placeholder xs={8} />
-                    <Placeholder xs={6} />
+                  <Placeholder animation="glow">
+                    <Placeholder xs={3} />
                   </Placeholder>
-                </Card.Body>
-              </Card>
-            ))
-          : data.map((group) => (
-              <GroupCard
+                </div>
+                <Placeholder as={Card.Text} animation="glow" className="group-card-text">
+                  <Placeholder xs={8} />
+                  <Placeholder xs={6} />
+                </Placeholder>
+              </Card.Body>
+            </Card>
+          ))}
+        </div>
+      ) : data.length === 0 ? (
+        <p>Bạn chưa tạo nhóm nào.</p>
+      ) : (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+            gap: '42px',
+          }}
+        >
+          {data.map((group) => (
+            <GroupCard
               id={group.groupId}
-                key={group.groupId}
-                img={group.groupImageUrl}
-                title={group.groupName}
-                location={group.location}
-                members={`${group.numberOfParticipants}`}
-                text={group.description}
-              />
-            ))}
-      </div>
+              key={group.groupId}
+              img={group.groupImageUrl}
+              title={group.groupName}
+              location={group.location}
+              members={`${group.numberOfParticipants}`}
+              text={group.description}
+            />
+          ))}
+        </div>
+      )}
 
       <ReactPaginate
         previousLabel={'<'}
