@@ -1,113 +1,106 @@
-import React, { useState, useEffect } from 'react';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
+import React, { useState, useEffect, useCallback } from 'react';
 import ReactPaginate from 'react-paginate';
-import '../../assets/css/Shared/Pagination.css';
 import GroupCard from '../../components/Group/GroupCard';
-import '../../assets/css/Groups/GroupJoined.css';
-import { useSelector } from 'react-redux';
 import axios from 'axios';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import { useSelector } from 'react-redux';
+import { Placeholder, Card } from 'react-bootstrap';
 
 function GroupJoined() {
   const token = useSelector((state) => state.auth.token);
+  const refreshGroups = useSelector((state) => state.group.refreshGroups);
 
-  const savedPage = parseInt(localStorage.getItem('currentPageJoined')) || 0;
-  const savedData = JSON.parse(localStorage.getItem('joinedGroupsData')) || {};
-
-  const [groups, setGroups] = useState(savedData[savedPage] || []);
-  const [totalPages, setTotalPages] = useState(savedData.totalPages || 0);
-  const [currentPage, setCurrentPage] = useState(savedPage);
-  const [loading, setLoading] = useState(!savedData[savedPage]);
-
-  const itemsPerPage = 6;
+  const [data, setData] = useState([]);
+  const [pageCount, setPageCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (savedData[currentPage]) {
-      setGroups(savedData[currentPage]);
-      setTotalPages(savedData.totalPages || 0);
-      setLoading(false);
-      return;
-    }
-
-    const fetchGroups = async () => {
-      setLoading(true);
+    const fetchData = async (page = 1) => {
+      setIsLoading(true);
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_BASE_API_URL}/api/Groups/JoinedGroups?pageNumber=${currentPage + 1}`,
+          `${import.meta.env.VITE_BASE_API_URL}/api/Groups/JoinedGroups?pageNumber=${page}`,
           {
             headers: {
-              Authorization: `${token}`
-            }
+              Authorization: `${token}`,
+            },
           }
         );
-
         const groupsData = response.data.groups.$values;
-        const pages = response.data.totalPages;
-
-        setGroups(groupsData);
-        setTotalPages(pages);
-
-        const updatedData = { ...savedData, [currentPage]: groupsData, totalPages: pages };
-        localStorage.setItem('joinedGroupsData', JSON.stringify(updatedData));
-        localStorage.setItem('currentPageJoined', currentPage);
+        const totalPages = response.data.totalPages;
+        setData(groupsData);
+        setPageCount(totalPages);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
-    fetchGroups();
-  }, [currentPage, token]);
+    fetchData(currentPage);
+  }, [currentPage, token, refreshGroups]);
 
-  const handlePageChange = (data) => {
-    const selectedPage = data.selected;
+  const handlePageChange = useCallback((data) => {
+    const selectedPage = data.selected + 1;
     setCurrentPage(selectedPage);
-    localStorage.setItem('currentPage', selectedPage);
-  };
+  }, []);
 
   return (
-    <div className='container-group-list'>
-      <Row className='p-0 m-0'>
-        {loading ? (
-          Array.from({ length: itemsPerPage }).map((_, index) => (
-            <Col md={4} xs={6} key={index} className="mb-4 d-flex justify-content-center">
-              <div style={{ width: '100%' }}>
-                <Skeleton height={200} />
-                <Skeleton height={30} style={{ marginTop: '10px' }} />
-                <Skeleton height={20} style={{ marginTop: '5px' }} />
-                <Skeleton height={20} style={{ marginTop: '5px' }} />
-              </div>
-            </Col>
+    <div>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+          gap: '42px',
+        }}
+      >
+        {isLoading ? (
+          Array.from({ length: 6 }).map((_, index) => (
+            <Card key={index} className="group-card" style={{ width: '100%' }}>
+              <Placeholder as={Card.Img} variant="top" className="group-card-img" />
+              <Card.Body className="group-card-body">
+                <Placeholder as={Card.Title} animation="glow" className="group-name">
+                  <Placeholder xs={6} />
+                </Placeholder>
+                <div className="group-card-info">
+                  <Placeholder animation="glow">
+                    <Placeholder xs={4} />
+                  </Placeholder>
+                  <Placeholder animation="glow">
+                    <Placeholder xs={3} />
+                  </Placeholder>
+                </div>
+                <Placeholder as={Card.Text} animation="glow" className="group-card-text">
+                  <Placeholder xs={8} />
+                  <Placeholder xs={6} />
+                </Placeholder>
+              </Card.Body>
+            </Card>
           ))
-        ) : groups.length === 0 ? (
-          <div className="text-center w-100">
-            <p>Bạn chưa tham gia nhóm nào.</p>
-          </div>
+        ) : data.length === 0 ? (
+          <p>Bạn chưa tham gia nhóm nào</p>
         ) : (
-          groups.map((group) => (
-            <Col md={4} xs={6} key={group.groupId} className="mb-4 d-flex justify-content-center">
-              <GroupCard
-                img={group.groupImageUrl}
-                title={group.groupName}
-                location={group.location}
-                members={`${group.numberOfParticipants} thành viên`}
-                text={group.description}
-              />
-            </Col>
+          data.map((group) => (
+            <GroupCard
+              id={group.groupId}
+              key={group.groupId}
+              img={group.groupImageUrl}
+              title={group.groupName}
+              location={group.location}
+              members={`${group.numberOfParticipants}`}
+              text={group.description}
+            />
           ))
         )}
-      </Row>
+      </div>
 
-      {groups.length > 0 && (
+      {data.length > 0 && (
         <ReactPaginate
           previousLabel={'<'}
           nextLabel={'>'}
           breakLabel={'...'}
           breakClassName={'break-me'}
-          pageCount={totalPages}
+          pageCount={pageCount}
           marginPagesDisplayed={2}
           pageRangeDisplayed={2}
           onPageChange={handlePageChange}
