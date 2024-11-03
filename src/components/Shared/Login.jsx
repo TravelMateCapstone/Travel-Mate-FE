@@ -27,23 +27,24 @@ const Login = ({ show, handleClose }) => {
         password,
       });
       const { token } = response.data;
-      // Giải mã token để lấy thông tin người dùng
-      const user = decodeToken(token.result);
+      const claim = decodeToken(token);
 
-      // Lưu token vào localStorage
-      localStorage.setItem("token", token);
-      //localStorage.setItem("userInfo", JSON.stringify(userInfo));
-      // Dispatch login success action để cập nhật Redux state
+
+      console.log(claim);
+
+      const user = {
+        id: claim[ "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
+        username: claim[ "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
+        role: claim[ "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
+        avatarUrl: claim.avatarUrl,
+      }
+
+      console.log(user);
+      
       dispatch(loginSuccess({ user, token }));
-
-
-
-      // Hiển thị thông báo thành công
       toast.success('Đăng nhập thành công!', {
         position: "bottom-right",
       });
-
-      // Đóng modal sau khi đăng nhập thành công
       handleClose();
     } catch (error) {
       setErrorMessage(error.response?.data?.error || "Sai tài khoản hoặc mật khẩu.");
