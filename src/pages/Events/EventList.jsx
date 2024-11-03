@@ -1,142 +1,100 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import EventCard from '../../components/Event/EventCard';
 import ReactPaginate from 'react-paginate';
+import axios from 'axios';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 import '../../assets/css/Shared/Pagination.css';
-import '../../assets/css/Events/Event.css'
+import '../../assets/css/Events/Event.css';
 
 function EventList() {
-
-  const eventData = [
-    {
-      id: 1,
-      title: "Surfing Club Surfing ClubSurfing Club",
-      location: "Da Nang, Viet Nam",
-      membersCount: 35,
-      time: "10:00 AM - 2:00 PM",
-      member: 35,
-      description: "Our expert instructors and fun community will help you improve your skills and enjoy the ocean.",
-      imageURL: "https://toquoc.mediacdn.vn/280518851207290880/2024/1/7/dsdgtdy-1704616308047440689926.jpg"
-    },
-    {
-      id: 2,
-      title: "Yoga Retreat Retreat Retreat",
-      location: "Hoi An, Viet Nam",
-      membersCount: 20,
-      time: "8:00 AM - 12:00 PM",
-      member: 20,
-      description: "Find your balance and peace with our rejuvenating yoga retreat program.",
-      imageURL: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHoMev2VPeG81wrzcm0l7YanrC8N8rkApsCQ&s"
-    },
-    {
-      id: 3,
-      title: "Sự kiện âm nhạc Hội An kỷ niệm 20 năm độc lập",
-      location: "Da Lat, Viet Nam",
-      membersCount: 40,
-      time: "9:00 AM - 3:00 PM",
-      member: 40,
-      description: "Join our adventurous group for mountain biking through breathtaking landscapes.",
-      imageURL: "https://img.freepik.com/free-vector/music-event-poster-with-photo-2021_52683-42065.jpg"
-    },
-    {
-      id: 4,
-      title: "Mountain Biking ClubClubClub",
-      location: "Da Lat, Viet Nam",
-      membersCount: 40,
-      time: "9:00 AM - 3:00 PM",
-      member: 40,
-      description: "Join our adventurous group for mountain biking through breathtaking landscapes.",
-      imageURL: "https://img.freepik.com/free-vector/music-event-poster-with-photo-2021_52683-42065.jpg"
-    },
-    {
-      id: 5,
-      title: "Mountain Biking Club Club",
-      location: "Da Lat, Viet Nam",
-      membersCount: 40,
-      time: "9:00 AM - 3:00 PM",
-      member: 40,
-      description: "Join our adventurous group for mountain biking through breathtaking landscapes.",
-      imageURL: "https://img.freepik.com/free-vector/music-event-poster-with-photo-2021_52683-42065.jpg"
-    },
-    {
-      id: 6,
-      title: "Mountain Biking Club ClubClub",
-      location: "Da Lat, Viet Nam",
-      membersCount: 40,
-      time: "9:00 AM - 3:00 PM",
-      member: 40,
-      description: "Join our adventurous group for mountain biking through breathtaking landscapes.",
-      imageURL: "https://img.freepik.com/free-vector/music-event-poster-with-photo-2021_52683-42065.jpg"
-    },
-    {
-      id: 7,
-      title: "Sự kiện âm nhạc Hội An kỷ niệm 20 năm độc lập",
-      location: "Da Lat, Viet Nam",
-      membersCount: 40,
-      time: "9:00 AM - 3:00 PM",
-      member: 40,
-      description: "Join our adventurous group for mountain biking through breathtaking landscapes.",
-      imageURL: "https://img.freepik.com/free-vector/music-event-poster-with-photo-2021_52683-42065.jpg"
-    },
-    {
-      id: 8,
-      title: "Mountain Biking ClubClubClub",
-      location: "Da Lat, Viet Nam",
-      membersCount: 40,
-      time: "9:00 AM - 3:00 PM",
-      member: 40,
-      description: "Join our adventurous group for mountain biking through breathtaking landscapes.",
-      imageURL: "https://img.freepik.com/free-vector/music-event-poster-with-photo-2021_52683-42065.jpg"
-    },
-    // Thêm các sự kiện khác
-  ];
-
-
+  const [eventData, setEventData] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = 6; // Number of items you want per page
+  const [loading, setLoading] = useState(true);
+  const itemsPerPage = 6;
+  const url = `${import.meta.env.VITE_BASE_API_URL}/api/EventControllerWOO/`;
 
-  // Calculate the items to display based on the current page
+  useEffect(() => {
+    const fetchEvents = async () => {
+      const localData = localStorage.getItem('eventData');
+      if (localData) {
+        setEventData(JSON.parse(localData));
+        setLoading(false);
+      } else {
+        try {
+          const response = await axios.get(url);
+          const fetchedData = response.data.$values;
+          setEventData(fetchedData);
+          localStorage.setItem('eventData', JSON.stringify(fetchedData));
+        } catch (error) {
+          console.error("Error fetching event data:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    fetchEvents();
+  }, [url]);
+
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    return `${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ${date.toLocaleDateString('vi-VN')}`;
+  };
+
   const offset = currentPage * itemsPerPage;
   const currentItems = eventData.slice(offset, offset + itemsPerPage);
 
-  // Handle page change
   const handlePageChange = (data) => {
     setCurrentPage(data.selected);
   };
+
   return (
     <div>
       <Row className='p-0 m-0'>
-        {currentItems.map((card) => (
-          <Col lg={4} md={6} sm={6} xs={12} key={card.id} className="mb-4 d-flex justify-content-center">
-            <EventCard
-              img={card.imageURL}
-              time={card.time}
-              title={card.title}
-              location={card.location}
-              members={card.member}
-              text={card.description}
-            />
-          </Col>
-        ))}
+        {loading
+          ? Array.from({ length: itemsPerPage }).map((_, index) => (
+            <Col lg={4} md={6} sm={6} xs={12} key={index} className="mb-4 d-flex justify-content-center">
+              <EventCard loading={true} />
+            </Col>
+          ))
+          : currentItems.map((card) => (
+            <Col lg={4} md={6} sm={6} xs={12} key={card.eventId} className="mb-4 d-flex justify-content-center">
+              <EventCard
+                loading={false}
+                id={card.eventId}
+                img={card.eventImageUrl}
+                startTime={formatDateTime(card.startAt)}
+                endTime={formatDateTime(card.endAt)}
+                title={card.eventName}
+                location={card.eventLocation}
+                members={card.eventParticipants.$values.length}
+                text={card.description}
+              />
+            </Col>
+          ))
+        }
+
       </Row>
 
-      <ReactPaginate
-        previousLabel={'<'}
-        nextLabel={'>'}
-        breakLabel={'...'}
-        breakClassName={'break-me'}
-        pageCount={Math.ceil(eventData.length / itemsPerPage)}
-        marginPagesDisplayed={2}
-        pageRangeDisplayed={2}
-        onPageChange={handlePageChange}
-        containerClassName={'pagination'}
-        activeClassName={'active-pagination'}
-        previousClassName={'previous'}
-        nextClassName={'next'}
-      />
+      {!loading && (
+        <ReactPaginate
+          previousLabel={'<'}
+          nextLabel={'>'}
+          breakLabel={'...'}
+          pageCount={Math.ceil(eventData.length / itemsPerPage)}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={2}
+          onPageChange={handlePageChange}
+          containerClassName={'pagination'}
+          activeClassName={'active-pagination'}
+          previousClassName={'previous'}
+          nextClassName={'next'}
+        />
+      )}
     </div>
-  )
+  );
 }
 
-export default EventList
+export default EventList;

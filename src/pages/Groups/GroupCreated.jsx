@@ -1,110 +1,110 @@
-import React, { useState } from 'react';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
+import React, { useState, useEffect, useCallback } from 'react';
 import ReactPaginate from 'react-paginate';
-import '../../assets/css/Shared/Pagination.css';
 import GroupCard from '../../components/Group/GroupCard';
-import '../../assets/css/Groups/GroupCreate.css';
+import axios from 'axios';
+import { useSelector } from 'react-redux';
+import { Placeholder, Card } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function GroupCreated() {
-  const [currentPage, setCurrentPage] = useState(0); // State for current page
-  const itemsPerPage = 3; // Items per page
+  const token = useSelector((state) => state.auth.token);
 
-  // Static group data
-  const groups = [
-    {
-      groupId: 1,
-      groupImageUrl: 'https://example.com/image1.jpg',
-      groupName: 'Group 1',
-      location: 'Location 1',
-      numberOfParticipants: 10,
-      description: 'This is Group 1 description',
-    },
-    {
-      groupId: 2,
-      groupImageUrl: 'https://example.com/image2.jpg',
-      groupName: 'Group 2',
-      location: 'Location 2',
-      numberOfParticipants: 15,
-      description: 'This is Group 2 description',
-    },
-    {
-      groupId: 3,
-      groupImageUrl: 'https://example.com/image3.jpg',
-      groupName: 'Group 3',
-      location: 'Location 3',
-      numberOfParticipants: 8,
-      description: 'This is Group 3 description',
-    },
-    {
-      groupId: 4,
-      groupImageUrl: 'https://example.com/image1.jpg',
-      groupName: 'Group 4',
-      location: 'Location 4',
-      numberOfParticipants: 10,
-      description: 'This is Group 1 description',
-    },
-    {
-      groupId: 5,
-      groupImageUrl: 'https://example.com/image2.jpg',
-      groupName: 'Group 5',
-      location: 'Location 5',
-      numberOfParticipants: 15,
-      description: 'This is Group 2 description',
-    },
-    {
-      groupId: 6,
-      groupImageUrl: 'https://example.com/image3.jpg',
-      groupName: 'Group 6',
-      location: 'Location 6',
-      numberOfParticipants: 8,
-      description: 'This is Group 3 description',
-    },
-  ];
+  const [data, setData] = useState([]);
+  const [pageCount, setPageCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Calculate total pages
-  const totalPages = Math.ceil(groups.length / itemsPerPage);
+  useEffect(() => {
+    const fetchData = async (page = 1) => {
+      setIsLoading(true);
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Groups/CreatedGroups?pageNumber=${page}`, { headers: { Authorization: `${token}` } });
+        const groupsData = response.data.groups.$values;
+        const totalPages = response.data.totalPages;
+        setData(groupsData);
+        setPageCount(totalPages);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData(currentPage);
+  }, [currentPage, token]);
 
-  // Get current page items
-  const currentGroups = groups.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
-
-  // Handle page change
-  const handlePageChange = (data) => {
-    setCurrentPage(data.selected);
-  };
+  const handlePageChange = useCallback((data) => {
+    const selectedPage = data.selected + 1;
+    setCurrentPage(selectedPage);
+  }, []);
 
   return (
     <div>
-      <Row className='p-0 m-0'>
-        {currentGroups.map((group) => (
-          <Col md={4} xs={6} key={group.groupId} className="mb-4 d-flex justify-content-center">
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+          gap: '42px',
+        }}
+      >
+        {isLoading ? (
+          Array.from({ length: 6 }).map((_, index) => (
+            <Card key={index} className="group-card" style={{ width: '100%' }}>
+              <Placeholder as={Card.Img} variant="top" className="group-card-img" />
+              <Card.Body className="group-card-body">
+                <Placeholder as={Card.Title} animation="glow" className="group-name">
+                  <Placeholder xs={6} />
+                </Placeholder>
+                <div className="group-card-info">
+                  <Placeholder animation="glow">
+                    <Placeholder xs={4} />
+                  </Placeholder>
+                  <Placeholder animation="glow">
+                    <Placeholder xs={3} />
+                  </Placeholder>
+                </div>
+                <Placeholder as={Card.Text} animation="glow" className="group-card-text">
+                  <Placeholder xs={8} />
+                  <Placeholder xs={6} />
+                </Placeholder>
+              </Card.Body>
+            </Card>
+          ))
+        ) : data.length === 0 ? (
+          <div style={{ textAlign: 'center', marginTop: '20px' }}>Chưa có nhóm nào được tạo</div>
+        ) : (
+          data.map((group) => (
             <GroupCard
+              id={group.groupId}
+              key={group.groupId}
               img={group.groupImageUrl}
               title={group.groupName}
               location={group.location}
-              members={`${group.numberOfParticipants} thành viên`}
+              members={`${group.numberOfParticipants}`}
               text={group.description}
             />
-          </Col>
-        ))}
-      </Row>
+          ))
+        )}
+      </div>
 
-      <ReactPaginate
-        previousLabel={'<'}
-        nextLabel={'>'}
-        breakLabel={'...'}
-        breakClassName={'break-me'}
-        pageCount={totalPages}
-        marginPagesDisplayed={2}
-        pageRangeDisplayed={2}
-        onPageChange={handlePageChange}
-        containerClassName={'pagination'}
-        activeClassName={'active-pagination'}
-        previousClassName={'previous'}
-        nextClassName={'next'}
-      />
+      {data.length > 0 && (
+        <ReactPaginate
+          previousLabel={'<'}
+          nextLabel={'>'}
+          breakLabel={'...'}
+          breakClassName={'break-me'}
+          pageCount={pageCount}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={2}
+          onPageChange={handlePageChange}
+          containerClassName={'pagination'}
+          activeClassName={'active-pagination'}
+          previousClassName={'previous'}
+          nextClassName={'next'}
+        />
+      )}
     </div>
   );
 }
 
 export default GroupCreated;
+

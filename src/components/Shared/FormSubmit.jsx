@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import Modal from 'react-modal';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,11 +9,14 @@ import 'react-toastify/dist/ReactToastify.css';
 // Đặt vị trí modal vào root của ứng dụng để đảm bảo nó hiển thị chính xác
 Modal.setAppElement('#root');
 
-function FormSubmit({ children, buttonText, onButtonClick, title, openModalText, needAuthorize }) {
+function FormSubmit({ children, buttonText, onButtonClick, title, openModalText, needAuthorize, autoOpen,  }) {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token); // Get token from Redux store
+  const isGroupEditModalOpen = useSelector((state) => state.modal.isGroupEditModalOpen);
 
+  
+  
   const openModal = () => {
     // Check if authorization is needed
     if (needAuthorize && !token) {
@@ -23,7 +26,12 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
     }
     setIsOpen(true);
   };
-
+  useEffect(() => {
+    // Nếu autoOpen là true, mở modal ngay lập tức
+    if (autoOpen) {
+      openModal();
+    }
+  }, [autoOpen]);
   const closeModal = () => setIsOpen(false);
 
   return (
@@ -33,7 +41,7 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
 
       {/* React Modal */}
       <Modal
-        isOpen={isOpen}
+        isOpen={isOpen || isGroupEditModalOpen}
         onRequestClose={closeModal}
         contentLabel="Form Submit Modal"
         style={{
@@ -49,7 +57,6 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
             borderRadius: '20px',
             width: '897px',
             maxHeight: '80vh',
-            overflowY: 'auto',
             position: 'relative',
           },
         }}
