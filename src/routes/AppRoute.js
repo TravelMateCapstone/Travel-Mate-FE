@@ -42,8 +42,8 @@ const privateRoutes = [
 
     { path: RoutePath.GROUP_CREATED, component: GroupCreated, layout: ListLayout },
     { path: RoutePath.GROUP_JOINED, component: GroupJoined, layout: ListLayout },
-    { path: RoutePath.EVENT_CREATED, component: EventCreated, layout: ListLayout },
-    { path: RoutePath.EVENT_JOINED, component: EventJoined, layout: DetailLayout },
+    { path: RoutePath.EVENT_CREATED, component: EventList, layout: ListLayout },
+    { path: RoutePath.EVENT_JOINED, component: EventList, layout: ListLayout },
     { path: RoutePath.PROFILE, component: Profile, layout: ProfileLayout },
     { path: RoutePath.PROFILE_EDIT, component: EditProfile, layout: ProfileLayout },
     { path: RoutePath.PROFILE_EDIT_MY_HOME, component: EditMyHome, layout: ProfileLayout },

@@ -5,7 +5,7 @@ body {
   margin: 0;
   padding: 0;
   width: 100%;
-  font-family: "Montserrat", sans-serif;
+  font-family: "Montserrat", sans-serif !important;
   font-optical-sizing: auto;
   font-style: normal;
 }
@@ -15,13 +15,23 @@ body {
 a{
   text-decoration: none !important;
 }
-a span{
-  color: black;
-}
+
 .container-main {
   padding-top: 68px; /* Điều chỉnh tùy theo chiều cao thực tế của Navbar */
 }
 .form-control:focus{
   box-shadow: none !important; /* Loại bỏ shadow khi focus */
   border-color: #ccc !important; /* Giữ lại border màu mặc định hoặc tùy chỉnh */
+}
+
+/* Khi hover vào item của dropdown */
+.dropdown-menu .dropdown-item:hover {
+  background-color: #ffffff; /* Màu nền khi hover, ví dụ màu đen */
+  color: #000000; /* Màu chữ khi hover, ví dụ màu trắng */
+}
+
+/* Khi mục được kích */
+.dropdown-menu .dropdown-item:active {
+  background-color: #ffffff; /* Màu nền khi kích vào, ví dụ màu xám */
+  color: #000000; /* Màu chữ khi kích */
 }

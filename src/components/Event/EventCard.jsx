@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Button } from 'react-bootstrap';
 import '../../assets/css/Events/EventCard.css';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -14,36 +14,15 @@ import 'react-loading-skeleton/dist/skeleton.css';
 const EventCard = ({ id, img, startTime, endTime, title, location, members, text, loading }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const token = useSelector((state) => state.auth.token);
-    const url = import.meta.env.VITE_BASE_API_URL;
+    const locationPath = useLocation();
+
+    const isJoinedPath = locationPath.pathname.includes('/event/joined');
+    const isCreatedPath = locationPath.pathname.includes('/event/created');
 
     const handleJoinEvent = async () => {
         const eventDetails = { img, startTime, endTime, title, location, members, text };
         dispatch(viewEvent(eventDetails));
-
-        try {
-            // Prepare the payload to match the API requirements
-            const payload = {
-                eventId: id,
-                joinedAt: new Date().toISOString(), // Current timestamp in ISO format
-                notification: true
-            };
-
-            await axios.post(
-                `${url}/api/EventParticipants/current-user-join-event`,
-                payload,
-                {
-                    headers: {
-                        Authorization: `${token}`,
-                    },
-                }
-            );
-            toast.success('Tham gia sự kiện thành công!');
-            navigate(RoutePath.EVENT_JOINED);
-        } catch (error) {
-            console.error('Lỗi khi tham gia sự kiện:', error);
-            toast.error('Đã có lỗi xảy ra khi tham gia sự kiện.');
-        }
+        navigate(isCreatedPath ? RoutePath.MANAGE_EVENT : RoutePath.JOINEVENTDETAILS);
     };
 
     if (loading) {
@@ -63,6 +42,10 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
             </Card>
         );
     }
+
+    // Determine button text and path
+    const buttonText = isCreatedPath ? "Quản lý sự kiện" : isJoinedPath ? "Xem chi tiết" : "Tham gia";
+    const buttonPath = isCreatedPath ? RoutePath.MANAGE_EVENT : isJoinedPath ? RoutePath.EVENT_JOINED : RoutePath.JOINEVENTDETAILS;
 
     // Render the actual card content when loading is false
     return (
@@ -87,10 +70,10 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
                     className="btn-join rounded-5"
                     onClick={handleJoinEvent}
                     as={Link}
-                    to={RoutePath.EVENT_JOINED}
+                    to={buttonPath}
                 >
                     <div></div>
-                    <div>Tham gia</div>
+                    <div>{buttonText}</div>
                     <ion-icon name="chevron-forward-circle-outline"></ion-icon>
                 </Button>
             </Card.Body>

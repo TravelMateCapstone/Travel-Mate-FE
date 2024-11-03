@@ -100,7 +100,7 @@ function ProfileCard() {
             <p className="m-0">{profile.city}</p>
           </div>
           <p className="fw-medium text-center" style={{ fontSize: "20px", color: "#007931" }}>
-            {profile.whyUseTravelMate}
+            {profile.hostingAvailability}
           </p>
           <div className="profile-buttons">
             <Button as={Link} to={RoutePath.PROFILE_EDIT} variant="success" className="profile-button profile-button-success">
