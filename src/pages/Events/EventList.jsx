@@ -13,14 +13,16 @@ import { useSelector } from 'react-redux';
 function EventList() {
   const [joinedEvents, setJoinedEvents] = useState([]);
   const [notJoinedEvents, setNotJoinedEvents] = useState([]);
+  const [createdEvents, setCreatedEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const itemsPerPage = 6;
-  const token = useSelector((state) => state.auth.token); // Retrieve token from Redux state
+  const token = useSelector((state) => state.auth.token);
 
   // API URLs
   const joinedUrl = 'https://travelmateapp.azurewebsites.net/api/EventControllerWOO/user/joined';
   const notJoinedUrl = 'https://travelmateapp.azurewebsites.net/api/EventControllerWOO/user/not-joined';
+  const createdUrl = 'https://travelmateapp.azurewebsites.net/api/EventControllerWOO/get-event-current-user';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,19 +31,21 @@ function EventList() {
 
         // Fetch joined events
         const joinedResponse = await axios.get(joinedUrl, {
-          headers: {
-            Authorization: `${token}`,
-          },
+          headers: { Authorization: `${token}` },
         });
         setJoinedEvents(joinedResponse.data.$values);
 
         // Fetch not-joined events
         const notJoinedResponse = await axios.get(notJoinedUrl, {
-          headers: {
-            Authorization: `${token}`,
-          },
+          headers: { Authorization: `${token}` },
         });
         setNotJoinedEvents(notJoinedResponse.data.$values);
+
+        // Fetch created events
+        const createdResponse = await axios.get(createdUrl, {
+          headers: { Authorization: `${token}` },
+        });
+        setCreatedEvents(createdResponse.data.$values);
       } catch (error) {
         console.error("Error fetching event data:", error);
       } finally {
@@ -49,14 +53,18 @@ function EventList() {
       }
     };
 
-    if (token) { // Only fetch if token is available
+    if (token) {
       fetchData();
     }
   }, [token]);
 
   // Determine which events to display based on the URL path
-  const isJoinedPath = window.location.pathname.includes('/event/joined');
-  const eventData = isJoinedPath ? joinedEvents : notJoinedEvents;
+  const path = window.location.pathname;
+  const eventData = path.includes('/event/joined')
+    ? joinedEvents
+    : path.includes('/event/created')
+      ? createdEvents
+      : notJoinedEvents;
 
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);

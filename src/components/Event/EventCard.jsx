@@ -14,13 +14,13 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
     const navigate = useNavigate();
     const locationPath = useLocation();
 
-    // Check if URL contains "/event/joined"
     const isJoinedPath = locationPath.pathname.includes('/event/joined');
+    const isCreatedPath = locationPath.pathname.includes('/event/created');
 
     const handleJoinEvent = () => {
         const eventDetails = { img, startTime, endTime, title, location, members, text };
         dispatch(viewEvent(eventDetails));
-        navigate(RoutePath.JOINEVENTDETAILS);
+        navigate(isCreatedPath ? RoutePath.MANAGE_EVENT : RoutePath.JOINEVENTDETAILS);
     };
 
     if (loading) {
@@ -41,6 +41,10 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
             </Card>
         );
     }
+
+    // Determine button text and path
+    const buttonText = isCreatedPath ? "Quản lý sự kiện" : isJoinedPath ? "Xem chi tiết" : "Tham gia";
+    const buttonPath = isCreatedPath ? RoutePath.MANAGE_EVENT : isJoinedPath ? RoutePath.EVENT_JOINED : RoutePath.JOINEVENTDETAILS;
 
     // Render the actual card content when loading is false
     return (
@@ -65,10 +69,10 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
                     className="btn-join rounded-5"
                     onClick={handleJoinEvent}
                     as={Link}
-                    to={isJoinedPath ? RoutePath.EVENT_JOINED : RoutePath.JOINEVENTDETAILS}
+                    to={buttonPath}
                 >
                     <div></div>
-                    <div>{isJoinedPath ? "Xem chi tiết" : "Tham gia"}</div>
+                    <div>{buttonText}</div>
                     <ion-icon name="chevron-forward-circle-outline"></ion-icon>
                 </Button>
             </Card.Body>
