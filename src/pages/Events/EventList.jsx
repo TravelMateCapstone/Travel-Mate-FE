@@ -8,13 +8,15 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../assets/css/Shared/Pagination.css';
 import '../../assets/css/Events/Event.css';
+import { useSelector } from 'react-redux';
 
 function EventList() {
   const [eventData, setEventData] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const itemsPerPage = 6;
-  const url = `${import.meta.env.VITE_BASE_API_URL}/api/EventControllerWOO/`;
+  const token = useSelector((state) => state.auth.token); // Retrieve token from Redux state
+  const url = 'https://travelmateapp.azurewebsites.net/api/EventControllerWOO/user/not-joined';
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -24,8 +26,12 @@ function EventList() {
         setLoading(false);
       } else {
         try {
-          const response = await axios.get(url);
-          const fetchedData = response.data.$values;
+          const response = await axios.get(url, {
+            headers: {
+              Authorization: `${token}`, // Set Authorization header with token
+            },
+          });
+          const fetchedData = response.data.$values; // Access the $values array
           setEventData(fetchedData);
           localStorage.setItem('eventData', JSON.stringify(fetchedData));
         } catch (error) {
@@ -35,8 +41,10 @@ function EventList() {
         }
       }
     };
-    fetchEvents();
-  }, [url]);
+    if (token) { // Only fetch if token is available
+      fetchEvents();
+    }
+  }, [url, token]);
 
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);
@@ -69,13 +77,12 @@ function EventList() {
                 endTime={formatDateTime(card.endAt)}
                 title={card.eventName}
                 location={card.eventLocation}
-                members={card.eventParticipants.$values.length}
+                members={card.eventParticipants?.$values?.length || 0}
                 text={card.description}
               />
             </Col>
           ))
         }
-
       </Row>
 
       {!loading && (
