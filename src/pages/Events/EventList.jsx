@@ -11,40 +11,52 @@ import '../../assets/css/Events/Event.css';
 import { useSelector } from 'react-redux';
 
 function EventList() {
-  const [eventData, setEventData] = useState([]);
+  const [joinedEvents, setJoinedEvents] = useState([]);
+  const [notJoinedEvents, setNotJoinedEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const itemsPerPage = 6;
   const token = useSelector((state) => state.auth.token); // Retrieve token from Redux state
-  const url = 'https://travelmateapp.azurewebsites.net/api/EventControllerWOO/user/not-joined';
+
+  // API URLs
+  const joinedUrl = 'https://travelmateapp.azurewebsites.net/api/EventControllerWOO/user/joined';
+  const notJoinedUrl = 'https://travelmateapp.azurewebsites.net/api/EventControllerWOO/user/not-joined';
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      const localData = localStorage.getItem('eventData');
-      if (localData) {
-        setEventData(JSON.parse(localData));
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch joined events
+        const joinedResponse = await axios.get(joinedUrl, {
+          headers: {
+            Authorization: `${token}`,
+          },
+        });
+        setJoinedEvents(joinedResponse.data.$values);
+
+        // Fetch not-joined events
+        const notJoinedResponse = await axios.get(notJoinedUrl, {
+          headers: {
+            Authorization: `${token}`,
+          },
+        });
+        setNotJoinedEvents(notJoinedResponse.data.$values);
+      } catch (error) {
+        console.error("Error fetching event data:", error);
+      } finally {
         setLoading(false);
-      } else {
-        try {
-          const response = await axios.get(url, {
-            headers: {
-              Authorization: `${token}`, // Set Authorization header with token
-            },
-          });
-          const fetchedData = response.data.$values; // Access the $values array
-          setEventData(fetchedData);
-          localStorage.setItem('eventData', JSON.stringify(fetchedData));
-        } catch (error) {
-          console.error("Error fetching event data:", error);
-        } finally {
-          setLoading(false);
-        }
       }
     };
+
     if (token) { // Only fetch if token is available
-      fetchEvents();
+      fetchData();
     }
-  }, [url, token]);
+  }, [token]);
+
+  // Determine which events to display based on the URL path
+  const isJoinedPath = window.location.pathname.includes('/event/joined');
+  const eventData = isJoinedPath ? joinedEvents : notJoinedEvents;
 
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);

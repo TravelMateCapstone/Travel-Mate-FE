@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Button } from 'react-bootstrap';
 import '../../assets/css/Events/EventCard.css';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -10,9 +10,12 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
 const EventCard = ({ id, img, startTime, endTime, title, location, members, text, loading }) => {
-
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const locationPath = useLocation();
+
+    // Check if URL contains "/event/joined"
+    const isJoinedPath = locationPath.pathname.includes('/event/joined');
 
     const handleJoinEvent = () => {
         const eventDetails = { img, startTime, endTime, title, location, members, text };
@@ -62,10 +65,10 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
                     className="btn-join rounded-5"
                     onClick={handleJoinEvent}
                     as={Link}
-                    to={RoutePath.EVENT_JOINED}
+                    to={isJoinedPath ? RoutePath.EVENT_JOINED : RoutePath.JOINEVENTDETAILS}
                 >
                     <div></div>
-                    <div>Tham gia</div>
+                    <div>{isJoinedPath ? "Xem chi tiết" : "Tham gia"}</div>
                     <ion-icon name="chevron-forward-circle-outline"></ion-icon>
                 </Button>
             </Card.Body>
