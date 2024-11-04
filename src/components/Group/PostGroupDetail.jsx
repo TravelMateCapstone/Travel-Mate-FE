@@ -34,6 +34,32 @@ function PostGroupDetail({ postDetails, groupId }) {
     document.getElementById('fileInputPostGroup').click();
   };
 
+
+  const handleEditComment = async (commentId, newCommentText) => {
+    try {
+      await axios.put(
+        `https://travelmateapp.azurewebsites.net/api/Groups/${groupId}/GroupPosts/${postDetails.id}/PostComments/${commentId}`,
+        { commentText: newCommentText },
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
+          comment.commentId === commentId
+            ? { ...comment, commentText: newCommentText }
+            : comment
+        )
+      );
+      toast.success('Bình luận đã được cập nhật');
+    } catch (error) {
+      toast.error('Có lỗi xảy ra khi cập nhật bình luận');
+    }
+  };
+
   const fetchComments = async () => {
     try {
       const response = await axios.get(
@@ -54,8 +80,8 @@ function PostGroupDetail({ postDetails, groupId }) {
   };
 
   const handleViewImage = (url) => {
-    setModalImageUrl(url); // Set the image URL for the modal
-    setShowModal(true); // Show the modal
+    setModalImageUrl(url); 
+    setShowModal(true); 
   };
 
   const handleShowMore = () => {
@@ -65,7 +91,7 @@ function PostGroupDetail({ postDetails, groupId }) {
   const handelEditPostDetail = async () => {
     try {
       const updatedPostData = {
-        title: title, // Use the title from the textarea
+        title: title, 
         postPhotos: uploadedUrls.map((url) => ({ photoUrl: url }))
       };
 
@@ -82,7 +108,6 @@ function PostGroupDetail({ postDetails, groupId }) {
       toast.success('Bài viết đã được cập nhật thành công');
       console.log('Updated post:', response.data);
 
-      // Optionally update local state here if necessary
     } catch (error) {
       console.log('Error updating post:', error);
       toast.error('Có lỗi xảy ra khi cập nhật bài viết');
@@ -170,36 +195,6 @@ function PostGroupDetail({ postDetails, groupId }) {
     }
   };
 
-  const handleEditComment = (comment) => {
-    setEditingComment(comment);
-    setEditingText(comment.commentText);
-  };
-
-  const handleEditCommentSubmit = async () => {
-    if (!editingText.trim()) {
-      toast.error('Vui lòng nhập bình luận');
-      return;
-    }
-
-    try {
-      const response = await axios.put(
-        `https://travelmateapp.azurewebsites.net/api/Groups/${groupId}/GroupPosts/${postDetails.id}/PostComments/${editingComment.commentId}`,
-        { commentText: editingText },
-        { headers: { Authorization: `${token}` } }
-      );
-
-      setComments((prevComments) =>
-        prevComments.map((comment) =>
-          comment.commentId === editingComment.commentId ? response.data : comment
-        )
-      );
-      setEditingComment(null);
-      setEditingText('');
-      toast.success('Bình luận đã được chỉnh sửa');
-    } catch (error) {
-      toast.error('Có lỗi xảy ra khi chỉnh sửa bình luận');
-    }
-  };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -421,7 +416,11 @@ function PostGroupDetail({ postDetails, groupId }) {
       {showComments && (
         <>
           {comments.slice(0, visibleComments).map((comment) => (
-            <CommentPostGroupDetail key={comment.commentId} comment={comment} />
+             <CommentPostGroupDetail
+             key={comment.commentId}
+             comment={comment}
+             onEditComment={handleEditComment} // Pass the handler
+           />
           ))}
 
 

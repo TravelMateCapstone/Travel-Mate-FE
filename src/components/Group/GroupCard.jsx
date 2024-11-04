@@ -20,6 +20,8 @@ const GroupCard = ({ id, img, title, location, members, text }) => {
 
   const handleViewGroup = () => {
     const groupDetails = { id, img, title, location, members, text };
+    console.log(groupDetails);
+    
     dispatch(viewGroup(groupDetails));
   };
 

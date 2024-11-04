@@ -68,7 +68,7 @@ function GroupDetail() {
       .catch(error => {
         console.error('Error fetching locations:', error);
       });
-
+      console.log('Selected Group:', selectedGroup);
     const fetchGroupPosts = async () => {
       try {
         const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/groups/${selectedGroup.id}/groupposts`, {

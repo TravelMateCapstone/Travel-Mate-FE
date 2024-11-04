@@ -159,7 +159,7 @@ function ListLayout({ children }) {
             groupName: groupName,
             description: groupDescription,
             location: groupLocation,
-            groupImageUrl: uploadedUrl,
+            groupImageUrl: uploadedUrl === null ? 'https://images.unsplash.com/photo-1725500221821-c4c770db5290?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' : uploadedUrl,
             createAt: new Date().toISOString(),
         };
         console.log(token);
