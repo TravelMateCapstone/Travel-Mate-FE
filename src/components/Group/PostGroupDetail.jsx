@@ -7,8 +7,11 @@ import EmojiPicker from 'emoji-picker-react';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { storage } from '../../../firebaseConfig';
 import { toast } from 'react-toastify';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
 
-function PostGroupDetail({ postDetails }) {
+function PostGroupDetail({ postDetails, groupId }) {
+  const token = useSelector((state) => state.auth.token);
   const [visibleComments, setVisibleComments] = useState(2);
   const [filePlaceholders, setFilePlaceholders] = useState([]);
   const [tempImageUrls, setTempImageUrls] = useState([]);
@@ -22,24 +25,95 @@ function PostGroupDetail({ postDetails }) {
   const [uploadedFileRefs, setUploadedFileRefs] = useState([]); // References for deleting the files from Firebase
   const [showModal, setShowModal] = useState(false); // State for modal visibility
   const [modalImageUrl, setModalImageUrl] = useState(null); // State for image URL in modal
-
+  const [comments, setComments] = useState([]);
+  const [editingComment, setEditingComment] = useState(null); // State for editing comment
+  const [editingText, setEditingText] = useState('');
+  const [title, setTitle] = useState('');
 
   const triggerFileInput = () => {
     document.getElementById('fileInputPostGroup').click();
   };
 
+
+  const handleEditComment = async (commentId, newCommentText) => {
+    try {
+      await axios.put(
+        `https://travelmateapp.azurewebsites.net/api/Groups/${groupId}/GroupPosts/${postDetails.id}/PostComments/${commentId}`,
+        { commentText: newCommentText },
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
+          comment.commentId === commentId
+            ? { ...comment, commentText: newCommentText }
+            : comment
+        )
+      );
+      toast.success('Bình luận đã được cập nhật');
+    } catch (error) {
+      toast.error('Có lỗi xảy ra khi cập nhật bình luận');
+    }
+  };
+
+  const fetchComments = async () => {
+    try {
+      const response = await axios.get(
+        `https://travelmateapp.azurewebsites.net/api/Groups/${groupId}/GroupPosts/${postDetails.id}/PostComments`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+      console.log('Comments:', response.data.$values);
+
+      setComments(response.data.$values || []);
+    } catch (error) {
+      console.log('Error fetching comments:', error);
+      toast.error('Có lỗi xảy ra khi tải bình luận');
+    }
+  };
+
   const handleViewImage = (url) => {
-    setModalImageUrl(url); // Set the image URL for the modal
-    setShowModal(true); // Show the modal
+    setModalImageUrl(url); 
+    setShowModal(true); 
   };
 
   const handleShowMore = () => {
     setVisibleComments((prev) => prev + 2);
   };
 
-  const handelEditPostDetail = () => {
-    console.log('Edit post detail');
+  const handelEditPostDetail = async () => {
+    try {
+      const updatedPostData = {
+        title: title, 
+        postPhotos: uploadedUrls.map((url) => ({ photoUrl: url }))
+      };
+
+      const response = await axios.put(
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupId}/groupposts/${postDetails.id}`,
+        updatedPostData,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      toast.success('Bài viết đã được cập nhật thành công');
+      console.log('Updated post:', response.data);
+
+    } catch (error) {
+      console.log('Error updating post:', error);
+      toast.error('Có lỗi xảy ra khi cập nhật bài viết');
+    }
   };
+
 
   const handleEmojiClick = (emoji) => {
     setComment((prevComment) => prevComment + emoji.emoji);
@@ -92,14 +166,60 @@ function PostGroupDetail({ postDetails }) {
       }
     }
   };
-  const toggleComments = () => {
-    setShowComments((prev) => !prev); // Toggle visibility of comments
+
+
+  const handleCommentSubmit = async () => {
+    if (!comment.trim()) {
+      toast.error('Vui lòng nhập bình luận');
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `https://travelmateapp.azurewebsites.net/api/Groups/${groupId}/GroupPosts/${postDetails.id}/PostComments`,
+        { commentText: comment },
+        { headers: { Authorization: `${token}` } }
+      );
+
+      setComments((prev) => [response.data, ...prev]);
+      setComment('');
+      toast.success('Bình luận đã được thêm');
+    } catch (error) {
+      toast.error('Có lỗi xảy ra khi thêm bình luận');
+    }
   };
+  const toggleComments = () => {
+    setShowComments((prev) => !prev);
+    if (!showComments) {
+      fetchComments();
+    }
+  };
+
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       console.log("File selected:", file.name);
+    }
+  };
+
+  const handleDeletePost = async () => {
+    console.log(postDetails);
+
+    try {
+      const response = await axios.delete(
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupId}/groupposts/${postDetails.id}`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      toast.success('Bài viết đã được xóa thành công');
+    } catch (error) {
+      console.log('Error deleting post:', error);
+      toast.error('Có lỗi xảy ra khi xóa bài viết');
     }
   };
 
@@ -138,114 +258,120 @@ function PostGroupDetail({ postDetails }) {
                 <h4 style={{
                   marginTop: '20px'
                 }}>Nội dung</h4>
-                <textarea placeholder='Nhập nội dung' className='w-100 rounded-5 p-3' style={{
-                  height: '105px'
-                }} />
-         <Form.Group id="groupImage" className="mb-3 d-flex flex-column">
-        <h4 style={{ marginTop: '20px' }}>Ảnh</h4>
-        <Button
-          variant="outline-primary"
-          onClick={triggerFileInput}
-          className="d-flex rounded-5 gap-1 alignItems-center mb-2 text-black"
-          style={{
-            width: '30%',
-            borderStyle: 'dashed',
-            backgroundColor: '#f2f7ff',
-          }}
-        >
-          Nhấn vào đây để <p className='text-primary m-0'>upload</p>
-        </Button>
-        <Form.Control
-          type="file"
-          id="fileInputPostGroup"
-          onClick={(e) => e.stopPropagation()}
-          onChange={handleFileSelect}
-          className="d-none"
-          multiple
-        />
-        {isUploading ? (
-          <Placeholder as="div" animation="glow" className="mt-3 d-flex flex-wrap gap-3">
-            {filePlaceholders.map((_, index) => (
-              <Placeholder key={index} xs={12} style={{ height: '100px', width: '100px', borderRadius: '5px' }} />
-            ))}
-          </Placeholder>
-        ) : (
-          <div className="d-flex flex-wrap gap-3">
-            {uploadedUrls.map((url, index) => (
-              <div
-                key={index}
-                style={{
-                  position: 'relative',
-                  width: '100px',
-                  height: '100px',
-                }}
-              >
-                <img
-                  src={url}
-                  alt="Ảnh bìa nhóm"
-                  className="mt-3"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    borderRadius: '5px',
-                  }}
+                <textarea
+                  placeholder='Nhập nội dung'
+                  className='w-100 rounded-5 p-3'
+                  style={{ height: '105px' }}
+                  value={title} // Bind the value to title state
+                  onChange={(e) => setTitle(e.target.value)} // Update title on change
+                  onKeyDown={(e) => e.stopPropagation()}
                 />
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '17px',
-                    left: '0',
-                    right: '0',
-                    bottom: '0',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    borderRadius: '5px',
-                    opacity: '0',
-                    transition: 'opacity 0.3s ease',
-                    cursor: 'pointer',
-                    height: '100%',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.opacity = '1';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.opacity = '0';
-                  }}
-                >
-                  <ion-icon
-                    name="eye-outline"
+
+                <Form.Group id="groupImage" className="mb-3 d-flex flex-column">
+                  <h4 style={{ marginTop: '20px' }}>Ảnh</h4>
+                  <Button
+                    variant="outline-primary"
+                    onClick={triggerFileInput}
+                    className="d-flex rounded-5 gap-1 alignItems-center mb-2 text-black"
                     style={{
-                      fontSize: '24px',
-                      color: 'white',
-                      marginRight: '10px',
+                      width: '30%',
+                      borderStyle: 'dashed',
+                      backgroundColor: '#f2f7ff',
                     }}
-                    onClick={() => handleViewImage(url)}
-                  ></ion-icon>
-                  <ion-icon
-                    name="trash-outline"
-                    style={{
-                      fontSize: '24px',
-                      color: 'white',
-                    }}
-                    onClick={() => handleDeleteImage(index)}
-                  ></ion-icon>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-        {errors.groupImageUrl && (
-          <div style={{ color: 'red', marginTop: '5px' }}>
-            {errors.groupImageUrl}
-          </div>
-        )}
-      </Form.Group>
+                  >
+                    Nhấn vào đây để <p className='text-primary m-0'>upload</p>
+                  </Button>
+                  <Form.Control
+                    type="file"
+                    id="fileInputPostGroup"
+                    onClick={(e) => e.stopPropagation()}
+                    onChange={handleFileSelect}
+                    className="d-none"
+                    multiple
+                  />
+                  {isUploading ? (
+                    <Placeholder as="div" animation="glow" className="mt-3 d-flex flex-wrap gap-3">
+                      {filePlaceholders.map((_, index) => (
+                        <Placeholder key={index} xs={12} style={{ height: '100px', width: '100px', borderRadius: '5px' }} />
+                      ))}
+                    </Placeholder>
+                  ) : (
+                    <div className="d-flex flex-wrap gap-3">
+                      {uploadedUrls.map((url, index) => (
+                        <div
+                          key={index}
+                          style={{
+                            position: 'relative',
+                            width: '100px',
+                            height: '100px',
+                          }}
+                        >
+                          <img
+                            src={url}
+                            alt="Ảnh bìa nhóm"
+                            className="mt-3"
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              borderRadius: '5px',
+                            }}
+                          />
+                          <div
+                            style={{
+                              position: 'absolute',
+                              top: '17px',
+                              left: '0',
+                              right: '0',
+                              bottom: '0',
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                              borderRadius: '5px',
+                              opacity: '0',
+                              transition: 'opacity 0.3s ease',
+                              cursor: 'pointer',
+                              height: '100%',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.opacity = '1';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.opacity = '0';
+                            }}
+                          >
+                            <ion-icon
+                              name="eye-outline"
+                              style={{
+                                fontSize: '24px',
+                                color: 'white',
+                                marginRight: '10px',
+                              }}
+                              onClick={() => handleViewImage(url)}
+                            ></ion-icon>
+                            <ion-icon
+                              name="trash-outline"
+                              style={{
+                                fontSize: '24px',
+                                color: 'white',
+                              }}
+                              onClick={() => handleDeleteImage(index)}
+                            ></ion-icon>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {errors.groupImageUrl && (
+                    <div style={{ color: 'red', marginTop: '5px' }}>
+                      {errors.groupImageUrl}
+                    </div>
+                  )}
+                </Form.Group>
               </FormSubmit>
             </Dropdown.Item>
-            <Dropdown.Item onClick={() => console.log('Xóa bình luận')}>Xóa</Dropdown.Item>
+            <Dropdown.Item onClick={handleDeletePost}>Xóa</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </div>
@@ -264,7 +390,7 @@ function PostGroupDetail({ postDetails }) {
         borderRadius: '10px',
         boxShadow: '4px 4px 4px rgba(0, 0, 0, 0.25)',
       }} className='post-group-detail-img'>
-        {postDetails.images.map((img, index) => (
+        {(postDetails.images || []).map((img, index) => (
           <img key={index} src={img} alt="địa điểm" style={{
             objectFit: 'cover',
             borderRadius: '20px'
@@ -287,12 +413,16 @@ function PostGroupDetail({ postDetails }) {
         }}></ion-icon>
       </div>
 
-      {/* Show comments and comment input if showComments is true */}
       {showComments && (
         <>
-          {postDetails.comments.slice(0, visibleComments).map((comment) => (
-            <CommentPostGroupDetail key={comment.id} comment={comment} />
+          {comments.slice(0, visibleComments).map((comment) => (
+             <CommentPostGroupDetail
+             key={comment.commentId}
+             comment={comment}
+             onEditComment={handleEditComment} // Pass the handler
+           />
           ))}
+
 
           <div className='d-flex gap-2'>
             <img
@@ -317,7 +447,7 @@ function PostGroupDetail({ postDetails }) {
                     fontSize: '24px'
                   }}></ion-icon>
                 </Button>
-                <Button>Bình luận</Button>
+                <Button variant="primary" onClick={handleCommentSubmit}>Bình luận</Button>
               </div>
               {showEmojiPicker && (
                 <div style={{ position: 'absolute', zIndex: 1000, right: '0', bottom: '30px' }}>
@@ -328,16 +458,8 @@ function PostGroupDetail({ postDetails }) {
           </div>
 
           {/* Show "Show More" button if there are more comments to show */}
-          {visibleComments < postDetails.comments.length && (
-            <button onClick={handleShowMore} className='btn btn-outline-dark' style={{
-              padding: '10px 20px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              borderRadius: '20px',
-              fontSize: '12px'
-            }}>
+          {visibleComments < comments.length && (
+            <button onClick={() => setVisibleComments(visibleComments + 2)} className='btn btn-outline-dark' style={{ padding: '10px 20px', cursor: 'pointer', borderRadius: '20px', fontSize: '12px' }}>
               Tải thêm các bình luận <ion-icon name="chevron-down-outline"></ion-icon>
             </button>
           )}
@@ -375,10 +497,7 @@ function PostGroupDetail({ postDetails }) {
           </div>
         </div>
       </Modal>
-
-
     </div>
   );
 }
-
 export default PostGroupDetail;

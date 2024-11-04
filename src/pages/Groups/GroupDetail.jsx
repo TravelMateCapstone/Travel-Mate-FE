@@ -5,68 +5,44 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { storage } from '../../../firebaseConfig';
-import '../../assets/css/Groups/GroupDetail.css';
-import RoutePath from '../../routes/RoutePath';
-import FormSubmit from '../../components/Shared/FormSubmit';
+import { useLocation } from 'react-router-dom';
+import RoutePath from '../../routes/RoutePath'
 import PostGroupDetail from '../../components/Group/PostGroupDetail';
-
 function GroupDetail() {
   // Redux selectors
   const selectedGroup = useSelector(state => state.group.selectedGroup);
-  const user = useSelector(state => state.auth.user);
-  const token = useSelector(state => state.auth.token);
 
-  // State for group details
-  const [groupName, setGroupName] = useState(selectedGroup.title || selectedGroup.groupName || '');
-  const [groupDescription, setGroupDescription] = useState(selectedGroup.text || '');
-  const [groupLocation, setGroupLocation] = useState(selectedGroup.location || '');
-  const [isGroupCreate, setIsGroupCreate] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // State for locations
   const [locations, setLocations] = useState([]);
-
-  // State for file uploads
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [uploadedUrls, setUploadedUrls] = useState([]);
-  const [coverImageUrl, setCoverImageUrl] = useState(null);
-  const [uploadingFiles, setUploadingFiles] = useState([]);
-  const [filePlaceholder, setFilePlaceholder] = useState("Nhấn vào đây để upload");
-  const [errors, setErrors] = useState({ groupImageUrl: '' });
-
-  // State for modal
-  const [showModal, setShowModal] = useState(false);
-  const [modalImageUrl, setModalImageUrl] = useState(null);
-
-  // Static data
+  const [postList, setPostList] = useState([]);
+  const location = useLocation();
   const members = [
     { id: 1, image: 'https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj' },
     { id: 2, image: 'https://kenh14cdn.com/thumb_w/640/203336854389633024/2024/10/5/hieuthuhai-6-1724922106140134622997-0-0-994-1897-crop-17249221855301721383554-17281064622621203940077.jpg' },
     { id: 3, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSp3HUU-eAMPAQL0wpBBY2taVQkWH4EwUWeHw&s' },
   ];
 
-  const postDetailsList = [
-    {
-      id: 1,
-      authorAvatar: 'https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj',
-      authorName: 'Nhơn Trần',
-      date: '24 tháng 09 lúc 9:01',
-      content: 'Xin chào mọi người, Hôm nay chúng tôi chia sẻ đến mọi người chuyến đi Đà Nẵng 2 ngày 1 đêm của chúng tôi.',
-      images: [
-        'https://tiki.vn/blog/wp-content/uploads/2023/03/cau-rong-da-nang.jpg',
-        'https://tiki.vn/blog/wp-content/uploads/2023/03/cau-rong-da-nang.jpg',
-        'https://tiki.vn/blog/wp-content/uploads/2023/03/cau-rong-da-nang.jpg',
-      ],
-      comments: [
-        { id: 1, avatar: 'https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj', name: 'Nhơn Trần', location: 'Quảng Nam', content: 'Đăng là người bạn đồng hành tuyệt vời!' },
-        { id: 2, avatar: 'https://randomuser.me/api/portraits/men/32.jpg', name: 'Huy Nguyễn', location: 'Hà Nội', content: 'Một trải nghiệm thật tuyệt vời!' },
-      ],
-    },
-  ];
+  const [isGroupCreate, setIsGroupCreate] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploadedUrls, setUploadedUrls] = useState([]);
+  const [coverImageUrl, setCoverImageUrl] = useState(null);
+  const [filePlaceholder, setFilePlaceholder] = useState("Nhấn vào đây để upload");
+  const [errors, setErrors] = useState({ groupImageUrl: '' });
+  const [uploadingFiles, setUploadingFiles] = useState([]);
+  const user = useSelector(state => state.auth.user);
+  const [showModal, setShowModal] = useState(false);
+  const [modalImageUrl, setModalImageUrl] = useState(null);
+  const [groupName, setGroupName] = useState(selectedGroup.title || selectedGroup.groupName || '');
+  const [groupDescription, setGroupDescription] = useState(selectedGroup.text || '');
+  const [groupLocation, setGroupLocation] = useState(selectedGroup.location || '');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [postContent, setPostContent] = useState('');
 
   useEffect(() => {
+    if (location.state?.successMessage) {
+      toast.success(location.state.successMessage);
+  }
     setIsGroupCreate(localStorage.getItem('lastPath') === RoutePath.GROUP_CREATED);
     axios.get('https://provinces.open-api.vn/api/p/')
       .then(response => {
@@ -79,8 +55,47 @@ function GroupDetail() {
       .catch(error => {
         console.error('Error fetching locations:', error);
       });
-    console.log(user);
-  }, []);
+      console.log('Selected Group:', selectedGroup);
+    const fetchGroupPosts = async () => {
+      try {
+        const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/groups/${selectedGroup.id}/groupposts`, {
+          headers: {
+            Authorization: `${token}`,
+          },
+        });
+
+        const posts = response.data.$values.map(post => ({
+          id: post.postId,
+          authorName: user.username, // Placeholder, replace with correct data if available
+          date: new Date(post.createdTime).toLocaleString(),
+          content: post.title,
+          images: post.postPhotos.$values.map(photo => photo.photoUrl),
+          comments: post.comments.$values.map(comment => ({
+            id: comment.commentId,
+            avatar: 'https://randomuser.me/api/portraits/men/32.jpg', // Placeholder
+            name: 'Anonymous', // Placeholder
+            location: 'Unknown', // Placeholder
+            content: comment.content,
+          })),
+        }));
+
+        setPostList(posts);
+        console.log('Posts:', posts);
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.warn('No posts found for the group:', selectedGroup.id);
+          setPostList([]);
+        } else {
+          console.error('Error fetching posts:', error);
+        }
+      }
+    };
+
+    if (selectedGroup && selectedGroup.id) {
+      fetchGroupPosts();
+    }
+  }, [location.state]);
+
 
   const handleViewImage = (url) => {
     setModalImageUrl(url);
@@ -166,6 +181,7 @@ function GroupDetail() {
     }
   };
 
+  const token = useSelector(state => state.auth.token);
   const handleUpdateGroupDetail = async () => {
     const groupData = {
       groupName,
@@ -176,7 +192,9 @@ function GroupDetail() {
 
     console.log('Group Data:', groupData);
     console.log(selectedGroup.id);
+
     console.log('Token:', token);
+
 
     try {
       const response = await axios.put(`https://travelmateapp.azurewebsites.net/api/groups/${selectedGroup.id}`, groupData, {
@@ -192,6 +210,59 @@ function GroupDetail() {
       toast.error('Lỗi khi cập nhật thông tin nhóm!');
     }
   };
+
+  const handleCreatePost = async () => {
+    if (!postContent.trim()) {
+      toast.error('Nội dung bài viết không được để trống!');
+      return;
+    }
+
+    const newPost = {
+      title: postContent,
+      postPhotos: uploadedUrls.map((file) => ({ photoUrl: file.url })),
+    };
+
+    try {
+      const response = await axios.post(
+        `https://travelmateapp.azurewebsites.net/api/groups/${selectedGroup.id}/groupposts`,
+        newPost,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+      toast.success('Bài viết đã được đăng thành công!');
+
+      // Log the structure of response.data.postPhotos
+      console.log('Post Response:', response.data);
+
+      // Clear post content and uploaded URLs
+      setPostContent('');
+      setUploadedUrls([]);
+
+      // Check if response.data.postPhotos is an array
+      const images = Array.isArray(response.data.postPhotos)
+        ? response.data.postPhotos.map((photo) => photo.photoUrl)
+        : [];
+
+      // Update post list with the new post
+      const createdPost = {
+        id: response.data.postId,
+        authorName: user.username,
+        date: new Date(response.data.createdTime).toLocaleString(),
+        content: response.data.title,
+        images: images, // Use extracted images
+        comments: [], // New post initially has no comments
+      };
+
+      setPostList((prevPosts) => [createdPost, ...prevPosts]); // Add new post at the top
+    } catch (error) {
+      console.error('Error creating post:', error);
+      toast.error('Lỗi khi đăng bài viết!');
+    }
+  };
+
 
   return (
     <div className='join-group-detail-container' style={{ paddingRight: '85px' }}>
@@ -300,19 +371,13 @@ function GroupDetail() {
 
       <div style={{ border: "1px solid #ddd", borderRadius: "20px", padding: "20px 40px", width: "100%", margin: "0 auto", boxShadow: '0 0 7px rgba(0, 0, 0, 0.25)' }}>
         <div style={{ alignItems: "center" }}>
-          {user ? (
-            <>
-              <div>
-                <img src={user.avatarUrl} alt="User Avatar" style={{ width: "50px", height: "50px", borderRadius: "50%", marginRight: "12px" }} />
-                <span style={{ fontWeight: "bold", fontSize: '20px' }}>{user.username}</span>
-              </div>
-              <div style={{ flex: 1 }}>
-                <textarea className='post-group-detail-textarea' placeholder="Bạn đang nghĩ gì...?" style={{ width: "100%", padding: "8px", border: "0px", borderRadius: "4px", marginTop: "8px", fontSize: '16px', color: 'black' }} />
-              </div>
-            </>
-          ) : (
-            <p style={{ color: 'gray', fontStyle: 'italic' }}>Vui lòng đăng nhập để tham gia cuộc trò chuyện.</p>
-          )}
+          <div>
+            <img src={user.avatarUrl} alt="User Avatar" style={{ width: "50px", height: "50px", borderRadius: "50%", marginRight: "12px" }} />
+            <span style={{ fontWeight: "bold", fontSize: '20px' }}>{user.username}</span>
+          </div>
+          <div style={{ flex: 1 }}>
+            <textarea onChange={(e) => setPostContent(e.target.value)} className='post-group-detail-textarea' placeholder="Bạn đang nghĩ gì...?" style={{ width: "100%", padding: "8px", border: "0px", borderRadius: "4px", marginTop: "8px", fontSize: '16px', color: 'black' }} />
+          </div>
         </div>
         <div style={{ display: "flex", alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
           {uploadedUrls.map((image, index) => (
@@ -341,15 +406,20 @@ function GroupDetail() {
         </div>
         <input type="file" id="iconFileInput" style={{ display: 'none' }} onChange={handleFileSelect} multiple />
         <div className='d-flex justify-content-end align-items-center'>
-          <Button variant='outline-success' className='rounded-5 fw-medium' style={{ cursor: "pointer", height: '44px' }}>Đăng bài</Button>
+          <Button onClick={handleCreatePost} variant='outline-success' className='rounded-5 fw-medium' style={{ cursor: "pointer", height: '44px' }}>Đăng bài</Button>
         </div>
       </div>
       <hr style={{ border: '1px solid #7F7F7F', margin: '40px 0' }} />
       <div style={{ padding: '0px 32px' }} className='group-input'>
-        {postDetailsList.map(postDetails => (
-          <PostGroupDetail key={postDetails.id} postDetails={postDetails} />
-        ))}
+        {postList.length > 0 ? (
+          postList.map(postDetails => (
+            <PostGroupDetail key={postDetails.id || Math.random()} postDetails={postDetails} groupId={selectedGroup.id}/>
+          ))
+        ) : (
+          <p style={{ textAlign: 'center', fontSize: '18px', color: '#888' }}>Bạn chưa có bài viết nào.</p>
+        )}
       </div>
+
       <Modal
         show={showModal}
         onHide={() => setShowModal(false)}
