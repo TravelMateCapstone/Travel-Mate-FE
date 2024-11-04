@@ -76,7 +76,7 @@ function GroupJoined() {
           ))}
         </div>
       ) : data.length === 0 ? (
-        <p>Bạn chưa tạo nhóm nào.</p>
+        <p>Bạn chưa tham gia nhóm nào.</p>
       ) : (
         <div
           style={{
@@ -99,20 +99,22 @@ function GroupJoined() {
         </div>
       )}
 
-      <ReactPaginate
-        previousLabel={'<'}
-        nextLabel={'>'}
-        breakLabel={'...'}
-        breakClassName={'break-me'}
-        pageCount={pageCount}
-        marginPagesDisplayed={2}
-        pageRangeDisplayed={2}
-        onPageChange={handlePageChange}
-        containerClassName={'pagination'}
-        activeClassName={'active-pagination'}
-        previousClassName={'previous'}
-        nextClassName={'next'}
-      />
+      {!isLoading && data.length > 0 && (
+        <ReactPaginate
+          previousLabel={'<'}
+          nextLabel={'>'}
+          breakLabel={'...'}
+          breakClassName={'break-me'}
+          pageCount={pageCount}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={2}
+          onPageChange={handlePageChange}
+          containerClassName={'pagination'}
+          activeClassName={'active-pagination'}
+          previousClassName={'previous'}
+          nextClassName={'next'}
+        />
+      )}
     </div>
   );
 }
