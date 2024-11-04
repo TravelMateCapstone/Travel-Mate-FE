@@ -3,7 +3,8 @@ import { LOGIN_SUCCESS, LOGOUT } from "../actionTypes";
 const initialState = {
   isAuthenticated: false,
   user: null,
-  token: null, // Thêm token vào state
+  token: null, 
+  avatarUrl: null,
 };
 
 const authReducer = (state = initialState, action) => {

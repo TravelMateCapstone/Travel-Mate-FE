@@ -22,40 +22,24 @@ function DetailLayout({ children }) {
       { iconName: 'calendar-number', title: 'Sự kiện đã tham gia', route: RoutePath.EVENT_JOINED },
       { iconName: 'add-circle', title: 'Sự kiện đã tạo', route: RoutePath.EVENT_CREATED },
   ];
-
-
-  
-  // Lấy đường dẫn hiện tại
   const currentPath = location.pathname;
-
   useEffect(() => {
-    // Lưu đường dẫn vào localStorage
     const currentPath = location.pathname;
     const previousPath = localStorage.getItem('lastPath');
-    console.log('Đường dẫn trước đó:', previousPath);
-    // Cập nhật đường dẫn mới
     localStorage.setItem('lastPath', currentPath);
 }, [location]);
-
-  // Kiểm tra xem đường dẫn có thuộc về sự kiện hay không
   const isEventRoute = currentPath.startsWith(RoutePath.EVENT) ||
       currentPath.startsWith(RoutePath.EVENT_JOINED) ||
       currentPath.startsWith(RoutePath.EVENT_CREATED);
 
   const isGroupRoutebtn = currentPath === RoutePath.GROUP;
   const isEventRouteBtn = currentPath === RoutePath.EVENT;
-
   const isActiveGroupDetail = currentPath === RoutePath.GROUP_DETAILS || previousPath === RoutePath.GROUP;
-
-  // Tạo danh sách các mục cho SidebarList
   const sidebarData = isEventRoute ? sidebarItemsEvent : sidebarItems;
-
-  // Thêm trạng thái active cho từng mục
   const sidebarItemsWithActiveState = sidebarData.map(item => ({
       ...item,
       isActive: currentPath === item.route || (item.route === RoutePath.GROUP && isActiveGroupDetail)
   }));
-
   return (
       <Container fluid className='container-main'>
           <Row>

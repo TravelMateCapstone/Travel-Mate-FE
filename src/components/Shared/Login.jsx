@@ -1,60 +1,46 @@
 import React, { useState } from "react";
 import { Form, Button, Modal } from "react-bootstrap";
 import { useDispatch } from "react-redux";
-import { loginSuccess } from "../../redux/actions/authActions"; // Import the loginSuccess action
-import { toast } from 'react-toastify'; // Import react-toastify
-import 'react-toastify/dist/ReactToastify.css'; // Import react-toastify CSS
+import { loginSuccess } from "../../redux/actions/authActions";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+import { decodeToken } from "react-jwt";
 import google from "../../assets/images/google.png";
 import facebook from "../../assets/images/facebook.png";
-import "../../assets/css/Shared/Login.css"; // Import CSS file
+import "../../assets/css/Shared/Login.css";
 
 const Login = ({ show, handleClose }) => {
-  const [username, setUsername] = useState(""); // Thay đổi từ email sang username
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState(null); // For showing error messages
+  const [errorMessage, setErrorMessage] = useState(null);
 
-  const dispatch = useDispatch(); // Hook to dispatch actions
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       // Gửi yêu cầu POST đến API đăng nhập
-      const response = await fetch('https://travelmateapp.azurewebsites.net/api/Auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: username,
-          password: password,
-        }),
+      const response = await axios.post(`${import.meta.env.VITE_BASE_API_URL}/api/Auth/login`, {
+        username,
+        password,
       });
-  
-      const data = await response.json();
-  
-      if (!response.ok) {
-        throw new Error(data.error || "Sai tài khoản hoặc mật khẩu.");
+      const { token } = response.data;
+      const claim = decodeToken(token);
+      const user = {
+        id: claim["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
+        username: claim["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
+        role: claim["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
+        avatarUrl: response.data.avatarUrl || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg',
       }
-  
-      // Giả sử API trả về token và thông tin người dùng
-      const { token, user } = data;  // API trả về `user` và `token`
-  
-      // Lưu token vào localStorage
-      localStorage.setItem("token", token);
-  
-      // Dispatch login success action để cập nhật Redux state
-      dispatch(loginSuccess({ user, token })); // Đảm bảo `user` và `token` được truyền
-      
-      // Hiển thị thông báo thành công
+      dispatch(loginSuccess({ user, token }));
       toast.success('Đăng nhập thành công!', {
         position: "bottom-right",
       });
-
-      // Đóng modal sau khi đăng nhập thành công
       handleClose();
     } catch (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(error.response?.data?.error || "Sai tài khoản hoặc mật khẩu.");
     }
   };
 

@@ -5,17 +5,15 @@ import { Link, useLocation } from 'react-router-dom'; // Import useLocation
 import RoutePath from '../../routes/RoutePath';
 import { viewGroup } from '../../redux/actions/groupActions';
 import { useDispatch } from 'react-redux';
-
-const GroupCard = ({ img, title, location, members, text }) => {
+const GroupCard = ({ id, img, title, location, members, text }) => {
   const locationRoute = useLocation(); 
   const dispatch = useDispatch(); 
   const isCreatedOrJoined = locationRoute.pathname === RoutePath.GROUP_CREATED || locationRoute.pathname === RoutePath.GROUP_JOINED;
   const buttonText = isCreatedOrJoined ? 'Vào nhóm' : 'Tham gia';
   const handleJoinGroup = () => {
-    const groupDetails = { img, title, location, members, text }; 
-    dispatch(viewGroup(groupDetails)); // Dispatch action viewGroup
+    const groupDetails = { id, img, title, location, members, text }; 
+    dispatch(viewGroup(groupDetails)); 
   };
-
   return (
     <Card className="group-card">
       <Card.Img
@@ -27,11 +25,15 @@ const GroupCard = ({ img, title, location, members, text }) => {
         <Card.Title className='group-name'>{title}</Card.Title>
         <div className="group-card-info">
           <span className='d-flex align-items-center'>
-            <ion-icon name="location-outline" className="icon-margin"></ion-icon>
+            <ion-icon name="location-outline" style={{
+              marginRight: '5px',
+            }}></ion-icon>
             {location}
           </span>
           <span className="group-card-members">
-            <ion-icon name="people-outline" className="icon-margin"></ion-icon>
+            <ion-icon name="people-outline"  style={{
+              marginRight: '5px',
+            }}></ion-icon>
             {members}
           </span>
         </div>
@@ -47,5 +49,4 @@ const GroupCard = ({ img, title, location, members, text }) => {
     </Card>
   );
 };
-
 export default GroupCard;

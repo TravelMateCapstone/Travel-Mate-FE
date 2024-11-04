@@ -5,7 +5,50 @@
     border-left: 1px solid #d9d9d9;
     padding-left: 55px;
 }
+.dropdown-edit-group-item .mybutton{
+    border: 0px !important;
+    padding: 0px !important;
+}
+.dropdown-edit-group-item .mybutton:hover{
+    background: transparent !important;
+    color: black !important;
+}
+.post-group-detail-textarea:focus{
+    outline: none ;
+}
 
+
+/* Custom CSS for transparent modal */
+.transparent-modal .modal-content {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  .transparent-modal .modal-dialog {
+    max-width: unset; /* Allows the image to determine the size */
+    width: auto;
+    margin: 0;
+    padding: 0;
+  }
+  @keyframes zoomIn {
+      from {
+        transform: scale(0.5); /* Bắt đầu với kích thước nhỏ hơn */
+        opacity: 0; /* Bắt đầu với độ mờ */
+      }
+      50% {
+        transform: scale(1.1); /* Tăng nhẹ kích thước giữa chừng */
+      }
+      to {
+        transform: scale(1); /* Đạt kích thước đầy đủ */
+        opacity: 1; /* Độ trong suốt đạt tối đa */
+      }
+    }
+    
+    .zoom-in-image {
+      animation: zoomIn 0.5s ease-out; /* Điều chỉnh thời gian hiệu ứng */
+    }
+    
 @media (max-width: 1024px){
     .join-group-detail-container{
         padding: 0 20px !important;
