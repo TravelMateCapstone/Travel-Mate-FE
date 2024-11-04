@@ -1,24 +1,52 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Dropdown, Form, Modal } from 'react-bootstrap';
-import PostGroupDetail from '../../components/Group/PostGroupDetail';
 import { useSelector } from 'react-redux';
-import '../../assets/css/Groups/GroupDetail.css';
-import RoutePath from '../../routes/RoutePath';
-import FormSubmit from '../../components/Shared/FormSubmit';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { storage } from '../../../firebaseConfig';
 import Skeleton from 'react-loading-skeleton';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { storage } from '../../../firebaseConfig';
+import '../../assets/css/Groups/GroupDetail.css';
+import RoutePath from '../../routes/RoutePath';
+import FormSubmit from '../../components/Shared/FormSubmit';
+import PostGroupDetail from '../../components/Group/PostGroupDetail';
+
 function GroupDetail() {
+  // Redux selectors
   const selectedGroup = useSelector(state => state.group.selectedGroup);
+  const user = useSelector(state => state.auth.user);
+  const token = useSelector(state => state.auth.token);
+
+  // State for group details
+  const [groupName, setGroupName] = useState(selectedGroup.title || selectedGroup.groupName || '');
+  const [groupDescription, setGroupDescription] = useState(selectedGroup.text || '');
+  const [groupLocation, setGroupLocation] = useState(selectedGroup.location || '');
+  const [isGroupCreate, setIsGroupCreate] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // State for locations
   const [locations, setLocations] = useState([]);
+
+  // State for file uploads
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploadedUrls, setUploadedUrls] = useState([]);
+  const [coverImageUrl, setCoverImageUrl] = useState(null);
+  const [uploadingFiles, setUploadingFiles] = useState([]);
+  const [filePlaceholder, setFilePlaceholder] = useState("Nhấn vào đây để upload");
+  const [errors, setErrors] = useState({ groupImageUrl: '' });
+
+  // State for modal
+  const [showModal, setShowModal] = useState(false);
+  const [modalImageUrl, setModalImageUrl] = useState(null);
+
+  // Static data
   const members = [
     { id: 1, image: 'https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj' },
     { id: 2, image: 'https://kenh14cdn.com/thumb_w/640/203336854389633024/2024/10/5/hieuthuhai-6-1724922106140134622997-0-0-994-1897-crop-17249221855301721383554-17281064622621203940077.jpg' },
     { id: 3, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSp3HUU-eAMPAQL0wpBBY2taVQkWH4EwUWeHw&s' },
   ];
+
   const postDetailsList = [
     {
       id: 1,
@@ -37,29 +65,12 @@ function GroupDetail() {
       ],
     },
   ];
-  const [isGroupCreate, setIsGroupCreate] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [uploadedUrls, setUploadedUrls] = useState([]);
-  const [coverImageUrl, setCoverImageUrl] = useState(null);
-  const [filePlaceholder, setFilePlaceholder] = useState("Nhấn vào đây để upload");
-  const [errors, setErrors] = useState({ groupImageUrl: '' });
-  const [uploadingFiles, setUploadingFiles] = useState([]);
-  const user = useSelector(state => state.auth.user);
-  const [showModal, setShowModal] = useState(false); // State for modal visibility
-  const [modalImageUrl, setModalImageUrl] = useState(null); // State for image URL in modal
-  const [groupName, setGroupName] = useState(selectedGroup.title || selectedGroup.groupName || '');
-  const [groupDescription, setGroupDescription] = useState(selectedGroup.text || '');
-  const [groupLocation, setGroupLocation] = useState(selectedGroup.location || '');
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State to manage modal visibility
-
-
 
   useEffect(() => {
     setIsGroupCreate(localStorage.getItem('lastPath') === RoutePath.GROUP_CREATED);
     axios.get('https://provinces.open-api.vn/api/p/')
       .then(response => {
         const modifiedLocations = response.data.map(location => {
-          // Remove the prefix "Tỉnh" or "Thành phố"
           const newName = location.name.replace(/^(Tỉnh|Thành phố)\s*/, '');
           return { ...location, name: newName };
         });
@@ -68,13 +79,12 @@ function GroupDetail() {
       .catch(error => {
         console.error('Error fetching locations:', error);
       });
-      console.log(user);
-      
+    console.log(user);
   }, []);
 
   const handleViewImage = (url) => {
-    setModalImageUrl(url); // Set the image URL for the modal
-    setShowModal(true); // Show the modal
+    setModalImageUrl(url);
+    setShowModal(true);
   };
 
   const handleCoverImageUpload = async (file) => {
@@ -92,7 +102,6 @@ function GroupDetail() {
       toast.error('Lỗi khi tải lên ảnh bìa!');
     }
   };
-
 
   const handleFileUpload = async (files) => {
     setUploadingFiles((prev) => [...prev, ...files]);
@@ -141,6 +150,7 @@ function GroupDetail() {
       await handleCoverImageUpload(file);
     }
   };
+
   const handleDeleteCoverImage = async () => {
     if (coverImageUrl) {
       const fileName = coverImageUrl;
@@ -155,8 +165,7 @@ function GroupDetail() {
       }
     }
   };
-  
-  const token = useSelector(state => state.auth.token);
+
   const handleUpdateGroupDetail = async () => {
     const groupData = {
       groupName,
@@ -167,9 +176,7 @@ function GroupDetail() {
 
     console.log('Group Data:', groupData);
     console.log(selectedGroup.id);
-    
     console.log('Token:', token);
-    
 
     try {
       const response = await axios.put(`https://travelmateapp.azurewebsites.net/api/groups/${selectedGroup.id}`, groupData, {
@@ -179,7 +186,7 @@ function GroupDetail() {
       });
       console.log('Group Details Updated:', response.data);
       toast.success('Thông tin nhóm đã được cập nhật thành công!');
-      setIsEditModalOpen(false); // Close modal after successful update
+      setIsEditModalOpen(false);
     } catch (error) {
       console.error('Error updating group details:', error);
       toast.error('Lỗi khi cập nhật thông tin nhóm!');
@@ -293,13 +300,19 @@ function GroupDetail() {
 
       <div style={{ border: "1px solid #ddd", borderRadius: "20px", padding: "20px 40px", width: "100%", margin: "0 auto", boxShadow: '0 0 7px rgba(0, 0, 0, 0.25)' }}>
         <div style={{ alignItems: "center" }}>
-          <div>
-            <img src={user.avatarUrl} alt="User Avatar" style={{ width: "50px", height: "50px", borderRadius: "50%", marginRight: "12px" }} />
-            <span style={{ fontWeight: "bold", fontSize: '20px' }}>{user.username}</span>
-          </div>
-          <div style={{ flex: 1 }}>
-            <textarea className='post-group-detail-textarea' placeholder="Bạn đang nghĩ gì...?" style={{ width: "100%", padding: "8px", border: "0px", borderRadius: "4px", marginTop: "8px", fontSize: '16px', color: 'black' }} />
-          </div>
+          {user ? (
+            <>
+              <div>
+                <img src={user.avatarUrl} alt="User Avatar" style={{ width: "50px", height: "50px", borderRadius: "50%", marginRight: "12px" }} />
+                <span style={{ fontWeight: "bold", fontSize: '20px' }}>{user.username}</span>
+              </div>
+              <div style={{ flex: 1 }}>
+                <textarea className='post-group-detail-textarea' placeholder="Bạn đang nghĩ gì...?" style={{ width: "100%", padding: "8px", border: "0px", borderRadius: "4px", marginTop: "8px", fontSize: '16px', color: 'black' }} />
+              </div>
+            </>
+          ) : (
+            <p style={{ color: 'gray', fontStyle: 'italic' }}>Vui lòng đăng nhập để tham gia cuộc trò chuyện.</p>
+          )}
         </div>
         <div style={{ display: "flex", alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
           {uploadedUrls.map((image, index) => (
@@ -345,15 +358,15 @@ function GroupDetail() {
         dialogClassName="transparent-modal"
       >
         <div
-          onClick={() => setShowModal(false)} // Close modal when clicking on overlay
+          onClick={() => setShowModal(false)}
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
-            zIndex: 1040, // Ensure it sits below the modal content
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 1040,
           }}
         >
           <div
@@ -367,7 +380,7 @@ function GroupDetail() {
             <img
               src={modalImageUrl}
               alt="Ảnh lớn"
-              className="zoom-in-image" // Add zoom-in animation class
+              className="zoom-in-image"
               style={{ width: '50%', borderRadius: '5px' }}
             />
           </div>
@@ -376,4 +389,5 @@ function GroupDetail() {
     </div>
   );
 }
+
 export default GroupDetail;
