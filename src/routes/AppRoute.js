@@ -46,6 +46,7 @@ const privateRoutes = [
     { path: RoutePath.EVENT_CREATED, component: EventList, layout: ListLayout },
     { path: RoutePath.EVENT_JOINED, component: EventList, layout: ListLayout },
     { path: RoutePath.EVENT_DETAILS, component: EventJoined, layout: DetailLayout },
+    { path: RoutePath.EVENT_MANAGEMENT, component: EventCreated, layout: DetailLayout },
 
     { path: RoutePath.PROFILE, component: Profile, layout: ProfileLayout },
     { path: RoutePath.PROFILE_EDIT, component: EditProfile, layout: ProfileLayout },

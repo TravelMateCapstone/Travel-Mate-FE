@@ -1,15 +1,14 @@
 import React from 'react';
 import { Card, Button } from 'react-bootstrap';
 import '../../assets/css/Events/EventCard.css';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { viewEvent } from '../../redux/actions/eventActions';
 import { toast } from 'react-toastify';
 
-const EventCard = ({ id, img, startTime, endTime, title, location, members, text, loading }) => {
+const EventCard = ({ id, img, startTime, endTime, title, location, members, text }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const locationPath = useLocation();
@@ -22,28 +21,23 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
     const handleViewOrJoinEvent = async () => {
         const selectedEvent = { id, img, startTime, endTime, title, location, members, text };
 
-        if (!isJoinedPath && !isCreatedPath && isEventPage) {
-            // Gọi API khi nhấn "Tham gia"
+        if (isJoinedPath) {
+            // Xem chi tiết khi đã tham gia sự kiện
+            dispatch(viewEvent(selectedEvent));
+            localStorage.setItem('selectedEvent', JSON.stringify(selectedEvent));
+            navigate(RoutePath.EVENT_DETAILS);
+        } else if (!isCreatedPath && isEventPage) {
+            // Tham gia sự kiện khi ở trang event
             try {
                 const response = await axios.post(
                     'https://travelmateapp.azurewebsites.net/api/EventParticipants/current-user-join-event',
-                    {
-                        eventId: id,
-                        joinedAt: new Date().toISOString(),
-                        notification: true,
-                    },
-                    {
-                        headers: { Authorization: token },
-                    }
+                    { eventId: id, joinedAt: new Date().toISOString(), notification: true },
+                    { headers: { Authorization: token } }
                 );
                 if (response.status === 200) {
                     toast.success("Tham gia sự kiện thành công!");
-
-                    // Lưu dữ liệu sự kiện vào Redux và localStorage
                     dispatch(viewEvent(selectedEvent));
                     localStorage.setItem('selectedEvent', JSON.stringify(selectedEvent));
-
-                    // Điều hướng đến trang chi tiết
                     navigate(RoutePath.EVENT_DETAILS);
                 }
             } catch (error) {
@@ -51,14 +45,12 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
                 console.error("Error joining event:", error);
             }
         } else {
-            // Điều hướng đến trang chi tiết cho sự kiện đã tham gia/tạo
             dispatch(viewEvent(selectedEvent));
             localStorage.setItem('selectedEvent', JSON.stringify(selectedEvent));
-            navigate(RoutePath.EVENT_DETAILS);
+            navigate(RoutePath.EVENT_MANAGEMENT);
         }
     };
 
-    // Xác định nút và nhãn
     const buttonText = isCreatedPath ? "Quản lý sự kiện" : isJoinedPath ? "Xem chi tiết" : "Tham gia";
 
     return (

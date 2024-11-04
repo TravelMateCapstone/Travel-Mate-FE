@@ -44,6 +44,11 @@
     font-weight: 500;
 }
 
+.event-setting {
+    font-size: 24px;
+    margin-right: 10%;
+}
+
 .members {
     font-size: 16px;
     font-weight: 500;
