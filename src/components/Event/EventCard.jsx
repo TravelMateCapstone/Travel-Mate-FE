@@ -72,11 +72,11 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
                 </div>
                 <Button
                     variant="outline-success"
-                    className="btn-join rounded-5"
+                    className="btn-join rounded-5 event-card-button"
                     onClick={handleViewOrJoinEvent}
                 >
                     <div>{buttonText}</div>
-                    <ion-icon name="chevron-forward-circle-outline"></ion-icon>
+                    <ion-icon name="chevron-forward-circle-outline" className="event-card-icon"></ion-icon>
                 </Button>
             </Card.Body>
         </Card>

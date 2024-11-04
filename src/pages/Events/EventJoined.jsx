@@ -35,11 +35,35 @@ function EventJoined() {
                 borderRadius: '20px',
                 marginBottom: '5px'
             }} />
-
             <div className='d-flex'>
-                <div className='event-time'>
-                    <p>{selectedEvent.startTime}</p>
+                <div>
+                    <div className='event-time'>
+                        <p>{selectedEvent.startTime}</p>
+                    </div>
+                    <div className='justify-content-between'>
+                        <p className='event-name-inf'>{selectedEvent.title}</p>
+                        <div className='event-location-inf'>
+                            <i className='bi bi-geo-alt'><ion-icon name="location-outline"></ion-icon>  {selectedEvent.location}</i>
+                        </div>
+                        <div className='d-flex align-items-center'>
+                            <div className='event-start-date'>
+                                <p className='my-4'>{selectedEvent.startTime}</p>
+                            </div>
+                            <div className='m-2 event-end-date'>
+                                <p className='m-2'>{selectedEvent.endTime}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className='event-location-inf d-flex align-items-center'>
+                        <div className='icon'>
+                            <ion-icon name="people-outline" className="icon-margin"></ion-icon>
+                        </div>
+                        <div>
+                            <i className='text-location'>{members.length} người tham gia</i>
+                        </div>
+                    </div>
                 </div>
+
                 <div className='event-status'>
                     <Form.Select aria-label="Default select example" className='form-event-status'>
                         <option>Đã tham gia</option>
@@ -47,26 +71,6 @@ function EventJoined() {
                     </Form.Select>
                 </div>
             </div>
-
-            <div className='justify-content-between'>
-                <p className='event-name-inf'>{selectedEvent.title}</p>
-                <div className='event-location-inf'>
-                    <i className='bi bi-geo-alt'></i> {selectedEvent.location}
-                </div>
-                <div className='d-flex align-items-center'>
-                    <div className='event-start-date'>
-                        <p className='my-4'>{selectedEvent.startTime}</p>
-                    </div>
-                    <div className='m-2 event-end-date'>
-                        <p className='m-2'>{selectedEvent.endTime}</p>
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <p><ion-icon name="people-outline" className="icon-margin"></ion-icon> {members.length} người tham gia</p>
-            </div>
-
             <div className="section-container">
                 <div className="section-left my-4">
                     <p className='m-3 title'>Nội dung</p>
@@ -94,6 +98,7 @@ function EventJoined() {
                     </div>
                 </div>
             </div>
+
         </div>
     );
 }

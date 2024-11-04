@@ -2,22 +2,44 @@
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
+    overflow: hidden;
+    /* Prevents content overflow outside rounded corners */
 }
 
 .event-card-image {
     width: 100%;
     height: 193px;
-    /* Chiều dài cố định */
     object-fit: cover;
-    /* Phóng to và cắt ảnh nếu tỷ lệ không phù hợp */
     object-position: center;
-    /* Căn giữa ảnh để giữ vùng trọng tâm */
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
     border: 1px solid gray;
+    aspect-ratio: 16/9;
+    /* Ensures consistent aspect ratio */
 }
 
+.text-btn {
+    align-items: center;
+}
 
+.event-card-button {
+    width: 100%;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    border-radius: 30px !important;
+    height: 34px;
+    transition: all 0.3s ease;
+    padding: 0 10px;
+    /* Adds some padding to the sides */
+    position: relative;
+}
+
+.event-card-icon {
+    font-size: 18px;
+    margin-left: auto;
+    /* Pushes the icon to the far right */
+}
 
 .event-card-body {
     display: flex;
@@ -87,8 +109,10 @@
 }
 
 .btn-join div {
+    flex-grow: 1;
+    text-align: center;
     display: flex;
-    align-items: center;
+    justify-content: center;
 }
 
 .btn-text {

@@ -4,6 +4,7 @@
     flex-direction: column;
     gap: 20px;
     border-left: 2px #f2f2f2 solid;
+    padding-right: 85px;
 }
 
 .event-time {
@@ -13,21 +14,32 @@
     flex: 1;
 }
 
-.event-name-inf {
-    font-size: 32px;
-    font-weight: 700;
+.event-setting {
+    font-size: 24px;
+    margin-left: 67%;
+    padding-bottom: 40px;
+    height: 28px !important;
 }
 
 .event-location-inf {
     font-size: 16px;
-    font-weight: 500px;
+    font-weight: 500;
+    gap: 8px;
 }
 
-.event-end-date {
+.icon {
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.text-location {
     font-size: 16px;
     font-weight: 500;
-    width: 209px;
-    height: 40px;
+}
+
+.event-start-date {
+    margin-right: 16px;
 }
 
 .event-end-date {
@@ -42,11 +54,6 @@
     height: 40px;
     font-size: 16px;
     font-weight: 500;
-}
-
-.event-setting {
-    font-size: 24px;
-    margin-right: 10%;
 }
 
 .members {
@@ -149,13 +156,19 @@
     cursor: pointer;
 }
 
-/* In your CSS file or inside EventCreated.css */
-.custom-modal .modal-dialog {
-    max-width: 897px;
-    /* Set the desired width */
-    width: 100%;
+/*CSS Modal*/
+#startAt,
+#endAt {
+    width: 45%;
 }
 
+#startAt {
+    margin-right: 5%;
+}
+
+#endAt {
+    margin-left: 5%;
+}
 
 
 @media (max-width: 768px) {
