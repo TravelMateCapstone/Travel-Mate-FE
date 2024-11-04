@@ -11,33 +11,18 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 function GroupDetail() {
   const selectedGroup = useSelector(state => state.group.selectedGroup);
   const [locations, setLocations] = useState([]);
   const [postList, setPostList] = useState([]);
+  const location = useLocation();
   const members = [
     { id: 1, image: 'https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj' },
     { id: 2, image: 'https://kenh14cdn.com/thumb_w/640/203336854389633024/2024/10/5/hieuthuhai-6-1724922106140134622997-0-0-994-1897-crop-17249221855301721383554-17281064622621203940077.jpg' },
     { id: 3, image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSp3HUU-eAMPAQL0wpBBY2taVQkWH4EwUWeHw&s' },
   ];
-  const postDetailsList = [
-    {
-      id: 1,
-      authorAvatar: 'https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj',
-      authorName: 'Nhơn Trần',
-      date: '24 tháng 09 lúc 9:01',
-      content: 'Xin chào mọi người, Hôm nay chúng tôi chia sẻ đến mọi người chuyến đi Đà Nẵng 2 ngày 1 đêm của chúng tôi.',
-      images: [
-        'https://tiki.vn/blog/wp-content/uploads/2023/03/cau-rong-da-nang.jpg',
-        'https://tiki.vn/blog/wp-content/uploads/2023/03/cau-rong-da-nang.jpg',
-        'https://tiki.vn/blog/wp-content/uploads/2023/03/cau-rong-da-nang.jpg',
-      ],
-      comments: [
-        { id: 1, avatar: 'https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj', name: 'Nhơn Trần', location: 'Quảng Nam', content: 'Đăng là người bạn đồng hành tuyệt vời!' },
-        { id: 2, avatar: 'https://randomuser.me/api/portraits/men/32.jpg', name: 'Huy Nguyễn', location: 'Hà Nội', content: 'Một trải nghiệm thật tuyệt vời!' },
-      ],
-    },
-  ];
+
   const [isGroupCreate, setIsGroupCreate] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadedUrls, setUploadedUrls] = useState([]);
@@ -55,6 +40,9 @@ function GroupDetail() {
   const [postContent, setPostContent] = useState('');
 
   useEffect(() => {
+    if (location.state?.successMessage) {
+      toast.success(location.state.successMessage);
+  }
     setIsGroupCreate(localStorage.getItem('lastPath') === RoutePath.GROUP_CREATED);
     axios.get('https://provinces.open-api.vn/api/p/')
       .then(response => {
@@ -107,7 +95,7 @@ function GroupDetail() {
     if (selectedGroup && selectedGroup.id) {
       fetchGroupPosts();
     }
-  }, []);
+  }, [location.state]);
 
 
   const handleViewImage = (url) => {
