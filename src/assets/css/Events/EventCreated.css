@@ -149,6 +149,14 @@
     cursor: pointer;
 }
 
+/* In your CSS file or inside EventCreated.css */
+.custom-modal .modal-dialog {
+    max-width: 897px;
+    /* Set the desired width */
+    width: 100%;
+}
+
+
 
 @media (max-width: 768px) {
     .section-container {
