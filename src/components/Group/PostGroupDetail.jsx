@@ -38,7 +38,7 @@ function PostGroupDetail({ postDetails, groupId }) {
   const handleEditComment = async (commentId, newCommentText) => {
     try {
       await axios.put(
-        `https://travelmateapp.azurewebsites.net/api/Groups/${groupId}/GroupPosts/${postDetails.id}/PostComments/${commentId}`,
+        `https://travelmateapp.azurewebsites.net/api/Groups/${groupId}/GroupPosts/${postDetails.postId}/PostComments/${commentId}`,
         { commentText: newCommentText },
         {
           headers: {
@@ -63,15 +63,13 @@ function PostGroupDetail({ postDetails, groupId }) {
   const fetchComments = async () => {
     try {
       const response = await axios.get(
-        `https://travelmateapp.azurewebsites.net/api/Groups/${groupId}/GroupPosts/${postDetails.id}/PostComments`,
+        `https://travelmateapp.azurewebsites.net/api/Groups/${groupId}/GroupPosts/${postDetails.postId}/PostComments`,
         {
           headers: {
             Authorization: `${token}`,
           },
         }
       );
-      console.log('Comments:', response.data.$values);
-
       setComments(response.data.$values || []);
     } catch (error) {
       console.log('Error fetching comments:', error);
@@ -96,7 +94,7 @@ function PostGroupDetail({ postDetails, groupId }) {
       };
 
       const response = await axios.put(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupId}/groupposts/${postDetails.id}`,
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupId}/groupposts/${postDetails.postId}`,
         updatedPostData,
         {
           headers: {
@@ -176,7 +174,7 @@ function PostGroupDetail({ postDetails, groupId }) {
 
     try {
       const response = await axios.post(
-        `https://travelmateapp.azurewebsites.net/api/Groups/${groupId}/GroupPosts/${postDetails.id}/PostComments`,
+        `https://travelmateapp.azurewebsites.net/api/Groups/${groupId}/GroupPosts/${postDetails.postId}/PostComments`,
         { commentText: comment },
         { headers: { Authorization: `${token}` } }
       );
@@ -202,13 +200,12 @@ function PostGroupDetail({ postDetails, groupId }) {
       console.log("File selected:", file.name);
     }
   };
-
+ 
+  
   const handleDeletePost = async () => {
-    console.log(postDetails);
-
     try {
       const response = await axios.delete(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupId}/groupposts/${postDetails.id}`,
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupId}/groupposts/${postDetails.postId}`,
         {
           headers: {
             Authorization: `${token}`,
@@ -227,7 +224,7 @@ function PostGroupDetail({ postDetails, groupId }) {
     <div className='mb-5 post-group-detail-container'>
       <div className='d-flex'>
         <div className='w-100 p-2 d-flex gap-3 align-items-center'>
-          <img src={postDetails.authorAvatar} alt="" style={{
+          <img src={postDetails.postCreatorAvatar} alt="" style={{
             width: '72px',
             height: '72px',
             objectFit: 'cover',
@@ -237,11 +234,11 @@ function PostGroupDetail({ postDetails, groupId }) {
             <strong style={{
               fontWeight: '600',
               fontSize: '20px'
-            }}>{postDetails.authorName}</strong>
+            }}>{postDetails.postCreatorName}</strong>
             <p className='m-0' style={{
               fontWeight: '500',
               fontSize: '16px'
-            }}>{postDetails.date}</p>
+            }}>{postDetails.createdTime}</p>
           </div>
         </div>
 
@@ -380,7 +377,7 @@ function PostGroupDetail({ postDetails, groupId }) {
         margin: '14px 0 18px 0',
         fontSize: '16px',
         fontWeight: '500'
-      }}>{postDetails.content}</p>
+      }}>{postDetails.title}</p>
 
       <div style={{
         border: '1px solid #D9D9D9',
@@ -390,7 +387,7 @@ function PostGroupDetail({ postDetails, groupId }) {
         borderRadius: '10px',
         boxShadow: '4px 4px 4px rgba(0, 0, 0, 0.25)',
       }} className='post-group-detail-img'>
-        {(postDetails.images || []).map((img, index) => (
+        {(postDetails.postPhotos.$values || []).map((img, index) => (
           <img key={index} src={img} alt="địa điểm" style={{
             objectFit: 'cover',
             borderRadius: '20px'
@@ -415,7 +412,7 @@ function PostGroupDetail({ postDetails, groupId }) {
 
       {showComments && (
         <>
-          {comments.slice(0, visibleComments).map((comment) => (
+          {(comments).slice(0, visibleComments).map((comment) => (
              <CommentPostGroupDetail
              key={comment.commentId}
              comment={comment}

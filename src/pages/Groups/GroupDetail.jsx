@@ -64,23 +64,27 @@ function GroupDetail() {
           },
         });
 
-        const posts = response.data.$values.map(post => ({
-          id: post.postId,
-          authorName: user.username, // Placeholder, replace with correct data if available
-          date: new Date(post.createdTime).toLocaleString(),
-          content: post.title,
-          images: post.postPhotos.$values.map(photo => photo.photoUrl),
-          comments: post.comments.$values.map(comment => ({
-            id: comment.commentId,
-            avatar: 'https://randomuser.me/api/portraits/men/32.jpg', // Placeholder
-            name: 'Anonymous', // Placeholder
-            location: 'Unknown', // Placeholder
-            content: comment.content,
-          })),
-        }));
+        setPostList(response.data.$values);
+        console.log('Posts:', response.data.$values);
+        
+        
 
-        setPostList(posts);
-        console.log('Posts:', posts);
+        // const posts = response.data.$values.map(post => ({
+        //   id: post.postId,
+        //   authorName: response.data.$values.postCreatorName, // Placeholder, replace with correct data if available
+        //   date: new Date(post.createdTime).toLocaleString(),
+        //   content: post.title,
+        //   images: post.postPhotos.$values.map(photo => photo.photoUrl),
+        //   comments: post.comments.$values.map(comment => ({
+        //     id: comment.commentId,
+        //     avatar: 'https://randomuser.me/api/portraits/men/32.jpg', // Placeholder
+        //     name: 'Anonymous', // Placeholder
+        //     location: 'Unknown', // Placeholder
+        //     content: comment.content,
+        //   })),
+        // }));
+
+        // console.log('Posts:', posts);
       } catch (error) {
         if (error.response && error.response.status === 404) {
           console.warn('No posts found for the group:', selectedGroup.id);
@@ -95,6 +99,8 @@ function GroupDetail() {
       fetchGroupPosts();
     }
   }, [location.state]);
+
+  
 
 
   const handleViewImage = (url) => {
