@@ -159,17 +159,46 @@
 /*CSS Modal*/
 #startAt,
 #endAt {
-    width: 45%;
+    width: 48%;
 }
 
 #startAt {
-    margin-right: 5%;
+    margin-right: 2%;
 }
 
 #endAt {
-    margin-left: 5%;
+    margin-left: 2%;
 }
 
+#eventImage {
+    width: 260px;
+    height: 44px !important;
+}
+
+.upload-img {
+    color: black !important;
+    border-radius: 20px !important;
+    border: 2px #ccc dashed !important;
+    background-color: #F2F7FF !important;
+}
+
+.upload {
+    color: #00A3FF;
+}
+
+.form-input {
+    border-radius: 20px !important;
+}
+
+.input-des {
+    height: 104px !important;
+}
+
+.upload-image {
+    justify-items: center;
+    width: 260px;
+    height: 44px !important;
+}
 
 @media (max-width: 768px) {
     .section-container {
