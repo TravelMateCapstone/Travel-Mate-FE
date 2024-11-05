@@ -26,7 +26,7 @@ function ListLayout({ children }) {
     const [isUploading, setIsUploading] = useState(false);
     const [tempImageUrl, setTempImageUrl] = useState(null);
     const [locations, setLocations] = useState([]);
-    
+
 
     const sidebarItems = [
         { iconName: 'list-circle', title: 'Danh sách nhóm', route: RoutePath.GROUP },
@@ -41,11 +41,8 @@ function ListLayout({ children }) {
     ];
 
     const location = useLocation();
-    const [lastPath, setLastPath] = useState(null);
 
     useEffect(() => {
-        setLastPath(location.pathname);
-        localStorage.setItem('lastPath', location.pathname);
         const fetchLocations = async () => {
             try {
                 const response = await axios.get('https://provinces.open-api.vn/api/p/');
@@ -180,7 +177,7 @@ function ListLayout({ children }) {
             navigate(RoutePath.GROUP_DETAILS, {
                 state: { successMessage: 'Nhóm mới đã được tạo thành công' }
             });
-            
+
         } catch (error) {
             console.error('Error creating group:', error.response || error.message);
             toast.error('Đã xảy ra lỗi khi tạo nhóm');

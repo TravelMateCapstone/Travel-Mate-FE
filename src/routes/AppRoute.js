@@ -23,7 +23,7 @@ import Chat from "../pages/Chat"
 import AdminReport from "../pages/Admin/AdminReport"
 import WalletManagement from "../pages/Admin/WalletManagement"
 import TripHistory from "../pages/Admin/TripHistory"
-
+import MyGroupDetail from '../pages/Groups/MyGroupDetail'
 
 
 const publishRoutes = [
@@ -41,6 +41,7 @@ const privateRoutes = [
     { path: RoutePath.ADMIN_TRIP_HISTORY, component: TripHistory, layout: AdminLayout },
 
     { path: RoutePath.GROUP_CREATED, component: GroupCreated, layout: ListLayout },
+    { path: RoutePath.GROUP_MY_DETAILS, component: MyGroupDetail, layout: DetailLayout },
     { path: RoutePath.GROUP_JOINED, component: GroupJoined, layout: ListLayout },
     { path: RoutePath.EVENT_CREATED, component: EventCreated, layout: ListLayout },
     { path: RoutePath.EVENT_JOINED, component: EventJoined, layout: DetailLayout },

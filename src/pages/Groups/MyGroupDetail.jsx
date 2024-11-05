@@ -12,7 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
-function GroupDetail() {
+function MyGroupDetail() {
   // Redux selectors
   const selectedGroup = useSelector(state => state.group.selectedGroup);
 
@@ -67,8 +67,28 @@ function GroupDetail() {
             Authorization: `${token}`,
           },
         });
+
         setPostList(response.data.$values);
         console.log('Posts:', response.data.$values);
+
+
+
+        // const posts = response.data.$values.map(post => ({
+        //   id: post.postId,
+        //   authorName: response.data.$values.postCreatorName, // Placeholder, replace with correct data if available
+        //   date: new Date(post.createdTime).toLocaleString(),
+        //   content: post.title,
+        //   images: post.postPhotos.$values.map(photo => photo.photoUrl),
+        //   comments: post.comments.$values.map(comment => ({
+        //     id: comment.commentId,
+        //     avatar: 'https://randomuser.me/api/portraits/men/32.jpg', // Placeholder
+        //     name: 'Anonymous', // Placeholder
+        //     location: 'Unknown', // Placeholder
+        //     content: comment.content,
+        //   })),
+        // }));
+
+        // console.log('Posts:', posts);
       } catch (error) {
         if (error.response && error.response.status === 404) {
           console.warn('No posts found for the group:', selectedGroup.id);
@@ -83,6 +103,9 @@ function GroupDetail() {
       fetchGroupPosts();
     }
   }, [location.state]);
+
+
+
 
   const handleViewImage = (url) => {
     setModalImageUrl(url);
@@ -145,7 +168,59 @@ function GroupDetail() {
       toast.error('Lỗi khi xóa ảnh!');
     }
   };
+
+  const handleCoverImageSelect = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      await handleCoverImageUpload(file);
+    }
+  };
+
+  const handleDeleteCoverImage = async () => {
+    if (coverImageUrl) {
+      const fileName = coverImageUrl;
+      const storageRef = ref(storage, `${coverImageUrl}`);
+      try {
+        await deleteObject(storageRef);
+        setCoverImageUrl(null);
+        toast.success('Ảnh bìa đã được xóa thành công!');
+      } catch (error) {
+        console.error('Error deleting cover image:', error);
+        toast.error('Lỗi khi xóa ảnh bìa!');
+      }
+    }
+  };
+
   const token = useSelector(state => state.auth.token);
+  const handleUpdateGroupDetail = async () => {
+    const groupData = {
+      groupName,
+      location: groupLocation,
+      description: groupDescription,
+      groupImageUrl: coverImageUrl,
+    };
+
+    console.log('Group Data:', groupData);
+    console.log(selectedGroup.id);
+
+    console.log('Token:', token);
+
+
+    try {
+      const response = await axios.put(`https://travelmateapp.azurewebsites.net/api/groups/${selectedGroup.id}`, groupData, {
+        headers: {
+          Authorization: `${token}`
+        }
+      });
+      console.log('Group Details Updated:', response.data);
+      toast.success('Thông tin nhóm đã được cập nhật thành công!');
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error('Error updating group details:', error);
+      toast.error('Lỗi khi cập nhật thông tin nhóm!');
+    }
+  };
+
   const handleCreatePost = async () => {
     if (!postContent.trim()) {
       toast.error('Nội dung bài viết không được để trống!');
@@ -207,11 +282,85 @@ function GroupDetail() {
           <p className='group-name-inf' style={{ fontSize: '40px', fontWeight: 'bold', margin: '0', marginBottom: '10px' }}>{selectedGroup.title || selectedGroup.groupName}</p>
           <div className='group-location-inf' style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '15px' }}>{selectedGroup.location}</div>
         </div>
-        <Form.Select className='group-dropdown-inf' style={{ height: '44px', width: '200px', fontSize: '18px', padding: '10px 20px', borderRadius: '22px', color: 'green' }}>
-          <option>Đã tham gia</option>
-          <option value="Rời khỏi nhóm">Rời khỏi nhóm</option>
-        </Form.Select>
+        <Dropdown>
+            <Dropdown.Toggle variant="" id="dropdown-basic" className='bg-transparent border-0'>
+              <ion-icon name="settings-outline" style={{ fontSize: '25px' }}></ion-icon>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item className='dropdown-edit-group-item'>
+                <FormSubmit openModalText={'Chỉnh sửa thông tin'} title={'Chỉnh sửa thông tin nhóm'} buttonText={'Lưu thay đổi'} onButtonClick={handleUpdateGroupDetail}>
+                  <h3>Bảng thông tin</h3>
+                  <small>Thay đổi thông tin chi tiết cho nhóm của bạn</small>
+                  <Form>
+                    <Form.Group className="mb-3 mt-3">
+                      <Form.Label className='fw-bold'>Tên nhóm</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="Nhập tên nhóm"
+                        className='rounded-5 border-black'
+                        value={groupName}
+                        onChange={(e) => setGroupName(e.target.value)}
+                        onKeyDown={(e) => e.stopPropagation()}
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-3" style={{ height: '120px' }}>
+                      <Form.Label className='fw-bold'>Miêu tả</Form.Label>
+                      <textarea
+                        placeholder="Nhập miêu tả về nhóm của bạn"
+                        style={{ height: '85%', width: '100%' }}
+                        className='border-1 border-black rounded-4 p-2'
+                        value={groupDescription}
+                        onChange={(e) => setGroupDescription(e.target.value)}
+                        onKeyDown={(e) => e.stopPropagation()}
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label className='fw-bold'>Địa điểm</Form.Label>
+                      <Form.Select
+                        className='rounded-5 border-black'
+                        value={groupLocation}
+                        onChange={(e) => setGroupLocation(e.target.value)}
+                      >
+                        <option>Chọn địa điểm</option>
+                        {locations.map(location => (
+                          <option key={location.code} value={location.name}>
+                            {location.name}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                    <Form.Group className="mb-3 d-flex flex-column gap-2">
+                      <Form.Label>Ảnh bìa</Form.Label>
+                      <Button onClick={() => document.getElementById('coverFileInput').click()} style={{
+                        width: '260px',
+                        display: 'flex',
+                        gap: '10px',
+                        border: '1px dashed #00A3FF',
+                        backgroundColor: '#F2F7FF',
+                        height: '44px',
+                        borderRadius: '19px',
+                        alignItems: 'center',
+                      }}><p className='m-0 text-black'>Nhấn vào đây để</p> <p className='text-primary m-0'>upload</p></Button>
+                      <div>
+                        {coverImageUrl && (
+                          <div style={{ position: 'relative', width: '245px', height: '183px' }}>
+                            <img src={coverImageUrl} alt="Cover" style={{ width: '245px', height: '183px', objectFit: 'cover', borderRadius: '4px' }} />
+                            <Button variant="link" style={{ position: 'absolute', top: 0, right: 0, color: 'red' }} onClick={handleDeleteCoverImage}>
+                              <ion-icon name="trash-outline"></ion-icon>
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                      <Form.Control type="file" id="coverFileInput" onClick={(e) => e.stopPropagation()} onChange={handleCoverImageSelect} style={{ display: 'none' }} />
+                    </Form.Group>
+                  </Form>
+                </FormSubmit>
+              </Dropdown.Item>
+              <Dropdown.Item href="#/action-2">Quản lí nhóm</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
       </div>
+
       <p style={{ padding: '0px', fontWeight: '500', fontSize: '16px', marginBottom: '12px' }}>
         {members.map((member, index) => (
           <img key={member.id} src={member.image} alt={`member-${index}`} style={{ width: '24px', height: '24px', borderRadius: '24px', objectFit: 'cover', marginRight: index === members.length - 1 ? '10px' : '-10px' }} />
@@ -314,4 +463,4 @@ function GroupDetail() {
   );
 }
 
-export default GroupDetail;
+export default MyGroupDetail;
