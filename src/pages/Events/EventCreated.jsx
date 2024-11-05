@@ -52,8 +52,8 @@ function EventCreated() {
       setEventDescription(storedEvent.text || '');
       setEventLocation(storedEvent.location);
       setEventImage(storedEvent.img);
-      setStartAt(formatDateForInput(storedEvent.startTime));
-      setEndAt(formatDateForInput(storedEvent.endTime));
+      setStartAt(storedEvent.startTime);
+      setEndAt(storedEvent.endTime);
     }
 
     if (selectedEvent) {
@@ -61,8 +61,8 @@ function EventCreated() {
       setEventDescription(selectedEvent.text || '');
       setEventLocation(selectedEvent.location);
       setEventImage(selectedEvent.img);
-      setStartAt(formatDateForInput(selectedEvent.startTime));
-      setEndAt(formatDateForInput(selectedEvent.endTime));
+      setStartAt(selectedEvent.startTime);
+      setEndAt(selectedEvent.endTime);
 
       const fetchMembers = async () => {
         try {
@@ -229,7 +229,6 @@ function EventCreated() {
               <Form.Group id="eventName" className="mb-3 mt-3">
                 <Form.Label className='fw-bold'>Tên sự kiện</Form.Label>
                 <Form.Control
-                  className='form-input'
                   required
                   type="text"
                   value={eventName}
@@ -238,9 +237,8 @@ function EventCreated() {
               </Form.Group>
 
               <Form.Group id="eventDescription" className="mb-3 mt-3">
-                <Form.Label className='fw-bold'>Mô tả sự kiện</Form.Label>
+                <Form.Label className='fw-bold'>Nội dung</Form.Label>
                 <Form.Control
-                  className='form-input input-des'
                   required
                   as="textarea"
                   rows={4}
@@ -249,12 +247,21 @@ function EventCreated() {
                 />
               </Form.Group>
 
-
+              <Form.Group id="eventLocation" className="mb-3 mt-3">
+                <Form.Label className='fw-bold'>Địa điểm</Form.Label>
+                <Form.Select
+                  value={eventLocation}
+                  onChange={(e) => setEventLocation(e.target.value)}
+                >
+                  {locations.map((location) => (
+                    <option key={location.code} value={location.name}>{location.name}</option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
               <div className='time-event d-flex align-items-center'>
                 <Form.Group id="startAt" className="mb-3 mt-3">
                   <Form.Label className='fw-bold'>Thời gian bắt đầu</Form.Label>
                   <Form.Control
-                    className='form-input'
                     required
                     type="datetime-local"
                     value={startAt}
@@ -265,7 +272,6 @@ function EventCreated() {
                 <Form.Group id="endAt" className="mb-3 mt-3">
                   <Form.Label className='fw-bold'>Thời gian kết thúc</Form.Label>
                   <Form.Control
-                    className='form-input'
                     required
                     type="datetime-local"
                     value={endAt}
@@ -273,19 +279,6 @@ function EventCreated() {
                   />
                 </Form.Group>
               </div>
-
-              <Form.Group id="eventLocation" className="mb-3 mt-3">
-                <Form.Label className='fw-bold'>Địa điểm</Form.Label>
-                <Form.Select
-                  className='form-input'
-                  value={eventLocation}
-                  onChange={(e) => setEventLocation(e.target.value)}
-                >
-                  {locations.map((location) => (
-                    <option key={location.code} value={location.name}>{location.name}</option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
 
               <Form.Group id="eventImage" className="mb-3 mt-3">
                 <Form.Label className='fw-bold'>Ảnh sự kiện</Form.Label>

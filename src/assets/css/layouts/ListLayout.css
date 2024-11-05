@@ -77,6 +77,19 @@
     font-weight: 700;
 }
 
+#startAt,
+#endAt {
+    width: 48% !important;
+}
+
+#startAt {
+    margin-right: 2% !important;
+}
+
+#endAt {
+    margin-left: 2% !important;
+}
+
 .event-image {
     width: 746px;
 
