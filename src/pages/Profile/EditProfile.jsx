@@ -232,7 +232,7 @@ const EditProfile = () => {
         </Form.Group>
 
         {/* Hobbies Section */}
-        <Form.Group controlId="hobbies" className="mb-3">
+        <Form.Group controlId="hobbies" className="mb-3 ">
           <Form.Label className='fw-medium'>Sở thích</Form.Label>
           <div className="p-2 d-flex gap-3 flex-wrap" style={{ minHeight: '40px', borderRadius: '20px', border: '1px solid black' }}>
             {formData.hobbies.map((hobby, index) => (

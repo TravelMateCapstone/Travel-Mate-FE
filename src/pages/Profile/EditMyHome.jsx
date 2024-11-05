@@ -6,7 +6,8 @@ import RoutePath from '../../routes/RoutePath';
 import '../../assets/css/Profile/EditMyHome.css';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-
+import { storage } from '../../../firebaseConfig';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 const EditMyHome = () => {
   const [formData, setFormData] = useState({
     maxGuests: 0,
@@ -24,7 +25,9 @@ const EditMyHome = () => {
   const token = useSelector((state) => state.auth.token);
   const apiUrl = 'https://travelmateapp.azurewebsites.net/api/UserHome/current-user';
   const updateApiUrl = `https://travelmateapp.azurewebsites.net/api/UserHome/edit-current-user`;
-
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadedUrl, setUploadedUrl] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   useEffect(() => {
     // Fetch the current user home data from the API
     axios.get(apiUrl, {
@@ -67,20 +70,48 @@ const EditMyHome = () => {
       console.error("No userHomeId available for update.");
       return;
     }
-    
+
     // Submit updated data to the API with the token
     axios.put(`${updateApiUrl}/${userHomeId}`, formData, {
       headers: {
         Authorization: `${token}`,
       },
     })
-    .then(response => {
-      toast.success("Home details updated successfully!");
-    })
-    .catch(error => {
-      console.error("Error updating data:", error);
-    });
+      .then(response => {
+        toast.success("Home details updated successfully!");
+      })
+      .catch(error => {
+        console.error("Error updating data:", error);
+      });
   };
+
+  const handleFileSelect = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setIsUploading(true);
+      const storageRef = ref(storage, `images/${file.name}`);
+      try {
+        await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(storageRef);
+        setUploadedUrl(url);
+        setFormData((prevState) => ({
+          ...prevState,
+          homePhotos: [...prevState.homePhotos, url],
+        }));
+        toast.success('Ảnh đã được tải lên thành công');
+      } catch (error) {
+        toast.error('Lỗi khi tải lên ảnh bìa');
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
+  const triggerFileInput = () => {
+    document.getElementById('fileInputGroup').click();
+  };
+
 
   return (
     <div className="p-4 edit-pro-container-myhome border-0 w-100" style={{
@@ -141,6 +172,9 @@ const EditMyHome = () => {
                 value={formData.roomType}
                 onChange={handleInputChange}
                 className='label-small-form-myhome rounded-5'
+                style={{
+                  height: '30px'
+                }}
               />
             </Form.Group>
 
@@ -207,13 +241,30 @@ const EditMyHome = () => {
         </Row>
 
         {/* Image Section */}
-        <div className='display-form-myhome mt-4'>
+        <div className="display-form-myhome mt-4">
           <h3 className="fw-medium image-tiltle">Hình ảnh nhà của bạn</h3>
+          <input
+            type="file"
+            id="fileInputGroup"
+            style={{ display: 'none' }}
+            onChange={handleFileSelect}
+          />
+          <Button
+            variant="primary"
+            onClick={triggerFileInput}
+            disabled={isUploading}
+            className="mb-3"
+          >
+            {isUploading ? 'Đang tải lên...' : 'Thêm ảnh'}
+          </Button>
           <div className="container px-5">
             <div className="row">
               {formData.homePhotos.map((image, index) => (
-                <div key={index} className='col col-lg-4 col-md-6 col-6 image-grid-container'>
-                  <div className='img-thumbnail shadow p-3'>
+                <div
+                  key={index}
+                  className="col col-lg-4 col-md-6 col-6 image-grid-container"
+                >
+                  <div className="img-thumbnail shadow p-3">
                     <img src={image} alt={`image-${index}`} />
                   </div>
                 </div>
@@ -221,6 +272,7 @@ const EditMyHome = () => {
             </div>
           </div>
         </div>
+
 
         <div className="d-flex justify-content-end mt-4">
           <Button type="submit" variant="success" className="me-2" style={{

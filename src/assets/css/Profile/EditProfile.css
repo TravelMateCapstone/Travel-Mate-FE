@@ -22,6 +22,7 @@
     border-radius: 20px;
     border: 1px solid black;
     width: 100%;
+    height: 283px !important;
 }
 
 .text-nowrap {
@@ -42,6 +43,9 @@
 .customer-status {
     margin-left: -6px;
 }
+.label-small-form{
+    height: 35px !important;
+}
 
 /* Styles for tablets (width between 768px and 1024px) */
 @media (max-width: 1024px) and (min-width: 768px) {
@@ -56,6 +60,12 @@
     }
     .badge-custom {
         padding: 8px 12px;
+    }
+    .label-small-form{
+        height: 35px !important;
+    }
+    .input-big-form{
+        height: 285px !important;
     }
 }
 
@@ -75,5 +85,8 @@
     }
     .customer-status {
         margin-left: 0;
+    }
+    .label-small-form{
+        height: 35px !important;
     }
 }
