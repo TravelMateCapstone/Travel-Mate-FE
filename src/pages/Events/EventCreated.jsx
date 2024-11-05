@@ -27,6 +27,7 @@ function EventCreated() {
     return date.toISOString().slice(0, 16);
   };
 
+
   useEffect(() => {
     setLastPath(location.pathname);
     localStorage.setItem('lastPath', location.pathname);
@@ -187,7 +188,7 @@ function EventCreated() {
               padding: '10px',
             }}>
               <a href="#" className="dropdown-item" onClick={toggleEditForm}>Chỉnh sửa thông tin</a>
-              <a href="#" className="dropdown-item">Quản lý sự kiện</a>
+              <a href="#" className="dropdown-item">Xóa sự kiện</a>
             </div>
           )}
         </div>
@@ -229,6 +230,7 @@ function EventCreated() {
               <Form.Group id="eventName" className="mb-3 mt-3">
                 <Form.Label className='fw-bold'>Tên sự kiện</Form.Label>
                 <Form.Control
+                  className='form-input'
                   required
                   type="text"
                   value={eventName}
@@ -237,8 +239,9 @@ function EventCreated() {
               </Form.Group>
 
               <Form.Group id="eventDescription" className="mb-3 mt-3">
-                <Form.Label className='fw-bold'>Nội dung</Form.Label>
+                <Form.Label className='fw-bold'>Mô tả sự kiện</Form.Label>
                 <Form.Control
+                  className='form-input input-des'
                   required
                   as="textarea"
                   rows={4}
@@ -250,6 +253,7 @@ function EventCreated() {
               <Form.Group id="eventLocation" className="mb-3 mt-3">
                 <Form.Label className='fw-bold'>Địa điểm</Form.Label>
                 <Form.Select
+                  className='form-input'
                   value={eventLocation}
                   onChange={(e) => setEventLocation(e.target.value)}
                 >
@@ -262,6 +266,7 @@ function EventCreated() {
                 <Form.Group id="startAt" className="mb-3 mt-3">
                   <Form.Label className='fw-bold'>Thời gian bắt đầu</Form.Label>
                   <Form.Control
+                    className='form-input'
                     required
                     type="datetime-local"
                     value={startAt}
@@ -272,6 +277,7 @@ function EventCreated() {
                 <Form.Group id="endAt" className="mb-3 mt-3">
                   <Form.Label className='fw-bold'>Thời gian kết thúc</Form.Label>
                   <Form.Control
+                    className='form-input'
                     required
                     type="datetime-local"
                     value={endAt}
