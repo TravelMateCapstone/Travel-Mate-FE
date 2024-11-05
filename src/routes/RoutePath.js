@@ -15,8 +15,9 @@ const RoutePath = {
     // Events
     EVENT: '/event',
     EVENT_DETAILS: '/event/details',
-    EVENT_CREATED: '/event/create',
+    EVENT_CREATED: '/event/created',
     EVENT_JOINED: '/event/joined',
+    EVENT_MANAGEMENT: '/event/management',
 
     // Settings and Profile
     SETTING: '/setting',

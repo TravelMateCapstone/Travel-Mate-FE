@@ -8,35 +8,63 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import '../../assets/css/Shared/Pagination.css';
 import '../../assets/css/Events/Event.css';
+import { useSelector } from 'react-redux';
 
 function EventList() {
-  const [eventData, setEventData] = useState([]);
+  const [joinedEvents, setJoinedEvents] = useState([]);
+  const [notJoinedEvents, setNotJoinedEvents] = useState([]);
+  const [createdEvents, setCreatedEvents] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [loading, setLoading] = useState(true);
   const itemsPerPage = 6;
-  const url = `${import.meta.env.VITE_BASE_API_URL}/api/EventControllerWOO/`;
+  const token = useSelector((state) => state.auth.token);
+
+  // API URLs
+  const joinedUrl = 'https://travelmateapp.azurewebsites.net/api/EventControllerWOO/user/joined';
+  const notJoinedUrl = 'https://travelmateapp.azurewebsites.net/api/EventControllerWOO/user/not-joined';
+  const createdUrl = 'https://travelmateapp.azurewebsites.net/api/EventControllerWOO/get-event-current-user';
 
   useEffect(() => {
-    const fetchEvents = async () => {
-      const localData = localStorage.getItem('eventData');
-      if (localData) {
-        setEventData(JSON.parse(localData));
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch joined events
+        const joinedResponse = await axios.get(joinedUrl, {
+          headers: { Authorization: `${token}` },
+        });
+        setJoinedEvents(joinedResponse.data.$values);
+
+        // Fetch not-joined events
+        const notJoinedResponse = await axios.get(notJoinedUrl, {
+          headers: { Authorization: `${token}` },
+        });
+        setNotJoinedEvents(notJoinedResponse.data.$values);
+
+        // Fetch created events
+        const createdResponse = await axios.get(createdUrl, {
+          headers: { Authorization: `${token}` },
+        });
+        setCreatedEvents(createdResponse.data.$values);
+      } catch (error) {
+        console.error("Error fetching event data:", error);
+      } finally {
         setLoading(false);
-      } else {
-        try {
-          const response = await axios.get(url);
-          const fetchedData = response.data.$values;
-          setEventData(fetchedData);
-          localStorage.setItem('eventData', JSON.stringify(fetchedData));
-        } catch (error) {
-          console.error("Error fetching event data:", error);
-        } finally {
-          setLoading(false);
-        }
       }
     };
-    fetchEvents();
-  }, [url]);
+
+    if (token) {
+      fetchData();
+    }
+  }, [token]);
+
+  // Determine which events to display based on the URL path
+  const path = window.location.pathname;
+  const eventData = path.includes('/event/joined')
+    ? joinedEvents
+    : path.includes('/event/created')
+      ? createdEvents
+      : notJoinedEvents;
 
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);
@@ -69,13 +97,12 @@ function EventList() {
                 endTime={formatDateTime(card.endAt)}
                 title={card.eventName}
                 location={card.eventLocation}
-                members={card.eventParticipants.$values.length}
+                members={card.eventParticipants?.$values?.length || 0}
                 text={card.description}
               />
             </Col>
           ))
         }
-
       </Row>
 
       {!loading && (

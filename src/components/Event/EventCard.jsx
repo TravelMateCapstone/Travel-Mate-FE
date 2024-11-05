@@ -1,45 +1,58 @@
 import React from 'react';
 import { Card, Button } from 'react-bootstrap';
 import '../../assets/css/Events/EventCard.css';
-import { Link } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
 import { viewEvent } from '../../redux/actions/eventActions';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import { toast } from 'react-toastify';
 
-const EventCard = ({ id, img, startTime, endTime, title, location, members, text, loading }) => {
-
+const EventCard = ({ id, img, startTime, endTime, title, location, members, text }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const locationPath = useLocation();
+    const token = useSelector((state) => state.auth.token);
 
-    const handleJoinEvent = () => {
-        const eventDetails = { img, startTime, endTime, title, location, members, text };
-        dispatch(viewEvent(eventDetails));
-        navigate(RoutePath.JOINEVENTDETAILS);
+    const isJoinedPath = locationPath.pathname.includes('/event/joined');
+    const isCreatedPath = locationPath.pathname.includes('/event/created');
+    const isEventPage = locationPath.pathname.includes('/event');
+
+    const handleViewOrJoinEvent = async () => {
+        const selectedEvent = { id, img, startTime, endTime, title, location, members, text };
+
+        if (isJoinedPath) {
+            // Xem chi tiết khi đã tham gia sự kiện
+            dispatch(viewEvent(selectedEvent));
+            localStorage.setItem('selectedEvent', JSON.stringify(selectedEvent));
+            navigate(RoutePath.EVENT_DETAILS);
+        } else if (!isCreatedPath && isEventPage) {
+            // Tham gia sự kiện khi ở trang event
+            try {
+                const response = await axios.post(
+                    'https://travelmateapp.azurewebsites.net/api/EventParticipants/current-user-join-event',
+                    { eventId: id, joinedAt: new Date().toISOString(), notification: true },
+                    { headers: { Authorization: token } }
+                );
+                if (response.status === 200) {
+                    toast.success("Tham gia sự kiện thành công!");
+                    dispatch(viewEvent(selectedEvent));
+                    localStorage.setItem('selectedEvent', JSON.stringify(selectedEvent));
+                    navigate(RoutePath.EVENT_DETAILS);
+                }
+            } catch (error) {
+                toast.error("Lỗi khi tham gia sự kiện!");
+                console.error("Error joining event:", error);
+            }
+        } else {
+            dispatch(viewEvent(selectedEvent));
+            localStorage.setItem('selectedEvent', JSON.stringify(selectedEvent));
+            navigate(RoutePath.EVENT_MANAGEMENT);
+        }
     };
 
-    if (loading) {
-        // Render skeleton placeholders when loading is true
-        return (
-            <Card className="eventlist-card">
-                <Skeleton height={200} width="100%" />
-                <Card.Body className='event-card-body'>
-                    <Skeleton height={20} width="60%" className="mb-2" />
-                    <Skeleton height={15} width="80%" />
-                    <Skeleton height={15} width="50%" />
-                    <div className="location-and-members mt-2">
-                        <Skeleton height={15} width="30%" className="me-2" />
-                        <Skeleton height={15} width="20%" />
-                    </div>
-                    <Skeleton height={35} width="100%" className="mt-3" />
-                </Card.Body>
-            </Card>
-        );
-    }
+    const buttonText = isCreatedPath ? "Quản lý sự kiện" : isJoinedPath ? "Xem chi tiết" : "Tham gia";
 
-    // Render the actual card content when loading is false
     return (
         <Card className="eventlist-card">
             <Card.Img variant="top" src={img} className="event-card-image" />
@@ -48,7 +61,7 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
                     <span className='d-flex align-items-center' style={{ fontSize: '12px' }}>
                         {startTime}
                     </span>
-                    <span className="group-card-members d-flex align-items-center ">
+                    <span className="group-card-members d-flex align-items-center">
                         <ion-icon name="people-outline" style={{ fontSize: '19px' }}></ion-icon>
                         <p className='m-0' style={{ fontSize: '12px' }}>{members}</p>
                     </span>
@@ -59,14 +72,11 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
                 </div>
                 <Button
                     variant="outline-success"
-                    className="btn-join rounded-5"
-                    onClick={handleJoinEvent}
-                    as={Link}
-                    to={RoutePath.EVENT_JOINED}
+                    className="btn-join rounded-5 event-card-button"
+                    onClick={handleViewOrJoinEvent}
                 >
-                    <div></div>
-                    <div>Tham gia</div>
-                    <ion-icon name="chevron-forward-circle-outline"></ion-icon>
+                    <div>{buttonText}</div>
+                    <ion-icon name="chevron-forward-circle-outline" className="event-card-icon"></ion-icon>
                 </Button>
             </Card.Body>
         </Card>

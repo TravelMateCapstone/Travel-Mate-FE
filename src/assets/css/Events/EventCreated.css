@@ -4,6 +4,7 @@
     flex-direction: column;
     gap: 20px;
     border-left: 2px #f2f2f2 solid;
+    padding-right: 85px;
 }
 
 .event-time {
@@ -13,21 +14,32 @@
     flex: 1;
 }
 
-.event-name-inf {
-    font-size: 32px;
-    font-weight: 700;
+.event-setting {
+    font-size: 24px;
+    margin-left: 67%;
+    padding-bottom: 40px;
+    height: 28px !important;
 }
 
 .event-location-inf {
     font-size: 16px;
-    font-weight: 500px;
+    font-weight: 500;
+    gap: 8px;
 }
 
-.event-end-date {
+.icon {
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.text-location {
     font-size: 16px;
     font-weight: 500;
-    width: 209px;
-    height: 40px;
+}
+
+.event-start-date {
+    margin-right: 16px;
 }
 
 .event-end-date {
@@ -144,6 +156,49 @@
     cursor: pointer;
 }
 
+/*CSS Modal*/
+#startAt,
+#endAt {
+    width: 48%;
+}
+
+#startAt {
+    margin-right: 2%;
+}
+
+#endAt {
+    margin-left: 2%;
+}
+
+#eventImage {
+    width: 260px;
+    height: 44px !important;
+}
+
+.upload-img {
+    color: black !important;
+    border-radius: 20px !important;
+    border: 2px #ccc dashed !important;
+    background-color: #F2F7FF !important;
+}
+
+.upload {
+    color: #00A3FF;
+}
+
+.form-input {
+    border-radius: 20px !important;
+}
+
+.input-des {
+    height: 104px !important;
+}
+
+.upload-image {
+    justify-items: center;
+    width: 260px;
+    height: 44px !important;
+}
 
 @media (max-width: 768px) {
     .section-container {

@@ -26,7 +26,7 @@ function ListLayout({ children }) {
     const [isUploading, setIsUploading] = useState(false);
     const [tempImageUrl, setTempImageUrl] = useState(null);
     const [locations, setLocations] = useState([]);
-    
+
 
     const sidebarItems = [
         { iconName: 'list-circle', title: 'Danh sách nhóm', route: RoutePath.GROUP },
@@ -138,6 +138,8 @@ function ListLayout({ children }) {
     const [eventDescription, setEventDescription] = useState('');
     const [uploadedEventUrl, setUploadedEventUrl] = useState('');
     const [eventLocation, setEventLocation] = useState('');
+    const [startAt, setStartAt] = useState('');
+    const [endAt, setEndAt] = useState('');
 
     const navigate = useNavigate();
 
@@ -230,8 +232,8 @@ function ListLayout({ children }) {
             description: eventDescription,
             eventImageUrl: uploadedEventUrl,
             createAt: new Date().toISOString(),
-            startAt: new Date().toISOString(),
-            endAt: new Date().toISOString(),
+            startAt: startAt,
+            endAt: endAt,
             eventLocation,
         };
 
@@ -363,6 +365,7 @@ function ListLayout({ children }) {
                                     <Form.Group id="eventName" className="mb-3 mt-3">
                                         <Form.Label className='fw-bold'>Tên sự kiện</Form.Label>
                                         <Form.Control
+                                            className='form-input'
                                             type="text"
                                             placeholder="Nhập tên sự kiện"
                                             value={eventName}
@@ -377,6 +380,7 @@ function ListLayout({ children }) {
                                     <Form.Group id="eventDescription" className="mb-3">
                                         <Form.Label className='fw-bold'>Mô tả sự kiện</Form.Label>
                                         <Form.Control
+                                            className='form-input input-des'
                                             as="textarea"
                                             rows={3}
                                             placeholder="Nhập mô tả sự kiện"
@@ -389,9 +393,34 @@ function ListLayout({ children }) {
                                         </Form.Control.Feedback>
                                     </Form.Group>
 
+                                    <div className='time-event d-flex align-items-center'>
+                                        <Form.Group id="startAt" className="mb-3 mt-3">
+                                            <Form.Label className='fw-bold'>Thời gian bắt đầu</Form.Label>
+                                            <Form.Control
+                                                className='form-input'
+                                                required
+                                                type="datetime-local"
+                                                value={startAt}
+                                                onChange={(e) => setStartAt(e.target.value)}
+                                            />
+                                        </Form.Group>
+
+                                        <Form.Group id="endAt" className="mb-3 mt-3">
+                                            <Form.Label className='fw-bold'>Thời gian kết thúc</Form.Label>
+                                            <Form.Control
+                                                className='form-input'
+                                                required
+                                                type="datetime-local"
+                                                value={endAt}
+                                                onChange={(e) => setEndAt(e.target.value)}
+                                            />
+                                        </Form.Group>
+                                    </div>
+
                                     <Form.Group id="location" className="mb-3">
                                         <Form.Label className='fw-bold'>Địa điểm</Form.Label>
                                         <Form.Select
+                                            className='form-input'
                                             value={eventLocation}
                                             onChange={(e) => setEventLocation(e.target.value)}
                                         >
@@ -405,9 +434,9 @@ function ListLayout({ children }) {
                                     </Form.Group>
 
                                     <Form.Group id="eventImage" className="mb-3">
-                                        <Form.Label>Ảnh đại diện sự kiện</Form.Label>
-                                        <Button variant="outline-primary" onClick={triggerFileInputEvent} className="w-100 mb-2">
-                                            Chọn ảnh đại diện sự kiện
+                                        <Form.Label>Ảnh sự kiện</Form.Label>
+                                        <Button onClick={triggerFileInputEvent} className="w-100 mb-2 upload-img">
+                                            Nhấn vào đây để <sapn className="upload">upload</sapn>
                                         </Button>
                                         <Form.Control
                                             type="file"

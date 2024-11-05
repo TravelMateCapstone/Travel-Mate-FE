@@ -9,7 +9,8 @@
     gap: 10px !important;
     height: 42px !important;
 }
-.container-list .myInput{
+
+.container-list .myInput {
     height: 42px !important;
 }
 
@@ -22,6 +23,7 @@
     border-top-right-radius: 20px !important;
     border-bottom-right-radius: 20px !important;
 }
+
 .searchBar-list:focus {
     height: 42px;
     border-left: 0px;
@@ -75,6 +77,19 @@
     font-weight: 700;
 }
 
+#startAt,
+#endAt {
+    width: 48% !important;
+}
+
+#startAt {
+    margin-right: 2% !important;
+}
+
+#endAt {
+    margin-left: 2% !important;
+}
+
 .event-image {
     width: 746px;
 
@@ -83,8 +98,25 @@
 #eventImage {
     width: 260px;
     height: 44px !important;
+}
+
+.upload-img {
+    color: black !important;
     border-radius: 20px !important;
-    border: 2px #ccc dashed;
+    border: 2px #ccc dashed !important;
+    background-color: #F2F7FF !important;
+}
+
+.upload {
+    color: #00A3FF;
+}
+
+.form-input {
+    border-radius: 20px !important;
+}
+
+.input-des {
+    height: 104px !important;
 }
 
 .upload-image {
@@ -95,15 +127,17 @@
 
 /* Ensure border remains black on focus */
 .search-list-container .searchBar-list,
-.location-container .FormControl .myInput{
-    border-color: black !important;
+.location-container .FormControl .myInput {
+    border-color: rgb(156, 145, 145) !important;
 }
 
 .search-list-container .searchBar-list:focus,
 .location-container .FormControl:focus,
 .search-icon-list:focus {
-    border-color: black !important; /* Keeps border black on focus */
-    box-shadow: none !important; /* Removes any focus outline or shadow */
+    border-color: black !important;
+    /* Keeps border black on focus */
+    box-shadow: none !important;
+    /* Removes any focus outline or shadow */
 }
 
 .search-icon-list {

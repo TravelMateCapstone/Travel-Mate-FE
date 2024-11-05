@@ -37,14 +37,23 @@
 
 .event-location-inf {
     font-size: 16px;
-    font-weight: 500px;
+    font-weight: 500;
+    gap: 8px;
 }
 
-.event-end-date {
+.icon {
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.text-location {
     font-size: 16px;
     font-weight: 500;
-    width: 209px;
-    height: 40px;
+}
+
+.event-start-date {
+    margin-right: 16px;
 }
 
 .event-end-date {
