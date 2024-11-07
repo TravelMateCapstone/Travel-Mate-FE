@@ -8,58 +8,53 @@ import "../../assets/css/Profile/AboutMe.css";
 
 function AboutMe() {
   const [profile, setProfile] = useState(null);
-  const [activities, setActivities] = useState(null);
+  const [activities, setActivities] = useState([]);
   const token = useSelector((state) => state.auth.token);
-  const url = import.meta.env.VITE_BASE_API_URL;
+  const baseUrl = import.meta.env.VITE_BASE_API_URL;
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchProfileAndActivities = async () => {
       try {
-        const storedProfile = localStorage.getItem('profileData');
-        const storedActivities = localStorage.getItem('activitiesData');
+        // Fetching the profile data
+        const profileResponse = await axios.get(`${baseUrl}/api/Profile/current-profile`, {
+          headers: { Authorization: `${token}` },
+        });
 
-        // If data is already in localStorage, use it
-        if (storedProfile && storedActivities) {
-          setProfile(JSON.parse(storedProfile));
-          setActivities(JSON.parse(storedActivities));
-        } else {
-          // Otherwise, fetch from API
-          const profileResponse = await axios.get(`${url}/api/profile`, {
-            headers: {
-              Authorization: `${token}`,
-            },
-          });
+        if (profileResponse.data) {
+          const profileData = profileResponse.data;
+          setProfile(profileData);
+          // localStorage.setItem('profileData', JSON.stringify(profileData));
+        }
 
-          if (profileResponse.data?.$values && Array.isArray(profileResponse.data.$values)) {
-            const profileData = profileResponse.data.$values[6];
-            setProfile(profileData);
-            localStorage.setItem('profileData', JSON.stringify(profileData));
-          } else {
-            console.log("Không tìm thấy dữ liệu profile.");
-          }
+        // Fetching user activities
+        const activitiesResponse = await axios.get(`${baseUrl}/api/UserActivitiesWOO/current-user`, {
+          headers: { Authorization: `${token}` },
+        });
 
-          const activitiesResponse = await axios.get(`${url}/api/UserActivitiesWOO/current-user`, {
-            headers: { Authorization: `${token}` },
-          });
-
-          if (activitiesResponse.data?.$values) {
-            const activitiesData = activitiesResponse.data.$values;
-            setActivities(activitiesData);
-            localStorage.setItem('activitiesData', JSON.stringify(activitiesData));
-          }
+        if (activitiesResponse.data?.$values) {
+          const activitiesData = activitiesResponse.data.$values;
+          setActivities(activitiesData);
+          // localStorage.setItem('activitiesData', JSON.stringify(activitiesData));
         }
       } catch (error) {
-        console.error('Lỗi khi lấy dữ liệu:', error);
+        console.error('Error fetching data:', error);
       }
     };
+    fetchProfileAndActivities();
 
-    fetchData();
-  }, [token, url]);
+    // Load from localStorage or fetch from API
+    // const storedProfile = localStorage.getItem('profileData');
+    // const storedActivities = localStorage.getItem('activitiesData');
+    // if (storedProfile && storedActivities) {
+    //   setProfile(JSON.parse(storedProfile));
+    //   setActivities(JSON.parse(storedActivities));
+    // } else {
+    //   fetchProfileAndActivities();
+    // }
+  }, [token, baseUrl]);
 
   return (
-    <Container className='py-3 px-0 border-0 rounded-5' style={{
-      boxShadow: '0 0 4px rgba(0, 0, 0, 0.25)'
-    }}>
+    <Container className='py-3 px-0 border-0 rounded-5' style={{ boxShadow: '0 0 4px rgba(0, 0, 0, 0.25)' }}>
       <Row>
         <Col md={12}>
           <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">GIỚI THIỆU</h2>
@@ -83,7 +78,7 @@ function AboutMe() {
               <div className="cbp_tmlabel">
                 <h4>SỞ THÍCH</h4>
                 <div className='d-flex favorite-tag'>
-                  {activities ? (
+                  {activities.length > 0 ? (
                     activities.map((activity, index) => (
                       <div key={index} className="small border border-dark btn mx-3 rounded-pill">
                         {activity.activityName}
@@ -93,7 +88,6 @@ function AboutMe() {
                     <Skeleton width={200} height={20} />
                   )}
                 </div>
-
               </div>
             </li>
             <li>
