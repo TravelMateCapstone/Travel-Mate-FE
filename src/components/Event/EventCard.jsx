@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, Button } from 'react-bootstrap';
+import Skeleton from 'react-loading-skeleton'; // Import Skeleton
+import 'react-loading-skeleton/dist/skeleton.css'; // Import CSS cho Skeleton
 import '../../assets/css/Events/EventCard.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
@@ -13,6 +15,8 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
     const navigate = useNavigate();
     const locationPath = useLocation();
     const token = useSelector((state) => state.auth.token);
+
+    const [loading, setLoading] = useState(false); // State loading
 
     const isJoinedPath = locationPath.pathname.includes('/event/joined');
     const isCreatedPath = locationPath.pathname.includes('/event/created');
@@ -28,6 +32,7 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
             navigate(RoutePath.EVENT_DETAILS);
         } else if (!isCreatedPath && isEventPage) {
             // Tham gia sự kiện khi ở trang event
+            setLoading(true); // Bắt đầu loading
             try {
                 const response = await axios.post(
                     'https://travelmateapp.azurewebsites.net/api/EventParticipants/current-user-join-event',
@@ -43,6 +48,8 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
             } catch (error) {
                 toast.error("Lỗi khi tham gia sự kiện!");
                 console.error("Error joining event:", error);
+            } finally {
+                setLoading(false); // Kết thúc loading
             }
         } else {
             dispatch(viewEvent(selectedEvent));
@@ -55,30 +62,45 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
 
     return (
         <Card className="eventlist-card">
-            <Card.Img variant="top" src={img} className="event-card-image" />
-            <Card.Body className='event-card-body'>
-                <div className="location-and-members">
-                    <span className='d-flex align-items-center' style={{ fontSize: '12px' }}>
-                        {startTime}
-                    </span>
-                    <span className="group-card-members d-flex align-items-center">
-                        <ion-icon name="people-outline" style={{ fontSize: '19px' }}></ion-icon>
-                        <p className='m-0' style={{ fontSize: '12px' }}>{members}</p>
-                    </span>
-                </div>
-                <Card.Title className='event-title'>{title}</Card.Title>
-                <div className="event-card-info fw-medium">
-                    <span><i className='bi bi-geo-alt'></i> {location}</span>
-                </div>
-                <Button
-                    variant="outline-success"
-                    className="btn-join rounded-5 event-card-button"
-                    onClick={handleViewOrJoinEvent}
-                >
-                    <div>{buttonText}</div>
-                    <ion-icon name="chevron-forward-circle-outline" className="event-card-icon"></ion-icon>
-                </Button>
-            </Card.Body>
+            {loading ? (
+                <>
+                    <Skeleton height={180} />
+                    <Card.Body className='event-card-body'>
+                        <Skeleton height={20} count={1} />
+                        <Skeleton height={16} count={1} style={{ margin: '8px 0' }} />
+                        <Skeleton height={16} count={1} style={{ margin: '8px 0' }} />
+                        <Skeleton height={16} count={1} style={{ margin: '8px 0' }} />
+                        <Skeleton height={30} />
+                    </Card.Body>
+                </>
+            ) : (
+                <>
+                    <Card.Img variant="top" src={img} className="event-card-image" />
+                    <Card.Body className='event-card-body'>
+                        <div className="location-and-members">
+                            <span className='d-flex align-items-center' style={{ fontSize: '12px' }}>
+                                {startTime}
+                            </span>
+                            <span className="group-card-members d-flex align-items-center">
+                                <ion-icon name="people-outline" style={{ fontSize: '19px' }}></ion-icon>
+                                <p className='m-0' style={{ fontSize: '12px' }}>{members}</p>
+                            </span>
+                        </div>
+                        <Card.Title className='event-title'>{title}</Card.Title>
+                        <div className="event-card-info fw-medium">
+                            <span><i className='bi bi-geo-alt'></i> {location}</span>
+                        </div>
+                        <Button
+                            variant="outline-success"
+                            className="btn-join rounded-5 event-card-button"
+                            onClick={handleViewOrJoinEvent}
+                        >
+                            <div>{buttonText}</div>
+                            <ion-icon name="chevron-forward-circle-outline" className="event-card-icon"></ion-icon>
+                        </Button>
+                    </Card.Body>
+                </>
+            )}
         </Card>
     );
 };
