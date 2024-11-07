@@ -170,6 +170,26 @@
     cursor: pointer;
 }
 
+/* Modal người tam gia  */
+.modal-body {
+    width: 90% !important;
+    align-items: center;
+    justify-items: center;
+    margin-left: 5%;
+}
+
+.member-list-item {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+
+
+#dropdown-basic {
+    background-color: white;
+    border-color: white;
+}
+
 
 @media (max-width: 768px) {
     .section-container {

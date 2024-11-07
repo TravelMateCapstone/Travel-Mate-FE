@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Dropdown, Form } from 'react-bootstrap';
+import { Button, Dropdown, Form, Modal } from 'react-bootstrap';
 import '../../assets/css/Events/EventCreated.css';
 import axios from 'axios';
 import FormSubmit from '../../components/Shared/FormSubmit';
@@ -21,6 +21,8 @@ function EventCreated() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [locations, setLocations] = useState([]);
   const token = useSelector((state) => state.auth.token);
+
+  const [showModal, setShowModal] = useState(false);
 
   const navigate = useNavigate(); // Initialize useNavigate
 
@@ -66,6 +68,9 @@ function EventCreated() {
 
   const toggleDropdown = () => setShowDropdown(!showDropdown);
   const toggleEditForm = () => setShowEditForm(!showEditForm);
+
+  const handleShowModal = () => setShowModal(true);
+  const handleCloseModal = () => setShowModal(false);
 
   const formatDateTime = (dateTime) => {
     try {
@@ -239,7 +244,7 @@ function EventCreated() {
         <div className="section-right my-4">
           <div className='d-flex justify-content-between align-items-center'>
             <h4 className='m-3 title'>Người tham gia</h4>
-            <a href="#" className='view-all-link m-3'>Xem tất cả</a>
+            <a href="#" className='view-all-link m-3' onClick={handleShowModal}>Xem tất cả</a>
           </div>
           <div className='members-list m-3'>
             {members.map((member, index) => (
@@ -258,6 +263,39 @@ function EventCreated() {
           </div>
         </div>
       </div>
+
+      {/* Modal hiển thị danh sách người tham gia */}
+      <Modal show={showModal} onHide={handleCloseModal} centered className="custom-modal">
+        <Modal.Header closeButton className="modal-header">
+          <Modal.Title className="modal-title">Danh sách người tham gia</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="modal-body">
+          {members.map((member, index) => (
+            <div key={index} className='member-item d-flex justify-content-between align-items-center member-list-item'>
+              <div className='d-flex align-items-center member-info-container'>
+                <img
+                  src={member.imageUser}
+                  className='members-img member-img'
+                  alt={`member-${index}`}
+                />
+                <div className='member-info'>
+                  <p className='member-name'>{member.fullName}</p>
+                  <p className='member-location'>{member.city || 'Địa điểm không xác định'}</p>
+                </div>
+              </div>
+              <Dropdown className="member-dropdown">
+                <Dropdown.Toggle variant="light" id="dropdown-basic" className='dropdown-icon'>
+                  <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+                </Dropdown.Toggle>
+                <Dropdown.Menu className="dropdown-menu">
+                  <Dropdown.Item href="#">Xem hồ sơ</Dropdown.Item>
+                  <Dropdown.Item href="#">Gỡ</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
+          ))}
+        </Modal.Body>
+      </Modal>
 
       {showEditForm && (
         <div className='edit-form'>

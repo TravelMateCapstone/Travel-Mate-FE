@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, Modal, Dropdown } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import '../../assets/css/Events/JoinedEventDetail.css';
 import { useSelector } from 'react-redux';
@@ -7,8 +7,9 @@ import axios from 'axios';
 
 function EventJoined() {
     const [members, setMembers] = useState([]);
+    const [showModal, setShowModal] = useState(false);
     const selectedEvent = useSelector(state => state.event.selectedEvent) || JSON.parse(localStorage.getItem('selectedEvent'));
-    console.log("ev id:", selectedEvent.id);
+
     useEffect(() => {
         if (selectedEvent) {
             const fetchMembers = async () => {
@@ -22,6 +23,9 @@ function EventJoined() {
             fetchMembers();
         }
     }, [selectedEvent]);
+
+    const handleShowModal = () => setShowModal(true);
+    const handleCloseModal = () => setShowModal(false);
 
     if (!selectedEvent) {
         return <div>No event selected</div>;
@@ -79,10 +83,10 @@ function EventJoined() {
                 <div className="section-right my-4">
                     <div className='d-flex justify-content-between align-items-center'>
                         <h4 className='m-3 title'>Người tham gia</h4>
-                        <a href="#" className='view-all-link m-3'>Xem tất cả</a>
+                        <a href="#" className='view-all-link m-3' onClick={handleShowModal}>Xem tất cả</a>
                     </div>
                     <div className='members-list m-3'>
-                        {members.map((member, index) => (
+                        {members.slice(0, 3).map((member, index) => (
                             <div key={index} className='member-item d-flex align-items-center'>
                                 <img
                                     src={member.imageUser}
@@ -98,6 +102,39 @@ function EventJoined() {
                     </div>
                 </div>
             </div>
+
+            {/* Modal hiển thị danh sách người tham gia */}
+            <Modal show={showModal} onHide={handleCloseModal} centered className="custom-modal">
+                <Modal.Header closeButton className="modal-header">
+                    <Modal.Title className="modal-title">Danh sách người tham gia</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="modal-body">
+                    {members.map((member, index) => (
+                        <div key={index} className='member-item d-flex justify-content-between align-items-center member-list-item'>
+                            <div className='d-flex align-items-center member-info-container'>
+                                <img
+                                    src={member.imageUser}
+                                    className='members-img member-img'
+                                    alt={`member-${index}`}
+                                />
+                                <div className='member-info'>
+                                    <p className='member-name'>{member.fullName}</p>
+                                    <p className='member-location'>{member.city || 'Địa điểm không xác định'}</p>
+                                </div>
+                            </div>
+                            <Dropdown className="member-dropdown">
+                                <Dropdown.Toggle variant="light" id="dropdown-basic" className='dropdown-icon'>
+                                    <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+                                </Dropdown.Toggle>
+                                <Dropdown.Menu className="dropdown-menu">
+                                    <Dropdown.Item href="#">Xem hồ sơ</Dropdown.Item>
+                                    <Dropdown.Item href="#">Liên hệ</Dropdown.Item>
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </div>
+                    ))}
+                </Modal.Body>
+            </Modal>
 
         </div>
     );
