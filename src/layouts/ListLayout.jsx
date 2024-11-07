@@ -158,10 +158,10 @@ function ListLayout({ children }) {
         }
 
         const newGroup = {
-            groupName: groupName,
+            groupName,
             description: groupDescription,
             location: groupLocation,
-            groupImageUrl: uploadedUrl,
+            groupImageUrl: uploadedUrl ?? 'https://images.unsplash.com/photo-1725500221821-c4c770db5290?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
             createAt: new Date().toISOString(),
         };
         console.log(token);
@@ -176,12 +176,15 @@ function ListLayout({ children }) {
                     }
                 }
             );
-            toast.success('Nhóm mới đã được tạo thành công');
-            dispatch(viewGroup(newGroup));
+            console.log('Create group response:', response.data);
+            dispatch(viewGroup(response.data));
             dispatch(refreshGroups());
-            navigate(RoutePath.GROUP_DETAILS);
+            navigate(RoutePath.GROUP_DETAILS, {
+                state: { successMessage: 'Nhóm mới đã được tạo thành công' }
+            });
+            
         } catch (error) {
-            console.log(error);
+            console.error('Error creating group:', error.response || error.message);
             toast.error('Đã xảy ra lỗi khi tạo nhóm');
         }
     };
