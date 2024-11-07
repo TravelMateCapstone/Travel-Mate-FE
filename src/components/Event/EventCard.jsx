@@ -75,27 +75,30 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
                 </>
             ) : (
                 <>
-                    <Card.Img variant="top" src={img} className="event-card-image" />
+                    <Card.Img variant="top" src={img || <Skeleton height={180} />} className="event-card-image" />
                     <Card.Body className='event-card-body'>
                         <div className="location-and-members">
                             <span className='d-flex align-items-center' style={{ fontSize: '12px' }}>
-                                {startTime}
+                                {startTime || <Skeleton width={80} />}
                             </span>
                             <span className="group-card-members d-flex align-items-center">
                                 <ion-icon name="people-outline" style={{ fontSize: '19px' }}></ion-icon>
-                                <p className='m-0' style={{ fontSize: '12px' }}>{members}</p>
+                                <p className='m-0' style={{ fontSize: '12px' }}>{members || <Skeleton width={40} />}</p>
                             </span>
                         </div>
-                        <Card.Title className='event-title'>{title}</Card.Title>
+                        <Card.Title className='event-title'>
+                            {title || <Skeleton width={200} />}
+                        </Card.Title>
                         <div className="event-card-info fw-medium">
-                            <span><i className='bi bi-geo-alt'></i> {location}</span>
+                            <span><i className='bi bi-geo-alt'></i> {location || <Skeleton width={150} />}</span>
                         </div>
                         <Button
                             variant="outline-success"
                             className="btn-join rounded-5 event-card-button"
                             onClick={handleViewOrJoinEvent}
+                            disabled={loading} // Disable button when loading
                         >
-                            <div>{buttonText}</div>
+                            <div>{buttonText || <Skeleton width={100} />}</div>
                             <ion-icon name="chevron-forward-circle-outline" className="event-card-icon"></ion-icon>
                         </Button>
                     </Card.Body>
