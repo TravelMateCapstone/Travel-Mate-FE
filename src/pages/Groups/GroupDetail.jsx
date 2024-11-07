@@ -59,7 +59,6 @@ function GroupDetail() {
       .catch(error => {
         console.error('Error fetching locations:', error);
       });
-    console.log('Selected Group:', selectedGroup);
     const fetchGroupPosts = async () => {
       try {
         const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/groups/${selectedGroup.id}/groupposts`, {
@@ -68,7 +67,6 @@ function GroupDetail() {
           },
         });
         setPostList(response.data.$values);
-        console.log('Posts:', response.data.$values);
       } catch (error) {
         if (error.response && error.response.status === 404) {
           console.warn('No posts found for the group:', selectedGroup.id);
@@ -169,8 +167,6 @@ function GroupDetail() {
       );
       toast.success('Bài viết đã được đăng thành công!');
 
-      // Log the structure of response.data.postPhotos
-      console.log('Post Response:', response.data);
 
       // Clear post content and uploaded URLs
       setPostContent('');
@@ -184,8 +180,8 @@ function GroupDetail() {
       // Update post list with the new post
       const createdPost = {
         id: response.data.postId,
-        authorName: user.username,
-        date: new Date(response.data.createdTime).toLocaleString(),
+        postCreatorName: user.username,
+        createdTime: new Date(response.data.createdTime).toLocaleString(),
         content: response.data.title,
         images: images, // Use extracted images
         comments: [], // New post initially has no comments

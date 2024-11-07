@@ -74,12 +74,12 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
           marginTop: '20px',
         }}>
           {/* Nút truyền vào */}
-          <Button onClick={onButtonClick} style={{ marginRight: '10px', background: '#007931' }} className='rounded-5 border-0'>
+          <Button onClick={onButtonClick} style={{ marginRight: '10px', background: '#007931' }} className='rounded-5 border-0 fw-medium'>
             {buttonText}
           </Button>
           {/* Nút đóng modal */}
-          <Button variant='outline-dark' onClick={closeModal} className='rounded-5'>
-            Close
+          <Button variant='outline-dark' onClick={closeModal} className='rounded-5 fw-medium'>
+            Hủy
           </Button>
         </div>
       </Modal>

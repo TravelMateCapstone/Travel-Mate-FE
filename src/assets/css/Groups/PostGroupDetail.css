@@ -1,51 +1,162 @@
-.post-group-detail-img img {
-  width: 32%;
-  height: 32%;
+.image-grid {
+  display: grid;
+  gap: 8px;
 }
-.edit-post-detail-dropdown .mybutton {
+
+.image-grid.one-image {
+  grid-template-columns: 1fr;
+}
+
+.image-grid.two-images {
+  grid-template-columns: 1fr 1fr;
+}
+
+.image-grid.three-images {
+  grid-template-columns: 2fr 1fr;
+}
+
+.image-grid.four-images {
+  grid-template-columns: 1fr 1fr;
+}
+
+.image-grid img {
+  width: 100%;
+  height: 400px; /* Điều chỉnh chiều cao cho tất cả ảnh */
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.image-grid .large-image {
+  grid-column: span 2; /* Chiếm 2 cột khi có 3 ảnh */
+  height: 400px; /* Chiều cao tùy chỉnh nếu cần */
+}
+
+.image-grid.five-or-more-images {
+  grid-template-columns: 1fr 1fr;
+}
+
+.more-images-overlay {
+  position: relative;
+}
+
+.more-images-overlay::after {
+  content: attr(data-more);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  font-weight: bold;
+  border-radius: 8px;
+}
+.modal img {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain; 
+}
+.postCreatorName {
+  font-size: 20px;
+  font-weight: bold;
+}
+.post-createdTime{
+  font-size: 16px;
+}
+.post-content{
+  font-size: 16px;
+}
+.post-dropdown .mybutton{
+  padding: 0px !important;
+  border: none;
+  text-align: start;
+}
+.post-dropdown .mybutton:hover{
+  background: transparent;
+  color: black;
+  font-weight: bold;
+}
+.dropdown-item:hover{
+  font-weight: bold !important;
+}
+
+.post-dropdown-menu{
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.17);
   border: 0px;
-  padding: 0px;
-  text-align: left;
 }
-.edit-post-detail-dropdown .mybutton:hover {
-  background-color: white !important;
-  color: black !important;
+.info-edit-modal{
+  font-size: 16px ;
 }
-
-/* Custom CSS for transparent modal */
-.transparent-modal .modal-content {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+.input-info-edit-modal{
+  font-size: 15px;
+  margin-bottom: 20px ;
 }
 
-.transparent-modal .modal-dialog {
-  max-width: unset; /* Allows the image to determine the size */
-  width: auto;
-  margin: 0;
-  padding: 0;
+.textarea-edit-modal{
+  border-radius: 20px;
+  border: 1px solid black;
+  height: 105px;
 }
-/* In your CSS file or inline */
-.placeholder-container {
-  position: relative !important;
-  z-index: 2050 !important; /* Higher than the modal backdrop (usually 1040) */
+.image-edit-modal{
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+.button-uploadImage-edit-modal{
+  display: flex;
+  gap: 5px;
+  border-radius: 20px;
+  background-color: #F2F7FF;
+  border: 1px dashed #636363;
+  padding: 10px 20px;
+  margin-top: 20px;
+}
+.button-uploadImage-edit-modal:hover{
+  border: 1px dashed #636363;
+}
+.container-image-upload{
+  display: flex;
+  flex-wrap: wrap;
 }
 
-@keyframes zoomIn {
-    from {
-      transform: scale(0.5); /* Bắt đầu với kích thước nhỏ hơn */
-      opacity: 0; /* Bắt đầu với độ mờ */
-    }
-    50% {
-      transform: scale(1.1); /* Tăng nhẹ kích thước giữa chừng */
-    }
-    to {
-      transform: scale(1); /* Đạt kích thước đầy đủ */
-      opacity: 1; /* Độ trong suốt đạt tối đa */
-    }
-  }
-  
-  .zoom-in-image {
-    animation: zoomIn 0.5s ease-out; /* Điều chỉnh thời gian hiệu ứng */
-  }
-  
+.container-image-upload img{
+  width: 245px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.container-action-image{
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.name-comment-type{
+  font-size: 16px;
+  font-weight: bold;
+}
+.EmojiPickerReact{
+  position: absolute !important;
+  z-index: 9999;
+  right: 0px;
+}
+.textarea-comment{
+  border-radius: 20px;
+  border: 0px solid black;
+  height: 114px;
+  padding: 10px;
+}
+.textarea-comment:focus{
+  outline: none;
+  border: 0px;
+}

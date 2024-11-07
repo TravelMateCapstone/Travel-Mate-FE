@@ -21,6 +21,7 @@ function MyGroupDetail() {
   const [locations, setLocations] = useState([]);
   const [postList, setPostList] = useState([]);
   const location = useLocation();
+  const groupData = location.state?.groupData;
   const members = [
     { id: 1, image: 'https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj' },
     { id: 2, image: 'https://kenh14cdn.com/thumb_w/640/203336854389633024/2024/10/5/hieuthuhai-6-1724922106140134622997-0-0-994-1897-crop-17249221855301721383554-17281064622621203940077.jpg' },
@@ -43,10 +44,12 @@ function MyGroupDetail() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [postContent, setPostContent] = useState('');
 
+
   useEffect(() => {
     if (location.state?.successMessage) {
       toast.success(location.state.successMessage);
     }
+    
     setIsGroupCreate(localStorage.getItem('lastPath') === RoutePath.GROUP_CREATED);
     axios.get('https://provinces.open-api.vn/api/p/')
       .then(response => {
@@ -62,7 +65,7 @@ function MyGroupDetail() {
     console.log('Selected Group:', selectedGroup);
     const fetchGroupPosts = async () => {
       try {
-        const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/groups/${selectedGroup.id}/groupposts`, {
+        const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/groups/${selectedGroup.id || selectedGroup.groupId}/groupposts`, {
           headers: {
             Authorization: `${token}`,
           },
@@ -72,23 +75,6 @@ function MyGroupDetail() {
         console.log('Posts:', response.data.$values);
 
 
-
-        // const posts = response.data.$values.map(post => ({
-        //   id: post.postId,
-        //   authorName: response.data.$values.postCreatorName, // Placeholder, replace with correct data if available
-        //   date: new Date(post.createdTime).toLocaleString(),
-        //   content: post.title,
-        //   images: post.postPhotos.$values.map(photo => photo.photoUrl),
-        //   comments: post.comments.$values.map(comment => ({
-        //     id: comment.commentId,
-        //     avatar: 'https://randomuser.me/api/portraits/men/32.jpg', // Placeholder
-        //     name: 'Anonymous', // Placeholder
-        //     location: 'Unknown', // Placeholder
-        //     content: comment.content,
-        //   })),
-        // }));
-
-        // console.log('Posts:', posts);
       } catch (error) {
         if (error.response && error.response.status === 404) {
           console.warn('No posts found for the group:', selectedGroup.id);
@@ -207,7 +193,7 @@ function MyGroupDetail() {
 
 
     try {
-      const response = await axios.put(`https://travelmateapp.azurewebsites.net/api/groups/${selectedGroup.id}`, groupData, {
+      const response = await axios.put(`https://travelmateapp.azurewebsites.net/api/groups/${selectedGroup.id || selectedGroup.groupId}`, groupData, {
         headers: {
           Authorization: `${token}`
         }
@@ -223,55 +209,50 @@ function MyGroupDetail() {
 
   const handleCreatePost = async () => {
     if (!postContent.trim()) {
-      toast.error('Nội dung bài viết không được để trống!');
-      return;
+        toast.error('Nội dung bài viết không được để trống!');
+        return;
     }
 
     const newPost = {
-      title: postContent,
-      postPhotos: uploadedUrls.map((file) => ({ photoUrl: file.url })),
+        title: postContent,
+        postPhotos: uploadedUrls.map((file) => ({ photoUrl: file.url })), // Đảm bảo dữ liệu ảnh được đẩy vào đây
     };
 
     try {
-      const response = await axios.post(
-        `https://travelmateapp.azurewebsites.net/api/groups/${selectedGroup.id}/groupposts`,
-        newPost,
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
-        }
-      );
-      toast.success('Bài viết đã được đăng thành công!');
+        const response = await axios.post(
+            `https://travelmateapp.azurewebsites.net/api/groups/${selectedGroup.id || selectedGroup.groupId}/groupposts`,
+            newPost,
+            {
+                headers: {
+                    Authorization: `${token}`,
+                },
+            }
+        );
 
-      // Log the structure of response.data.postPhotos
-      console.log('Post Response:', response.data);
+        // Cập nhật `postList` ngay lập tức
+        const createdPost = {
+            id: response.data.postId,
+            postCreatorName: user.username,
+            createdTime: new Date(response.data.createdTime).toLocaleString(),
+            content: response.data.title,
+            images: uploadedUrls.map((file) => ({ photoUrl: file.url })), // Dùng ảnh từ `uploadedUrls`
+            comments: [], // Khởi tạo comment trống
+        };
 
-      // Clear post content and uploaded URLs
-      setPostContent('');
-      setUploadedUrls([]);
+        console.log('Created Post:', createdPost);
+        
 
-      // Check if response.data.postPhotos is an array
-      const images = Array.isArray(response.data.postPhotos)
-        ? response.data.postPhotos.map((photo) => photo.photoUrl)
-        : [];
+        setPostList((prevPosts) => [createdPost, ...prevPosts]); // Thêm bài mới vào đầu `postList`
 
-      // Update post list with the new post
-      const createdPost = {
-        id: response.data.postId,
-        authorName: user.username,
-        date: new Date(response.data.createdTime).toLocaleString(),
-        content: response.data.title,
-        images: images, // Use extracted images
-        comments: [], // New post initially has no comments
-      };
-
-      setPostList((prevPosts) => [createdPost, ...prevPosts]); // Add new post at the top
+        toast.success('Bài viết đã được đăng thành công!');
+        setPostContent('');
+        setUploadedUrls([]);
     } catch (error) {
-      console.error('Error creating post:', error);
-      toast.error('Lỗi khi đăng bài viết!');
+        console.error('Error creating post:', error);
+        toast.error('Lỗi khi đăng bài viết!');
     }
-  };
+};
+
 
 
   return (
@@ -283,82 +264,82 @@ function MyGroupDetail() {
           <div className='group-location-inf' style={{ fontSize: '20px', fontWeight: 'bold', marginTop: '15px' }}>{selectedGroup.location}</div>
         </div>
         <Dropdown>
-            <Dropdown.Toggle variant="" id="dropdown-basic" className='bg-transparent border-0'>
-              <ion-icon name="settings-outline" style={{ fontSize: '25px' }}></ion-icon>
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item className='dropdown-edit-group-item'>
-                <FormSubmit openModalText={'Chỉnh sửa thông tin'} title={'Chỉnh sửa thông tin nhóm'} buttonText={'Lưu thay đổi'} onButtonClick={handleUpdateGroupDetail}>
-                  <h3>Bảng thông tin</h3>
-                  <small>Thay đổi thông tin chi tiết cho nhóm của bạn</small>
-                  <Form>
-                    <Form.Group className="mb-3 mt-3">
-                      <Form.Label className='fw-bold'>Tên nhóm</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="Nhập tên nhóm"
-                        className='rounded-5 border-black'
-                        value={groupName}
-                        onChange={(e) => setGroupName(e.target.value)}
-                        onKeyDown={(e) => e.stopPropagation()}
-                      />
-                    </Form.Group>
-                    <Form.Group className="mb-3" style={{ height: '120px' }}>
-                      <Form.Label className='fw-bold'>Miêu tả</Form.Label>
-                      <textarea
-                        placeholder="Nhập miêu tả về nhóm của bạn"
-                        style={{ height: '85%', width: '100%' }}
-                        className='border-1 border-black rounded-4 p-2'
-                        value={groupDescription}
-                        onChange={(e) => setGroupDescription(e.target.value)}
-                        onKeyDown={(e) => e.stopPropagation()}
-                      />
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Label className='fw-bold'>Địa điểm</Form.Label>
-                      <Form.Select
-                        className='rounded-5 border-black'
-                        value={groupLocation}
-                        onChange={(e) => setGroupLocation(e.target.value)}
-                      >
-                        <option>Chọn địa điểm</option>
-                        {locations.map(location => (
-                          <option key={location.code} value={location.name}>
-                            {location.name}
-                          </option>
-                        ))}
-                      </Form.Select>
-                    </Form.Group>
-                    <Form.Group className="mb-3 d-flex flex-column gap-2">
-                      <Form.Label>Ảnh bìa</Form.Label>
-                      <Button onClick={() => document.getElementById('coverFileInput').click()} style={{
-                        width: '260px',
-                        display: 'flex',
-                        gap: '10px',
-                        border: '1px dashed #00A3FF',
-                        backgroundColor: '#F2F7FF',
-                        height: '44px',
-                        borderRadius: '19px',
-                        alignItems: 'center',
-                      }}><p className='m-0 text-black'>Nhấn vào đây để</p> <p className='text-primary m-0'>upload</p></Button>
-                      <div>
-                        {coverImageUrl && (
-                          <div style={{ position: 'relative', width: '245px', height: '183px' }}>
-                            <img src={coverImageUrl} alt="Cover" style={{ width: '245px', height: '183px', objectFit: 'cover', borderRadius: '4px' }} />
-                            <Button variant="link" style={{ position: 'absolute', top: 0, right: 0, color: 'red' }} onClick={handleDeleteCoverImage}>
-                              <ion-icon name="trash-outline"></ion-icon>
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                      <Form.Control type="file" id="coverFileInput" onClick={(e) => e.stopPropagation()} onChange={handleCoverImageSelect} style={{ display: 'none' }} />
-                    </Form.Group>
-                  </Form>
-                </FormSubmit>
-              </Dropdown.Item>
-              <Dropdown.Item href="#/action-2">Quản lí nhóm</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
+          <Dropdown.Toggle variant="" id="dropdown-basic" className='bg-transparent border-0'>
+            <ion-icon name="settings-outline" style={{ fontSize: '25px' }}></ion-icon>
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            <Dropdown.Item className='dropdown-edit-group-item'>
+              <FormSubmit openModalText={'Chỉnh sửa thông tin'} title={'Chỉnh sửa thông tin nhóm'} buttonText={'Lưu thay đổi'} onButtonClick={handleUpdateGroupDetail}>
+                <h3>Bảng thông tin</h3>
+                <small>Thay đổi thông tin chi tiết cho nhóm của bạn</small>
+                <Form>
+                  <Form.Group className="mb-3 mt-3">
+                    <Form.Label className='fw-bold'>Tên nhóm</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Nhập tên nhóm"
+                      className='rounded-5 border-black'
+                      value={groupName}
+                      onChange={(e) => setGroupName(e.target.value)}
+                      onKeyDown={(e) => e.stopPropagation()}
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3" style={{ height: '120px' }}>
+                    <Form.Label className='fw-bold'>Miêu tả</Form.Label>
+                    <textarea
+                      placeholder="Nhập miêu tả về nhóm của bạn"
+                      style={{ height: '85%', width: '100%' }}
+                      className='border-1 border-black rounded-4 p-2'
+                      value={groupDescription}
+                      onChange={(e) => setGroupDescription(e.target.value)}
+                      onKeyDown={(e) => e.stopPropagation()}
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label className='fw-bold'>Địa điểm</Form.Label>
+                    <Form.Select
+                      className='rounded-5 border-black'
+                      value={groupLocation}
+                      onChange={(e) => setGroupLocation(e.target.value)}
+                    >
+                      <option>Chọn địa điểm</option>
+                      {locations.map(location => (
+                        <option key={location.code} value={location.name}>
+                          {location.name}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                  <Form.Group className="mb-3 d-flex flex-column gap-2">
+                    <Form.Label>Ảnh bìa</Form.Label>
+                    <Button onClick={() => document.getElementById('coverFileInput').click()} style={{
+                      width: '260px',
+                      display: 'flex',
+                      gap: '10px',
+                      border: '1px dashed #00A3FF',
+                      backgroundColor: '#F2F7FF',
+                      height: '44px',
+                      borderRadius: '19px',
+                      alignItems: 'center',
+                    }}><p className='m-0 text-black'>Nhấn vào đây để</p> <p className='text-primary m-0'>upload</p></Button>
+                    <div>
+                      {coverImageUrl && (
+                        <div style={{ position: 'relative', width: '245px', height: '183px' }}>
+                          <img src={coverImageUrl} alt="Cover" style={{ width: '245px', height: '183px', objectFit: 'cover', borderRadius: '4px' }} />
+                          <Button variant="link" style={{ position: 'absolute', top: 0, right: 0, color: 'red' }} onClick={handleDeleteCoverImage}>
+                            <ion-icon name="trash-outline"></ion-icon>
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    <Form.Control type="file" id="coverFileInput" onClick={(e) => e.stopPropagation()} onChange={handleCoverImageSelect} style={{ display: 'none' }} />
+                  </Form.Group>
+                </Form>
+              </FormSubmit>
+            </Dropdown.Item>
+            <Dropdown.Item href="#/action-2">Quản lí nhóm</Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
       </div>
 
       <p style={{ padding: '0px', fontWeight: '500', fontSize: '16px', marginBottom: '12px' }}>
@@ -416,7 +397,7 @@ function MyGroupDetail() {
       <div style={{ padding: '0px 32px' }} className='group-input'>
         {postList.length > 0 ? (
           postList.map(postDetails => (
-            <PostGroupDetail key={postDetails.id || Math.random()} postDetails={postDetails} groupId={selectedGroup.id} />
+            <PostGroupDetail key={postDetails.id || Math.random()} postDetails={postDetails} groupId={selectedGroup.id || selectedGroup.groupId} />
           ))
         ) : (
           <p style={{ textAlign: 'center', fontSize: '18px', color: '#888' }}>Bạn chưa có bài viết nào.</p>
