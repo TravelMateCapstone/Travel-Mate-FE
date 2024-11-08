@@ -4,11 +4,14 @@ import Form from 'react-bootstrap/Form';
 import '../../assets/css/Events/JoinedEventDetail.css';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 function EventJoined() {
     const [members, setMembers] = useState([]);
     const [showModal, setShowModal] = useState(false);
+    const [isJoined, setIsJoined] = useState(true);
     const selectedEvent = useSelector(state => state.event.selectedEvent) || JSON.parse(localStorage.getItem('selectedEvent'));
+    const token = useSelector((state) => state.auth.token);
 
     useEffect(() => {
         if (selectedEvent) {
@@ -26,6 +29,42 @@ function EventJoined() {
 
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
+
+    const handleJoinOrLeaveEvent = async () => {
+        if (isJoined) {
+            // Hủy tham gia sự kiện
+            try {
+                await axios.delete(
+                    `https://travelmateapp.azurewebsites.net/api/EventParticipants/current-user-out-event/${selectedEvent.id}`,
+                    { headers: { Authorization: `${token}` } }
+                );
+                toast.success("Hủy tham gia sự kiện thành công!");
+                setIsJoined(false);
+                setMembers(prevMembers => prevMembers.filter(member => member.id !== selectedEvent.currentUserId));
+                window.location.reload();
+            } catch (error) {
+                toast.error("Lỗi khi hủy tham gia sự kiện!");
+                console.error('Lỗi khi hủy tham gia sự kiện:', error);
+            }
+        } else {
+            try {
+                const response = await axios.post(
+                    'https://travelmateapp.azurewebsites.net/api/EventParticipants/current-user-join-event',
+                    { eventId: selectedEvent.id, joinedAt: new Date().toISOString(), notification: true },
+                    { headers: { Authorization: `${token}` } }
+                );
+                if (response.status === 200) {
+                    toast.success("Tham gia sự kiện thành công!");
+                    setIsJoined(true);
+                    setMembers(prevMembers => [...prevMembers, response.data.profile]);
+                }
+                window.location.reload();
+            } catch (error) {
+                toast.error("Lỗi khi tham gia sự kiện!");
+                console.error("Error joining event:", error);
+            }
+        }
+    };
 
     if (!selectedEvent) {
         return <div>No event selected</div>;
@@ -69,10 +108,9 @@ function EventJoined() {
                 </div>
 
                 <div className='event-status'>
-                    <Form.Select aria-label="Default select example" className='form-event-status'>
-                        <option>Đã tham gia</option>
-                        <option value="Rời khỏi nhóm">Hủy tham gia</option>
-                    </Form.Select>
+                    <Button variant="outline-primary" onClick={handleJoinOrLeaveEvent} className='form-event-status'>
+                        {isJoined ? "Hủy tham gia" : "Tham gia"}
+                    </Button>
                 </div>
             </div>
             <div className="section-container">
