@@ -24,6 +24,7 @@ import AdminReport from "../pages/Admin/AdminReport"
 import WalletManagement from "../pages/Admin/WalletManagement"
 import TripHistory from "../pages/Admin/TripHistory"
 import MyGroupDetail from '../pages/Groups/MyGroupDetail'
+import GroupManagement from "../pages/Groups/GroupManagement"
 
 
 const publishRoutes = [
@@ -41,6 +42,7 @@ const privateRoutes = [
     { path: RoutePath.ADMIN_TRIP_HISTORY, component: TripHistory, layout: AdminLayout },
 
     { path: RoutePath.GROUP_CREATED, component: GroupCreated, layout: ListLayout },
+    { path: RoutePath.Group_Management, component: GroupManagement, layout: DetailLayout },
     { path: RoutePath.GROUP_MY_DETAILS, component: MyGroupDetail, layout: DetailLayout },
     { path: RoutePath.GROUP_JOINED, component: GroupJoined, layout: ListLayout },
 

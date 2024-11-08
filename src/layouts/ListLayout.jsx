@@ -140,6 +140,8 @@ function ListLayout({ children }) {
 
     const navigate = useNavigate();
 
+    const selectedGroup = useSelector((state) => state.group.selectedGroup);
+
     const handleCreateGroup = async () => {
         const newErrors = {};
         if (!groupName || groupName.length < 10 || groupName.length > 25) {
@@ -149,19 +151,15 @@ function ListLayout({ children }) {
             newErrors.groupDescription = 'Vui lòng nhập mô tả nhóm';
         }
         setErrors(newErrors);
-
         if (Object.keys(newErrors).length > 0) {
             return;
         }
-
         const newGroup = {
             groupName,
             description: groupDescription,
             location: groupLocation,
             groupImageUrl: uploadedUrl ?? 'https://images.unsplash.com/photo-1725500221821-c4c770db5290?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-            createAt: new Date().toISOString(),
         };
-        console.log(token);
         try {
             const apiUrl = import.meta.env.VITE_BASE_API_URL;
             const response = await axios.post(
@@ -174,6 +172,7 @@ function ListLayout({ children }) {
                 }
             );
             dispatch(viewGroup(response.data));
+            console.log('selected group',selectedGroup);
             dispatch(refreshGroups());
             navigate(RoutePath.GROUP_MY_DETAILS, {
                 state: { successMessage: 'Nhóm mới đã được tạo thành công', groupData: response.data }
