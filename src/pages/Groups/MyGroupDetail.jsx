@@ -14,6 +14,8 @@ import Form from 'react-bootstrap/Form';
 const MyGroupDetail = () => {
   const navigate = useNavigate();
   const groupDataRedux = useSelector((state) => state.group.selectedGroup);
+  console.log('Group Data redux:', groupDataRedux);
+  
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
   const [groupData, setGroupData] = useState();
@@ -25,15 +27,15 @@ const MyGroupDetail = () => {
 
   const [description, setDescription] = useState(groupDataRedux?.description || '');
   const [location, setLocation] = useState(groupDataRedux?.location || '');
-  const [bannerImage, setBannerImage] = useState(groupDataRedux?.img || '');
-  const [groupName, setGroupName] = useState(groupDataRedux?.text || '');
+  const [bannerImage, setBannerImage] = useState(groupDataRedux?.img || groupDataRedux.groupImageUrl || '');
+  const [groupName, setGroupName] = useState(groupDataRedux?.text || groupDataRedux.groupName || '');
 
   useEffect(() => {
     setGroupData(groupDataRedux);
     setDescription(groupDataRedux?.description || '');
     setLocation(groupDataRedux?.location || '');
-    setBannerImage(groupDataRedux?.img || '');
-    setGroupName(groupDataRedux?.text || '');
+    setBannerImage(groupDataRedux?.img || groupDataRedux.groupImageUrl || '');
+    setGroupName(groupDataRedux?.text || groupDataRedux.groupName || '');
     fetchPosts();
     fetchLocations();
   }, [groupDataRedux]);
@@ -80,6 +82,8 @@ const MyGroupDetail = () => {
   };
 
   const createPost = async () => {
+    
+    
     const uploadedUrls = await uploadFiles();
     setUploadedImageUrls(uploadedUrls);
     const newPost = {
@@ -87,7 +91,9 @@ const MyGroupDetail = () => {
       postPhotos: uploadedUrls.map((url) => ({ photoUrl: url })),
     };
     try {
-      await axios.post(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id}/groupposts`, newPost, {
+      console.log('Group id',groupDataRedux.groupId);
+      
+      await axios.post(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts`, newPost, {
         headers: {
           Authorization: `${token}`,
         },
@@ -106,7 +112,7 @@ const MyGroupDetail = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id}/groupposts`, {
+      const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts`, {
         headers: {
           Authorization: `${token}`,
         },
@@ -119,16 +125,28 @@ const MyGroupDetail = () => {
   };
 
   const updateGroup = async () => {
-    console.log('Chỉnh sửa thông tin nhóm');
-    console.log('Tên nhóm:', groupName);
-    console.log('Miêu tả:', description);
-    console.log('Địa điểm:', location);
-    console.log('Ảnh bìa:', bannerImage);
+    try {
+      const updatedGroup = {
+        groupName: groupName,
+        location: location,
+        description: description,
+        groupImageUrl: bannerImage,
+      };
+      await axios.put(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}`, updatedGroup, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      console.log('Nhóm đã được cập nhật thành công');
+      fetchPosts();
+    } catch (error) {
+      console.error('Error updating group:', error);
+    }
   };
 
   const deleteGroup = async () => {
     try {
-      await axios.delete(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id}`, {
+      await axios.delete(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}`, {
         headers: {
           Authorization: `${token}`,
         },
@@ -142,10 +160,10 @@ const MyGroupDetail = () => {
 
   return (
     <div className='my_group_detail_container'>
-      <img src={groupDataRedux.img} alt="" className='banner_group' />
+      <img src={groupDataRedux.img || groupDataRedux.groupImageUrl} alt="" className='banner_group' />
       <div className='d-flex justify-content-between'>
         <div className='d-flex gap-2'>
-          <h2 className='fw-bold m-0'>{groupDataRedux.text}</h2>
+          <h2 className='fw-bold m-0'>{groupDataRedux.text || groupDataRedux.description}</h2>
           <h5 className='m-0 fw-medium'>{groupDataRedux.location}</h5>
         </div>
         <Dropdown>
@@ -182,7 +200,7 @@ const MyGroupDetail = () => {
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                 >
-                  <option value="">Chọn địa điểm</option>
+                  <option value="">Địa điểm</option>
                   {locations.map((loc) => (
                     <option key={loc.code} value={loc.name}>
                       {loc.name}
@@ -206,7 +224,7 @@ const MyGroupDetail = () => {
           </Dropdown.Menu>
         </Dropdown>
       </div>
-      <p className='fw-semibold'>{groupDataRedux.members} thành viên</p>
+      <p className='fw-semibold'>{groupDataRedux.members || groupDataRedux.numberOfParticipants} thành viên</p>
       <p className='fw-light'>{groupDataRedux.description}</p>
       <hr className='my-5' />
 
@@ -245,9 +263,13 @@ const MyGroupDetail = () => {
       </div>
       <hr className='mb-4' />
 
-      {posts.map((post) => (
-        <PostGroupDetail key={post.postId} post={post} onDelete={handleDeletePost} fetchPosts={fetchPosts} />
-      ))}
+      {posts.length > 0 ? (
+        posts.map((post) => (
+          <PostGroupDetail key={post.postId} post={post} onDelete={handleDeletePost} fetchPosts={fetchPosts} />
+        ))
+      ) : (
+        <p>Chưa có bài viết nào</p>
+      )}
     </div>
   );
 };

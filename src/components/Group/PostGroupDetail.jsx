@@ -32,7 +32,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
   const fetchComments = async () => {
     try {
       const response = await axios.get(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id}/groupposts/${post.postId}/postcomments`,
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.postId}/postcomments`,
         { headers: { Authorization: `${token}` } }
       );
       setComments(response.data.$values);
@@ -60,7 +60,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
   const deletePost = async () => {
     try {
       await axios.delete(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id}/groupposts/${post.postId}`,
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.postId}`,
         { headers: { Authorization: `${token}` } }
       );
       onDelete(post.postId);
@@ -82,7 +82,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
         ],
       };
       await axios.put(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id}/groupposts/${post.postId}`,
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.postId}`,
         updatedData,
         { headers: { Authorization: `${token}` } }
       );
@@ -110,7 +110,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
     }
     try {
       const response = await axios.post(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id}/groupposts/${post.postId}/postcomments`,
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.postId}/postcomments`,
         { commentText: newComment },
         { headers: { Authorization: `${token}` } }
       );
@@ -126,7 +126,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
   const handleUpdateComment = async (commentId, updatedText) => {
     try {
       await axios.put(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id}/groupposts/${post.postId}/postcomments/${commentId}`,
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.postId}/postcomments/${commentId}`,
         { commentText: updatedText },
         { headers: { Authorization: `${token}` } }
       );
@@ -143,7 +143,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
   const handleDeleteComment = async (commentId) => {
     try {
       await axios.delete(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id}/groupposts/${post.postId}/postcomments/${commentId}`,
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.postId}/postcomments/${commentId}`,
         { headers: { Authorization: `${token}` } }
       );
       setComments((prev) => prev.filter((comment) => comment.commentId !== commentId));
@@ -238,7 +238,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
                 key={`${comment.commentId}-${index}`}
                 comment={comment}
                 postId={post.postId}
-                groupId={groupDataRedux.id}
+                groupId={groupDataRedux.id || groupDataRedux.groupId}
                 onUpdateComment={handleUpdateComment}
                 onDeleteComment={handleDeleteComment}
               />
