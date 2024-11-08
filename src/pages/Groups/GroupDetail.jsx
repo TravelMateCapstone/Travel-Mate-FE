@@ -14,8 +14,6 @@ import Form from 'react-bootstrap/Form';
 const GroupDetail = () => {
   const navigate = useNavigate();
   const groupDataRedux = useSelector((state) => state.group.selectedGroup);
-  console.log('Group Data redux:', groupDataRedux);
-
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
   const [groupData, setGroupData] = useState();
@@ -30,6 +28,8 @@ const GroupDetail = () => {
   const [bannerImage, setBannerImage] = useState(groupDataRedux?.img || groupDataRedux.groupImageUrl || '');
   const [groupName, setGroupName] = useState(groupDataRedux?.text || groupDataRedux.groupName || '');
 
+
+
   useEffect(() => {
     setGroupData(groupDataRedux);
     setDescription(groupDataRedux?.description || '');
@@ -39,6 +39,7 @@ const GroupDetail = () => {
     fetchPosts();
     fetchLocations();
   }, [groupDataRedux]);
+
 
   const handleFileChange = (event) => {
     setSelectedFiles([...event.target.files]);
@@ -88,16 +89,17 @@ const GroupDetail = () => {
     setUploadedImageUrls(uploadedUrls);
     const newPost = {
       title: document.getElementById('post_title').value,
-      postPhotos: uploadedUrls.map((url) => ({ photoUrl: url })),
+      GroupPostPhotos: uploadedUrls.map((url) => ({ photoUrl: url })),
     };
+    console.log(newPost);
     try {
-      console.log('Group id', groupDataRedux.groupId);
-
-      await axios.post(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts`, newPost, {
+      const respone = await axios.post(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts`, newPost, {
         headers: {
           Authorization: `${token}`,
         },
       });
+      console.log(respone.data);
+
       fetchPosts();
     } catch (error) {
       console.error('Error creating post:', error);
@@ -124,40 +126,6 @@ const GroupDetail = () => {
     }
   };
 
-  const updateGroup = async () => {
-    try {
-      const updatedGroup = {
-        groupName: groupName,
-        location: location,
-        description: description,
-        groupImageUrl: bannerImage,
-      };
-      await axios.put(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}`, updatedGroup, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
-      console.log('Nhóm đã được cập nhật thành công');
-      fetchPosts();
-    } catch (error) {
-      console.error('Error updating group:', error);
-    }
-  };
-
-  const deleteGroup = async () => {
-    try {
-      await axios.delete(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}`, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
-      console.log('Nhóm đã được xóa thành công');
-      navigate('/group'); // Chuyển hướng về trang GroupList
-    } catch (error) {
-      console.error('Error deleting group:', error);
-    }
-  };
-
   return (
     <div className='my_group_detail_container'>
       <img src={groupDataRedux.img || groupDataRedux.groupImageUrl} alt="" className='banner_group' />
@@ -167,9 +135,17 @@ const GroupDetail = () => {
           <h5 className='m-0 fw-medium'>{groupDataRedux.location}</h5>
         </div>
 
-        <Form.Select size="lg">
-          <option>Large select</option>
-          <option>Default select</option>
+        <Form.Select size="lg" className='rounded-5' style={{
+          width: '175px',
+          height: '44px',
+          border: '1px solid black',
+          borderRadius: '10px',
+          color: '#409034',
+          fontSize: '16px',
+          textAlign: 'center'
+        }}>
+          <option>Đã tham gia</option>
+          <option>Rời nhóm</option>
         </Form.Select>
 
       </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PostGroupDetail from '../../components/Group/PostGroupDetail';
 import '../../assets/css/Groups/MyGroupDetail.css';
 import { useSelector } from 'react-redux';
@@ -10,12 +10,11 @@ import { storage } from '../../../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import FormSubmit from '../../components/Shared/FormSubmit';
 import Form from 'react-bootstrap/Form';
+import RoutePath from '../../routes/RoutePath';
 
 const MyGroupDetail = () => {
   const navigate = useNavigate();
   const groupDataRedux = useSelector((state) => state.group.selectedGroup);
-  console.log('Group Data redux:', groupDataRedux);
-  
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
   const [groupData, setGroupData] = useState();
@@ -25,17 +24,20 @@ const MyGroupDetail = () => {
   const [locations, setLocations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [description, setDescription] = useState(groupDataRedux?.description || '');
+  const [description, setDescription] = useState(groupDataRedux?.description || groupDataRedux?.text || '');
   const [location, setLocation] = useState(groupDataRedux?.location || '');
   const [bannerImage, setBannerImage] = useState(groupDataRedux?.img || groupDataRedux.groupImageUrl || '');
-  const [groupName, setGroupName] = useState(groupDataRedux?.text || groupDataRedux.groupName || '');
+  const [groupName, setGroupName] = useState(groupDataRedux?.title || groupDataRedux.groupName || '');
+
+  console.log('Group Data redux:', groupDataRedux);
+
 
   useEffect(() => {
     setGroupData(groupDataRedux);
-    setDescription(groupDataRedux?.description || '');
+    setDescription(groupDataRedux?.description || groupDataRedux?.text || '');
     setLocation(groupDataRedux?.location || '');
     setBannerImage(groupDataRedux?.img || groupDataRedux.groupImageUrl || '');
-    setGroupName(groupDataRedux?.text || groupDataRedux.groupName || '');
+    setGroupName(groupDataRedux?.title || groupDataRedux.groupName || '');
     fetchPosts();
     fetchLocations();
   }, [groupDataRedux]);
@@ -82,17 +84,17 @@ const MyGroupDetail = () => {
   };
 
   const createPost = async () => {
-    
-    
     const uploadedUrls = await uploadFiles();
     setUploadedImageUrls(uploadedUrls);
     const newPost = {
       title: document.getElementById('post_title').value,
-      postPhotos: uploadedUrls.map((url) => ({ photoUrl: url })),
+      GroupPostPhotos: uploadedUrls.map((url) => ({ photoUrl: url })),
     };
+
+
     try {
-      console.log('Group id',groupDataRedux.groupId);
-      
+      console.log('Group id', groupDataRedux.groupId);
+
       await axios.post(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts`, newPost, {
         headers: {
           Authorization: `${token}`,
@@ -163,7 +165,7 @@ const MyGroupDetail = () => {
       <img src={groupDataRedux.img || groupDataRedux.groupImageUrl} alt="" className='banner_group' />
       <div className='d-flex justify-content-between'>
         <div className='d-flex gap-2'>
-          <h2 className='fw-bold m-0'>{groupDataRedux.text || groupDataRedux.description}</h2>
+          <h2 className='fw-bold m-0'>{groupDataRedux?.title || groupDataRedux.groupName || ''}</h2>
           <h5 className='m-0 fw-medium'>{groupDataRedux.location}</h5>
         </div>
         <Dropdown>
@@ -219,13 +221,15 @@ const MyGroupDetail = () => {
                 )}
               </FormSubmit>
             </Dropdown.Item>
-            <Dropdown.Item>Quản lí thành viên</Dropdown.Item>
+            <Dropdown.Item>
+              <Link className='text-black' to={RoutePath.Group_Management}>Quản lí thành viên</Link>
+            </Dropdown.Item>
             <Dropdown.Item onClick={deleteGroup}>Xóa nhóm</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </div>
       <p className='fw-semibold'>{groupDataRedux.members || groupDataRedux.numberOfParticipants} thành viên</p>
-      <p className='fw-light'>{groupDataRedux.description}</p>
+      <p className='fw-light'>{groupDataRedux.text || groupDataRedux.description}</p>
       <hr className='my-5' />
 
       <div className='write_post_container mb-5'>

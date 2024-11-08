@@ -23,7 +23,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
   const groupDataRedux = useSelector((state) => state.group.selectedGroup);
 
   useEffect(() => {
-    if (post.postPhotos && post.postPhotos.$values) setUploadedImages(post.postPhotos.$values);
+    if (post.groupPostPhotos && post.groupPostPhotos.$values) setUploadedImages(post.groupPostPhotos.$values);
     if (showComments) fetchComments();
   }, [post, showComments]);
 
@@ -76,7 +76,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
       const uploadedUrls = await uploadFiles();
       const updatedData = {
         title: newTitle,
-        postPhotos: [
+        GroupPostPhotos: [
           ...uploadedImages.map((url) => ({ photoUrl: url })),
           ...uploadedUrls.map((url) => ({ photoUrl: url })),
         ],
@@ -215,9 +215,9 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
         </div>
       </div>
       <p>{post.title}</p>
-      {post.postPhotos && (
+      {post.groupPostPhotos && (
         <div className="images_post_container">
-          {post.postPhotos.$values.map((image, index) => (
+          {post.groupPostPhotos.$values.map((image, index) => (
             <img key={index} src={image} alt="Post image" />
           ))}
         </div>
