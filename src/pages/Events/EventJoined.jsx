@@ -108,7 +108,7 @@ function EventJoined() {
                 </div>
 
                 <div className='event-status'>
-                    <Button variant="outline-primary" onClick={handleJoinOrLeaveEvent} className='form-event-status'>
+                    <Button variant="outline-success" onClick={handleJoinOrLeaveEvent} className='form-event-status'>
                         {isJoined ? "Hủy tham gia" : "Tham gia"}
                     </Button>
                 </div>
