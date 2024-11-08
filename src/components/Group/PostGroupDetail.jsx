@@ -1,299 +1,272 @@
 import React, { useEffect, useState } from 'react';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import CommentPostGroupDetail from './CommentPostGroupDetail';
-import { Button, Dropdown, Form, Modal, Placeholder } from 'react-bootstrap';
 import '../../assets/css/Groups/PostGroupDetail.css';
-import FormSubmit from '../Shared/FormSubmit';
-import EmojiPicker from 'emoji-picker-react';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { storage } from '../../../firebaseConfig';
-import { toast } from 'react-toastify';
-import { useSelector } from 'react-redux';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { Button } from 'react-bootstrap';
 import axios from 'axios';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import FormSubmit from '../Shared/FormSubmit';
+import { storage } from '../../../firebaseConfig';
 
-function PostGroupDetail({ postDetails, groupId }) {
+const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
+  const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [newTitle, setNewTitle] = useState(post.title);
+
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.auth.user);
-  const [visibleComments, setVisibleComments] = useState(2);
-  const [filePlaceholders, setFilePlaceholders] = useState([]);
-  const [tempImageUrls, setTempImageUrls] = useState([]);
-  const [showComments, setShowComments] = useState(false);
-  const [comment, setComment] = useState('');
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadedUrls, setUploadedUrls] = useState([]);
-  const [errors, setErrors] = useState({});
-  const [showModal, setShowModal] = useState(false);
-  const [modalImages, setModalImages] = useState([]);
-  const [comments, setComments] = useState([]);
-  const [title, setTitle] = useState('');
-  const [isLoadingComments, setIsLoadingComments] = useState(false);
-  const [loadingMoreComments, setLoadingMoreComments] = useState(false);
-  const triggerFileInput = () => document.getElementById('fileInputPostGroup').click();
- 
-  const formatDateTime = (dateString) => {
-    if (!dateString) {
-      return 'Ngày không xác định';
-    }
-    
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      return 'Ngày không xác định';
-    }
-    
-    return format(date, "dd 'tháng' MM 'lúc' HH:mm", { locale: vi });
-  };
-  
-  const handleEditComment = async (commentId, newCommentText) => {
-    try {
-      await axios.put(
-        `https://travelmateapp.azurewebsites.net/api/Groups/${groupId}/GroupPosts/${postDetails.postId}/PostComments/${commentId}`,
-        { commentText: newCommentText },
-        { headers: { Authorization: `${token}` } }
-      );
-      setComments((prev) => prev.map((c) => (c.commentId === commentId ? { ...c, commentText: newCommentText } : c)));
-      toast.success('Bình luận đã được cập nhật');
-    } catch {
-      toast.error('Có lỗi xảy ra khi cập nhật bình luận');
-    }
-  };
+  const groupDataRedux = useSelector((state) => state.group.selectedGroup);
+
   useEffect(() => {
-    if (postDetails) {
-      setTitle(postDetails.title);
-      setUploadedUrls(postDetails.postPhotos?.$values || []);
-    }
-  }, [postDetails]);
-  const fetchComments = async (loadMore = false) => {
-    loadMore ? setLoadingMoreComments(true) : setIsLoadingComments(true);
+    if (post.postPhotos && post.postPhotos.$values) setUploadedImages(post.postPhotos.$values);
+    if (showComments) fetchComments();
+  }, [post, showComments]);
+
+  const handleToggleComments = () => setShowComments(!showComments);
+
+  const fetchComments = async () => {
     try {
       const response = await axios.get(
-        `https://travelmateapp.azurewebsites.net/api/Groups/${groupId}/GroupPosts/${postDetails.postId}/PostComments`,
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id}/groupposts/${post.postId}/postcomments`,
         { headers: { Authorization: `${token}` } }
       );
-      setComments(response.data.$values || []);
-    } catch {
-      toast.error('Có lỗi xảy ra khi tải bình luận');
-    } finally {
-      loadMore ? setLoadingMoreComments(false) : setIsLoadingComments(false);
+      setComments(response.data.$values);
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+      toast.error('Không thể tải bình luận');
     }
   };
-  const handleViewImage = (urls) => {
-    setModalImages(Array.isArray(urls) ? urls : [urls]);
-    setShowModal(true);
-  };
-  const handleShowMore = () => {
-    setVisibleComments((prev) => prev + 2);
-    fetchComments(true);
-  };
-  const handelEditPostDetail = async () => {
-    try {
-      await axios.put(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupId}/groupposts/${postDetails.postId}`,
-        { title, postPhotos: uploadedUrls.map((url) => ({ photoUrl: url })) },
-        { headers: { Authorization: `${token}` } }
-      );
-      toast.success('Bài viết đã được cập nhật thành công');
-    } catch {
-      toast.error('Có lỗi xảy ra khi cập nhật bài viết');
-    }
-  };
-  const handleEmojiClick = (emoji) => setComment((prev) => prev + emoji.emoji);
-  const handleDeleteImage = async (index) => {
-    try {
-      await deleteObject(ref(storage, `images/${selectedFiles[index].name}`));
-      setUploadedUrls((prev) => prev.filter((_, i) => i !== index));
-      toast.success('Ảnh đã được xóa thành công');
-    } catch {
-      toast.error('Lỗi khi xóa ảnh');
-    }
-  };
-  const handleFileSelect = async (event) => {
-    const files = Array.from(event.target.files);
-    if (files.length > 0) {
-      setIsUploading(true);
-      const newUploadedUrls = [];
-      for (const file of files) {
-        const storageRef = ref(storage, `images/${file.name}`);
-        await uploadBytes(storageRef, file);
-        newUploadedUrls.push(await getDownloadURL(storageRef));
+
+  const uploadFiles = async () => {
+    const uploadedUrls = [];
+    for (let file of selectedFiles) {
+      const storageRef = ref(storage, `group_posts/${file.name}`);
+      try {
+        const snapshot = await uploadBytes(storageRef, file);
+        const downloadUrl = await getDownloadURL(snapshot.ref);
+        uploadedUrls.push(downloadUrl);
+      } catch (error) {
+        console.error('Error uploading file:', error);
       }
-      setUploadedUrls((prev) => [...prev, ...newUploadedUrls]);
-      setIsUploading(false);
-      toast.success('Tất cả ảnh đã được tải lên thành công');
     }
-  };
-  const handleCommentSubmit = async () => {
-    if (!comment.trim()) return toast.error('Vui lòng nhập bình luận');
-    try {
-      const response = await axios.post(
-        `https://travelmateapp.azurewebsites.net/api/Groups/${groupId}/GroupPosts/${postDetails.postId}/PostComments`,
-        { commentText: comment },
-        { headers: { Authorization: `${token}` } }
-      );
-      setComments((prev) => [response.data, ...prev]);
-      setComment('');
-      toast.success('Bình luận đã được thêm');
-    } catch {
-      toast.error('Có lỗi xảy ra khi thêm bình luận');
-    }
+    return uploadedUrls;
   };
 
-  const toggleComments = () => {
-    setShowComments((prev) => !prev);
-    if (!showComments) fetchComments();
-  };
-
-  const handleDeletePost = async () => {
+  const deletePost = async () => {
     try {
       await axios.delete(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupId}/groupposts/${postDetails.postId}`,
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id}/groupposts/${post.postId}`,
         { headers: { Authorization: `${token}` } }
       );
-      toast.success('Bài viết đã được xóa thành công');
-    } catch {
-      toast.error('Có lỗi xảy ra khi xóa bài viết');
+      onDelete(post.postId);
+      toast.success('Xóa bài viết thành công');
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      toast.error('Không thể xóa bài viết');
     }
   };
-  const capitalizeName = (name) => {
-    if (!name) return 'Người dùng ẩn danh';
-    return name
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
+
+  const updatePost = async () => {
+    try {
+      const uploadedUrls = await uploadFiles();
+      const updatedData = {
+        title: newTitle,
+        postPhotos: [
+          ...uploadedImages.map((url) => ({ photoUrl: url })),
+          ...uploadedUrls.map((url) => ({ photoUrl: url })),
+        ],
+      };
+      await axios.put(
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id}/groupposts/${post.postId}`,
+        updatedData,
+        { headers: { Authorization: `${token}` } }
+      );
+      toast.success('Cập nhật bài viết thành công');
+      fetchPosts();
+    } catch (error) {
+      toast.error('Không thể cập nhật bài viết');
+    }
   };
-  
+
+  const handleFileChange = (event) => setSelectedFiles([...event.target.files]);
+
+  const handleDeleteImage = (index) => {
+    if (index < uploadedImages.length) {
+      setUploadedImages((prev) => prev.filter((_, i) => i !== index));
+    } else {
+      setSelectedFiles((prev) => prev.filter((_, i) => i !== (index - uploadedImages.length)));
+    }
+  };
+
+  const handleAddComment = async () => {
+    if (!newComment.trim()) {
+      toast.error('Bình luận không được để trống');
+      return;
+    }
+    try {
+      const response = await axios.post(
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id}/groupposts/${post.postId}/postcomments`,
+        { commentText: newComment },
+        { headers: { Authorization: `${token}` } }
+      );
+      setComments((prev) => [...prev, response.data]);
+      setNewComment('');
+      toast.success('Bình luận thành công');
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      toast.error('Không thể thêm bình luận');
+    }
+  };
+
+  const handleUpdateComment = async (commentId, updatedText) => {
+    try {
+      await axios.put(
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id}/groupposts/${post.postId}/postcomments/${commentId}`,
+        { commentText: updatedText },
+        { headers: { Authorization: `${token}` } }
+      );
+      setComments((prev) =>
+        prev.map((comment) => (comment.commentId === commentId ? { ...comment, commentText: updatedText } : comment))
+      );
+      toast.success('Sửa bình luận thành công');
+    } catch (error) {
+      console.error('Error updating comment:', error);
+      toast.error('Không thể sửa bình luận');
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await axios.delete(
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id}/groupposts/${post.postId}/postcomments/${commentId}`,
+        { headers: { Authorization: `${token}` } }
+      );
+      setComments((prev) => prev.filter((comment) => comment.commentId !== commentId));
+      toast.success('Xóa bình luận thành công');
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      toast.error('Không thể xóa bình luận');
+    }
+  };
+
   return (
-    <div className='post-group-detail-container' style={{
-      borderBottom: '1px solid #d9d9d9',
-      margin: '20px 0'
-    }}>
-      <div className='d-flex justify-content-between'>
-        <div className='d-flex gap-4 mb-2'>
-          <img className='rounded-circle' width={72} height={72} src={postDetails.postCreatorAvatar || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'} alt="avatar" />
+    <div className="post mb-3" style={{ borderBottom: '1px solid #ccc' }}>
+      <div className="d-flex align-items-center gap-3">
+        <img src={post.postCreatorAvatar} alt="avatar" width={70} height={70} className="rounded-circle" />
+        <div className="d-flex justify-content-between w-100">
           <div>
-            <strong className='postCreatorName'>{capitalizeName(postDetails.postCreatorName)}</strong>
-            <p className='fw-medium post-createdTime'>{formatDateTime(postDetails.createdTime)}</p>
+            <h5 className="m-0">{post.postCreatorName}</h5>
+            <p>{post.createdTime}</p>
           </div>
-        </div>
-        {(postDetails.postCreatorName === user.username) && (
-          <Dropdown className='post-dropdown'>
-            <Dropdown.Toggle variant="link" id="dropdown-basic" className='border-0 bg-transparent'>
+          <Dropdown>
+            <Dropdown.Toggle variant="success" id="dropdown-basic" className="border-0 bg-transparent">
               <ion-icon name="ellipsis-vertical-outline"></ion-icon>
             </Dropdown.Toggle>
-            <Dropdown.Menu align="end" className='post-dropdown-menu'>
-              <Dropdown.Item>
-                <FormSubmit buttonText={'Lưu thay đổi'} title={'Chỉnh sửa bài viết'} openModalText={'Chỉnh sửa'} onButtonClick={handelEditPostDetail}>
+            <Dropdown.Menu>
+              <Dropdown.Item className='form_edit_post'>
+                <FormSubmit buttonText="Lưu thay đổi" openModalText="Sửa bài viết" onButtonClick={updatePost} title={'Chỉnh sửa bài viết'}>
+                  <h4>Bảng thông tin</h4>
+                  <p>Nhập thông  tin chỉnh sửa bài viết của bạn</p>
+                  <h4>Nội dung</h4>
                   <textarea
-                    placeholder='Nhập nội dung'
-                    className='textarea-edit-modal border-1 p-2 w-100'
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Nội dung bài viết"
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
                     onKeyDown={(e) => e.stopPropagation()}
+                    className='w-100 p-2 rounded-4 mb-3 post_title'
                   />
-                  <Form.Group id="groupImage">
-                    <Button className='button-uploadImage-edit-modal' variant="" onClick={triggerFileInput}>
-                      Nhấn vào đây để <p className='m-0 text-primary'>upload</p>
-                    </Button>
-                    <Form.Control type="file" id="fileInputPostGroup" onClick={(e) => e.stopPropagation()} onChange={handleFileSelect} className="d-none" multiple />
-                    {isUploading && <Placeholder as="div" animation="glow" className='d-flex flex-wrap gap-2 mt-3'>{filePlaceholders.map((_, index) => (<Placeholder key={index} xs={12} style={{ width: '245px', height: '180px', borderRadius: '10px' }} />))}</Placeholder>}
-                    <div className='container-image-upload gap-2 mt-3'>
-                      {uploadedUrls.map((url, index) => (
-                        <div key={index} className='position-relative'>
-                          <img src={url} alt="Ảnh bìa nhóm" className="group-image-edit-modal " />
-                          <div onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }} onMouseLeave={(e) => { e.currentTarget.style.opacity = '0'; }} className='position-absolute container-action-image d-flex gap-4'>
-                            <ion-icon name="eye-outline" style={{ fontSize: '30px', color: 'white' }} onClick={() => handleViewImage(url)}></ion-icon>
-                            <ion-icon name="trash-outline" style={{ fontSize: '30px', color: 'white' }} onClick={() => handleDeleteImage(index)}></ion-icon>
-                          </div>
+                  <h4>Ảnh</h4>
+                  <input
+                    type="file"
+                    id="image_update"
+                    multiple
+                    style={{ display: 'none' }}
+                    onChange={handleFileChange}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <Button variant='' className='button_upload_images rounded-5 d-flex gap-1 mb-3' onClick={() => document.getElementById('image_update').click()}>
+                    Nhấn vào đây để <p className='m-0 text-primary'>upload</p>
+                  </Button>
+                  <div className="uploaded_image_container d-flex flex-row gap-2">
+                    {[...uploadedImages, ...selectedFiles].map((file, index) => (
+                      <div key={index} className="uploaded_image position-relative" style={{ width: '100px', height: '100px' }}>
+                        <img src={typeof file === 'string' ? file : URL.createObjectURL(file)} alt="Uploaded image" width={100} height={100} className="w-100 h-100 object-fit-cover" />
+                        <div className="overlay-buttons position-absolute top-50 start-50 translate-middle d-flex gap-2">
+                          <Button className='' variant="" onClick={() => window.open(typeof file === 'string' ? file : URL.createObjectURL(file), '_blank')}>
+                            <ion-icon name="eye-outline"></ion-icon>
+                          </Button>
+                          <Button variant="" onClick={() => handleDeleteImage(index)}>
+                            <ion-icon name="trash-outline"></ion-icon>
+                          </Button>
                         </div>
-                      ))}
-                    </div>
-                    {errors.groupImageUrl && <div>{errors.groupImageUrl}</div>}
-                  </Form.Group>
+                      </div>
+                    ))}
+                  </div>
                 </FormSubmit>
               </Dropdown.Item>
-              <Dropdown.Item onClick={handleDeletePost}>Xóa</Dropdown.Item>
+              <Dropdown.Item onClick={deletePost}>Xóa bài viết</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
-        )}
+        </div>
       </div>
-      <p className='post-content fw-medium'>{postDetails.title}</p>
-      <div style={{ border: postDetails.postPhotos?.$values?.length ? '1px solid #d9d9d9' : 'none', padding: postDetails.postPhotos?.$values?.length ? '15px' : 'none', borderRadius: '10px' }}>
-        <div className={`image-grid ${postDetails.postPhotos?.$values?.length === 1 ? 'one-image' : postDetails.postPhotos?.$values?.length === 2 ? 'two-images' : postDetails.postPhotos?.$values?.length === 3 ? 'three-images' : postDetails.postPhotos?.$values?.length === 4 ? 'four-images' : 'five-or-more-images'}`}>
-          {(postDetails.postPhotos?.$values || []).slice(0, 4).map((img, index) => (
-            <div key={index} className={index === 3 && postDetails.postPhotos?.$values.length > 4 ? 'more-images-overlay' : ''} data-more={index === 3 && postDetails.postPhotos?.$values.length > 4 ? `+${postDetails.postPhotos?.$values.length - 4}` : ''} onClick={() => { if (index === 3 && postDetails.postPhotos?.$values.length > 4) { handleViewImage(postDetails.postPhotos?.$values); } else { handleViewImage(img); } }}>
-              <img src={img} alt="địa điểm" className={postDetails.postPhotos?.$values.length === 3 && index === 0 ? 'large-image' : ''} />
-            </div>
+      <p>{post.title}</p>
+      {post.postPhotos && (
+        <div className="images_post_container">
+          {post.postPhotos.$values.map((image, index) => (
+            <img key={index} src={image} alt="Post image" />
           ))}
         </div>
-      </div>
-      <div className='my-4 d-flex gap-3'>
-        <ion-icon name="chatbubble-outline" style={{ border: '2px solid black', borderRadius: '50%', fontSize: '20px', padding: '10px' }} onClick={toggleComments}></ion-icon>
-        <ion-icon name="share-social-outline" style={{ border: '2px solid black', borderRadius: '50%', fontSize: '20px', padding: '10px' }}></ion-icon>
+      )}
+      <div className="d-flex gap-3 my-3">
+        <Button variant="outline-dark" className="button_action_comment rounded-circle d-flex align-items-center justify-content-center" onClick={handleToggleComments}>
+          <ion-icon name="chatbubble-outline"></ion-icon>
+        </Button>
+        <Button variant="outline-dark" className="button_action_comment rounded-circle d-flex align-items-center justify-content-center">
+          <ion-icon name="share-social-outline"></ion-icon>
+        </Button>
       </div>
       {showComments && (
-        <>
-          {isLoadingComments ? ([...Array(2)].map((_, index) => (
-            <div key={index} className="comment-post-group-detail-container" style={{ display: 'flex', gap: '10px', width: '810px', borderRadius: '20px', marginBottom: '30px' }}>
-              <Placeholder as="div" animation="glow" style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#f0f0f0' }} />
-              <div style={{ width: '100%' }}>
-                <Placeholder as="div" animation="glow" style={{ marginBottom: '5px' }}>
-                  <Placeholder xs={4} style={{ height: '16px', borderRadius: '4px' }} />
-                  <Placeholder xs={2} style={{ height: '12px', borderRadius: '4px', marginLeft: '10px' }} />
-                </Placeholder>
-                <Placeholder as="div" animation="glow">
-                  <Placeholder xs={10} style={{ height: '12px', borderRadius: '4px', marginBottom: '4px' }} />
-                  <Placeholder xs={8} style={{ height: '12px', borderRadius: '4px', marginBottom: '4px' }} />
-                </Placeholder>
+        <div>
+          <div className="comments w-100 mt-3">
+            {comments.map((comment, index) => (
+              <CommentPostGroupDetail
+                key={`${comment.commentId}-${index}`}
+                comment={comment}
+                postId={post.postId}
+                groupId={groupDataRedux.id}
+                onUpdateComment={handleUpdateComment}
+                onDeleteComment={handleDeleteComment}
+              />
+            ))}
+          </div>
+          <div className="write_comment_container d-flex gap-3 mb-3">
+            <img src={user.avatarUrl} alt="avatar" width={50} height={50} className="rounded-circle" />
+            <div className="w-100">
+              <p className="fw-medium">{user.username}</p>
+              <textarea
+                name=""
+                className="w-100 p-2 rounded-4"
+                id="write_comment_area"
+                placeholder="Viết bình luận..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+              ></textarea>
+              <div className="d-flex justify-content-end">
+                <Button variant="outline-success" className="rounded-5" onClick={handleAddComment}>
+                  Bình luận
+                </Button>
               </div>
-            </div>
-          ))) : (comments.slice(0, visibleComments).map((comment) => (
-            <CommentPostGroupDetail key={comment.commentId} comment={comment} onEditComment={handleEditComment} />
-          )))}
-          {loadingMoreComments && ([...Array(2)].map((_, index) => (
-            <div key={index} className="comment-post-group-detail-container" style={{ display: 'flex', gap: '10px', width: '810px', borderRadius: '20px', marginBottom: '30px' }}>
-              <Placeholder as="div" animation="glow" style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#f0f0f0' }} />
-              <div style={{ width: '100%' }}>
-                <Placeholder as="div" animation="glow" style={{ marginBottom: '5px' }}>
-                  <Placeholder xs={4} style={{ height: '16px', borderRadius: '4px' }} />
-                  <Placeholder xs={2} style={{ height: '12px', borderRadius: '4px', marginLeft: '10px' }} />
-                </Placeholder>
-                <Placeholder as="div" animation="glow">
-                  <Placeholder xs={10} style={{ height: '12px', borderRadius: '4px', marginBottom: '4px' }} />
-                  <Placeholder xs={8} style={{ height: '12px', borderRadius: '4px', marginBottom: '4px' }} />
-                </Placeholder>
-              </div>
-            </div>
-          )))}
-          {visibleComments < comments.length && (<Button onClick={handleShowMore} variant='' className='my-2 d-flex align-items-center gap-2'>Tải thêm các bình luận <ion-icon name="chevron-down-outline"></ion-icon></Button>)}
-          <div className='d-flex gap-3'>
-            <img src="https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg" alt="" width={60} height={60} className='rounded-circle' />
-            <div className='w-100'>
-              <p className='mb-2 name-comment-type'>Nhơn Trần</p>
-              <div>
-                <div style={{
-                  border: '1px solid #d9d9d9',
-                  borderRadius: '20px',
-                }}><textarea placeholder='Nhập bình luận' value={comment} onChange={(e) => setComment(e.target.value)} id='giftMessage' className='w-100 textarea-comment' /></div>
-                <div className='d-flex justify-content-end gap-3 mb-3' style={{
-                  borderTop: '1px solid #d9d9d9',
-                }}>
-                  <Button variant='' onClick={() => setShowEmojiPicker(!showEmojiPicker)}><ion-icon name="happy-outline"></ion-icon></Button>
-                  <Button variant="primary" onClick={handleCommentSubmit}>Bình luận</Button>
-                </div>
-              </div>
-              {showEmojiPicker && <div className='position-relative'><EmojiPicker onEmojiClick={handleEmojiClick} /></div>}
             </div>
           </div>
-
-        </>
-      )}
-      <Modal show={showModal} onRequestClose={() => setShowModal(false)} shouldCloseOnOverlayClick={true} onHide={() => setShowModal(false)} centered backdrop={false} dialogClassName="transparent-modal">
-        <div onClick={() => setShowModal(false)}>
-          <div>{modalImages.map((imageUrl, index) => (<img key={index} src={imageUrl} alt={`Ảnh ${index + 1}`} />))}</div>
         </div>
-      </Modal>
+      )}
     </div>
   );
-}
+};
+
 export default PostGroupDetail;

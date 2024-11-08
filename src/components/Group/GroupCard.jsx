@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const GroupCard = ({ id, img, title, location, members, text }) => {
+const GroupCard = ({ id, img, title, location, members, text, description }) => {
   const locationRoute = useLocation();
   const navigate = useNavigate(); // Add this line
   const dispatch = useDispatch();
@@ -20,9 +20,7 @@ const GroupCard = ({ id, img, title, location, members, text }) => {
     locationRoute.pathname === RoutePath.GROUP_JOINED;
 
   const handleViewGroup = () => {
-    const groupDetails = { id, img, title, location, members, text };
-    console.log(groupDetails);
-
+    const groupDetails = { id, img, title, location, members, text, description };
     dispatch(viewGroup(groupDetails));
 
     // Navigate to different paths based on the current location

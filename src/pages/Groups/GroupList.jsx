@@ -23,7 +23,7 @@ function GroupList() {
         const endpoint = token
           ? `${import.meta.env.VITE_BASE_API_URL}/api/Groups/UnJoinedGroups?pageNumber=${page}`
           : `${import.meta.env.VITE_BASE_API_URL}/api/groups?pageNumber=${page}`;
-        
+
         // Set headers only if using UnJoinedGroups endpoint
         const headers = token ? { Authorization: `${token}` } : {};
 
