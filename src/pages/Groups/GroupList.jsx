@@ -19,13 +19,18 @@ function GroupList() {
     const fetchData = async (page = 1) => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/groups?pageNumber=${page}`, {
-          headers: {
-            Authorization: `${token}`,
-          },
-        });
-        const groupsData = response.data.groups.$values;
-        const totalPages = response.data.totalPages;
+        // Determine API endpoint based on token availability
+        const endpoint = token
+          ? `${import.meta.env.VITE_BASE_API_URL}/api/Groups/UnJoinedGroups?pageNumber=${page}`
+          : `${import.meta.env.VITE_BASE_API_URL}/api/groups?pageNumber=${page}`;
+
+        // Set headers only if using UnJoinedGroups endpoint
+        const headers = token ? { Authorization: `${token}` } : {};
+
+        const response = await axios.get(endpoint, { headers });
+        const groupsData = response.data.groups.$values || [];
+        const totalPages = response.data.totalPages || 0;
+
         setData(groupsData);
         setPageCount(totalPages);
       } catch (error) {

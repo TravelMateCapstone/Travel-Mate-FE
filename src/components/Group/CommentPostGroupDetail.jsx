@@ -1,81 +1,50 @@
 import React, { useState } from 'react';
-import '../../assets/css/Groups/CommentPostGroupDetail.css';
+import Dropdown from 'react-bootstrap/Dropdown';
 
-function CommentPostGroupDetail({ comment, onEditComment }) {
+const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedComment, setEditedComment] = useState(comment.commentText);
+  const [editedText, setEditedText] = useState(comment.commentText);
 
-  const handleEditToggle = () => {
-    setIsEditing(!isEditing);
-  };
-
-  const handleEditChange = (e) => {
-    setEditedComment(e.target.value);
-  };
-
-  const handleEditSubmit = () => {
-    onEditComment(comment.commentId, editedComment);
+  const handleSaveEdit = () => {
+    onUpdateComment(comment.commentId, editedText);
     setIsEditing(false);
   };
 
-  const formatDate = (dateString) => {
-    const commentDate = new Date(dateString);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-
-    if (
-      commentDate.getDate() === yesterday.getDate() &&
-      commentDate.getMonth() === yesterday.getMonth() &&
-      commentDate.getFullYear() === yesterday.getFullYear()
-    ) {
-      return 'Hôm qua';
-    }
-
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return commentDate.toLocaleDateString('vi-VN', options);
-  };
   return (
-    <div className='comment-post-group-detail-container' style={{
-      display: 'flex',
-      gap: '10px',
-      width: '810px',
-      borderRadius: '20px',
-      marginBottom: '30px'
-    }}>
-      <img src={comment.avatar} alt="avatar" style={{
-        width: '60px',
-        height: '60px',
-        objectFit: 'cover',
-        borderRadius: '50%'
-      }} />
-
-      <div>
-        <div className='d-flex align-items-center' style={{ gap: '15px' }}>
-          <strong style={{ fontSize: '16px' }}>{comment.name}</strong>
-          <p className='m-0' style={{ fontSize: '12px' }}>{formatDate(comment.commentTime)}</p>
-          {comment.isEdited && (
-            <span style={{ fontSize: '12px', color: '#888', marginLeft: '10px' }}>đã chỉnh sửa</span>
-          )}
-          {!isEditing && (
-            <button onClick={handleEditToggle} style={{ fontSize: '12px' }}>Edit</button>
-          )}
+    <div className="d-flex gap-2 w-100">
+      <img src={comment.commentorAvatar || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'} alt="avatar" width={60} height={60} className='rounded-circle' />
+      <div className='comment-text-info w-100'>
+        <div className='d-flex justify-content-between align-items-center'>
+          <div className='d-flex gap-2'>
+            <strong>{comment.commentor}</strong>
+            <p className='m-0'>{comment.commentTime}</p>
+          </div>
+          <Dropdown>
+            <Dropdown.Toggle variant="success" id="dropdown-basic" className='border-0 bg-transparent'>
+              <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={() => setIsEditing(true)}>Sửa bình luận</Dropdown.Item>
+              <Dropdown.Item onClick={() => onDeleteComment(comment.commentId)}>Xóa bình luận</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         </div>
         {isEditing ? (
           <div>
             <textarea
-              value={editedComment}
-              onChange={handleEditChange}
-              style={{ fontSize: '16px', width: '100%' }}
+              value={editedText}
+              onChange={(e) => setEditedText(e.target.value)}
+              className="form-control mb-2"
             />
-            <button onClick={handleEditSubmit}>Save</button>
+            <button className="btn btn-success btn-sm" onClick={handleSaveEdit}>Lưu</button>
+            <button className="btn btn-secondary btn-sm ms-2" onClick={() => setIsEditing(false)}>Hủy</button>
           </div>
         ) : (
-          <p className='m-0' style={{ fontSize: '16px' }}>{comment.commentText}</p>
+          <p className='p-0'>{comment.commentText}</p>
         )}
       </div>
     </div>
   );
-}
+};
 
 export default CommentPostGroupDetail;

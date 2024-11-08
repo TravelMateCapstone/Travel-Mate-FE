@@ -10,7 +10,7 @@ const RoutePath = {
     GROUP_CREATED: '/group/create',
     GROUP_JOINED: '/group/joined',
     GROUP_JOIN_DETAILS: '/group/join/details',
-    GROUP_MY_DETAILS: '/group/my/details',
+    GROUP_MY_DETAILS: '/group/my-details',
 
     // Events
     EVENT: '/event',

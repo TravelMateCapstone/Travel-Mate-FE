@@ -41,11 +41,8 @@ function ListLayout({ children }) {
     ];
 
     const location = useLocation();
-    const [lastPath, setLastPath] = useState(null);
 
     useEffect(() => {
-        setLastPath(location.pathname);
-        localStorage.setItem('lastPath', location.pathname);
         const fetchLocations = async () => {
             try {
                 const response = await axios.get('https://provinces.open-api.vn/api/p/');
@@ -176,13 +173,12 @@ function ListLayout({ children }) {
                     }
                 }
             );
-            console.log('Create group response:', response.data);
             dispatch(viewGroup(response.data));
             dispatch(refreshGroups());
-            navigate(RoutePath.GROUP_DETAILS, {
-                state: { successMessage: 'Nhóm mới đã được tạo thành công' }
+            navigate(RoutePath.GROUP_MY_DETAILS, {
+                state: { successMessage: 'Nhóm mới đã được tạo thành công', groupData: response.data }
             });
-            
+
         } catch (error) {
             console.error('Error creating group:', error.response || error.message);
             toast.error('Đã xảy ra lỗi khi tạo nhóm');
@@ -290,7 +286,6 @@ function ListLayout({ children }) {
                                             {errors.groupName}
                                         </Form.Control.Feedback>
                                     </Form.Group>
-
                                     <Form.Group id="groupDescription" className="mb-3">
                                         <Form.Label className='fw-medium'>Mô tả nhóm</Form.Label>
                                         <Form.Control
