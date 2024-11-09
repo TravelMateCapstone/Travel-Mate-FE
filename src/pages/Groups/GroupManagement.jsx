@@ -4,12 +4,13 @@ import PostGroupDetail from '../../components/Group/PostGroupDetail';
 import '../../assets/css/Groups/MyGroupDetail.css';
 import { useSelector } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { Button } from 'react-bootstrap';
+import { Button, Tabs, Tab, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import { storage } from '../../../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import FormSubmit from '../../components/Shared/FormSubmit';
 import Form from 'react-bootstrap/Form';
+
 
 const GroupManagement = () => {
     const navigate = useNavigate();
@@ -22,12 +23,13 @@ const GroupManagement = () => {
     const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
     const [locations, setLocations] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-
     const [description, setDescription] = useState(groupDataRedux?.description || groupDataRedux?.text || '');
     const [location, setLocation] = useState(groupDataRedux?.location || '');
     const [bannerImage, setBannerImage] = useState(groupDataRedux?.img || groupDataRedux.groupImageUrl || '');
     const [groupName, setGroupName] = useState(groupDataRedux?.title || groupDataRedux.groupName || '');
     const [joinRequests, setJoinRequests] = useState([]);
+    const [members, setMembers] = useState([]);
+    const [key, setKey] = useState('joinRequests');
 
     useEffect(() => {
         setGroupData(groupDataRedux);
@@ -36,7 +38,10 @@ const GroupManagement = () => {
         setBannerImage(groupDataRedux?.img || groupDataRedux.groupImageUrl || '');
         setGroupName(groupDataRedux?.title || groupDataRedux.groupName || '');
         fetchJoinRequests();
-    }, [groupDataRedux]);
+        if (key === 'manageMembers') {
+            fetchMembers(); // Gọi API khi người dùng chọn tab "Quản lí thành viên"
+        }
+    }, [groupDataRedux, key]);
 
 
     const getTimeDifference = (requestAt) => {
@@ -187,6 +192,22 @@ const GroupManagement = () => {
         }
     };
 
+    const fetchMembers = async () => {
+        setIsLoading(true); // Bật spinner
+        try {
+            const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Groups/${groupDataRedux.groupId || groupDataRedux.id}/Members`, {
+                headers: {
+                    Authorization: `${token}`,
+                },
+            });
+            setMembers(response.data.$values);
+        } catch (error) {
+            console.error('Error fetching members:', error);
+        } finally {
+            setIsLoading(false); // Tắt spinner
+        }
+    };
+
     return (
         <div className='my_group_detail_container'>
             <img src={groupDataRedux.img || groupDataRedux.groupImageUrl} alt="" className='banner_group' />
@@ -258,32 +279,58 @@ const GroupManagement = () => {
             <hr className='my-3' />
 
 
-            <div className="join-requests">
-                <p className='fw-medium text-success rounded-5' style={{
-                    padding: '5px 10px',
-                    backgroundColor: '#F2F7FF',
-                    width: 'fit-content',
-                }}>{joinRequests.length} yêu cầu tham gia</p>
-                {joinRequests.map((request) => (
-                    <div key={request.userId} className="join-request-item d-flex justify-content-between align-items-center">
-                        <div className='d-flex gap-3 mb-4'>
-                            <img src={request.memberAvatar || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'} alt="avatar" width={50} height={50} className="avatar rounded-circle" />
-                            <div className='d-flex flex-column'>
-                                <label className='mb-1'>{request.memberName}</label>
-                                <sub className='m-0'>{getTimeDifference(request.requestAt)}</sub>
+            <Tabs
+                id="group-management-tabs"
+                activeKey={key}
+                onSelect={(k) => setKey(k)}
+                className="mb-3"
+            >
+                <Tab eventKey="joinRequests" title="Xem yêu cầu tham gia nhóm">
+                    <div className="join-requests">
+                        <p className='fw-medium text-success rounded-5' style={{
+                            padding: '5px 10px',
+                            backgroundColor: '#F2F7FF',
+                            width: 'fit-content',
+                        }}>{joinRequests.length} yêu cầu tham gia</p>
+                        {joinRequests.map((request) => (
+                            <div key={request.userId} className="join-request-item d-flex justify-content-between align-items-center">
+                                <div className='d-flex gap-3 mb-4'>
+                                    <img src={request.memberAvatar || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'} alt="avatar" width={50} height={50} className="avatar rounded-circle" />
+                                    <div className='d-flex flex-column'>
+                                        <label className='mb-1'>{request.memberName}</label>
+                                        <sub className='m-0'>{getTimeDifference(request.requestAt)}</sub>
+                                    </div>
+                                </div>
+                                <div>
+                                    <Button variant="success" onClick={() => handleApproveRequest(request.userId)}>
+                                        Phê duyệt
+                                    </Button>
+                                    <Button variant="danger" onClick={() => handleRejectRequest(request.userId)}>
+                                        Từ chối
+                                    </Button>
+                                </div>
                             </div>
-                        </div>
-                        <div>
-                            <Button variant="success" onClick={() => handleApproveRequest(request.userId)}>
-                                Phê duyệt
-                            </Button>
-                            <Button variant="danger" onClick={() => handleRejectRequest(request.userId)}>
-                                Từ chối
-                            </Button>
-                        </div>
+                        ))}
                     </div>
-                ))}
-            </div>
+                </Tab>
+                <Tab eventKey="manageMembers" title="Quản lí thành viên">
+                    <div className="member-list">
+                        {members.length > 0 ? (
+                            members.map((member) => (
+                                <div key={member.userId} className="member-item d-flex align-items-center gap-3 mb-4">
+                                    <img src={member.memberAvatar || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'} alt="avatar" width={50} height={50} className="avatar rounded-circle" />
+                                    <div>
+                                        <p className="mb-0">{member.memberName}</p>
+                                        <sub className="text-muted">{member.city}</sub>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <p>Không có thành viên nào trong nhóm.</p>
+                        )}
+                    </div>
+                </Tab>
+            </Tabs>
         </div>
     );
 };

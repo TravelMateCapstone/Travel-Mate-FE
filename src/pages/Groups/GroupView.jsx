@@ -1,16 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import PostGroupDetail from '../../components/Group/PostGroupDetail';
 import '../../assets/css/Groups/MyGroupDetail.css';
 import { useSelector } from 'react-redux';
-import Dropdown from 'react-bootstrap/Dropdown';
-import { Button } from 'react-bootstrap';
-import axios from 'axios';
-import { storage } from '../../../firebaseConfig';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import FormSubmit from '../../components/Shared/FormSubmit';
-import Form from 'react-bootstrap/Form';
-import RoutePath from '../../routes/RoutePath';
+
 
 const GroupView = () => {
   const groupDataRedux = useSelector((state) => state.group.selectedGroup);
