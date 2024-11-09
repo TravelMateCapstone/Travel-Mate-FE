@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 function EventJoined() {
     const [members, setMembers] = useState([]);
     const [showModal, setShowModal] = useState(false);
-    const [isJoined, setIsJoined] = useState(true);
+    const [isJoined, setIsJoined] = useState(false); // Ban đầu đặt là false
     const selectedEvent = useSelector(state => state.event.selectedEvent) || JSON.parse(localStorage.getItem('selectedEvent'));
     const token = useSelector((state) => state.auth.token);
 
@@ -23,9 +23,22 @@ function EventJoined() {
                     console.error('Lỗi khi lấy danh sách người tham gia:', error);
                 }
             };
+
+            const checkIfJoined = async () => {
+                try {
+                    const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/EventParticipants/check-current-user-joined/${selectedEvent.id}`, {
+                        headers: { Authorization: `${token}` }
+                    });
+                    setIsJoined(response.data);
+                } catch (error) {
+                    console.error('Lỗi khi kiểm tra tham gia sự kiện:', error);
+                }
+            };
+
             fetchMembers();
+            checkIfJoined();
         }
-    }, [selectedEvent]);
+    }, [selectedEvent, token]);
 
     const handleShowModal = () => setShowModal(true);
     const handleCloseModal = () => setShowModal(false);
