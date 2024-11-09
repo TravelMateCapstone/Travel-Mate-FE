@@ -131,7 +131,7 @@ const GroupDetail = () => {
       <img src={groupDataRedux.img || groupDataRedux.groupImageUrl} alt="" className='banner_group' />
       <div className='d-flex justify-content-between'>
         <div className='d-flex gap-2'>
-          <h2 className='fw-bold m-0'>{groupDataRedux.text || groupDataRedux.description}</h2>
+          <h2 className='fw-bold m-0'>{groupDataRedux?.title || groupDataRedux.groupName || ''}</h2>
           <h5 className='m-0 fw-medium'>{groupDataRedux.location}</h5>
         </div>
 
@@ -150,7 +150,7 @@ const GroupDetail = () => {
 
       </div>
       <p className='fw-semibold'>{groupDataRedux.members || groupDataRedux.numberOfParticipants} thành viên</p>
-      <p className='fw-light'>{groupDataRedux.description}</p>
+      <p className='fw-light'>{groupDataRedux.text || groupDataRedux.description}</p>
       <hr className='my-5' />
 
       <div className='write_post_container mb-5'>

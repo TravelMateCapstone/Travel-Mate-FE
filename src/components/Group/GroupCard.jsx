@@ -28,6 +28,8 @@ const GroupCard = ({ id, img, title, location, members, text, description }) => 
       navigate(RoutePath.GROUP_DETAILS);
     } else if (locationRoute.pathname === RoutePath.GROUP_CREATED) {
       navigate(RoutePath.GROUP_MY_DETAILS);
+    } else {
+      navigate(RoutePath.GROUP_VIEW);
     }
   };
 
