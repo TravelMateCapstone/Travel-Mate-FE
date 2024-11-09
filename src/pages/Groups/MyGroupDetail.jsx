@@ -59,8 +59,8 @@ const MyGroupDetail = () => {
     }
   };
 
-  const handleDeletePost = (postId) => {
-    setPosts((prevPosts) => prevPosts.filter((post) => post.postId !== postId));
+  const handleDeletePost = (groupPostId) => {
+    setPosts((prevPosts) => prevPosts.filter((post) => post.groupPostId !== groupPostId));
   };
 
   const handleModalFileChange = (event) => {
@@ -269,7 +269,7 @@ const MyGroupDetail = () => {
 
       {posts.length > 0 ? (
         posts.map((post) => (
-          <PostGroupDetail key={post.postId} post={post} onDelete={handleDeletePost} fetchPosts={fetchPosts} />
+          <PostGroupDetail key={post.groupPostId} post={post} onDelete={handleDeletePost} fetchPosts={fetchPosts} />
         ))
       ) : (
         <p>Chưa có bài viết nào</p>
