@@ -59,7 +59,7 @@ function SidebarList({ items }) {
                     ) : (
                         <div className="joined-groups mt-4">
                             {joinedGroups.slice(0, 5).map((group) => (
-                                <div key={group.groupId} className="group-card p-3 mb-2 gap-2 w-100 d-flex rounded">
+                                <div key={group.groupId} className="group-card p-3 mb-3 gap-2 w-100 d-flex rounded-3">
                                     <img src={group.groupImageUrl} alt={group.groupName} className="group-image object-fit-cover" />
                                     <div className="group-info">
                                         <p className='fw-medium mb-1'>{group.groupName}</p>

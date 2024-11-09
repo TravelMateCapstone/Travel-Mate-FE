@@ -217,7 +217,11 @@ const MyGroupDetail = () => {
             }}></ion-icon>
           </Dropdown.Toggle>
 
-          <Dropdown.Menu>
+          <Dropdown.Menu style={{
+            border: 'none',
+            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+            borderRadius: '10px',
+          }}>
             <Dropdown.Item className='form_edit_group'>
               <FormSubmit openModalText={'Chỉnh sửa thông tin'} title={'Chỉnh sửa thông tin nhóm'} buttonText={'Lưu thay đổi'} onButtonClick={updateGroup}>
                 <h4 className='fw-bold'>Bảng thông tin</h4>
