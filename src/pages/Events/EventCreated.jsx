@@ -120,7 +120,6 @@ function EventCreated() {
     const createAt = selectedEvent.createAt || new Date().toISOString();
 
     try {
-
       const imageToUpdate = uploadedEventUrl || eventImage;
 
       const updatedEventData = {
@@ -159,6 +158,7 @@ function EventCreated() {
       alert('Lỗi khi lưu thay đổi.');
     }
   };
+
   const handleDeleteEvent = async () => {
     if (window.confirm('Bạn có chắc chắn muốn xóa sự kiện này không?')) {
       try {
@@ -170,6 +170,24 @@ function EventCreated() {
       } catch (error) {
         console.error('Lỗi khi xóa sự kiện:', error);
         alert('Lỗi khi xóa sự kiện. Vui lòng thử lại sau.');
+      }
+    }
+  };
+
+  const handleRemoveMember = async (userId) => {
+    console.log("ev", selectedEvent.id);
+    console.log("us", userId);
+    if (window.confirm('Bạn có chắc chắn muốn gỡ người này khỏi sự kiện?')) {
+      try {
+        await axios.delete(`https://travelmateapp.azurewebsites.net/api/EventParticipants/${selectedEvent.id}/${userId}`, {
+          headers: { Authorization: `${token}` },
+        });
+        toast.success('Đã gỡ người tham gia khỏi sự kiện!');
+        setMembers(prevMembers => prevMembers.filter(member => member.id !== userId));
+        window.location.reload();
+      } catch (error) {
+        console.error('Lỗi khi gỡ người tham gia khỏi sự kiện:', error);
+        toast.error('Lỗi khi gỡ người tham gia. Vui lòng thử lại sau.');
       }
     }
   };
@@ -216,7 +234,6 @@ function EventCreated() {
     setShowUploadButton(true); // Hiển thị nút upload khi ảnh bị xóa
   };
 
-
   const [showViewImage, setShowViewImage] = useState(false);
   const [imageToView, setImageToView] = useState('');
 
@@ -228,7 +245,6 @@ function EventCreated() {
   const handleCloseView = () => {
     setShowViewImage(false);
   };
-
 
   if (!selectedEvent) {
     return <div>Không có sự kiện nào được chọn</div>;
@@ -353,7 +369,7 @@ function EventCreated() {
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="dropdown-menu">
                   <Dropdown.Item href="#">Xem hồ sơ</Dropdown.Item>
-                  <Dropdown.Item href="#">Gỡ</Dropdown.Item>
+                  <Dropdown.Item href="#" onClick={() => handleRemoveMember(member.userId)}>Gỡ</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </div>
