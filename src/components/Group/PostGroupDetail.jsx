@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import FormSubmit from '../Shared/FormSubmit';
 import { storage } from '../../../firebaseConfig';
+import EmojiPicker from 'emoji-picker-react';
 
 const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
   const [showComments, setShowComments] = useState(false);
@@ -17,18 +18,24 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [newTitle, setNewTitle] = useState(post.title);
+  const [visibleComments, setVisibleComments] = useState(5);
 
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.auth.user);
   const groupDataRedux = useSelector((state) => state.group.selectedGroup);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false); // Thêm trạng thái cho Emoji Picker
+
+
 
   useEffect(() => {
     if (post.groupPostPhotos && post.groupPostPhotos.$values) setUploadedImages(post.groupPostPhotos.$values);
     if (showComments) fetchComments();
   }, [post, showComments]);
 
-  console.log(post);
-  
+  const autoResize = (e) => {
+    e.target.style.height = 'auto';
+    e.target.style.height = `${e.target.scrollHeight}px`;
+  };
 
   const handleToggleComments = () => setShowComments(!showComments);
 
@@ -44,7 +51,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
       toast.error('Không thể tải bình luận');
     }
   };
-
+  const loadMoreComments = () => setVisibleComments((prev) => prev + 5);
   const uploadFiles = async () => {
     const uploadedUrls = [];
     for (let file of selectedFiles) {
@@ -117,13 +124,13 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
         { commentText: newComment },
         { headers: { Authorization: `${token}` } }
       );
-       // Thêm thông tin người dùng hiện tại vào bình luận mới
-    const newCommentData = {
-      ...response.data,
-      commentor: user.username, // Thêm tên người bình luận
-      commentorAvatar: user.avatarUrl // Thêm avatar người bình luận
-    };
-    setComments((prev) => [...prev, newCommentData]);
+      // Thêm thông tin người dùng hiện tại vào bình luận mới
+      const newCommentData = {
+        ...response.data,
+        commentor: user.username, // Thêm tên người bình luận
+        commentorAvatar: user.avatarUrl // Thêm avatar người bình luận
+      };
+      setComments((prev) => [...prev, newCommentData]);
       setNewComment('');
       toast.success('Bình luận thành công');
     } catch (error) {
@@ -166,6 +173,14 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
       toast.error('Không thể xóa bình luận');
     }
   };
+  const onEmojiClick = (emojiData) => {
+    setNewComment((prev) => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
+  };
+  
+
+  const toggleEmojiPicker = () => setShowEmojiPicker((prev) => !prev); // Mở/đóng Emoji Picker
+
 
   return (
     <div className="post mb-3" style={{ borderBottom: '1px solid #ccc' }}>
@@ -177,7 +192,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
             <p>{post.createdTime}</p>
           </div>
           {post.postById == user.id && (
-              <Dropdown>
+            <Dropdown>
               <Dropdown.Toggle variant="success" id="dropdown-basic" className="border-0 bg-transparent">
                 <ion-icon name="ellipsis-vertical-outline"></ion-icon>
               </Dropdown.Toggle>
@@ -230,7 +245,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
                         </div>
                       ))}
                     </div>
-  
+
                   </FormSubmit>
                 </Dropdown.Item>
                 <Dropdown.Item onClick={deletePost}>Xóa bài viết</Dropdown.Item>
@@ -248,17 +263,21 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
         </div>
       )}
       <div className="d-flex gap-3 my-3">
-        <Button variant="outline-dark" className="button_action_comment rounded-circle d-flex align-items-center justify-content-center" onClick={handleToggleComments}>
-          <ion-icon name="chatbubble-outline"></ion-icon>
+        <Button variant="" className="p-0 button_action_comment rounded-circle d-flex align-items-center justify-content-center" onClick={handleToggleComments}>
+          <ion-icon name="chatbubble-outline" style={{
+            fontSize: '30px',
+          }}></ion-icon>
         </Button>
-        <Button variant="outline-dark" className="button_action_comment rounded-circle d-flex align-items-center justify-content-center">
-          <ion-icon name="share-social-outline"></ion-icon>
+        <Button variant="" className="button_action_comment p-0 rounded-circle d-flex align-items-center justify-content-center">
+          <ion-icon name="share-social-outline" style={{
+            fontSize: '30px',
+          }}></ion-icon>
         </Button>
       </div>
       {showComments && (
         <div>
           <div className="comments w-100 mt-3">
-            {comments.map((comment, index) => (
+            {comments.slice(0, visibleComments).map((comment, index) => (
               <CommentPostGroupDetail
                 key={`${comment.postCommentId}-${index}`}
                 comment={comment}
@@ -269,23 +288,40 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
               />
             ))}
           </div>
+          {visibleComments < comments.length && (
+            <div className="d-flex justify-content-start my-3">
+              <Button variant="" className='rounded-5 py-0 d-flex align-items-center gap-2 button_loadmore_comment' onClick={loadMoreComments}>
+                Xem thêm bình luận <ion-icon name="chevron-down-outline" style={{
+                  fontSize: '20px',
+                }}></ion-icon>
+              </Button>
+            </div>
+          )}
           <div className="write_comment_container d-flex gap-3 mb-3">
             <img src={user.avatarUrl} alt="avatar" width={50} height={50} className="rounded-circle" />
-            <div className="w-100">
-              <h5 className="fw-medium">{user.username}</h5>
+            <div className="w-100 container_write_comment">
               <textarea
                 name=""
-                className="w-100 p-2 rounded-4"
+                className="w-100"
                 id="write_comment_area"
                 placeholder="Viết bình luận..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
+                onInput={autoResize} // Thêm thuộc tính này
               ></textarea>
-              <div className="d-flex justify-content-end">
-                <Button variant="outline-success" className="rounded-5" onClick={handleAddComment}>
-                  Bình luận
+              <div className="d-flex justify-content-between">
+                <Button variant="light" onClick={toggleEmojiPicker} className="me-2">
+                  <ion-icon name="happy-outline" style={{ fontSize: '1.5rem' }}></ion-icon>
+                </Button>
+                <Button variant="" className={`rounded-5 button_send_comment p-0 ${!newComment.trim() ? 'disabled' : ''}`} onClick={handleAddComment}>
+                  <ion-icon name="send" style={{ fontSize: '1.5rem', color: '#979797' }}></ion-icon>
                 </Button>
               </div>
+              {showEmojiPicker && (
+                <div style={{ position: 'absolute', }}>
+                  <EmojiPicker onEmojiClick={onEmojiClick} />
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -84,10 +84,6 @@
   margin: 0 10px;
   font-size: 24px;
 }
-#write_comment_area {
-  height: 145px;
-  background: #F9F9F9;
-}
 .form_edit_group .mybutton {
   margin: 0;
   padding: 0;
@@ -115,4 +111,24 @@
 }
 .button_banner_group:hover{
   border: 1px dashed #7BA2E7;
+}
+/* CSS cho tab đang active (được chọn) */
+.nav-tabs .nav-link.active {
+  background-color: #e0e0e0; /* Màu nền khi tab được chọn */
+  color: black; /* Màu chữ khi tab được chọn */
+  border-radius: 20px; /* Bo góc tab */
+  font-weight: bold; /* Đậm chữ khi chọn tab */
+}
+
+/* CSS cho tab không active nhưng có hiệu ứng hover */
+.nav-tabs .nav-link {
+  color: #555; /* Màu chữ khi tab không được chọn */
+  transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
+  border-radius: 20px; /* Bo góc tab mặc định */
+}
+
+.nav-tabs .nav-link:hover {
+  background-color: #f0f0f0; /* Màu nền khi hover vào tab */
+  color: black; /* Màu chữ khi hover */
+  border-radius: 20px; /* Bo góc khi hover */
 }

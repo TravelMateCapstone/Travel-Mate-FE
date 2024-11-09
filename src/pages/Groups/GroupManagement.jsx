@@ -212,13 +212,19 @@ const GroupManagement = () => {
         <div className='my_group_detail_container'>
             <img src={groupDataRedux.img || groupDataRedux.groupImageUrl} alt="" className='banner_group' />
             <div className='d-flex justify-content-between'>
-                <div className='d-flex gap-2'>
-                    <h2 className='fw-bold m-0'>{groupDataRedux?.title || groupDataRedux.groupName || ''}</h2>
-                    <h5 className='m-0 fw-medium'>{groupDataRedux.location}</h5>
+                <div className='d-flex flex-column'>
+                    <p className='fw-bold m-0' style={{
+                        fontSize: '40px',
+                    }}>{groupDataRedux?.title || groupDataRedux.groupName || ''}</p>
+                    <p className='m-0 fw-medium' style={{
+                        fontSize: '20px',
+                    }}>{groupDataRedux.location}</p>
                 </div>
                 <Dropdown>
-                    <Dropdown.Toggle variant="" id="dropdown-basic" className='border-0 bg-transparent'>
-                        <ion-icon name="settings-outline"></ion-icon>
+                    <Dropdown.Toggle variant="" className='border-0 p-0 bg-transparent'>
+                        <ion-icon name="settings-outline" style={{
+                            fontSize: '24px',
+                        }}></ion-icon>
                     </Dropdown.Toggle>
 
                     <Dropdown.Menu>
@@ -274,18 +280,18 @@ const GroupManagement = () => {
                     </Dropdown.Menu>
                 </Dropdown>
             </div>
-            <p className='fw-semibold'>{groupDataRedux.members || groupDataRedux.numberOfParticipants} thành viên</p>
-            <p className='fw-light'>{groupDataRedux.text || groupDataRedux.description}</p>
-            <hr className='my-3' />
-
-
+            <p className='fw-medium d-flex align-items-center gap-2 my-1'><ion-icon name="people-outline" style={{
+                fontSize: '20px',
+            }}></ion-icon> {groupDataRedux.members || groupDataRedux.numberOfParticipants} thành viên</p>
+            <p className='m-0'>{groupDataRedux.text || groupDataRedux.description}</p>
+            <hr className='mt-2 mb-5' />
             <Tabs
                 id="group-management-tabs"
                 activeKey={key}
                 onSelect={(k) => setKey(k)}
-                className="mb-3"
+                className="mb-3 border-0"
             >
-                <Tab eventKey="joinRequests" title="Xem yêu cầu tham gia nhóm">
+                <Tab className='border-0' eventKey="joinRequests" title="Xem yêu cầu tham gia nhóm">
                     <div className="join-requests">
                         <p className='fw-medium text-success rounded-5' style={{
                             padding: '5px 10px',

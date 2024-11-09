@@ -1,17 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { useSelector } from 'react-redux';
+import '../../assets/css/Groups/CommentPostGroupDetail.css'
 
 const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedText, setEditedText] = useState(comment.commentText);
   const user = useSelector((state) => state.auth.user);
-  console.log(user);
-  
+  const textareaRef = useRef(null);
+  const commentContentRef = useRef(null); 
+  const [isLongComment, setIsLongComment] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto"; // Đặt lại chiều cao trước khi tính toán
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`; // Điều chỉnh chiều cao dựa trên nội dung
+    }
+     // Kiểm tra chiều cao của phần tử để xác định nếu bình luận vượt quá 2 dòng
+     if (commentContentRef.current) {
+      setIsLongComment(commentContentRef.current.scrollHeight > commentContentRef.current.clientHeight);
+    }
+  }, [editedText]);
   const formatCommentTime = (timeString) => {
     const commentDate = new Date(timeString);
     const now = new Date();
-    
+
     // Kiểm tra xem có phải là "hôm qua" không
     const isYesterday = (now - commentDate) / (1000 * 60 * 60 * 24) >= 1 && now.getDate() - commentDate.getDate() === 1;
 
@@ -31,40 +45,59 @@ const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) =
     setIsEditing(false);
   };
 
+  const toggleFullComment = () => {
+    setIsExpanded(!isExpanded);
+  };
   return (
-    <div className="d-flex gap-2 w-100">
+    <div className="d-flex gap-3 w-100 comment-container">
       <img src={comment.commentorAvatar || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'} alt="avatar comment" width={60} height={60} className='rounded-circle' />
       <div className='comment-text-info w-100'>
         <div className='d-flex justify-content-between align-items-center'>
-          <div className='d-flex gap-2'>
-            <strong>{comment.commentor || comment.postCreatorName}</strong>
-            <p className='m-0 text-danger'>{formatCommentTime(comment.commentTime)}</p>
-            <small className='m-0'>{comment.isEdited ? 'Đã chỉnh sửa': ''}</small>
+          <div className=''>
+            <div className='d-flex gap-3 align-items-center'>
+              <strong className='commentor_name fw-medium'>{comment.commentor || comment.postCreatorName}</strong>
+              <small className='m-0 isEditText'>{comment.isEdited ? 'Đã chỉnh sửa' : ''}</small>
+            </div>
+            <p className='comment_time fw-medium'>{formatCommentTime(comment.commentTime)}</p>
           </div>
           {(comment.commentedById == user.id) && (
-            <Dropdown>
-            <Dropdown.Toggle variant="success" id="dropdown-basic" className='border-0 bg-transparent'>
-              <ion-icon name="ellipsis-vertical-outline"></ion-icon>
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item onClick={() => setIsEditing(true)}>Sửa bình luận</Dropdown.Item>
-              <Dropdown.Item onClick={() => onDeleteComment(comment.postCommentId)}>Xóa bình luận</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
+            <Dropdown className="comment-dropdown">
+              <Dropdown.Toggle variant="success" id="dropdown-basic" className='border-0 bg-transparent'>
+                <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={() => setIsEditing(true)}>Sửa bình luận</Dropdown.Item>
+                <Dropdown.Item onClick={() => onDeleteComment(comment.postCommentId)}>Xóa bình luận</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
           )}
         </div>
         {isEditing ? (
           <div>
             <textarea
+              ref={textareaRef}
               value={editedText}
               onChange={(e) => setEditedText(e.target.value)}
-              className="form-control mb-2"
+              className="w-100 mb-2"
+              style={{ overflow: 'hidden' }}
             />
             <button className="btn btn-success btn-sm" onClick={handleSaveEdit}>Lưu</button>
             <button className="btn btn-secondary btn-sm ms-2" onClick={() => setIsEditing(false)}>Hủy</button>
           </div>
         ) : (
-          <p className='p-0'>{comment.commentText}</p>
+          <div className="comment_content_wrapper">
+          <p
+            ref={commentContentRef} // Tham chiếu phần tử bình luận
+            className={`comment_content m-0 ${isExpanded ? 'expanded' : 'm-0'}`}
+          >
+            {comment.commentText}
+          </p>
+          {isLongComment && ( // Hiển thị "Xem thêm" nếu bình luận dài quá 2 dòng
+            <span className="see_more" onClick={() => setIsExpanded(!isExpanded)}>
+              {isExpanded ? 'Thu gọn' : 'Xem thêm'}
+            </span>
+          )}
+        </div>
         )}
       </div>
     </div>

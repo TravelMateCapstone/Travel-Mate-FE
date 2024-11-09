@@ -29,16 +29,19 @@ function SidebarList({ items }) {
         fetchJoinedGroups();
     }, [token]);
     return (
-        <>
+        <div style={{
+            marginBottom: '30px',
+        }}>
             {items.map((item, index) => (
                 <Link to={item.route} key={index} style={{ color: 'inherit', textDecoration: 'none' }}>
                     <div
                         className={`sidebar-item d-flex align-items-center rounded-5 ${item.isActive ? 'active' : ''}`}
                         style={{
-                            padding: '5px 45px',
+                            padding: '7px 45px',
                             transition: 'background-color 0.3s',
                             backgroundColor: item.isActive ? '#409034' : 'transparent',
                             color: item.isActive ? '#fff' : 'inherit', // Màu chữ khi đang active
+                            marginBottom: '15px',
                         }}
                     >
                         <ion-icon name={item.iconName} style={{ fontSize: '37px', marginRight: '10px' }}></ion-icon>
@@ -57,7 +60,7 @@ function SidebarList({ items }) {
                         <div className="joined-groups mt-4">
                             {joinedGroups.slice(0, 5).map((group) => (
                                 <div key={group.groupId} className="group-card p-3 mb-2 gap-2 w-100 d-flex rounded">
-                                    <img src={group.groupImageUrl} alt={group.groupName} className="group-image" />
+                                    <img src={group.groupImageUrl} alt={group.groupName} className="group-image object-fit-cover" />
                                     <div className="group-info">
                                         <p className='fw-medium mb-1'>{group.groupName}</p>
                                         <p className='m-0 fw-light'>{group.location}</p>
@@ -69,7 +72,7 @@ function SidebarList({ items }) {
                 </>
             )}
 
-        </>
+        </div>
     );
 }
 

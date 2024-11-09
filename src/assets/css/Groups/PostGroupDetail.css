@@ -1,38 +1,67 @@
-.images_post_container img{
-    border-radius: 10px;
-    height: 300px;
-    width: 300px;
-    object-fit: cover;
+.images_post_container img {
+  border-radius: 10px;
+  height: 300px;
+  width: 300px;
+  object-fit: cover;
 }
-.images_post_container{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+.images_post_container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
-.post_title{
-    height: 105px;
+.post_title {
+  height: 105px;
 }
-.button_upload_images{
-    border: 1px dashed #7BA2E7;
-    background: #F2F7FF;
-    padding: 6px 30px;
+.button_upload_images {
+  border: 1px dashed #7ba2e7;
+  background: #f2f7ff;
+  padding: 6px 30px;
 }
-.button_upload_images:hover{
-    border: 1px dashed #7BA2E7;
+.button_upload_images:hover {
+  border: 1px dashed #7ba2e7;
 }
-.form_edit_post .mybutton{
-    margin: 0;
-    padding: 0;
-    text-align: start;
-    border: 0;
+.form_edit_post .mybutton {
+  margin: 0;
+  padding: 0;
+  text-align: start;
+  border: 0;
 }
-.form_edit_post .mybutton:hover{
-   color: black;
-   background: transparent;
+.form_edit_post .mybutton:hover {
+  color: black;
+  background: transparent;
 }
-.button_action_comment{
-    height: 30px;
-    width: 30px;
-    border-radius: 50%;
-    padding: 0;
+.button_action_comment {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+}
+.button_action_comment:hover {
+  color: #409034;
+}
+.container_write_comment {
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 20px;
+  border: 1px solid #d9d9d9;
+}
+#write_comment_area {
+  height: 60px;
+  outline: none;
+  border: 0px;
+  background: #f9f9f9;
+  color: black;
+}
+#write_comment_area:focus {
+  outline: none;
+}
+.button_send_comment{
+    outline: none;
+    border: 0px;
+}
+.button_send_comment ion-icon:hover{
+  color: #409034 !important;
+}
+.button_loadmore_comment{
+  font-size: 20px;
+  margin-bottom: 30px;
 }

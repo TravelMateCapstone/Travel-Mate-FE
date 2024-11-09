@@ -133,17 +133,6 @@ function Navbar() {
               </div>
 
               <div className='d-flex'>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  borderLeft: '0px solid white',
-                  borderRight: '0px solid white',
-                  borderTop: '1px solid #ccc',
-                  borderBottom: '1px solid #ccc',
-                  height: '38px',
-                  color: '#ccc',
-                }} className=''>|</div>
-
                 <Dropdown onSelect={handleSelect} align="end">
                   <Dropdown.Toggle variant="success" id="dropdown-basic" style={{
                     fontSize: '12px'
