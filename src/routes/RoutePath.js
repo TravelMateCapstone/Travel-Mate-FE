@@ -12,6 +12,7 @@ const RoutePath = {
     GROUP_JOIN_DETAILS: '/group/join/details',
     GROUP_MY_DETAILS: '/group/my-details',
     Group_Management: '/group/management',
+    GROUP_VIEW: '/group/view',
 
     // Events
     EVENT: '/event',
