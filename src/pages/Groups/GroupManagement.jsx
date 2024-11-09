@@ -156,7 +156,10 @@ const GroupManagement = () => {
         newSelectedFiles.splice(index, 1);
         setSelectedFiles(newSelectedFiles);
     };
-
+    const autoResize = (e) => {
+        e.target.style.height = 'auto';
+        e.target.style.height = `${e.target.scrollHeight}px`;
+    };
 
     const updateGroup = async () => {
         try {
@@ -252,6 +255,7 @@ const GroupManagement = () => {
                                     value={description}
                                     onKeyDown={(e) => e.stopPropagation()}
                                     onChange={(e) => setDescription(e.target.value)}
+                                    onInput={autoResize}
                                 />
                                 <h4>Địa điểm</h4>
                                 <Form.Select
@@ -307,15 +311,15 @@ const GroupManagement = () => {
                                 <div className='d-flex gap-3 mb-4'>
                                     <img src={request.memberAvatar || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'} alt="avatar" width={50} height={50} className="avatar rounded-circle" />
                                     <div className='d-flex flex-column'>
-                                        <label className='mb-1'>{request.memberName}</label>
-                                        <sub className='m-0'>{getTimeDifference(request.requestAt)}</sub>
+                                        <p className='mb-1 fw-medium'>{request.memberName}</p>
+                                        <sub className='m-0 fw-medium'>{getTimeDifference(request.requestAt)}</sub>
                                     </div>
                                 </div>
-                                <div>
-                                    <Button variant="success" onClick={() => handleApproveRequest(request.userId)}>
+                                <div className='d-flex gap-4'>
+                                    <Button variant="outline-success" className='rounded-5 fw-medium' onClick={() => handleApproveRequest(request.userId)}>
                                         Phê duyệt
                                     </Button>
-                                    <Button variant="danger" onClick={() => handleRejectRequest(request.userId)}>
+                                    <Button variant="outline-danger" className='rounded-5 fw-medium' onClick={() => handleRejectRequest(request.userId)}>
                                         Từ chối
                                     </Button>
                                 </div>

@@ -20,10 +20,15 @@ function SidebarList({ items }) {
                 const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Groups/JoinedGroups?pageNumber=1', {
                     headers: { Authorization: `${token}` },
                 });
-                setJoinedGroups(response.data.groups.$values);
+                if (response.data.message === "No joined groups found.") {
+                    setJoinedGroups([]); // Đặt joinedGroups thành mảng rỗng nếu không có nhóm nào
+                } else {
+                    setJoinedGroups(response.data.groups.$values);
+                }
                 setIsLoading(false);
             } catch (error) {
                 console.error('Lỗi khi lấy danh sách nhóm đã tham gia:', error);
+                setIsLoading(false);
             }
         };
         fetchJoinedGroups();

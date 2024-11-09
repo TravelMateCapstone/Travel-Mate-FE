@@ -26,7 +26,12 @@ import TripHistory from "../pages/Admin/TripHistory"
 import MyGroupDetail from '../pages/Groups/MyGroupDetail'
 import GroupManagement from "../pages/Groups/GroupManagement"
 import GroupView from "../pages/Groups/GroupView"
-
+import Contract from "../pages/Contracts/Contract"
+import CreateContract from "../pages/Contracts/CreateContract"
+import DoneContract from "../pages/Contracts/DoneContract"
+import FinishContract from "../pages/Contracts/FinishContract"
+import OngoingContract from "../pages/Contracts/OngoingContract"
+import PaymentContract from "../pages/Contracts/PaymentContract"
 
 const publishRoutes = [
     { path: RoutePath.HOMEPAGE, component: Home, layout: HomeFeedLayout },
@@ -59,8 +64,12 @@ const privateRoutes = [
     { path: RoutePath.SETTING, component: Setting, layout: NavBarLayout },
     { path: RoutePath.CHAT, component: Chat, layout: NavBarLayout },
 
-
-
+    { path: RoutePath.CONTRACT, component: Contract, layout: NavBarLayout },
+    { path: RoutePath.CREATE_CONTRACT, component: CreateContract, layout: NavBarLayout },
+    { path: RoutePath.DONE_CONTRACT, component: DoneContract, layout: NavBarLayout },
+    { path: RoutePath.FINISH_CONTRACT, component: FinishContract, layout: NavBarLayout },
+    { path: RoutePath.ONGOING_CONTRACT, component: OngoingContract, layout: NavBarLayout },
+    { path: RoutePath.PAYMENT_CONTRACT, component: PaymentContract, layout: NavBarLayout },
 ]
 
 export { publishRoutes, privateRoutes }

@@ -27,14 +27,12 @@ const MyGroupDetail = () => {
   const [locations, setLocations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [description, setDescription] = useState(groupDataRedux?.description || groupDataRedux?.text || '');
   const [location, setLocation] = useState(groupDataRedux?.location || '');
   const [bannerImage, setBannerImage] = useState(groupDataRedux?.img || groupDataRedux.groupImageUrl || '');
   const [groupName, setGroupName] = useState(groupDataRedux?.title || groupDataRedux.groupName || '');
-
-  console.log('Group Data redux:', groupDataRedux);
-
 
   useEffect(() => {
     setGroupData(groupDataRedux);
@@ -50,6 +48,18 @@ const MyGroupDetail = () => {
   const autoResize = (e) => {
     e.target.style.height = 'auto';
     e.target.style.height = `${e.target.scrollHeight}px`;
+  };
+
+  const handleGroupNameChange = (e) => {
+    const value = e.target.value;
+    if (value.length > 25) {
+      setErrorMessage('Tên nhóm không được vượt quá 25 ký tự');
+    } else if (value.length < 10) {
+      setErrorMessage('Tên nhóm phải có ít nhất 10 ký tự');
+    } else {
+      setErrorMessage(''); // Xóa thông báo lỗi nếu hợp lệ
+    }
+    setGroupName(value);
   };
 
   const handleFileChange = (event) => {
@@ -233,8 +243,9 @@ const MyGroupDetail = () => {
                   placeholder='Nhập tên nhóm'
                   value={groupName}
                   className='mb-3 border-1 name_group rounded-5 px-3 w-100'
-                  onChange={(e) => setGroupName(e.target.value)}
+                  onChange={handleGroupNameChange}
                 />
+                {errorMessage && <p className="text-danger">{errorMessage}</p>}
                 <h4>Miêu tả</h4>
                 <textarea
                   placeholder='Nhập miêu tả'
@@ -242,6 +253,7 @@ const MyGroupDetail = () => {
                   value={description}
                   onKeyDown={(e) => e.stopPropagation()}
                   onChange={(e) => setDescription(e.target.value)}
+                  onInput={autoResize}
                 />
                 <h4>Địa điểm</h4>
                 <Form.Select
