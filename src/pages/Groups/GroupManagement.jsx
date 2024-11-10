@@ -4,7 +4,7 @@ import PostGroupDetail from '../../components/Group/PostGroupDetail';
 import '../../assets/css/Groups/MyGroupDetail.css';
 import { useSelector } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { Button, Tabs, Tab, Spinner } from 'react-bootstrap';
+import { Button, Tabs, Tab, Spinner, Modal } from 'react-bootstrap';
 import axios from 'axios';
 import { storage } from '../../../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -29,6 +29,8 @@ const GroupManagement = () => {
     const [groupName, setGroupName] = useState(groupDataRedux?.title || groupDataRedux.groupName || '');
     const [joinRequests, setJoinRequests] = useState([]);
     const [members, setMembers] = useState([]);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+
     const [key, setKey] = useState('joinRequests');
 
     useEffect(() => {
@@ -224,8 +226,8 @@ const GroupManagement = () => {
                     }}>{groupDataRedux.location}</p>
                 </div>
                 <Dropdown>
-                    <Dropdown.Toggle variant="" className='border-0 p-0 bg-transparent'>
-                        <ion-icon name="settings-outline" style={{
+                    <Dropdown.Toggle variant="" className='button_setting border-0 p-0 bg-transparent'>
+                        <ion-icon name="settings" style={{
                             fontSize: '24px',
                         }}></ion-icon>
                     </Dropdown.Toggle>
@@ -284,7 +286,7 @@ const GroupManagement = () => {
                             </FormSubmit>
                         </Dropdown.Item>
                         <Dropdown.Item>Quản lí thành viên</Dropdown.Item>
-                        <Dropdown.Item onClick={deleteGroup}>Xóa nhóm</Dropdown.Item>
+                        <Dropdown.Item onClick={() => setShowDeleteModal(true)}>Xóa nhóm</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </div>
@@ -345,6 +347,26 @@ const GroupManagement = () => {
                     </div>
                 </Tab>
             </Tabs>
+
+            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered className="custom-modal_deletGroup">
+                <Modal.Header closeButton>
+                    <Modal.Title>Xác nhận xóa nhóm</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="custom-modal-body">
+                    Bạn có chắc chắn muốn xóa nhóm này? Hành động này không thể hoàn tác.
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                        Hủy
+                    </Button>
+                    <Button variant="danger" onClick={() => {
+                        deleteGroup();
+                        setShowDeleteModal(false);
+                    }}>
+                        Xóa
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };

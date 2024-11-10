@@ -29,8 +29,11 @@ function CreateContract() {
           fontSize: '20px',
         }}></ion-icon></Button>
       </div>
+      <TimeLine activeStep={1} />
 
-      <TimeLine/>
+
+
+
     </div>
   );
 }

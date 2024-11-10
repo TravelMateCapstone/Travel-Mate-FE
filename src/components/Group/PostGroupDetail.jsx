@@ -3,7 +3,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import CommentPostGroupDetail from './CommentPostGroupDetail';
 import '../../assets/css/Groups/PostGroupDetail.css';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { Button } from 'react-bootstrap';
+import { Button, Modal } from 'react-bootstrap';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -19,6 +19,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
   const [uploadedImages, setUploadedImages] = useState([]);
   const [newTitle, setNewTitle] = useState(post.title);
   const [visibleComments, setVisibleComments] = useState(5);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.auth.user);
@@ -181,7 +182,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
 
 
   return (
-    <div className="post mb-3" style={{ borderBottom: '1px solid #ccc' }}>
+    <div className="post mb-3" >
       <div className="d-flex align-items-center gap-3">
         <img src={post.postCreatorAvatar || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'} alt="avatar" width={70} height={70} className="rounded-circle object-fit-cover" />
         <div className="d-flex justify-content-between w-100">
@@ -246,7 +247,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
 
                   </FormSubmit>
                 </Dropdown.Item>
-                <Dropdown.Item onClick={deletePost}>Xóa bài viết</Dropdown.Item>
+                <Dropdown.Item onClick={() => setShowDeleteModal(true)}>Xóa bài viết</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           )}
@@ -283,7 +284,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
       </div>
       {showComments && (
         <div>
-          <hr/>
+          <hr />
           <div className="comments w-100 mt-3">
             {comments.slice(0, visibleComments).map((comment, index) => (
               <CommentPostGroupDetail
@@ -334,6 +335,40 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
           </div>
         </div>
       )}
+
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered className="custom-modal_deletPostGroup">
+        <Modal.Body className="custom-modal-body">
+          <div>
+            <ion-icon name="warning-outline" style={
+              {
+                fontSize: '30px',
+                color: '#AC0B0B',
+              }
+            }></ion-icon>
+          </div>
+          <p className='mb-0 fw-medium text-black'>Bạn có muốn xóa không ?</p>
+          <p className='m-0' style={{
+            fontSize: '12px',
+            color: '#6E6E6E',
+          }}>Sau khi xóa bạn không thể hoàn tác</p>
+        </Modal.Body>
+        <Modal.Footer className='d-flex gap-3 justify-content-center'>
+          <Button variant="" onClick={() => setShowDeleteModal(false)}>
+            Hủy
+          </Button>
+          <Button variant="" onClick={() => {
+            deletePost();
+            setShowDeleteModal(false);
+          }}
+            className='rounded-5'
+            style={{
+              background: '#AC0B0B',
+              color: '#fff',
+            }}>
+            Xóa bài viết
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

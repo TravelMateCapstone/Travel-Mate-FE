@@ -65,3 +65,11 @@
   font-size: 20px;
   margin-bottom: 30px;
 }
+
+.custom-modal_deletPostGroup .modal-content {
+  height: 100%!important;
+  width: 60% !important;
+  left: 20%!important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.17);
+  border: 0px !important;
+}

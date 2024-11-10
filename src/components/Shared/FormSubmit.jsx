@@ -11,14 +11,14 @@ import '../../assets/css/Shared/FormSubmit.css';
 // Đặt vị trí modal vào root của ứng dụng để đảm bảo nó hiển thị chính xác
 Modal.setAppElement('#root');
 
-function FormSubmit({ children, buttonText, onButtonClick, title, openModalText, needAuthorize, autoOpen,  }) {
+function FormSubmit({ children, buttonText, onButtonClick, title, openModalText, needAuthorize, autoOpen, }) {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token); // Get token from Redux store
   const isGroupEditModalOpen = useSelector((state) => state.modal.isGroupEditModalOpen);
   const location = useLocation();
-  
-  
+
+
   const openModal = () => {
     // Check if authorization is needed
     if (needAuthorize && !token) {
@@ -36,7 +36,7 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
   }, [autoOpen]);
   const closeModal = () => setIsOpen(false);
 
-  
+
 
   return (
     <div>
@@ -76,6 +76,8 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
             width: '897px',
             maxHeight: '80vh',
             position: 'relative',
+            display: 'flex',
+            flexDirection: 'column', // Thêm dòng này để sắp xếp các phần của modal theo chiều dọc
           },
         }}
       >
@@ -83,13 +85,23 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
         <h2 className='text-center mb-4 fw-bolder'>{title}</h2>
 
         {/* Phần nội dung con được truyền vào component */}
-        <div>{children}</div>
+        <div style={{
+          overflowY: 'auto',  // Kích hoạt cuộn dọc nếu nội dung quá dài
+          maxHeight: 'calc(80vh - 150px)', // Điều chỉnh chiều cao tối đa của nội dung
+          paddingBottom: '20px',
+        }}>
+          {children}
+        </div>
 
-        {/* Container chứa các nút hành động, đặt ở dưới cùng bên phải */}
+        {/* Container chứa các nút hành động, cố định ở dưới cùng */}
         <div style={{
           display: 'flex',
           justifyContent: 'flex-end',
           marginTop: '20px',
+          position: 'sticky',
+          bottom: '0',
+          background: '#fff',
+          padding: '10px 0', // Thêm padding để tách biệt với nội dung cuộn
         }}>
           {/* Nút truyền vào */}
           <Button onClick={onButtonClick} style={{ marginRight: '10px', background: '#007931' }} className='rounded-5 border-0 fw-medium'>
@@ -101,6 +113,7 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
           </Button>
         </div>
       </Modal>
+
     </div>
   );
 }

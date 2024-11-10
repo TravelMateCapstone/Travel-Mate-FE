@@ -6,7 +6,6 @@
   margin-bottom: 25px;
 }
 .my_group_detail_container {
-
   padding-right: 152px;
 }
 .write_post_container {
@@ -135,8 +134,18 @@
 }
 
 /* Điều chỉnh thanh hr dịch sang trái */
-.my_group_detail_container hr {
+.my_group_detail_container .line_spit {
   margin-left: -86px;
   width: calc(100% + 86px); /* Chiều rộng cộng thêm phần bị dịch sang trái */
 }
 
+.button_setting:hover{
+  color: #007931;
+}
+.custom-modal_deletGroup .modal-content{
+  height: 100%!important;
+  width: 60% !important;
+  left: 20%!important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.17);
+  border: 0px !important;
+}

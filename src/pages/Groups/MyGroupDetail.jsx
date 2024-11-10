@@ -4,7 +4,7 @@ import PostGroupDetail from '../../components/Group/PostGroupDetail';
 import '../../assets/css/Groups/MyGroupDetail.css';
 import { useDispatch, useSelector } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { Button } from 'react-bootstrap';
+import { Button, Modal } from 'react-bootstrap';
 import axios from 'axios';
 import { storage } from '../../../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -28,6 +28,7 @@ const MyGroupDetail = () => {
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const [description, setDescription] = useState(groupDataRedux?.description || groupDataRedux?.text || '');
   const [location, setLocation] = useState(groupDataRedux?.location || '');
@@ -113,8 +114,6 @@ const MyGroupDetail = () => {
       title: document.getElementById('post_title').value,
       GroupPostPhotos: uploadedUrls.map((url) => ({ photoUrl: url })),
     };
-
-
     try {
       console.log('Group id', groupDataRedux.groupId);
 
@@ -128,13 +127,11 @@ const MyGroupDetail = () => {
       console.error('Error creating post:', error);
     }
   };
-
   const handleDeleteImage = (index) => {
     const newSelectedFiles = [...selectedFiles];
     newSelectedFiles.splice(index, 1);
     setSelectedFiles(newSelectedFiles);
   };
-
   const fetchPosts = async () => {
     try {
       const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts`, {
@@ -150,7 +147,6 @@ const MyGroupDetail = () => {
   };
   const uploadBannerImage = async () => {
     if (!selectedBannerFile) return null;
-
     const storageRef = ref(storage, `group_banners/${selectedBannerFile.name}`);
     try {
       const snapshot = await uploadBytes(storageRef, selectedBannerFile);
@@ -160,16 +156,13 @@ const MyGroupDetail = () => {
       return null;
     }
   };
-
   const updateGroup = async () => {
     setIsLoading(true);
     let newBannerUrl = bannerImage;
-
     if (selectedBannerFile) {
       newBannerUrl = await uploadBannerImage();
       setBannerImage(newBannerUrl);
     }
-
     try {
       const updatedGroup = {
         id: groupDataRedux.id || groupDataRedux.groupId,
@@ -183,7 +176,6 @@ const MyGroupDetail = () => {
           Authorization: `${token}`,
         },
       });
-
       toast.success('Nhóm đã được cập nhật thành công');
       dispatch(viewGroup(updatedGroup));
       fetchPosts();
@@ -193,7 +185,6 @@ const MyGroupDetail = () => {
       setIsLoading(false);
     }
   };
-
   const deleteGroup = async () => {
     try {
       await axios.delete(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}`, {
@@ -202,12 +193,11 @@ const MyGroupDetail = () => {
         },
       });
       console.log('Nhóm đã được xóa thành công');
-      navigate('/group'); // Chuyển hướng về trang GroupList
+      navigate('/group');
     } catch (error) {
       console.error('Error deleting group:', error);
     }
   };
-
   return (
     <div className='my_group_detail_container'>
       <img src={groupDataRedux.img || groupDataRedux.groupImageUrl} alt="" className='banner_group' />
@@ -221,9 +211,9 @@ const MyGroupDetail = () => {
           }}>{groupDataRedux.location}</p>
         </div>
         <Dropdown>
-          <Dropdown.Toggle variant="" className='border-0 p-0 bg-transparent'>
-            <ion-icon name="settings-outline" style={{
-              fontSize: '24px',
+          <Dropdown.Toggle variant="" className='button_setting border-0 p-0 bg-transparent'>
+            <ion-icon name="settings" style={{
+              fontSize: '30px',
             }}></ion-icon>
           </Dropdown.Toggle>
 
@@ -270,21 +260,56 @@ const MyGroupDetail = () => {
                   ))}
                 </Form.Select>
                 <h4>Ảnh bìa nhóm</h4>
-                <input type="file" className='mb-3' id='banner_group' style={{ display: 'none' }} onChange={handleBannerFileChange} onClick={(e) => e.stopPropagation()} />
-                <Button variant='' className='rounded-5 mb-3 button_banner_group d-flex gap-1 justify-content-center align-items-center' onClick={() => document.getElementById('banner_group').click()}>
+                <input
+                  type="file"
+                  className='mb-3'
+                  id='banner_group'
+                  style={{ display: 'none' }}
+                  onChange={handleBannerFileChange}
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <Button
+                  variant=''
+                  className='rounded-5 mb-3 button_banner_group d-flex gap-1 justify-content-center align-items-center'
+                  onClick={() => document.getElementById('banner_group').click()}
+                >
                   Nhấn vào đây để <p className='text-primary m-0'>upload</p>
                 </Button>
-                {selectedBannerFile && (
-                  <div className='mb-3'>
-                    <img src={URL.createObjectURL(selectedBannerFile)} alt="Group Banner" width={100} height={100} />
+                {(selectedBannerFile || bannerImage) && (
+                  <div className='mb-3 position-relative'>
+                    <img
+                      src={selectedBannerFile ? URL.createObjectURL(selectedBannerFile) : bannerImage}
+                      alt="Group Banner"
+                      width={100}
+                      height={100}
+                      className='object-fit-cover rounded-4'
+                    />
+                    <Button
+                      variant=""
+                      className='mt-2 position-absolute'
+                      style={{
+                        top: -15,
+                        left: 55,
+                        borderRadius: '50%',
+                        color: 'red',
+                        fontSize: '30px',
+                      }}
+                      onClick={() => {
+                        setSelectedBannerFile(null);
+                        setBannerImage('');
+                      }}
+                    >
+                      <ion-icon name="close-circle-outline"></ion-icon>
+                    </Button>
                   </div>
                 )}
               </FormSubmit>
             </Dropdown.Item>
+
             <Dropdown.Item>
               <Link className='text-black' to={RoutePath.Group_Management}>Quản lí thành viên</Link>
             </Dropdown.Item>
-            <Dropdown.Item onClick={deleteGroup}>Xóa nhóm</Dropdown.Item>
+            <Dropdown.Item onClick={() => setShowDeleteModal(true)}>Xóa nhóm</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </div>
@@ -292,7 +317,7 @@ const MyGroupDetail = () => {
         fontSize: '20px',
       }}></ion-icon> {groupDataRedux.members || groupDataRedux.numberOfParticipants} thành viên</p>
       <p className='m-0'>{groupDataRedux.text || groupDataRedux.description}</p>
-      <hr className='mt-2 mb-5' />
+      <hr className='mt-4 mb-5 line_spit' />
 
       <div className='write_post_container mb-5'>
         <div className='d-flex align-items-center gap-3'>
@@ -327,15 +352,51 @@ const MyGroupDetail = () => {
           <Button variant='outline-success' className='rounded-5' onClick={createPost}>Đăng bài</Button>
         </div>
       </div>
-      <hr className='mb-4' />
+
 
       {posts.length > 0 ? (
         posts.map((post) => (
-          <PostGroupDetail key={post.groupPostId} post={post} onDelete={handleDeletePost} fetchPosts={fetchPosts} />
+          <div>
+            <hr className='line_spit' />
+            <PostGroupDetail key={post.groupPostId} post={post} onDelete={handleDeletePost} fetchPosts={fetchPosts} /></div>
         ))
       ) : (
         <p>Chưa có bài viết nào</p>
       )}
+
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered className="custom-modal_deletGroup">
+        <Modal.Body className="custom-modal-body">
+          <div>
+            <ion-icon name="warning-outline" style={
+              {
+                fontSize: '30px',
+                color: '#AC0B0B',
+              }
+            }></ion-icon>
+          </div>
+          <p className='mb-0 fw-medium text-black'>Bạn có muốn xóa không ?</p>
+          <p className='m-0' style={{
+            fontSize: '12px',
+            color: '#6E6E6E',
+          }}>Sau khi xóa bạn không thể hoàn tác</p>
+        </Modal.Body>
+        <Modal.Footer className='d-flex gap-3 justify-content-center'>
+          <Button variant="" onClick={() => setShowDeleteModal(false)}>
+            Hủy
+          </Button>
+          <Button variant="" onClick={() => {
+            deleteGroup();
+            setShowDeleteModal(false);
+          }}
+            className='rounded-5'
+            style={{
+              background: '#AC0B0B',
+              color: '#fff',
+            }}>
+            Xóa nhóm
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

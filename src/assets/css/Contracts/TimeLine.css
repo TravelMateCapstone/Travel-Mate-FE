@@ -61,3 +61,13 @@
   .timeline li.active-tl + li:after{
     background: #E65C00;
   }
+
+/* Định dạng cho trạng thái active */
+.timeline li.active-tl {
+  color: #E65C00; /* Màu chữ cho bước active */
+}
+
+
+  .timeline li {
+    color: #333; /* Màu chữ mặc định */
+}

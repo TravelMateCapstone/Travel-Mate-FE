@@ -165,7 +165,7 @@ const GroupDetail = () => {
           style={{
             width: '175px',
             height: '44px',
-            border: '1px solid black',
+            border: '1px solid #409034',
             borderRadius: '10px',
             color: '#409034',
             fontSize: '16px',
@@ -187,7 +187,7 @@ const GroupDetail = () => {
       }}></ion-icon> {groupDataRedux.members || groupDataRedux.numberOfParticipants} thành viên</p>
       <p className='m-0'>{groupDataRedux.text || groupDataRedux.description}</p>
 
-     <hr />
+      <hr className='mt-4 mb-5 line_spit'/>
 
 
       <div className='write_post_container mb-5'>
@@ -223,7 +223,7 @@ const GroupDetail = () => {
           <Button variant='outline-success' className='rounded-5' onClick={createPost}>Đăng bài</Button>
         </div>
       </div>
-      <hr className='mb-4' />
+      <hr className='mb-4 line_spit' />
 
       {posts.length > 0 ? (
         posts.map((post) => (
