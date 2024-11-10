@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import "../../assets/css/Profile/ProfileCard.css";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import RoutePath from "../../routes/RoutePath";
 
 function ProfileCard() {
@@ -14,6 +14,7 @@ function ProfileCard() {
   const [education, setEducation] = useState(null);
   const token = useSelector((state) => state.auth.token);
   const url = import.meta.env.VITE_BASE_API_URL;
+  const location = useLocation();
 
   useEffect(() => {
     // Lấy dữ liệu từ localStorage nếu có
@@ -84,7 +85,7 @@ function ProfileCard() {
       <div className="profile-card-container">
         <div className="d-flex justify-content-center profile-image-wrapper">
           <img
-            className="rounded-circle"
+            className="rounded-circle object-fit-cover"
             src={profile.imageUser || "default-image-url"}
             alt="User profile"
             width={192}
@@ -103,9 +104,15 @@ function ProfileCard() {
             {profile.hostingAvailability}
           </p>
           <div className="profile-buttons">
-            <Button as={Link} to={RoutePath.PROFILE_EDIT} variant="success" className="profile-button profile-button-success">
-              Chỉnh sửa
-            </Button>
+            {(location.pathname === RoutePath.PROFILE_EDIT || location.pathname === RoutePath.PROFILE_EDIT_MY_HOME)  ? (
+              <Button as={Link} to={RoutePath.PROFILE} variant="success" className="profile-button profile-button-success">
+                Hồ sơ
+              </Button>
+            ) : (
+              <Button as={Link} to={RoutePath.PROFILE_EDIT} variant="success" className="profile-button profile-button-success">
+                Chỉnh sửa
+              </Button>
+            )}
             <Button as={Link} to={RoutePath.SETTING} variant="secondary" className="profile-button profile-button-secondary">
               Cài đặt
             </Button>
