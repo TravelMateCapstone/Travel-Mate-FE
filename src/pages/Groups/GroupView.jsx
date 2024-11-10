@@ -1,22 +1,75 @@
 import React, { useEffect, useState } from 'react';
 import '../../assets/css/Groups/MyGroupDetail.css';
 import { useSelector } from 'react-redux';
+import { Button } from 'react-bootstrap';
 
 
 const GroupView = () => {
   const groupDataRedux = useSelector((state) => state.group.selectedGroup);
+  const [showFullDescription, setShowFullDescription] = useState(false);
+  const [status, setStatus] = useState('Hủy yêu cầu');
+  const toggleDescription = () => {
+    setShowFullDescription(!showFullDescription);
+  };
+
 
   return (
     <div className='my_group_detail_container'>
       <img src={groupDataRedux.img || groupDataRedux.groupImageUrl} alt="" className='banner_group' />
       <div className='d-flex justify-content-between'>
-        <div className='d-flex gap-2'>
-          <h2 className='fw-bold m-0'>{groupDataRedux?.title || groupDataRedux.groupName || ''}</h2>
-          <h5 className='m-0 fw-medium'>{groupDataRedux.location}</h5>
+        <div className='d-flex flex-column'>
+          <p className='fw-bold m-0' style={{
+            fontSize: '40px',
+          }}>{groupDataRedux?.title || groupDataRedux.groupName || ''}</p>
+          <p className='m-0 fw-medium' style={{
+            fontSize: '20px',
+          }}>{groupDataRedux.location}</p>
         </div>
+
+      {status === 'Hủy yêu cầu' ? (
+         <Button variant='outline-danger' className='rounded-5 d-flex align-items-center justify-content-center gap-1' style={{
+          width: '175px',
+          height: '44px',
+          borderRadius: '10px',
+          fontSize: '16px',
+          textAlign: 'center'
+        }}>Hủy Yêu cầu <ion-icon name="close" style={{
+          fontSize: '20px',
+        }}></ion-icon></Button>
+      ) : (
+        <Button variant='outline-success' className='rounded-5 d-flex align-items-center justify-content-center gap-1' style={{
+          width: '175px',
+          height: '44px',
+          borderRadius: '10px',
+          fontSize: '16px',
+          textAlign: 'center'
+        }}>Gửi yêu cầu <ion-icon name="arrow-forward" style={{
+          fontSize: '20px',
+        }}></ion-icon></Button>
+      )}
+
+      
       </div>
-      <p className='fw-semibold'>{groupDataRedux.members || groupDataRedux.numberOfParticipants} thành viên</p>
-      <p className='fw-light'>{groupDataRedux.text || groupDataRedux.description}</p>
+      <p className='fw-medium d-flex align-items-center gap-2 my-1'><ion-icon name="people-outline" style={{
+        fontSize: '20px',
+      }}></ion-icon> {groupDataRedux.members || groupDataRedux.numberOfParticipants} thành viên</p>
+      <p className={`m-0 ${showFullDescription ? '' : 'description_short'}`}>
+        {groupDataRedux.text || groupDataRedux.description}
+      </p>
+      {!showFullDescription && (groupDataRedux.description || groupDataRedux.text).length > 100 && (
+        <button className='btn p-0' onClick={toggleDescription} style={{
+          color: '#007931',
+        }}>
+          Xem thêm
+        </button>
+      )}
+      {showFullDescription && (
+        <button className='btn p-0' style={{
+          color: '#007931',
+        }} onClick={toggleDescription}>
+          Thu gọn
+        </button>
+      )}
       <hr className='my-5' />
     </div>
   );

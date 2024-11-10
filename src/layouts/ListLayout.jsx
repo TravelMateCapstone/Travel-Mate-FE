@@ -36,8 +36,8 @@ function ListLayout({ children }) {
 
     const sidebarItemsEvent = [
         { iconName: 'list-circle', title: 'Danh sách sự kiện', route: RoutePath.EVENT },
-        { iconName: 'calendar-number', title: 'Sự kiện đã tham gia', route: RoutePath.EVENT_JOINED },
         { iconName: 'add-circle', title: 'Sự kiện đã tạo', route: RoutePath.EVENT_CREATED },
+        { iconName: 'calendar-number', title: 'Sự kiện tham gia', route: RoutePath.EVENT_JOINED },
     ];
 
     const location = useLocation();
@@ -269,7 +269,126 @@ function ListLayout({ children }) {
                         <SidebarList items={sidebarItemsWithActiveState} />
 
 
-                        {isEventRouteBtn && (
+
+                    </div>
+                </Col>
+
+                <Offcanvas show={show} onHide={handleClose} className="d-lg-none d-md-none">
+                    <Offcanvas.Header closeButton>
+                        <Offcanvas.Title>Sidebar</Offcanvas.Title>
+                    </Offcanvas.Header>
+                    <Offcanvas.Body>
+                        <SidebarList items={sidebarItemsWithActiveState} />
+                    </Offcanvas.Body>
+                </Offcanvas>
+
+                <Col lg={6} md={9} xs={12} className='p-0'>
+                    <Container className='container-list d-none d-md-flex mb-4'>
+                        <div className='search-list-container'><SearchBar /></div>
+                        <InputGroup className='search-list-container location-container'>
+                            <InputGroup.Text className="search-icon bg-white search-icon-list rounded-start-5" style={{
+                                border: '1px solid #d9d9d9'
+                            }}>
+                                <ion-icon name="location-outline" style={{
+                                    fontSize: '24px',
+                                }}></ion-icon>
+                            </InputGroup.Text>
+                            <FormControl
+                                type="search"
+                                placeholder="Địa điểm"
+                                aria-label="Search"
+                                className="searchBar-list rounded-start-0 rounded-end-5 border-start-0"
+                            />
+                        </InputGroup>
+                        <Button variant='' className='d-flex align-items-center gap-2 rounded-5 btn-filter'>
+                            <ion-icon name="filter-outline" style={{
+                                fontSize: '24px',
+                            }}></ion-icon>
+                            Lọc
+                        </Button>
+                        {isGroupRoutebtn ? (
+                            <FormSubmit buttonText={'Tạo nhóm'} onButtonClick={handleCreateGroup} title={'Tạo nhóm'} openModalText={'Tạo nhóm'} needAuthorize={true}>
+                                <h3>Bảng thông tin</h3>
+                                <small>Nhập thông tin chi tiết cho nhóm mới của bạn</small>
+                                <Form>
+                                    <Form.Group id="groupName" className="mb-3 mt-3">
+                                        <Form.Label className='fw-medium'>Tên nhóm</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Nhập tên nhóm (10-25 ký tự)"
+                                            value={groupName}
+                                            onChange={(e) => setGroupName(e.target.value)}
+                                            isInvalid={!!errors.groupName}
+                                        />
+                                        <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
+                                            {errors.groupName}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+                                    <Form.Group id="groupDescription" className="mb-3">
+                                        <Form.Label className='fw-medium'>Mô tả nhóm</Form.Label>
+                                        <Form.Control
+                                            as="textarea"
+                                            rows={3}
+                                            placeholder="Nhập mô tả nhóm"
+                                            value={groupDescription}
+                                            onChange={(e) => setGroupDescription(e.target.value)}
+                                            isInvalid={!!errors.groupDescription}
+                                        />
+                                        <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
+                                            {errors.groupDescription}
+                                        </Form.Control.Feedback>
+                                    </Form.Group>
+
+                                    <Form.Group id="location" className="mb-3">
+                                        <Form.Label className='fw-medium'>Địa điểm</Form.Label>
+                                        <Form.Select value={groupLocation} onChange={(e) => setGroupLocation(e.target.value)}>
+                                            <option>Chọn địa điểm</option>
+                                            {locations.map((location) => (
+                                                <option key={location.code} value={location.name}>
+                                                    {location.name}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    </Form.Group>
+
+                                    <Form.Group id="groupImage" className="mb-3 d-flex flex-column">
+                                        <Form.Label className='fw-medium'>Ảnh bìa nhóm</Form.Label>
+                                        <Button variant="outline-primary" onClick={triggerFileInput} className="d-flex rounded-5 gap-1 alignItems-center mb-2 text-black" style={{
+                                            width: '30%',
+                                            borderStyle: 'dashed',
+                                            backgroundColor: '#f2f7ff',
+                                        }}>
+                                            Nhấn vào đây để <p className='text-primary m-0'>upload</p>
+                                        </Button>
+                                        <Form.Control
+                                            type="file"
+                                            id="fileInputGroup"
+                                            onChange={handleFileSelect}
+                                            className="d-none"
+                                        />
+                                        {isUploading ? (
+                                            <Placeholder as="div" animation="glow" className="mt-3">
+                                                <Placeholder xs={12} style={{ height: '100px', width: '100px', borderRadius: '5px' }} />
+                                            </Placeholder>
+                                        ) : (
+                                            uploadedUrl && (
+                                                <img
+                                                    src={uploadedUrl}
+                                                    alt="Ảnh bìa nhóm"
+                                                    className="mt-3"
+                                                    style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
+                                                />
+                                            )
+                                        )}
+                                        {errors.groupImageUrl && (
+                                            <div style={{ color: 'red', marginTop: '5px' }}>
+                                                {errors.groupImageUrl}
+                                            </div>
+                                        )}
+                                    </Form.Group>
+                                </Form>
+                            </FormSubmit>
+                        ) : (
                             <FormSubmit buttonText={'Tạo sự kiện'} onButtonClick={handleCreateEvent} title={'Tạo sự kiện'} openModalText={'Tạo sự kiện'} needAuthorize={true}>
                                 <h3>Bảng thông tin</h3>
                                 <small>Nhập thông tin chi tiết cho sự kiện mới của bạn</small>
@@ -379,128 +498,9 @@ function ListLayout({ children }) {
                                 </Form>
                             </FormSubmit>
                         )}
-
-                    </div>
-                </Col>
-
-                <Offcanvas show={show} onHide={handleClose} className="d-lg-none d-md-none">
-                    <Offcanvas.Header closeButton>
-                        <Offcanvas.Title>Sidebar</Offcanvas.Title>
-                    </Offcanvas.Header>
-                    <Offcanvas.Body>
-                        <SidebarList items={sidebarItemsWithActiveState} />
-                    </Offcanvas.Body>
-                </Offcanvas>
-
-                <Col lg={6} md={9} xs={12} className='p-0'>
-                    <Container className='container-list d-none d-md-flex mb-4'>
-                        <div className='search-list-container'><SearchBar /></div>
-                        <InputGroup className='search-list-container location-container'>
-                            <InputGroup.Text className="search-icon bg-white search-icon-list rounded-start-5" style={{
-                                border: '1px solid #d9d9d9'
-                            }}>
-                                <ion-icon name="location-outline" style={{
-                                    fontSize: '24px',
-                                }}></ion-icon>
-                            </InputGroup.Text>
-                            <FormControl
-                                type="search"
-                                placeholder="Địa điểm"
-                                aria-label="Search"
-                                className="searchBar-list rounded-start-0 rounded-end-5 border-start-0"
-                            />
-                        </InputGroup>
-                        <Button variant='outline-dark' className='d-flex align-items-center gap-2 rounded-5 btn-filter'>
-                            <ion-icon name="filter-outline" style={{
-                                fontSize: '24px',
-                            }}></ion-icon>
-                            Lọc
-                        </Button>
-                        <FormSubmit buttonText={'Tạo nhóm'} onButtonClick={handleCreateGroup} title={'Tạo nhóm'} openModalText={'Tạo nhóm'} needAuthorize={true}>
-                            <h3>Bảng thông tin</h3>
-                            <small>Nhập thông tin chi tiết cho nhóm mới của bạn</small>
-                            <Form>
-                                <Form.Group id="groupName" className="mb-3 mt-3">
-                                    <Form.Label className='fw-medium'>Tên nhóm</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Nhập tên nhóm (10-25 ký tự)"
-                                        value={groupName}
-                                        onChange={(e) => setGroupName(e.target.value)}
-                                        isInvalid={!!errors.groupName}
-                                    />
-                                    <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
-                                        {errors.groupName}
-                                    </Form.Control.Feedback>
-                                </Form.Group>
-                                <Form.Group id="groupDescription" className="mb-3">
-                                    <Form.Label className='fw-medium'>Mô tả nhóm</Form.Label>
-                                    <Form.Control
-                                        as="textarea"
-                                        rows={3}
-                                        placeholder="Nhập mô tả nhóm"
-                                        value={groupDescription}
-                                        onChange={(e) => setGroupDescription(e.target.value)}
-                                        isInvalid={!!errors.groupDescription}
-                                    />
-                                    <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
-                                        {errors.groupDescription}
-                                    </Form.Control.Feedback>
-                                </Form.Group>
-
-                                <Form.Group id="location" className="mb-3">
-                                    <Form.Label className='fw-medium'>Địa điểm</Form.Label>
-                                    <Form.Select value={groupLocation} onChange={(e) => setGroupLocation(e.target.value)}>
-                                        <option>Chọn địa điểm</option>
-                                        {locations.map((location) => (
-                                            <option key={location.code} value={location.name}>
-                                                {location.name}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
-                                </Form.Group>
-
-                                <Form.Group id="groupImage" className="mb-3 d-flex flex-column">
-                                    <Form.Label className='fw-medium'>Ảnh bìa nhóm</Form.Label>
-                                    <Button variant="outline-primary" onClick={triggerFileInput} className="d-flex rounded-5 gap-1 alignItems-center mb-2 text-black" style={{
-                                        width: '30%',
-                                        borderStyle: 'dashed',
-                                        backgroundColor: '#f2f7ff',
-                                    }}>
-                                        Nhấn vào đây để <p className='text-primary m-0'>upload</p>
-                                    </Button>
-                                    <Form.Control
-                                        type="file"
-                                        id="fileInputGroup"
-                                        onChange={handleFileSelect}
-                                        className="d-none"
-                                    />
-                                    {isUploading ? (
-                                        <Placeholder as="div" animation="glow" className="mt-3">
-                                            <Placeholder xs={12} style={{ height: '100px', width: '100px', borderRadius: '5px' }} />
-                                        </Placeholder>
-                                    ) : (
-                                        uploadedUrl && (
-                                            <img
-                                                src={uploadedUrl}
-                                                alt="Ảnh bìa nhóm"
-                                                className="mt-3"
-                                                style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
-                                            />
-                                        )
-                                    )}
-                                    {errors.groupImageUrl && (
-                                        <div style={{ color: 'red', marginTop: '5px' }}>
-                                            {errors.groupImageUrl}
-                                        </div>
-                                    )}
-                                </Form.Group>
-                            </Form>
-                        </FormSubmit>
                     </Container>
                     {children}
                 </Col>
-
                 <Col lg={3} className='p-0 d-none d-lg-block'>
                     {isEventRoute ? (
                         <ProposeEvent />

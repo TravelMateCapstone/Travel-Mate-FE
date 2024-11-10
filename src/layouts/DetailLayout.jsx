@@ -19,8 +19,8 @@ function DetailLayout({ children }) {
 
     const sidebarItemsEvent = [
         { iconName: 'list-circle', title: 'Danh sách sự kiện', route: RoutePath.EVENT },
-        { iconName: 'calendar-number', title: 'Sự kiện đã tham gia', route: RoutePath.EVENT_JOINED },
         { iconName: 'add-circle', title: 'Sự kiện đã tạo', route: RoutePath.EVENT_CREATED },
+        { iconName: 'calendar-number', title: 'Sự kiện tham gia', route: RoutePath.EVENT_JOINED },
     ];
     const currentPath = location.pathname;
     useEffect(() => {

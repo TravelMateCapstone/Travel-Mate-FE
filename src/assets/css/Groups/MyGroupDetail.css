@@ -149,3 +149,10 @@
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.17);
   border: 0px !important;
 }
+.description_short {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}

@@ -41,23 +41,47 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
   return (
     <div>
       {(location.pathname === RoutePath.GROUP || location.pathname === RoutePath.GROUP_CREATED || location.pathname === RoutePath.GROUP_JOINED) ? (
-        <Button onClick={openModal} variant='success' className='p-1 rounded-5 mybuttonCreateGroup' style={{
-          width: '40px',
-          height: '40px',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          background: '#34A853',
-          border: '1px solid #34A853',
-        }}>
-          <ion-icon name="add-outline" style={{ fontSize: '20px' }}></ion-icon>
+        <Button
+          onClick={openModal}
+          variant='success'
+          className='rounded-5 d-flex gap-1 mybuttonCreateGroup'
+          style={{
+            height: '40px',
+            width: 'fit-content',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            background: '#34A853',
+            border: '1px solid #34A853',
+          }}
+        >
+          <p className='m-0'>Tạo nhóm</p>
+          <ion-icon name="add-circle" style={{ fontSize: '20px' }}></ion-icon>
+        </Button>
+      ) : (location.pathname === RoutePath.EVENT || location.pathname === RoutePath.EVENT_JOINED || location.pathname === RoutePath.EVENT_CREATED) ? (
+        // Trường hợp Tạo sự kiện
+        <Button
+          onClick={openModal}
+          variant='primary'
+          className='rounded-5 d-flex gap-1 mybuttonCreateEvent'
+          style={{
+            height: '40px',
+            width: 'fit-content',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            background: '#34A853',
+            border: '1px solid #34A853',
+          }}
+        >
+          <p className='m-0'>Tạo sự kiện</p>
+          <ion-icon name="add-circle" style={{ fontSize: '20px' }}></ion-icon>
         </Button>
       ) : (
         <Button onClick={openModal} variant='outline-dark' className='w-100 rounded-5 mybutton'>
           {openModalText}
         </Button>
       )}
-
       <Modal
         isOpen={isOpen || isGroupEditModalOpen}
         onRequestClose={closeModal}
@@ -74,7 +98,7 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
             padding: '30px 70px',
             borderRadius: '20px',
             width: '897px',
-            maxHeight: '80vh',
+            maxHeight: '100vh',
             position: 'relative',
             display: 'flex',
             flexDirection: 'column', // Thêm dòng này để sắp xếp các phần của modal theo chiều dọc

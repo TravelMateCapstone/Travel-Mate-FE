@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { useSelector } from 'react-redux';
 import '../../assets/css/Groups/CommentPostGroupDetail.css'
-import { Button, Modal } from 'react-bootstrap';
 
 const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -12,7 +11,6 @@ const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) =
   const editTextareaRef = useRef(null);
   const [isLongComment, setIsLongComment] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     // Kiểm tra chiều cao của phần tử để xác định nếu bình luận vượt quá 2 dòng
@@ -79,7 +77,7 @@ const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) =
                 boxShadow: '0px 0px 8px rgba(0,0,0,0.25)',
               }}>
                 <Dropdown.Item onClick={() => setIsEditing(true)}>Sửa bình luận</Dropdown.Item>
-                <Dropdown.Item onClick={() => setShowDeleteModal(true)}>Xóa bình luận</Dropdown.Item>
+                <Dropdown.Item onClick={() => onDeleteComment(comment.postCommentId)}>Xóa bình luận</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           )}
@@ -94,8 +92,8 @@ const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) =
               className="w-100 mb-2 p-2 rounded-4"
               style={{ border: '1px solid #d9d9d9', background: '#f9f9f9', height: '100%' }}
             />
-            <button className="btn btn-success btn-sm rounded-5" onClick={handleSaveEdit}>Lưu</button>
-            <button className="btn btn-secondary btn-sm ms-2 rounded-5" onClick={() => setIsEditing(false)}>Hủy</button>
+            <button className="btn btn-success btn-sm" onClick={handleSaveEdit}>Lưu</button>
+            <button className="btn btn-secondary btn-sm ms-2" onClick={() => setIsEditing(false)}>Hủy</button>
           </div>
         ) : (
           <div className="comment_content_wrapper">
@@ -113,40 +111,6 @@ const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) =
           </div>
         )}
       </div>
-
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered className="custom-modal_deletPostGroup">
-        <Modal.Body className="custom-modal-body">
-          <div>
-            <ion-icon name="warning-outline" style={
-              {
-                fontSize: '30px',
-                color: '#AC0B0B',
-              }
-            }></ion-icon>
-          </div>
-          <p className='mb-0 fw-medium text-black'>Bạn có muốn xóa không ?</p>
-          <p className='m-0' style={{
-            fontSize: '12px',
-            color: '#6E6E6E',
-          }}>Sau khi xóa bạn không thể hoàn tác</p>
-        </Modal.Body>
-        <Modal.Footer className='d-flex gap-3 justify-content-center'>
-          <Button variant="" onClick={() => setShowDeleteModal(false)}>
-            Hủy
-          </Button>
-          <Button variant="" onClick={() => {
-            onDeleteComment(comment.postCommentId);
-            setShowDeleteModal(false);
-          }}
-            className='rounded-5'
-            style={{
-              background: '#AC0B0B',
-              color: '#fff',
-            }}>
-            Xóa bình luận
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </div>
   );
 };

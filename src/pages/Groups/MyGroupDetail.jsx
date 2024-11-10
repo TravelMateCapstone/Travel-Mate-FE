@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PostGroupDetail from '../../components/Group/PostGroupDetail';
 import '../../assets/css/Groups/MyGroupDetail.css';
@@ -29,11 +29,13 @@ const MyGroupDetail = () => {
   const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const editTextareaRef = useRef(null);
 
   const [description, setDescription] = useState(groupDataRedux?.description || groupDataRedux?.text || '');
   const [location, setLocation] = useState(groupDataRedux?.location || '');
   const [bannerImage, setBannerImage] = useState(groupDataRedux?.img || groupDataRedux.groupImageUrl || '');
   const [groupName, setGroupName] = useState(groupDataRedux?.title || groupDataRedux.groupName || '');
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   useEffect(() => {
     setGroupData(groupDataRedux);
@@ -49,6 +51,10 @@ const MyGroupDetail = () => {
   const autoResize = (e) => {
     e.target.style.height = 'auto';
     e.target.style.height = `${e.target.scrollHeight}px`;
+  };
+
+  const toggleDescription = () => {
+    setShowFullDescription(!showFullDescription);
   };
 
   const handleGroupNameChange = (e) => {
@@ -224,8 +230,6 @@ const MyGroupDetail = () => {
           }}>
             <Dropdown.Item className='form_edit_group'>
               <FormSubmit openModalText={'Chỉnh sửa thông tin'} title={'Chỉnh sửa thông tin nhóm'} buttonText={'Lưu thay đổi'} onButtonClick={updateGroup}>
-                <h4 className='fw-bold'>Bảng thông tin</h4>
-                <p>Thay đổi thông tin chi tiết cho nhóm của bạn</p>
                 <h4>Tên nhóm</h4>
                 <input
                   type="text"
@@ -238,6 +242,7 @@ const MyGroupDetail = () => {
                 {errorMessage && <p className="text-danger">{errorMessage}</p>}
                 <h4>Miêu tả</h4>
                 <textarea
+
                   placeholder='Nhập miêu tả'
                   className='mb-3 border-1 rounded-4 p-3 w-100 description_group'
                   value={description}
@@ -316,7 +321,23 @@ const MyGroupDetail = () => {
       <p className='fw-medium d-flex align-items-center gap-2 my-1'><ion-icon name="people-outline" style={{
         fontSize: '20px',
       }}></ion-icon> {groupDataRedux.members || groupDataRedux.numberOfParticipants} thành viên</p>
-      <p className='m-0'>{groupDataRedux.text || groupDataRedux.description}</p>
+      <p className={`m-0 ${showFullDescription ? '' : 'description_short'}`}>
+        {groupDataRedux.text || groupDataRedux.description}
+      </p>
+      {!showFullDescription && (groupDataRedux.description || groupDataRedux.text).length > 100 && (
+        <button className='btn p-0' onClick={toggleDescription} style={{
+          color: '#007931',
+        }}>
+          Xem thêm
+        </button>
+      )}
+      {showFullDescription && (
+        <button className='btn p-0' style={{
+          color: '#007931',
+        }} onClick={toggleDescription}>
+          Thu gọn
+        </button>
+      )}
       <hr className='mt-4 mb-5 line_spit' />
 
       <div className='write_post_container mb-5'>

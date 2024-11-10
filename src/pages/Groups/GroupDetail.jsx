@@ -29,8 +29,11 @@ const GroupDetail = () => {
   const [location, setLocation] = useState(groupDataRedux?.location || '');
   const [bannerImage, setBannerImage] = useState(groupDataRedux?.img || groupDataRedux.groupImageUrl || '');
   const [groupName, setGroupName] = useState(groupDataRedux?.text || groupDataRedux.groupName || '');
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
-
+  const toggleDescription = () => {
+    setShowFullDescription(!showFullDescription);
+  };
 
   useEffect(() => {
     setGroupData(groupDataRedux);
@@ -185,9 +188,26 @@ const GroupDetail = () => {
       <p className='fw-medium d-flex align-items-center gap-2 my-1'><ion-icon name="people-outline" style={{
         fontSize: '20px',
       }}></ion-icon> {groupDataRedux.members || groupDataRedux.numberOfParticipants} thành viên</p>
-      <p className='m-0'>{groupDataRedux.text || groupDataRedux.description}</p>
 
-      <hr className='mt-4 mb-5 line_spit'/>
+      <p className={`m-0 ${showFullDescription ? '' : 'description_short'}`}>
+        {groupDataRedux.text || groupDataRedux.description}
+      </p>
+      {!showFullDescription && (groupDataRedux.description || groupDataRedux.text).length > 100 && (
+        <button className='btn p-0' onClick={toggleDescription} style={{
+          color: '#007931',
+        }}>
+          Xem thêm
+        </button>
+      )}
+      {showFullDescription && (
+        <button className='btn p-0' style={{
+          color: '#007931',
+        }} onClick={toggleDescription}>
+          Thu gọn
+        </button>
+      )}
+
+      <hr className='mt-4 mb-5 line_spit' />
 
 
       <div className='write_post_container mb-5'>
