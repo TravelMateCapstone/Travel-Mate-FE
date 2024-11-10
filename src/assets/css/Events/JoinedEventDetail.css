@@ -29,6 +29,10 @@
     color: green !important;
 }
 
+.form-event-status:hover {
+    color: white !important;
+}
+
 
 .event-name-inf {
     font-size: 32px;

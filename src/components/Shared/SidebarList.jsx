@@ -49,7 +49,7 @@ function SidebarList({ items }) {
                             marginBottom: '15px',
                         }}
                     >
-                        <ion-icon name={item.iconName} style={{ fontSize: '37px', marginRight: '10px' }}></ion-icon>
+                        <ion-icon name={item.iconName} style={{ fontSize: '30px', marginRight: '10px' }}></ion-icon>
                         <span style={{ fontSize: '16px' }} className='fw-medium'>{item.title}</span>
                     </div>
                 </Link>

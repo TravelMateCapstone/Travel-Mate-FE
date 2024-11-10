@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Button } from 'react-bootstrap';
 import Skeleton from 'react-loading-skeleton'; // Import Skeleton
 import 'react-loading-skeleton/dist/skeleton.css'; // Import CSS cho Skeleton
@@ -10,20 +10,38 @@ import axios from 'axios';
 import { viewEvent } from '../../redux/actions/eventActions';
 import { toast } from 'react-toastify';
 
-const EventCard = ({ id, img, startTime, endTime, title, location, members, text }) => {
+const EventCard = ({ id, img, startTime, endTime, title, location, text }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const locationPath = useLocation();
     const token = useSelector((state) => state.auth.token);
 
     const [loading, setLoading] = useState(false); // State loading
+    const [participantCount, setParticipantCount] = useState(null); // State participant count
 
     const isJoinedPath = locationPath.pathname.includes('/event/joined');
     const isCreatedPath = locationPath.pathname.includes('/event/created');
     const isEventPage = locationPath.pathname.includes('/event');
 
+    useEffect(() => {
+        const fetchParticipantCount = async () => {
+            try {
+                const response = await axios.get(
+                    `https://travelmateapp.azurewebsites.net/api/EventParticipants/event/${id}/count-user-join`
+                );
+                if (response.status === 200) {
+                    setParticipantCount(response.data.participantCount);
+                }
+            } catch (error) {
+                console.error("Error fetching participant count:", error);
+            }
+        };
+
+        fetchParticipantCount();
+    }, [id]);
+
     const handleViewOrJoinEvent = async () => {
-        const selectedEvent = { id, img, startTime, endTime, title, location, members, text };
+        const selectedEvent = { id, img, startTime, endTime, title, location, participantCount, text };
 
         if (isJoinedPath) {
             // Xem chi tiết khi đã tham gia sự kiện
@@ -58,10 +76,21 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
         }
     };
 
+    const handleCardClick = () => {
+        const selectedEvent = { id, img, startTime, endTime, title, location, participantCount, text };
+        dispatch(viewEvent(selectedEvent));
+        localStorage.setItem('selectedEvent', JSON.stringify(selectedEvent));
+        if (isCreatedPath) {
+            navigate(RoutePath.EVENT_MANAGEMENT);
+        } else if (isEventPage || isJoinedPath) {
+            navigate(RoutePath.EVENT_DETAILS);
+        }
+    };
+
     const buttonText = isCreatedPath ? "Quản lý sự kiện" : isJoinedPath ? "Xem chi tiết" : "Tham gia";
 
     return (
-        <Card className="eventlist-card">
+        <Card className="eventlist-card" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
             {loading ? (
                 <>
                     <Skeleton height={180} />
@@ -83,7 +112,7 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
                             </span>
                             <span className="group-card-members d-flex align-items-center">
                                 <ion-icon name="people-outline" style={{ fontSize: '19px' }}></ion-icon>
-                                <p className='m-0' style={{ fontSize: '12px' }}>{members || <Skeleton width={40} />}</p>
+                                <p className='m-0' style={{ fontSize: '12px' }}>{participantCount !== null ? participantCount : <Skeleton width={40} />}</p>
                             </span>
                         </div>
                         <Card.Title className='event-title'>
@@ -95,7 +124,7 @@ const EventCard = ({ id, img, startTime, endTime, title, location, members, text
                         <Button
                             variant="outline-success"
                             className="btn-join rounded-5 event-card-button"
-                            onClick={handleViewOrJoinEvent}
+                            onClick={(e) => { e.stopPropagation(); handleViewOrJoinEvent(); }}
                             disabled={loading} // Disable button when loading
                         >
                             <div>{buttonText || <Skeleton width={100} />}</div>

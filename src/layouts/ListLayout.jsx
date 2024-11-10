@@ -250,6 +250,24 @@ function ListLayout({ children }) {
             toast.error('Đã xảy ra lỗi khi tạo sự kiện');
         }
     };
+    const handleDeleteImage = () => {
+        setUploadedEventUrl('');
+        setEventImage('');
+        setShowUploadButton(true); // Hiển thị nút upload khi ảnh bị xóa
+    };
+
+
+    const [showViewImage, setShowViewImage] = useState(false);
+    const [imageToView, setImageToView] = useState('');
+
+    const handleView = (imageUrl) => {
+        setImageToView(imageUrl);
+        setShowViewImage(true);
+    };
+
+    const handleCloseView = () => {
+        setShowViewImage(false);
+    };
 
     return (
         <Container fluid className='container-main'>
@@ -481,12 +499,43 @@ function ListLayout({ children }) {
                                             </Placeholder>
                                         ) : (
                                             uploadedEventUrl && (
-                                                <img
-                                                    src={uploadedEventUrl}
-                                                    alt="Ảnh đại diện sự kiện"
-                                                    className="ms-3 mt-3"
-                                                    style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
-                                                />
+                                                <div className="position-relative mt-3">
+                                                    <img
+                                                        src={uploadedEventUrl || eventImage}
+                                                        alt="Ảnh đại diện sự kiện"
+                                                        className="ms-3 mt-3"
+                                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '5px', marginBottom: '50px' }}
+                                                    />
+                                                    <ion-icon
+                                                        name="eye-outline"
+                                                        style={{
+                                                            color: 'white',
+                                                            cursor: 'pointer',
+                                                            position: 'absolute',
+                                                            top: '40%',
+                                                            right: '50%',
+                                                            fontSize: '32px',
+                                                            borderRadius: '50%',
+                                                            padding: '3px'
+                                                        }}
+                                                        onClick={() => handleView(uploadedEventUrl || eventImage)}
+                                                    ></ion-icon>
+
+                                                    <ion-icon
+                                                        name="trash-outline"
+                                                        style={{
+                                                            color: 'white',
+                                                            cursor: 'pointer',
+                                                            position: 'absolute',
+                                                            top: '40%',
+                                                            right: '25%',
+                                                            fontSize: '32px',
+                                                            borderRadius: '50%',
+                                                            padding: '3px'
+                                                        }}
+                                                        onClick={handleDeleteImage}
+                                                    ></ion-icon>
+                                                </div>
                                             )
                                         )}
                                         {errors.uploadedEventUrl && (
@@ -513,7 +562,17 @@ function ListLayout({ children }) {
                     <Footer />
                 </Col>
             </Row>
+            {showViewImage && (
+                <div className="fullscreen-image-container" onClick={handleCloseView}>
+                    <img
+                        src={imageToView}
+                        alt="Ảnh phóng to sự kiện"
+                        className="fullscreen-image"
+                    />
+                </div>
+            )}
         </Container>
+
     );
 }
 

@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Dropdown, Form, Modal } from 'react-bootstrap';
+import { Button, Dropdown, Form, Modal, Placeholder } from 'react-bootstrap';
 import '../../assets/css/Events/EventCreated.css';
 import axios from 'axios';
-import FormSubmit from '../../components/Shared/FormSubmit';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useSelector } from 'react-redux';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
+import { storage } from '../../../firebaseConfig';
+import { toast } from 'react-toastify';
+import FormSubmit from '../../components/Shared/FormSubmit';
 
 function EventCreated() {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -82,39 +85,30 @@ function EventCreated() {
 
   function formatDate(inputDateStr) {
     try {
-      // Kiểm tra xem chuỗi có trống hoặc không hợp lệ
       if (!inputDateStr || typeof inputDateStr !== 'string') {
         throw new Error("Input is not a valid string");
       }
 
-      // Tách chuỗi thành các phần: giờ, phút, AM/PM và ngày/tháng/năm
       const [time, period, date] = inputDateStr.split(' ');
       if (!time || !period || !date) throw new Error("Invalid date format");
 
-      // Tách giờ và phút
       const [hourStr, minuteStr] = time.split(':');
       let hour = parseInt(hourStr, 10);
       let minute = parseInt(minuteStr, 10);
       if (isNaN(hour) || isNaN(minute)) throw new Error("Invalid time format");
 
-      // Tách ngày, tháng, năm
       const [day, month, year] = date.split('/').map(Number);
       if (!day || !month || !year || isNaN(day) || isNaN(month) || isNaN(year)) {
         throw new Error("Invalid date components");
       }
-
-      // Chuyển đổi giờ sang định dạng 24h nếu cần
       if (period === 'PM' && hour !== 12) {
         hour += 12;
       } else if (period === 'AM' && hour === 12) {
         hour = 0;
       }
-
-      // Tạo đối tượng Date
       const dateObj = new Date(year, month - 1, day, hour, minute);
       if (isNaN(dateObj.getTime())) throw new Error("Invalid Date Object");
 
-      // Chuyển đổi sang định dạng ISO với chỉ ngày và thời gian
       return dateObj.toISOString().slice(0, -8);
     } catch (error) {
       console.error("Date formatting error:", error.message);
@@ -123,23 +117,38 @@ function EventCreated() {
   }
 
   const handleEditEventSubmit = async () => {
-    const updatedEventData = {
-      eventName,
-      description: eventDescription,
-      eventImageUrl: eventImage,
-      createAt: selectedEvent.createAt,
-      startAt,
-      endAt,
-      eventLocation,
-    };
+    const createAt = selectedEvent.createAt || new Date().toISOString();
 
     try {
-      await axios.put(`https://travelmateapp.azurewebsites.net/api/EventControllerWOO/edit-by-current-user/${selectedEvent.id}`, updatedEventData, {
-        headers: { Authorization: `${token}` }
-      });
+      const imageToUpdate = uploadedEventUrl || eventImage;
 
+      const updatedEventData = {
+        eventName,
+        description: eventDescription,
+        eventImageUrl: imageToUpdate,
+        createAt,
+        startAt: formatDate(startAt),
+        endAt: formatDate(endAt),
+        eventLocation,
+      };
+
+      // Log dữ liệu để kiểm tra
+      console.log("Dữ liệu sự kiện cập nhật:", updatedEventData);
+
+      const response = await axios.put(
+        `https://travelmateapp.azurewebsites.net/api/EventControllerWOO/edit-by-current-user/${selectedEvent.id}`,
+        updatedEventData,
+        {
+          headers: { Authorization: `${token}` },
+        }
+      );
+
+      console.log("Response từ server:", response.data);
+
+      // Cập nhật lại trạng thái của selectedEvent và eventImage
       const updatedEvent = { ...selectedEvent, ...updatedEventData };
       setSelectedEvent(updatedEvent);
+      setEventImage(imageToUpdate); // Cập nhật lại eventImage để hiển thị ảnh mới
       localStorage.setItem('selectedEvent', JSON.stringify(updatedEvent));
 
       alert('Lưu thay đổi thành công!');
@@ -148,7 +157,6 @@ function EventCreated() {
       console.error('Lỗi khi cập nhật sự kiện:', error);
       alert('Lỗi khi lưu thay đổi.');
     }
-
   };
 
   const handleDeleteEvent = async () => {
@@ -164,6 +172,78 @@ function EventCreated() {
         alert('Lỗi khi xóa sự kiện. Vui lòng thử lại sau.');
       }
     }
+  };
+
+  const handleRemoveMember = async (userId) => {
+    console.log("ev", selectedEvent.id);
+    console.log("us", userId);
+    if (window.confirm('Bạn có chắc chắn muốn gỡ người này khỏi sự kiện?')) {
+      try {
+        await axios.delete(`https://travelmateapp.azurewebsites.net/api/EventParticipants/${selectedEvent.id}/${userId}`, {
+          headers: { Authorization: `${token}` },
+        });
+        toast.success('Đã gỡ người tham gia khỏi sự kiện!');
+        setMembers(prevMembers => prevMembers.filter(member => member.id !== userId));
+        window.location.reload();
+      } catch (error) {
+        console.error('Lỗi khi gỡ người tham gia khỏi sự kiện:', error);
+        toast.error('Lỗi khi gỡ người tham gia. Vui lòng thử lại sau.');
+      }
+    }
+  };
+
+  const [filePlaceholder, setFilePlaceholder] = useState('');
+  const [tempImageUrl, setTempImageUrl] = useState('');
+  const [uploadedEventUrl, setUploadedEventUrl] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [showUploadButton, setShowUploadButton] = useState(false);
+
+  const handleFileSelectForEvent = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setIsUploading(true);
+      const storageRef = ref(storage, `events/${file.name}`);
+      try {
+        await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(storageRef);
+        setUploadedEventUrl(url);
+        setEventImage(''); // Xóa ảnh mặc định khi upload ảnh mới
+        setShowUploadButton(false); // Ẩn nút upload khi có ảnh mới
+        toast.success('Ảnh đã được tải lên thành công');
+      } catch (error) {
+        console.error("Error uploading file:", error);
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          uploadedEventUrl: 'Lỗi khi tải lên ảnh sự kiện',
+        }));
+        toast.error('Lỗi khi tải lên ảnh sự kiện');
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
+  const triggerFileInputEvent = () => {
+    document.getElementById('fileInputEvent').click();
+  };
+
+  const handleDeleteImage = () => {
+    setUploadedEventUrl('');
+    setEventImage('');
+    setShowUploadButton(true); // Hiển thị nút upload khi ảnh bị xóa
+  };
+
+  const [showViewImage, setShowViewImage] = useState(false);
+  const [imageToView, setImageToView] = useState('');
+
+  const handleView = (imageUrl) => {
+    setImageToView(imageUrl);
+    setShowViewImage(true);
+  };
+
+  const handleCloseView = () => {
+    setShowViewImage(false);
   };
 
   if (!selectedEvent) {
@@ -289,7 +369,7 @@ function EventCreated() {
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="dropdown-menu">
                   <Dropdown.Item href="#">Xem hồ sơ</Dropdown.Item>
-                  <Dropdown.Item href="#">Gỡ</Dropdown.Item>
+                  <Dropdown.Item href="#" onClick={() => handleRemoveMember(member.userId)}>Gỡ</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </div>
@@ -362,21 +442,90 @@ function EventCreated() {
                 </Form.Group>
               </div>
 
-              <Form.Group id="eventImage" className="mb-3 mt-3">
-                <Form.Label className='fw-bold'>Ảnh sự kiện</Form.Label>
+              {/* Bắt đầu phần tải lên ảnh */}
+              <Form.Group id="eventImage" className="mb-3 position-relative">
+                <Form.Label>Ảnh sự kiện</Form.Label>
+
+                {uploadedEventUrl || eventImage ? (
+                  <div className="position-relative mt-3">
+                    <img
+                      src={uploadedEventUrl || eventImage}
+                      alt="Ảnh đại diện sự kiện"
+                      className="ms-3 mt-3"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '5px', marginBottom: '50px' }}
+                    />
+                    <ion-icon
+                      name="eye-outline"
+                      style={{
+                        color: 'white',
+                        cursor: 'pointer',
+                        position: 'absolute',
+                        top: '40%',
+                        right: '50%',
+                        fontSize: '32px',
+                        borderRadius: '50%',
+                        padding: '3px'
+                      }}
+                      onClick={() => handleView(uploadedEventUrl || eventImage)}
+                    ></ion-icon>
+
+                    <ion-icon
+                      name="trash-outline"
+                      style={{
+                        color: 'white',
+                        cursor: 'pointer',
+                        position: 'absolute',
+                        top: '40%',
+                        right: '25%',
+                        fontSize: '32px',
+                        borderRadius: '50%',
+                        padding: '3px'
+                      }}
+                      onClick={handleDeleteImage}
+                    ></ion-icon>
+                  </div>
+                ) : (
+                  showUploadButton && (
+                    <Button onClick={triggerFileInputEvent} className="w-100 mb-2 upload-img">
+                      Nhấn vào đây để <span className="upload">upload</span>
+                    </Button>
+                  )
+                )}
+
                 <Form.Control
-                  required
-                  type="text"
-                  value={eventImage}
-                  onChange={(e) => setEventImage(e.target.value)}
+                  type="file"
+                  id="fileInputEvent"
+                  onChange={handleFileSelectForEvent}
+                  className="d-none"
                 />
+
+                {isUploading && (
+                  <Placeholder as="div" animation="glow" className="mt-3">
+                    <Placeholder xs={12} style={{ height: '100px', width: '100px', borderRadius: '5px' }} />
+                  </Placeholder>
+                )}
+
+                {errors.uploadedEventUrl && (
+                  <div style={{ color: 'red', marginTop: '5px' }}>
+                    {errors.uploadedEventUrl}
+                  </div>
+                )}
               </Form.Group>
-
-
             </Form>
           </FormSubmit>
         </div>
       )}
+      {/* Container để hiển thị ảnh phóng to mà không cần Modal */}
+      {showViewImage && (
+        <div className="fullscreen-image-container" onClick={handleCloseView}>
+          <img
+            src={imageToView}
+            alt="Ảnh phóng to sự kiện"
+            className="fullscreen-image"
+          />
+        </div>
+      )}
+
     </div>
   );
 }
