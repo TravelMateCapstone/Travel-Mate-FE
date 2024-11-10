@@ -5,7 +5,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { openLoginModal } from '../../redux/actions/modalActions';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { useLocation } from 'react-router-dom';
+import RoutePath from '../../routes/RoutePath';
+import '../../assets/css/Shared/FormSubmit.css';
 // Đặt vị trí modal vào root của ứng dụng để đảm bảo nó hiển thị chính xác
 Modal.setAppElement('#root');
 
@@ -14,7 +16,7 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token); // Get token from Redux store
   const isGroupEditModalOpen = useSelector((state) => state.modal.isGroupEditModalOpen);
-
+  const location = useLocation();
   
   
   const openModal = () => {
@@ -34,12 +36,28 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
   }, [autoOpen]);
   const closeModal = () => setIsOpen(false);
 
+  
+
   return (
     <div>
-      {/* Nút mở modal */}
-      <Button onClick={openModal} variant='outline-dark' className='w-100 rounded-5 mybutton'>{openModalText}</Button>
+      {(location.pathname === RoutePath.GROUP || location.pathname === RoutePath.GROUP_CREATED || location.pathname === RoutePath.GROUP_JOINED) ? (
+        <Button onClick={openModal} variant='success' className='p-1 rounded-5 mybuttonCreateGroup' style={{
+          width: '40px',
+          height: '40px',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          background: '#34A853',
+          border: '1px solid #34A853',
+        }}>
+          <ion-icon name="add-outline" style={{ fontSize: '20px' }}></ion-icon>
+        </Button>
+      ) : (
+        <Button onClick={openModal} variant='outline-dark' className='w-100 rounded-5 mybutton'>
+          {openModalText}
+        </Button>
+      )}
 
-      {/* React Modal */}
       <Modal
         isOpen={isOpen || isGroupEditModalOpen}
         onRequestClose={closeModal}

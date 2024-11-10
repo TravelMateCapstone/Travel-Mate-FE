@@ -31,12 +31,12 @@
   background: transparent;
 }
 .button_action_comment {
-  height: 30px;
-  width: 30px;
   border-radius: 50%;
+   border: 0px;
 }
 .button_action_comment:hover {
   color: #409034;
+ 
 }
 .container_write_comment {
   padding: 20px;

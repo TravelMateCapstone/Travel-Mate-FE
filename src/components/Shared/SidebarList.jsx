@@ -44,8 +44,8 @@ function SidebarList({ items }) {
                         style={{
                             padding: '7px 45px',
                             transition: 'background-color 0.3s',
-                            backgroundColor: item.isActive ? '#409034' : 'transparent',
-                            color: item.isActive ? '#fff' : 'inherit', // Màu chữ khi đang active
+                            backgroundColor: item.isActive ? 'transparent' : 'transparent',
+                            color: item.isActive ? '#409034ff' : 'black', // Màu chữ khi đang active
                             marginBottom: '15px',
                         }}
                     >

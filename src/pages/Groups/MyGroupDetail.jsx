@@ -297,7 +297,7 @@ const MyGroupDetail = () => {
       <div className='write_post_container mb-5'>
         <div className='d-flex align-items-center gap-3'>
           <img src={user.avatarUrl} alt="" width={50} height={50} className='rounded-circle' />
-          <h5 className='m-0'>{user.username}</h5>
+          <h5 className='m-0'>{user.FullName}</h5>
         </div>
         <textarea name="" id="post_title" placeholder='Bạn đang nghĩ gì... ?' onInput={autoResize} ></textarea>
         <input

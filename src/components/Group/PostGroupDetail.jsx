@@ -25,8 +25,6 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
   const groupDataRedux = useSelector((state) => state.group.selectedGroup);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false); // Thêm trạng thái cho Emoji Picker
 
-
-
   useEffect(() => {
     if (post.groupPostPhotos && post.groupPostPhotos.$values) setUploadedImages(post.groupPostPhotos.$values);
     if (showComments) fetchComments();
@@ -127,7 +125,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
       // Thêm thông tin người dùng hiện tại vào bình luận mới
       const newCommentData = {
         ...response.data,
-        commentor: user.username, // Thêm tên người bình luận
+        commentor: user.FullName, // Thêm tên người bình luận
         commentorAvatar: user.avatarUrl // Thêm avatar người bình luận
       };
       setComments((prev) => [...prev, newCommentData]);
@@ -177,7 +175,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
     setNewComment((prev) => prev + emojiData.emoji);
     setShowEmojiPicker(false);
   };
-  
+
 
   const toggleEmojiPicker = () => setShowEmojiPicker((prev) => !prev); // Mở/đóng Emoji Picker
 
@@ -185,7 +183,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
   return (
     <div className="post mb-3" style={{ borderBottom: '1px solid #ccc' }}>
       <div className="d-flex align-items-center gap-3">
-        <img src={post.postCreatorAvatar || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'} alt="avatar" width={70} height={70} className="rounded-circle" />
+        <img src={post.postCreatorAvatar || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'} alt="avatar" width={70} height={70} className="rounded-circle object-fit-cover" />
         <div className="d-flex justify-content-between w-100">
           <div>
             <h5 className="m-0">{post.postCreatorName || post.commentor}</h5>
@@ -254,28 +252,38 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
           )}
         </div>
       </div>
-      <p>{post.title}</p>
+      <p className='mt-3 mb-4'>{post.title}</p>
       {post.groupPostPhotos && (
         <div className="images_post_container">
           {post.groupPostPhotos.$values.map((image, index) => (
-            <img key={index} src={image.photoUrl} alt="Post image" />
+            <img key={index} src={image.photoUrl} className='object-fit-cover' alt="Post image" />
           ))}
         </div>
       )}
-      <div className="d-flex gap-3 my-3">
-        <Button variant="" className="p-0 button_action_comment rounded-circle d-flex align-items-center justify-content-center" onClick={handleToggleComments}>
-          <ion-icon name="chatbubble-outline" style={{
-            fontSize: '30px',
-          }}></ion-icon>
+      <div className="d-flex gap-5 mb-3 mt-5">
+        <Button
+          variant=""
+          className="p-0 button_action_comment rounded-circle d-flex gap-2 align-items-center justify-content-center"
+          onClick={handleToggleComments}
+        >
+          <ion-icon
+            name="chatbubble-outline"
+            style={{
+              fontSize: '30px',
+            }}
+          ></ion-icon>
+          {showComments ? `${comments.length} Bình luận` : 'Bình luận'}
         </Button>
-        <Button variant="" className="button_action_comment p-0 rounded-circle d-flex align-items-center justify-content-center">
+
+        <Button variant="" className="button_action_comment p-0 gap-2 rounded-circle d-flex align-items-center justify-content-center">
           <ion-icon name="share-social-outline" style={{
             fontSize: '30px',
-          }}></ion-icon>
+          }}></ion-icon> Chia sẻ
         </Button>
       </div>
       {showComments && (
         <div>
+          <hr/>
           <div className="comments w-100 mt-3">
             {comments.slice(0, visibleComments).map((comment, index) => (
               <CommentPostGroupDetail

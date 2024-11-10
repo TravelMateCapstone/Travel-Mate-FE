@@ -128,21 +128,24 @@
 /* Ensure border remains black on focus */
 .search-list-container .searchBar-list,
 .location-container .FormControl .myInput {
-    border-color: rgb(156, 145, 145) !important;
+    border-color: #d9d9d9 !important;
+    color: black !important;
 }
 
 .search-list-container .searchBar-list:focus,
 .location-container .FormControl:focus,
 .search-icon-list:focus {
-    border-color: black !important;
+    border-color: #d9d9d9 !important;
     /* Keeps border black on focus */
     box-shadow: none !important;
     /* Removes any focus outline or shadow */
+    background-color: #f7f7f7 !important;
 }
 
 .search-icon-list {
-    border-color: black !important;
+    border-color: #d9d9d9 !important;
 }
+
 
 
 @media (max-width: 1024px) {

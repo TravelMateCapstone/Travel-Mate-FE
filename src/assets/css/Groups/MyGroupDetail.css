@@ -6,8 +6,8 @@
   margin-bottom: 25px;
 }
 .my_group_detail_container {
-  border-left: 1px solid #d9d9d9;
-  padding: 0px 150px 0px 52px;
+
+  padding-right: 152px;
 }
 .write_post_container {
   border: 1px solid #d9d9d9;
@@ -20,6 +20,7 @@
   outline: none;
   border: 0px;
   margin-top: 5px;
+  text-align: justify;
 }
 .uploaded_img_container {
   display: flex;
@@ -132,3 +133,10 @@
   color: black; /* Màu chữ khi hover */
   border-radius: 20px; /* Bo góc khi hover */
 }
+
+/* Điều chỉnh thanh hr dịch sang trái */
+.my_group_detail_container hr {
+  margin-left: -86px;
+  width: calc(100% + 86px); /* Chiều rộng cộng thêm phần bị dịch sang trái */
+}
+
