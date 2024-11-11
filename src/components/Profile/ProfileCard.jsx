@@ -17,43 +17,28 @@ function ProfileCard() {
   const location = useLocation();
 
   useEffect(() => {
-    // Lấy dữ liệu từ localStorage nếu có
-    const storedProfile = localStorage.getItem("profile");
-    const storedLanguages = localStorage.getItem("languages");
-    const storedEducation = localStorage.getItem("education");
+    const fetchProfileData = async () => {
+      try {
+        const profileResponse = await axios.get(`${url}/api/Profile/current-profile`, {
+          headers: { Authorization: `${token}` },
+        });
+        setProfile(profileResponse.data);
 
-    if (storedProfile && storedLanguages && storedEducation) {
-      setProfile(JSON.parse(storedProfile));
-      setLanguages(JSON.parse(storedLanguages));
-      setEducation(JSON.parse(storedEducation));
-    } else {
-      // Nếu chưa có trong localStorage, gọi API và lưu dữ liệu vào localStorage
-      const fetchProfileData = async () => {
-        try {
-          const profileResponse = await axios.get(`${url}/api/Profile/current-profile`, {
-            headers: { Authorization: `${token}` },
-          });
-          setProfile(profileResponse.data);
-          localStorage.setItem("profile", JSON.stringify(profileResponse.data));
+        const languagesResponse = await axios.get(`${url}/api/SpokenLanguages/current-user`, {
+          headers: { Authorization: `${token}` },
+        });
+        setLanguages(languagesResponse.data.$values);
 
-          const languagesResponse = await axios.get(`${url}/api/SpokenLanguages/current-user`, {
-            headers: { Authorization: `${token}` },
-          });
-          setLanguages(languagesResponse.data.$values);
-          localStorage.setItem("languages", JSON.stringify(languagesResponse.data.$values));
+        const educationResponse = await axios.get(`${url}/api/UserEducation/current-user`, {
+          headers: { Authorization: `${token}` },
+        });
+        setEducation(educationResponse.data.$values);
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu:", error);
+      }
+    };
 
-          const educationResponse = await axios.get(`${url}/api/UserEducation/current-user`, {
-            headers: { Authorization: `${token}` },
-          });
-          setEducation(educationResponse.data.$values);
-          localStorage.setItem("education", JSON.stringify(educationResponse.data.$values));
-        } catch (error) {
-          console.error("Lỗi khi lấy dữ liệu:", error);
-        }
-      };
-
-      fetchProfileData();
-    }
+    fetchProfileData();
   }, [token]);
 
   if (!profile || !languages || !education) {
@@ -96,15 +81,11 @@ function ProfileCard() {
           <p className="text-center fw-medium profile-name">
             {profile.fullName}
           </p>
-          <div className="d-flex align-items-center gap-1">
-            <ion-icon name="location-outline"></ion-icon>
-            <p className="m-0">{profile.city}</p>
-          </div>
           <p className="fw-medium text-center" style={{ fontSize: "20px", color: "#007931" }}>
             {profile.hostingAvailability}
           </p>
           <div className="profile-buttons">
-            {(location.pathname === RoutePath.PROFILE_EDIT || location.pathname === RoutePath.PROFILE_EDIT_MY_HOME)  ? (
+            {(location.pathname === RoutePath.PROFILE_EDIT || location.pathname === RoutePath.PROFILE_EDIT_MY_HOME) ? (
               <Button as={Link} to={RoutePath.PROFILE} variant="success" className="profile-button profile-button-success">
                 Hồ sơ
               </Button>
@@ -120,27 +101,31 @@ function ProfileCard() {
           <hr className="border-line" />
 
           <div className="d-flex flex-column justify-content-between">
-            <p className="profile-location">
+            <div className="profile-location">
               <ion-icon name="location-outline"></ion-icon>
-              <p className="m-0">{profile.address}</p>
-            </p>
-            <p className="profile-education">
-              <ion-icon name="book-outline"></ion-icon>
-              <p className="m-0">{education?.[0]?.university?.universityName || "Không có thông tin"}</p>
-            </p>
+              <span className="m-0 mb-2">{profile.address}</span>
+            </div>
 
-            <p className="profile-language">
+            <div className="profile-education">
+              <ion-icon name="book-outline"></ion-icon>
+              <span className="m-0 mb-2">{education?.[0]?.university?.universityName || "Không có thông tin"}</span>
+            </div>
+
+            <div className="profile-language">
               <ion-icon name="language-outline"></ion-icon>
-              <p className="m-0">{languages ? languages.map(lang => lang.languages.languagesName).join(", ") : "Không có thông tin"}</p>
-            </p>
-            <p className="profile-joined">
+              <span className="m-0 mb-2">{languages ? languages.map(lang => lang.languages.languagesName).join(", ") : "Không có thông tin"}</span>
+            </div>
+
+            <div className="profile-joined">
               <ion-icon name="person-add-outline"></ion-icon>
-              <p className="m-0">Thành viên tham gia từ 2024</p>
-            </p>
-            <p className="profile-completion">
+              <span className="m-0 mb-2">Thành viên tham gia từ 2024</span>
+            </div>
+
+            <div className="profile-completion">
               <ion-icon name="shield-checkmark-outline"></ion-icon>
-              <p className="m-0">65% hoàn thành hồ sơ</p>
-            </p>
+              <span className="m-0 mb-2">65% hoàn thành hồ sơ</span>
+            </div>
+
           </div>
         </div>
       </div>

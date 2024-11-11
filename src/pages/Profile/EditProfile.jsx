@@ -7,7 +7,14 @@ import axios from 'axios';
 import { useSelector } from 'react-redux';
 
 const EditProfile = () => {
-
+  const user = useSelector((state) => state.auth.user);
+  const [universities, setUniversities] = useState([]);
+  const token = useSelector((state) => state.auth.token);
+  const apiUrlProfiel = 'https://travelmateapp.azurewebsites.net/api/Profile/current-profile';
+  const apiLanguage = 'https://travelmateapp.azurewebsites.net/api/SpokenLanguages/current-user';
+  const apiActivity = 'https://travelmateapp.azurewebsites.net/api/Activity';
+  const apiUniversity = 'https://travelmateapp.azurewebsites.net/api/University';
+  const apiUpdateProfile = 'https://travelmateapp.azurewebsites.net/api/Profile/edit-by-current-user';
   const [formData, setFormData] = useState({
     fullName: '',
     guestStatus: '',
@@ -20,23 +27,18 @@ const EditProfile = () => {
     whyTravelMate: '',
     hobbies: [],
     musicFilmPhotos: '',
+    imageUser: user.avatarUrl,
   });
 
-  const [universities, setUniversities] = useState([]);
+  console.log(formData);
 
-  const token = useSelector((state) => state.auth.token);
-  const apiUrlProfiel = 'https://travelmateapp.azurewebsites.net/api/Profile/current-profile';
-  const apiLanguage = 'https://travelmateapp.azurewebsites.net/api/SpokenLanguages/current-user';
-  const apiActivity = 'https://travelmateapp.azurewebsites.net/api/Activity';
-  const apiUniversity = 'https://travelmateapp.azurewebsites.net/api/University';
-  const apiUpdateProfile = 'https://travelmateapp.azurewebsites.net/api/Profile/edit-by-current-user';
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await axios.get(apiUrlProfiel, {
           headers: {
-            Authorization: `${token}`, // Ensure "Bearer" is included if required by the API
+            Authorization: `${token}`,
           },
         });
         if (response.data) {
@@ -60,7 +62,7 @@ const EditProfile = () => {
       try {
         const response = await axios.get(apiActivity, {
           headers: {
-            Authorization: `${token}`, // Ensure "Bearer" is included if required by the API
+            Authorization: `${token}`,
           },
         });
         if (response.data && response.data.$values) {
@@ -79,7 +81,7 @@ const EditProfile = () => {
       try {
         const response = await axios.get(apiLanguage, {
           headers: {
-            Authorization: `${token}`, // Ensure "Bearer" is included if required by the API
+            Authorization: `${token}`,
           },
         });
         if (response.data && response.data.$values) {
@@ -126,6 +128,7 @@ const EditProfile = () => {
       hostingAvailability: formData.guestStatus,
       whyUseTravelMate: formData.whyTravelMate,
       musicMoviesBooks: formData.musicFilmPhotos,
+      imageUser: user.avatarUrl,
     };
 
     try {
@@ -155,22 +158,26 @@ const EditProfile = () => {
           <h5 className=''><Link to={RoutePath.PROFILE_EDIT_MY_HOME} className='text-black fw-bolder'>NHÀ CỦA TÔI</Link></h5>
         </div>
 
-        {/* Full Name */}
-        {/* <Form.Group controlId="fullName" className="mb-3 align-items-center">
-          <Form.Label className='fw-medium'>Họ và tên</Form.Label>
-          <Form.Control type="text" className='label-small-form rounded-input' value={formData.fullName} onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} />
-        </Form.Group> */}
 
-        {/* Guest Status */}
         <Form.Group controlId="status" className="mb-3 align-items-center">
           <Form.Label className='fw-medium'>Tình trạng đón khách</Form.Label>
-          <Form.Control type="text" className='label-small-form rounded-input' value={formData.guestStatus} onChange={(e) => setFormData({ ...formData, guestStatus: e.target.value })} />
+          <Form.Control
+            as="select"
+            className='label-small-form rounded-input'
+            value={formData.guestStatus}
+            onChange={(e) => setFormData({ ...formData, guestStatus: e.target.value })}
+          >
+            <option value="">Chọn tình trạng</option>
+            <option value="Chào đón khách">Chào đón khách</option>
+            <option value="Đang Bận">Đang Bận</option>
+            <option value="Có thể nhận khách">Có thể nhận khách</option>
+          </Form.Control>
         </Form.Group>
 
-        {/* Horizontal Divider */}
+
         <hr />
 
-        {/* Two Columns with Vertical Divider */}
+
         <Row>
           {/* Left Column */}
           <Col md={6} className="pe-md-4">
@@ -216,22 +223,18 @@ const EditProfile = () => {
           </Col>
         </Row>
 
-        {/* Horizontal Divider */}
         <hr />
 
-        {/* Bio Section */}
         <Form.Group controlId="bio" className="mb-3">
           <Form.Label className='fw-medium'>Giới thiệu</Form.Label>
           <Form.Control as="textarea" rows={3} className='text-form text-decription rounded-input' value={formData.introduction} onChange={(e) => setFormData({ ...formData, introduction: e.target.value })} />
         </Form.Group>
 
-        {/* Why Use Travel Mate */}
         <Form.Group controlId="whyTravelMate" className="mb-3">
           <Form.Label className='fw-medium'>Tại sao tôi sử dụng Travel Mate</Form.Label>
           <Form.Control as="textarea" rows={3} className='text-form text-decription rounded-input' value={formData.whyTravelMate} onChange={(e) => setFormData({ ...formData, whyTravelMate: e.target.value })} />
         </Form.Group>
 
-        {/* Hobbies Section */}
         <Form.Group controlId="hobbies" className="mb-3 ">
           <Form.Label className='fw-medium'>Sở thích</Form.Label>
           <div className="p-2 d-flex gap-3 flex-wrap" style={{ minHeight: '40px', borderRadius: '20px', border: '1px solid black' }}>
