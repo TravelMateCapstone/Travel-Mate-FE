@@ -26,7 +26,7 @@ function Favorites() {
 
   return (
     <Container className='py-3 px-0 border-0 rounded-5' style={{
-      boxShadow: '0 0 4px rgba(0, 0, 0, 0.25)'
+      background: '#f9f9f9', 
     }}>
       <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">
         ĐỊA ĐIỂM ƯA THÍCH
@@ -37,12 +37,12 @@ function Favorites() {
         gridGap: '20px 60px',
       }} className='px-5'>
         {displayedFavorites.map((favorite) => (
-          <div key={favorite.id} style={{
-            border: '1px solid black',
+          <div key={favorite.id} className='shadow' style={{
             padding: '20px',
-            borderRadius: '10px',
+            borderRadius: '16px',
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
+            background: 'white'
           }}>
             <img
               src={favorite.imageUrl}

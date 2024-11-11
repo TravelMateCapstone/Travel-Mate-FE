@@ -1,20 +1,27 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Button } from "react-bootstrap";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import "../../assets/css/Profile/ProfileCard.css";
 import { Link, useLocation } from "react-router-dom";
 import RoutePath from "../../routes/RoutePath";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../../../firebaseConfig";
+import { updateUserAvatar } from "../../redux/actions/authActions";
+import { toast } from "react-toastify";
+
 
 function ProfileCard() {
   const [profile, setProfile] = useState(null);
   const [languages, setLanguages] = useState(null);
   const [education, setEducation] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   const token = useSelector((state) => state.auth.token);
   const url = import.meta.env.VITE_BASE_API_URL;
   const location = useLocation();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -40,7 +47,42 @@ function ProfileCard() {
 
     fetchProfileData();
   }, [token]);
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setIsUploading(true);
 
+      try {
+        const storageRef = ref(storage, `profile-images/${file.name}`);
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        await axios.put(
+          `${url}/api/Profile/current-user/update-image`,
+          downloadURL,
+          {
+            headers: {
+              Authorization: `${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        setProfile((prevProfile) => ({
+          ...prevProfile,
+          imageUser: downloadURL,
+        }));
+
+        // Dispatch action để cập nhật avatar trong Redux
+        dispatch(updateUserAvatar(downloadURL));
+        toast.success('Cập nhật ảnh đại diện thành công !');
+      } catch (error) {
+        console.error("Lỗi khi cập nhật ảnh:", error);
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
   if (!profile || !languages || !education) {
     return (
       <div className="d-flex justify-content-center profile-card">
@@ -69,13 +111,25 @@ function ProfileCard() {
     <div className="d-flex justify-content-center profile-card">
       <div className="profile-card-container">
         <div className="d-flex justify-content-center profile-image-wrapper">
-          <img
-            className="rounded-circle object-fit-cover"
-            src={profile.imageUser || "default-image-url"}
-            alt="User profile"
-            width={192}
-            height={192}
-          />
+          <div style={{ position: "relative" }}>
+            <img
+              className="rounded-circle object-fit-cover"
+              src={profile.imageUser || "default-image-url"}
+              alt="User profile"
+              width={192}
+              height={192}
+            />
+            <label htmlFor="upload-image" className="upload-icon position-absolute top-0 text-white">
+              <ion-icon name="camera-outline"></ion-icon>
+            </label>
+            <input
+              type="file"
+              id="upload-image"
+              accept="image/*"
+              onChange={handleImageUpload}
+              style={{ display: "none" }}
+            />
+          </div>
         </div>
         <div className="profile-info">
           <p className="text-center fw-medium profile-name">

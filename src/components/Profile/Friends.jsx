@@ -55,7 +55,7 @@ function Friends() {
   };
 
   return (
-    <div style={{ boxShadow: '0 0 4px rgba(0, 0, 0, 0.25)' }} className='rounded-5 py-3 px-0'>
+    <div style={{ background: '#f9f9f9',  }} className='rounded-5 py-3 px-0'>
       <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">BẠN BÈ</h2>
       {/* Grid layout for the cards */}
       <div style={{

@@ -34,6 +34,9 @@
     color: #ffffff
 }
 
+.cbp_tmlabel{
+    background: #f9f9f9 !important;
+}
 
 .cbp_tmtimeline>li .cbp_tmlabel {
     margin: 0 0 20px 71px;
