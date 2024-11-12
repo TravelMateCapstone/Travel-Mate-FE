@@ -1,41 +1,102 @@
 import React from 'react';
+import logo from '../../assets/images/logo.png';
+import { Link } from 'react-router-dom';
+import RoutePath from '../../routes/RoutePath';
 
 function SidebarDashboard() {
     return (
         <ul className="navbar-nav sidebar sidebar-light accordion" id="accordionSidebar">
-            <a className="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <div
+                style={{
+                    background: 'transparent',
+                }}
+                className="sidebar-brand d-flex align-items-center justify-content-center"
+            >
                 <div className="sidebar-brand-icon">
-                    <img src="img/logo/logo2.png" alt="Logo" />
+                    <img src={logo} alt="Logo" />
                 </div>
-                <div className="sidebar-brand-text mx-3">RuangAdmin</div>
-            </a>
+            </div>
             <hr className="sidebar-divider my-0" />
-            <li className="nav-item active">
-                <a className="nav-link" href="index.html">
-                    <i className="fas fa-fw fa-tachometer-alt" />
-                    <span>Dashboard</span>
-                </a>
-            </li>
+            
+            <Link to={RoutePath.ADMIN}>
+                <li className="nav-item active">
+                    <div className="nav-link">
+                        <i className="fas fa-fw fa-tachometer-alt" />
+                        <span>Dashboard</span>
+                    </div>
+                </li>
+            </Link>
             <hr className="sidebar-divider" />
             <div className="sidebar-heading">Features</div>
-            <li className="nav-item">
-                <a className="nav-link collapsed" data-toggle="collapse" data-target="#collapseBootstrap" aria-expanded="true" aria-controls="collapseBootstrap">
-                    <i className="far fa-fw fa-window-maximize" />
-                    <span>Bootstrap UI</span>
-                </a>
-                <div id="collapseBootstrap" className="collapse" aria-labelledby="headingBootstrap" data-parent="#accordionSidebar">
-                    <div className="bg-white py-2 collapse-inner rounded">
-                        <h6 className="collapse-header">Bootstrap UI</h6>
-                        <a className="collapse-item" href="alerts.html">Alerts</a>
-                        <a className="collapse-item" href="buttons.html">Buttons</a>
-                        <a className="collapse-item" href="dropdowns.html">Dropdowns</a>
-                        <a className="collapse-item" href="modals.html">Modals</a>
-                        <a className="collapse-item" href="popovers.html">Popovers</a>
-                        <a className="collapse-item" href="progress-bar.html">Progress Bars</a>
+
+            <Link to={RoutePath.ADMIN}>
+                <li className="nav-item">
+                    <div className="nav-link d-flex align-items-center gap-2">
+                        <ion-icon name="pie-chart-outline"></ion-icon>
+                        <span>Thống kê</span>
                     </div>
-                </div>
-            </li>
-            {/* Các phần tử khác của sidebar... */}
+                </li>
+            </Link>
+
+            <Link to={RoutePath.ADMIN_REPORT}>
+                <li className="nav-item">
+                    <div className="nav-link d-flex align-items-center gap-2">
+                        <ion-icon name="wallet-outline"></ion-icon>
+                        <span>Quản lí khiếu nại</span>
+                    </div>
+                </li>
+            </Link>
+
+            <Link to={RoutePath.ADMIN_ACCOUNT_LIST}>
+                <li className="nav-item">
+                    <div className="nav-link d-flex align-items-center gap-2">
+                        <ion-icon name="airplane-outline"></ion-icon>
+                        <span>Quản lí tài khoản</span>
+                    </div>
+                </li>
+            </Link>
+
+            <Link to={RoutePath.ADMIN_TRANSACTION}>
+                <li className="nav-item">
+                    <div className="nav-link d-flex align-items-center gap-2">
+                        <ion-icon name="calendar-outline"></ion-icon>
+                        <span>Lịch sử giao dịch</span>
+                    </div>
+                </li>
+            </Link>
+
+            <Link to={RoutePath.ADMIN_TRIP_HISTORY}>
+                <li className="nav-item">
+                    <div className="nav-link d-flex align-items-center gap-2">
+                        <ion-icon name="calendar-outline"></ion-icon>
+                        <span>Lịch sử chuyến đi</span>
+                    </div>
+                </li>
+            </Link>
+
+            <hr className="sidebar-divider" />
+            <div className="sidebar-heading">Examples</div>
+
+            <Link to={RoutePath.pages}>
+                <li className="nav-item">
+                    <div className="nav-link">
+                        <i className="fas fa-fw fa-columns" />
+                        <span>Pages</span>
+                    </div>
+                </li>
+            </Link>
+
+            <Link to={RoutePath.charts}>
+                <li className="nav-item">
+                    <div className="nav-link">
+                        <i className="fas fa-fw fa-chart-area" />
+                        <span>Charts</span>
+                    </div>
+                </li>
+            </Link>
+
+            <hr className="sidebar-divider" />
+            <div className="version" id="version-ruangadmin" />
         </ul>
     );
 }
