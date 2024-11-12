@@ -27,7 +27,7 @@ const EditProfile = () => {
     whyTravelMate: '',
     hobbies: [],
     musicFilmPhotos: '',
-    imageUser: user.avatarUrl,
+    imageUser: user.avatarUrl || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw',
   });
 
   console.log(formData);
@@ -128,7 +128,7 @@ const EditProfile = () => {
       hostingAvailability: formData.guestStatus,
       whyUseTravelMate: formData.whyTravelMate,
       musicMoviesBooks: formData.musicFilmPhotos,
-      imageUser: user.avatarUrl,
+      imageUser: user.avatarUrl || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw',
     };
 
     try {

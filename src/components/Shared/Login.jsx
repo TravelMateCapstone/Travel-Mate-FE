@@ -32,7 +32,7 @@ const Login = ({ show, handleClose }) => {
         id: claim["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
         username: claim["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
         role: claim["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
-        avatarUrl: claim.ImageUser,
+        avatarUrl: claim.ImageUser || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw',
         FullName: claim.FullName,
       }
       console.log(user);

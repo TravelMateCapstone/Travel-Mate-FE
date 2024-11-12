@@ -49,7 +49,7 @@ function FinishContract() {
           <div className="">
             <div className="d-flex gap-2">
               <img
-                src={user.avatarUrl}
+                src={user.avatarUrl || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw'}
                 alt="avatar"
                 className="rounded-circle object-fit-cover"
                 height={60}
