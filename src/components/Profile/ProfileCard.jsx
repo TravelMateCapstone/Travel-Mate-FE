@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Button, Dropdown, DropdownButton } from "react-bootstrap";
-import { useSelector } from "react-redux";
-import { Button } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -65,8 +63,10 @@ function ProfileCard() {
         }
       };
 
-    fetchProfileData();
-  }, [token]);
+      fetchProfileData();
+    }
+  }, [token, url, location.pathname]);
+
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -196,23 +196,43 @@ function ProfileCard() {
           <p className="fw-medium text-center" style={{ fontSize: "20px", color: "#007931" }}>
             {profile.hostingAvailability || "Chưa xác định"}
           </p>
-          <div className="profile-buttons" style={{
-            marginTop: '24px',
-            marginBottom: '24px',
-          }}>
-            {(location.pathname === RoutePath.PROFILE_EDIT || location.pathname === RoutePath.PROFILE_EDIT_MY_HOME) ? (
-              <Button as={Link} to={RoutePath.PROFILE} variant="success" className="profile-button profile-button-success">
-                Hồ sơ
-              </Button>
+
+
+          <div className="profile-buttons" style={{ marginTop: '24px', marginBottom: '24px' }}>
+            {location.pathname === "/profile" || location.pathname === "/profile-edit" || location.pathname === "/profile-edit-my-home" ? (
+              <>
+                {location.pathname === "/profile-edit" || location.pathname === "/profile-edit-my-home" ? (
+                  <Button as={Link} to="/profile" variant="success" className="profile-button profile-button-success">
+                    Hồ sơ
+                  </Button>
+                ) : (
+                  <Button as={Link} to="/profile-edit" variant="success" className="profile-button profile-button-success">
+                    Chỉnh sửa
+                  </Button>
+                )}
+                <Button as={Link} to="/setting" variant="secondary" className="profile-button profile-button-secondary">
+                  Cài đặt
+                </Button>
+              </>
             ) : (
-              <Button as={Link} to={RoutePath.PROFILE_EDIT} variant="success" className="profile-button profile-button-success">
-                Chỉnh sửa
-              </Button>
+              <>
+                <Button as={Link} to="/send-request" variant="success" className="profile-button profile-button-success">
+                  Gửi yêu cầu
+                </Button>
+                <DropdownButton
+                  id="dropdown-options"
+                  title="Tùy chọn"
+                  variant="secondary"
+                  className="profile-button-options"
+                >
+                  <Dropdown.Item onClick={handleSendFriendRequest}>Kết bạn</Dropdown.Item>
+                  <Dropdown.Item onClick={() => alert('Bạn đã báo cáo người dùng này!')}>Báo cáo</Dropdown.Item>
+                </DropdownButton>
+              </>
             )}
-            <Button as={Link} to={RoutePath.SETTING} variant="secondary" className="profile-button profile-button-secondary">
-              Cài đặt
-            </Button>
           </div>
+
+
           <hr className="border-line" />
 
           <div className="d-flex flex-column justify-content-between" style={{
