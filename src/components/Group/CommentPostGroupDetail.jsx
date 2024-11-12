@@ -1,81 +1,118 @@
-import React, { useState } from 'react';
-import '../../assets/css/Groups/CommentPostGroupDetail.css';
+import React, { useEffect, useRef, useState } from 'react';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { useSelector } from 'react-redux';
+import '../../assets/css/Groups/CommentPostGroupDetail.css'
 
-function CommentPostGroupDetail({ comment, onEditComment }) {
+const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedComment, setEditedComment] = useState(comment.commentText);
+  const [editedText, setEditedText] = useState(comment.commentText);
+  const user = useSelector((state) => state.auth.user);
+  const commentContentRef = useRef(null);
+  const editTextareaRef = useRef(null);
+  const [isLongComment, setIsLongComment] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleEditToggle = () => {
-    setIsEditing(!isEditing);
+  useEffect(() => {
+    // Kiểm tra chiều cao của phần tử để xác định nếu bình luận vượt quá 2 dòng
+    if (commentContentRef.current) {
+      setIsLongComment(commentContentRef.current.scrollHeight > commentContentRef.current.clientHeight);
+    }
+    if (isEditing && editTextareaRef.current) {
+      autoResize({ target: editTextareaRef.current }); // Gọi autoResize khi mở chỉnh sửa
+    }
+  }, [editedText, isEditing]);
+
+  const autoResize = (e) => {
+    e.target.style.height = 'auto';
+    e.target.style.height = `${e.target.scrollHeight}px`;
   };
 
-  const handleEditChange = (e) => {
-    setEditedComment(e.target.value);
+  const formatCommentTime = (timeString) => {
+    const commentDate = new Date(timeString);
+    const now = new Date();
+
+    // Kiểm tra xem có phải là "hôm qua" không
+    const isYesterday = (now - commentDate) / (1000 * 60 * 60 * 24) >= 1 && now.getDate() - commentDate.getDate() === 1;
+
+    if (isYesterday) {
+      return 'Hôm qua';
+    } else {
+      const day = String(commentDate.getDate()).padStart(2, '0');
+      const month = String(commentDate.getMonth() + 1).padStart(2, '0');
+      const hours = String(commentDate.getHours()).padStart(2, '0');
+      const minutes = String(commentDate.getMinutes()).padStart(2, '0');
+      return `${day} tháng ${month} lúc ${hours}:${minutes}`;
+    }
   };
 
-  const handleEditSubmit = () => {
-    onEditComment(comment.commentId, editedComment);
+  const handleSaveEdit = () => {
+    onUpdateComment(comment.postCommentId, editedText);
     setIsEditing(false);
   };
 
-  const formatDate = (dateString) => {
-    const commentDate = new Date(dateString);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-
-    if (
-      commentDate.getDate() === yesterday.getDate() &&
-      commentDate.getMonth() === yesterday.getMonth() &&
-      commentDate.getFullYear() === yesterday.getFullYear()
-    ) {
-      return 'Hôm qua';
-    }
-
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return commentDate.toLocaleDateString('vi-VN', options);
+  const toggleFullComment = () => {
+    setIsExpanded(!isExpanded);
   };
   return (
-    <div className='comment-post-group-detail-container' style={{
-      display: 'flex',
-      gap: '10px',
-      width: '810px',
-      borderRadius: '20px',
-      marginBottom: '30px'
-    }}>
-      <img src={comment.avatar} alt="avatar" style={{
-        width: '60px',
-        height: '60px',
-        objectFit: 'cover',
-        borderRadius: '50%'
-      }} />
-
-      <div>
-        <div className='d-flex align-items-center' style={{ gap: '15px' }}>
-          <strong style={{ fontSize: '16px' }}>{comment.name}</strong>
-          <p className='m-0' style={{ fontSize: '12px' }}>{formatDate(comment.commentTime)}</p>
-          {comment.isEdited && (
-            <span style={{ fontSize: '12px', color: '#888', marginLeft: '10px' }}>đã chỉnh sửa</span>
-          )}
-          {!isEditing && (
-            <button onClick={handleEditToggle} style={{ fontSize: '12px' }}>Edit</button>
+    <div className="d-flex gap-3 w-100 comment-container">
+      <img src={comment.commentorAvatar || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'} alt="avatar comment" width={60} height={60} className='rounded-circle object-fit-cover' />
+      <div className='comment-text-info w-100'>
+        <div className='d-flex justify-content-between align-items-center'>
+          <div className=''>
+            <div className='d-flex gap-3 align-items-center'>
+              <strong className='commentor_name fw-medium'>{comment.commentor || comment.postCreatorName}</strong>
+              <small className='m-0 isEditText'>{comment.isEdited ? 'Đã chỉnh sửa' : ''}</small>
+            </div>
+            <p className='comment_time fw-medium'>{formatCommentTime(comment.commentTime)}</p>
+          </div>
+          {(comment.commentedById == user.id) && (
+            <Dropdown className="comment-dropdown">
+              <Dropdown.Toggle variant="success" id="dropdown-basic_comment" className='border-0 text-black bg-transparent'>
+                <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+              </Dropdown.Toggle>
+              <Dropdown.Menu style={{
+                backgroundColor: 'white',
+                borderRadius: '10px',
+                border: '0px',
+                boxShadow: '0px 0px 8px rgba(0,0,0,0.25)',
+              }}>
+                <Dropdown.Item onClick={() => setIsEditing(true)}>Sửa bình luận</Dropdown.Item>
+                <Dropdown.Item onClick={() => onDeleteComment(comment.postCommentId)}>Xóa bình luận</Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
           )}
         </div>
         {isEditing ? (
-          <div>
+          <div className='bg'>
             <textarea
-              value={editedComment}
-              onChange={handleEditChange}
-              style={{ fontSize: '16px', width: '100%' }}
+              ref={editTextareaRef}
+              value={editedText}
+              onInput={autoResize}
+              onChange={(e) => setEditedText(e.target.value)}
+              className="w-100 mb-2 p-2 rounded-4"
+              style={{ border: '1px solid #d9d9d9', background: '#f9f9f9', height: '100%' }}
             />
-            <button onClick={handleEditSubmit}>Save</button>
+            <button className="btn btn-success btn-sm" onClick={handleSaveEdit}>Lưu</button>
+            <button className="btn btn-secondary btn-sm ms-2" onClick={() => setIsEditing(false)}>Hủy</button>
           </div>
         ) : (
-          <p className='m-0' style={{ fontSize: '16px' }}>{comment.commentText}</p>
+          <div className="comment_content_wrapper">
+            <p
+              ref={commentContentRef}
+              className={`comment_content m-0 ${isExpanded ? 'expanded' : 'm-0'}`}
+            >
+              {comment.commentText}
+            </p>
+            {isLongComment && (
+              <span className="see_more" onClick={() => setIsExpanded(!isExpanded)}>
+                {isExpanded ? 'Thu gọn' : 'Xem thêm'}
+              </span>
+            )}
+          </div>
         )}
       </div>
     </div>
   );
-}
+};
 
 export default CommentPostGroupDetail;

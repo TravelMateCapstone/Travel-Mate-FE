@@ -23,8 +23,17 @@ import Chat from "../pages/Chat"
 import AdminReport from "../pages/Admin/AdminReport"
 import WalletManagement from "../pages/Admin/WalletManagement"
 import TripHistory from "../pages/Admin/TripHistory"
-
-
+import MyGroupDetail from '../pages/Groups/MyGroupDetail'
+import GroupManagement from "../pages/Groups/GroupManagement"
+import GroupView from "../pages/Groups/GroupView"
+import Contract from "../pages/Contracts/Contract"
+import CreateContract from "../pages/Contracts/CreateContract"
+import DoneContract from "../pages/Contracts/DoneContract"
+import FinishContract from "../pages/Contracts/FinishContract"
+import OngoingContract from "../pages/Contracts/OngoingContract"
+import PaymentContract from "../pages/Contracts/PaymentContract"
+import ContractLayout from "../layouts/ContractLayout"
+import DefaultLayout from "../layouts/DefaultLayout"
 
 const publishRoutes = [
     { path: RoutePath.HOMEPAGE, component: Home, layout: HomeFeedLayout },
@@ -41,6 +50,9 @@ const privateRoutes = [
     { path: RoutePath.ADMIN_TRIP_HISTORY, component: TripHistory, layout: AdminLayout },
 
     { path: RoutePath.GROUP_CREATED, component: GroupCreated, layout: ListLayout },
+    { path: RoutePath.GROUP_VIEW, component: GroupView, layout: DetailLayout },
+    { path: RoutePath.Group_Management, component: GroupManagement, layout: DetailLayout },
+    { path: RoutePath.GROUP_MY_DETAILS, component: MyGroupDetail, layout: DetailLayout },
     { path: RoutePath.GROUP_JOINED, component: GroupJoined, layout: ListLayout },
 
     { path: RoutePath.EVENT_CREATED, component: EventList, layout: ListLayout },
@@ -56,8 +68,12 @@ const privateRoutes = [
 
     { path: RoutePath.OTHERS_PROFILE, component: Profile, layout: ProfileLayout },
 
-
-
+    { path: RoutePath.CONTRACT, component: Contract, layout: ContractLayout },
+    { path: RoutePath.CREATE_CONTRACT, component: CreateContract, layout: ContractLayout },
+    { path: RoutePath.DONE_CONTRACT, component: DoneContract, layout: ContractLayout },
+    { path: RoutePath.FINISH_CONTRACT, component: FinishContract, layout: ContractLayout },
+    { path: RoutePath.ONGOING_CONTRACT, component: OngoingContract, layout: ContractLayout },
+    { path: RoutePath.PAYMENT_CONTRACT, component: PaymentContract, layout: ContractLayout },
 ]
 
 export { publishRoutes, privateRoutes }

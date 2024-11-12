@@ -46,10 +46,9 @@ function MyHome() {
 
   return (
     <Container className='py-3 px-0 border-0 rounded-5' style={{
-      boxShadow: '0 0 4px rgba(0, 0, 0, 0.25)'
+      background: '#f9f9f9' 
     }}>
       <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">NHÀ CỦA TÔI</h2>
-
       <div className="mb-3 ms-lg-4 rounded-3 cus-prioritize">
         <h4 className="mx-4 mt-3">ƯU TIÊN</h4>
         <div className="px-3">

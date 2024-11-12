@@ -6,7 +6,7 @@ function NavBarLayout({ children }) {
   return (
     <Container fluid className='container-main '>
       <Navbar />
-      {children}
+      <div className='mt-5'>{children}</div>
     </Container>
   )
 }

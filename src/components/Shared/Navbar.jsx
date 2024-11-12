@@ -133,17 +133,6 @@ function Navbar() {
               </div>
 
               <div className='d-flex'>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  borderLeft: '0px solid white',
-                  borderRight: '0px solid white',
-                  borderTop: '1px solid #ccc',
-                  borderBottom: '1px solid #ccc',
-                  height: '38px',
-                  color: '#ccc',
-                }} className=''>|</div>
-
                 <Dropdown onSelect={handleSelect} align="end">
                   <Dropdown.Toggle variant="success" id="dropdown-basic" style={{
                     fontSize: '12px'
@@ -253,7 +242,7 @@ function Navbar() {
                   <Dropdown.Toggle className="avatar bg-white text-secondary rounded-5 p-1 d-flex justify-content-between px-2 align-items-center gap-1">
                     <img
                       className="object-fit-cover rounded-5"
-                      src={ 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'}
+                      src={user?.avatarUrl || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'}
                       alt="avatar"
                       width={31}
                       height={31}
@@ -264,6 +253,9 @@ function Navbar() {
                   <Dropdown.Menu className="p-1 avatar-dropdown" >
                     <Dropdown.Item as={Link} to={RoutePath.PROFILE} className="avatar-dropdown-item">
                       Hồ sơ
+                    </Dropdown.Item>
+                    <Dropdown.Item as={Link} to={RoutePath.CONTRACT} className="avatar-dropdown-item">
+                      Hợp đồng
                     </Dropdown.Item>
                     <Dropdown.Item as={Link} to={RoutePath.SETTING} className="avatar-dropdown-item">
                       Trang quản lý

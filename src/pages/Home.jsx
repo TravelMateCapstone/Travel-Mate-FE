@@ -11,7 +11,7 @@ function Home() {
       }}>
         <Row>
           {/* Left Sidebar */}
-          <Col md={2} className="sidebar">
+          <Col md={2} className="">
             sidebar
           </Col>
           {/* Main Content */}

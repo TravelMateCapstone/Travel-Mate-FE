@@ -1,0 +1,60 @@
+.comment-container {
+  position: relative;
+  margin-bottom: 20px;
+}
+.comment-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+}
+.comment-container:hover .comment-dropdown {
+  display: block;
+}
+.isEditText {
+  color: #e65c00;
+}
+.comment_time {
+  margin-bottom: 10px !important;
+  font-size: 12px;
+}
+.commentor_name {
+  font-size: 16px;
+}
+.comment_content_wrapper {
+  position: relative;
+}
+
+.comment_content {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Số dòng tối đa là 2 */
+  line-clamp: 2; /* Số dòng tối đa là 2 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  transition: max-height 0.3s ease;
+}
+
+.comment_content.expanded {
+  -webkit-line-clamp: unset; /* Bỏ giới hạn số dòng khi mở rộng */
+  line-clamp: unset; /* Bỏ giới hạn số dòng khi mở rộng */
+  max-height: none; /* Hiển thị đầy đủ nội dung */
+}
+
+.see_more {
+  color: blue;
+  cursor: pointer;
+  display: block;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+
+.write_comment_container_username{
+    margin-bottom: 14px;
+}
+.see_more {
+  color: #007931;
+  cursor: pointer;
+  font-size: 14px;
+}

@@ -19,11 +19,7 @@
 
 
 /* Custom CSS for transparent modal */
-.transparent-modal .modal-content {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
+
   
   .transparent-modal .modal-dialog {
     max-width: unset; /* Allows the image to determine the size */

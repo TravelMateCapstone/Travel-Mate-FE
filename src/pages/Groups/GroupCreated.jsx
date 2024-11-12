@@ -74,6 +74,7 @@ function GroupCreated() {
         ) : (
           data.map((group) => (
             <GroupCard
+              description={group.description}
               id={group.groupId}
               key={group.groupId}
               img={group.groupImageUrl}

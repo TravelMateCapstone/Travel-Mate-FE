@@ -5,18 +5,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import { openLoginModal } from '../../redux/actions/modalActions';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { useLocation } from 'react-router-dom';
+import RoutePath from '../../routes/RoutePath';
+import '../../assets/css/Shared/FormSubmit.css';
 // Đặt vị trí modal vào root của ứng dụng để đảm bảo nó hiển thị chính xác
 Modal.setAppElement('#root');
 
-function FormSubmit({ children, buttonText, onButtonClick, title, openModalText, needAuthorize, autoOpen,  }) {
+function FormSubmit({ children, buttonText, onButtonClick, title, openModalText, needAuthorize, autoOpen, }) {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token); // Get token from Redux store
   const isGroupEditModalOpen = useSelector((state) => state.modal.isGroupEditModalOpen);
+  const location = useLocation();
 
-  
-  
+
   const openModal = () => {
     // Check if authorization is needed
     if (needAuthorize && !token) {
@@ -34,12 +36,52 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
   }, [autoOpen]);
   const closeModal = () => setIsOpen(false);
 
+
+
   return (
     <div>
-      {/* Nút mở modal */}
-      <Button onClick={openModal} variant='outline-dark' className='w-100 rounded-5 mybutton'>{openModalText}</Button>
-
-      {/* React Modal */}
+      {(location.pathname === RoutePath.GROUP || location.pathname === RoutePath.GROUP_CREATED || location.pathname === RoutePath.GROUP_JOINED) ? (
+        <Button
+          onClick={openModal}
+          variant='success'
+          className='rounded-5 d-flex gap-1 mybuttonCreateGroup'
+          style={{
+            height: '40px',
+            width: 'fit-content',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            background: '#34A853',
+            border: '1px solid #34A853',
+          }}
+        >
+          <p className='m-0'>Tạo nhóm</p>
+          <ion-icon name="add-circle" style={{ fontSize: '20px' }}></ion-icon>
+        </Button>
+      ) : (location.pathname === RoutePath.EVENT || location.pathname === RoutePath.EVENT_JOINED || location.pathname === RoutePath.EVENT_CREATED) ? (
+        // Trường hợp Tạo sự kiện
+        <Button
+          onClick={openModal}
+          variant='primary'
+          className='rounded-5 d-flex gap-1 mybuttonCreateEvent'
+          style={{
+            height: '40px',
+            width: 'fit-content',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            background: '#34A853',
+            border: '1px solid #34A853',
+          }}
+        >
+          <p className='m-0'>Tạo sự kiện</p>
+          <ion-icon name="add-circle" style={{ fontSize: '20px' }}></ion-icon>
+        </Button>
+      ) : (
+        <Button onClick={openModal} variant='outline-dark' className='w-100 rounded-5 mybutton'>
+          {openModalText}
+        </Button>
+      )}
       <Modal
         isOpen={isOpen || isGroupEditModalOpen}
         onRequestClose={closeModal}
@@ -56,8 +98,10 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
             padding: '30px 70px',
             borderRadius: '20px',
             width: '897px',
-            maxHeight: '80vh',
+            maxHeight: '100vh',
             position: 'relative',
+            display: 'flex',
+            flexDirection: 'column', // Thêm dòng này để sắp xếp các phần của modal theo chiều dọc
           },
         }}
       >
@@ -65,24 +109,35 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
         <h2 className='text-center mb-4 fw-bolder'>{title}</h2>
 
         {/* Phần nội dung con được truyền vào component */}
-        <div>{children}</div>
+        <div style={{
+          overflowY: 'auto',  // Kích hoạt cuộn dọc nếu nội dung quá dài
+          maxHeight: 'calc(80vh - 150px)', // Điều chỉnh chiều cao tối đa của nội dung
+          paddingBottom: '20px',
+        }}>
+          {children}
+        </div>
 
-        {/* Container chứa các nút hành động, đặt ở dưới cùng bên phải */}
+        {/* Container chứa các nút hành động, cố định ở dưới cùng */}
         <div style={{
           display: 'flex',
           justifyContent: 'flex-end',
           marginTop: '20px',
+          position: 'sticky',
+          bottom: '0',
+          background: '#fff',
+          padding: '10px 0', // Thêm padding để tách biệt với nội dung cuộn
         }}>
           {/* Nút truyền vào */}
-          <Button onClick={onButtonClick} style={{ marginRight: '10px', background: '#007931' }} className='rounded-5 border-0'>
+          <Button onClick={onButtonClick} style={{ marginRight: '10px', background: '#007931' }} className='rounded-5 border-0 fw-medium'>
             {buttonText}
           </Button>
           {/* Nút đóng modal */}
-          <Button variant='outline-dark' onClick={closeModal} className='rounded-5'>
-            Close
+          <Button variant='outline-dark' onClick={closeModal} className='rounded-5 fw-medium'>
+            Hủy
           </Button>
         </div>
       </Modal>
+
     </div>
   );
 }

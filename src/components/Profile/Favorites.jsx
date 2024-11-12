@@ -47,7 +47,7 @@ function Favorites() {
 
   return (
     <Container className='py-3 px-0 border-0 rounded-5' style={{
-      boxShadow: '0 0 4px rgba(0, 0, 0, 0.25)'
+      background: '#f9f9f9', 
     }}>
       <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">
         ĐỊA ĐIỂM ƯA THÍCH
@@ -61,9 +61,10 @@ function Favorites() {
           <div key={favorite.location.locationId} style={{
             border: '1px solid black',
             padding: '20px',
-            borderRadius: '10px',
+            borderRadius: '16px',
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
+            background: 'white'
           }}>
             <img
               src={'https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg'}

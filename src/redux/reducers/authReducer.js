@@ -1,10 +1,9 @@
-import { LOGIN_SUCCESS, LOGOUT } from "../actionTypes";
+import { LOGIN_SUCCESS, LOGOUT, UPDATE_USER_AVATAR } from "../actionTypes";
 
 const initialState = {
   isAuthenticated: false,
   user: null,
-  token: null, 
-  avatarUrl: null,
+  token: null,
 };
 
 const authReducer = (state = initialState, action) => {
@@ -24,6 +23,15 @@ const authReducer = (state = initialState, action) => {
         user: null,
         token: null, // Xóa token khi logout
       };
+    case UPDATE_USER_AVATAR:
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          avatarUrl: action.payload, // Cập nhật avatarUrl
+        },
+      };
+
 
     default:
       return state;

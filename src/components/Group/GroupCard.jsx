@@ -1,28 +1,38 @@
 import React, { useState } from 'react';
 import { Card, Button } from 'react-bootstrap';
 import '../../assets/css/Groups/GroupCard.css';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
 import { viewGroup } from '../../redux/actions/groupActions';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const GroupCard = ({ id, img, title, location, members, text }) => {
+const GroupCard = ({ id, img, title, location, members, text, description, isJoined }) => {
   const locationRoute = useLocation();
+  const navigate = useNavigate(); // Add this line
   const dispatch = useDispatch();
   const [requestSent, setRequestSent] = useState(false);
   const token = useSelector((state) => state.auth.token);
+
+  console.log(isJoined);
 
   const isCreatedOrJoined =
     locationRoute.pathname === RoutePath.GROUP_CREATED ||
     locationRoute.pathname === RoutePath.GROUP_JOINED;
 
   const handleViewGroup = () => {
-    const groupDetails = { id, img, title, location, members, text };
-    console.log(groupDetails);
-    
+    const groupDetails = { id, img, title, location, members, text, description };
     dispatch(viewGroup(groupDetails));
+
+    // Navigate to different paths based on the current location
+    if (locationRoute.pathname === RoutePath.GROUP_JOINED) {
+      navigate(RoutePath.GROUP_DETAILS);
+    } else if (locationRoute.pathname === RoutePath.GROUP_CREATED) {
+      navigate(RoutePath.GROUP_MY_DETAILS);
+    } else {
+      navigate(RoutePath.GROUP_VIEW);
+    }
   };
 
   const handleJoinGroup = async () => {
@@ -40,7 +50,6 @@ const GroupCard = ({ id, img, title, location, members, text }) => {
         toast.success('Yêu cầu tham gia nhóm đã được gửi thành công!');
         setRequestSent(true);
       }
-
     } catch (error) {
       if (
         error.response &&
@@ -57,41 +66,30 @@ const GroupCard = ({ id, img, title, location, members, text }) => {
   };
 
   return (
-    <Card className="group-card">
+    <Card className="group-card" onClick={handleViewGroup}>
       <Card.Img variant="top" src={img} className="group-card-img" />
       <Card.Body className="group-card-body">
         <Card.Title className="group-name">{title}</Card.Title>
         <div className="group-card-info">
           <span className="d-flex align-items-center">
-            <ion-icon
-              name="location-outline"
-              style={{ marginRight: '5px' }}
-            ></ion-icon>
+            <ion-icon name="location-outline" style={{ marginRight: '5px' }}></ion-icon>
             {location}
           </span>
           <span className="group-card-members">
-            <ion-icon
-              name="people-outline"
-              style={{ marginRight: '5px' }}
-            ></ion-icon>
+            <ion-icon name="people-outline" style={{ marginRight: '5px' }}></ion-icon>
             {members}
           </span>
         </div>
         <Card.Text className="group-card-text">{text}</Card.Text>
-        {isCreatedOrJoined || requestSent ? (
+        {isCreatedOrJoined ? (
           <Button
-            as={Link}
-            to={RoutePath.GROUP_DETAILS}
             variant="outline-success"
             className="group-card-button"
             onClick={handleViewGroup}
           >
             <div></div>
-            <div>{requestSent ? 'Xem nhóm' : 'Vào nhóm'}</div>
-            <ion-icon
-              name="chevron-forward-circle-outline"
-              className="group-card-icon"
-            ></ion-icon>
+            <div>Vào nhóm</div>
+            <ion-icon name="chevron-forward-circle-outline" className="group-card-icon"></ion-icon>
           </Button>
         ) : (
           <Button
@@ -101,11 +99,8 @@ const GroupCard = ({ id, img, title, location, members, text }) => {
             disabled={requestSent}
           >
             <div></div>
-            <div>{requestSent ? 'Đã gửi yêu cầu' : 'Tham gia'}</div>
-            <ion-icon
-              name="chevron-forward-circle-outline"
-              className="group-card-icon"
-            ></ion-icon>
+            <div>{(isJoined=='Pending') ? 'Đã gửi yêu cầu' : 'Tham gia'}</div>
+            <ion-icon name="chevron-forward-circle-outline" className="group-card-icon"></ion-icon>
           </Button>
         )}
       </Card.Body>

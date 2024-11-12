@@ -3,10 +3,11 @@
 .profile-card {
   padding: 0 24px 33px 24px;
   width: 332px;
-  height: 550px;
+  height: 488px;
   margin-top: 30%;
-  box-shadow: 0 0 7px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 10px;
+  background: #f9f9f9;
 }
 
 .profile-card-container {
@@ -27,7 +28,7 @@
 
 .profile-info {
   position: relative;
-  top: 101px;
+  top: 80px;
 }
 
 .profile-location,
@@ -39,6 +40,7 @@
   gap: 1rem;
   font-size: 16px;
   align-items: center;
+
 }
 
 .profile-completion {
@@ -74,6 +76,19 @@
   border: 1px solid black;
 }
 
-.profile-button-options {
-  background-color: #E65C00 !important;
+.upload-icon {
+  display: none;
+}
+
+.profile-image-wrapper:hover .upload-icon {
+  display: block;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  font-size: 50px;
 }

@@ -32,9 +32,11 @@ const Login = ({ show, handleClose }) => {
         id: claim["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
         username: claim["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
         role: claim["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
+        avatarUrl: claim.ImageUser || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw',
         FullName: claim.FullName,
-        avatarUrl: response.data.avatarUrl || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg',
       }
+      console.log(user);
+      
       dispatch(loginSuccess({ user, token }));
       toast.success('Đăng nhập thành công!', {
         position: "bottom-right",

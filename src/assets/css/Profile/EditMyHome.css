@@ -60,7 +60,7 @@
 
 .label-small-form-myhome{
       /* width: 252.43px; */
-      height: 40px;
+      height: 35px !important;
       border-radius: 20px;
       border: 1px solid black;}
 .display-form-myhome{

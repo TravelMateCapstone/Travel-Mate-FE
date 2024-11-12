@@ -10,7 +10,9 @@ const RoutePath = {
     GROUP_CREATED: '/group/create',
     GROUP_JOINED: '/group/joined',
     GROUP_JOIN_DETAILS: '/group/join/details',
-    GROUP_MY_DETAILS: '/group/my/details',
+    GROUP_MY_DETAILS: '/group/my-details',
+    Group_Management: '/group/management',
+    GROUP_VIEW: '/group/view',
 
     // Events
     EVENT: '/event',
@@ -53,6 +55,14 @@ const RoutePath = {
     PROFILE_FAVOURITE_LOCATION: '/profile/favourite-location',
     PROFILE_FRIEND_LIST: '/profile/friend-list',
     PROFILE_MY_HOME: '/profile/my-home',
+
+    CONTRACT: '/contract',
+    CREATE_CONTRACT: '/contract/create',
+    DONE_CONTRACT: '/contract/done',
+    FINISH_CONTRACT: '/contract/finish',
+    ONGOING_CONTRACT: '/contract/ongoing',
+    PAYMENT_CONTRACT: '/contract/payment',
+    
 
     //others Profile
     OTHERS_PROFILE: '/others-profile',

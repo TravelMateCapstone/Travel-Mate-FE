@@ -19,13 +19,21 @@ function GroupList() {
     const fetchData = async (page = 1) => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/groups?pageNumber=${page}`, {
-          headers: {
-            Authorization: `${token}`,
-          },
-        });
-        const groupsData = response.data.groups.$values;
-        const totalPages = response.data.totalPages;
+        // Determine API endpoint based on token availability
+        const endpoint = token
+          ? `${import.meta.env.VITE_BASE_API_URL}/api/Groups/UnJoinedGroups?pageNumber=${page}`
+          : `${import.meta.env.VITE_BASE_API_URL}/api/groups?pageNumber=${page}`;
+
+        // Set headers only if using UnJoinedGroups endpoint
+        const headers = token ? { Authorization: `${token}` } : {};
+
+        const response = await axios.get(endpoint, { headers });
+        console.log(response.data);
+        const groupsData = response.data.listUnjoinedGroups.$values || [];
+        const totalPages = response.data.totalPages || 0;
+
+      
+
         setData(groupsData);
         setPageCount(totalPages);
       } catch (error) {
@@ -77,13 +85,14 @@ function GroupList() {
           ))
           : data.map((group) => (
             <GroupCard
-              id={group.groupId}
-              key={group.groupId}
-              img={group.groupImageUrl}
-              title={group.groupName}
-              location={group.location}
-              members={`${group.numberOfParticipants}`}
-              text={group.description}
+              id={group.group.groupId}
+              key={group.group.groupId}
+              img={group.group.groupImageUrl}
+              title={group.group.groupName}
+              location={group.group.location}
+              members={`${group.group.numberOfParticipants}`}
+              text={group.group.description}
+              isJoined={group.userJoinedStatus}
             />
           ))}
       </div>

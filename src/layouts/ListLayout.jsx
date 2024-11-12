@@ -30,22 +30,19 @@ function ListLayout({ children }) {
 
     const sidebarItems = [
         { iconName: 'list-circle', title: 'Danh sách nhóm', route: RoutePath.GROUP },
-        { iconName: 'people-circle', title: 'Nhóm đã tham gia', route: RoutePath.GROUP_JOINED },
         { iconName: 'add-circle', title: 'Nhóm đã tạo', route: RoutePath.GROUP_CREATED },
+        { iconName: 'people-circle', title: 'Nhóm tham gia', route: RoutePath.GROUP_JOINED },
     ];
 
     const sidebarItemsEvent = [
         { iconName: 'list-circle', title: 'Danh sách sự kiện', route: RoutePath.EVENT },
-        { iconName: 'calendar-number', title: 'Sự kiện đã tham gia', route: RoutePath.EVENT_JOINED },
         { iconName: 'add-circle', title: 'Sự kiện đã tạo', route: RoutePath.EVENT_CREATED },
+        { iconName: 'calendar-number', title: 'Sự kiện tham gia', route: RoutePath.EVENT_JOINED },
     ];
 
     const location = useLocation();
-    const [lastPath, setLastPath] = useState(null);
 
     useEffect(() => {
-        setLastPath(location.pathname);
-        localStorage.setItem('lastPath', location.pathname);
         const fetchLocations = async () => {
             try {
                 const response = await axios.get('https://provinces.open-api.vn/api/p/');
@@ -143,6 +140,8 @@ function ListLayout({ children }) {
 
     const navigate = useNavigate();
 
+    const selectedGroup = useSelector((state) => state.group.selectedGroup);
+
     const handleCreateGroup = async () => {
         const newErrors = {};
         if (!groupName || groupName.length < 10 || groupName.length > 25) {
@@ -152,19 +151,15 @@ function ListLayout({ children }) {
             newErrors.groupDescription = 'Vui lòng nhập mô tả nhóm';
         }
         setErrors(newErrors);
-
         if (Object.keys(newErrors).length > 0) {
             return;
         }
-
         const newGroup = {
             groupName,
             description: groupDescription,
             location: groupLocation,
             groupImageUrl: uploadedUrl ?? 'https://images.unsplash.com/photo-1725500221821-c4c770db5290?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-            createAt: new Date().toISOString(),
         };
-        console.log(token);
         try {
             const apiUrl = import.meta.env.VITE_BASE_API_URL;
             const response = await axios.post(
@@ -176,11 +171,11 @@ function ListLayout({ children }) {
                     }
                 }
             );
-            console.log('Create group response:', response.data);
             dispatch(viewGroup(response.data));
+            console.log('selected group', selectedGroup);
             dispatch(refreshGroups());
-            navigate(RoutePath.GROUP_DETAILS, {
-                state: { successMessage: 'Nhóm mới đã được tạo thành công' }
+            navigate(RoutePath.GROUP_MY_DETAILS, {
+                state: { successMessage: 'Nhóm mới đã được tạo thành công', groupData: response.data }
             });
 
         } catch (error) {
@@ -290,7 +285,46 @@ function ListLayout({ children }) {
                 <Col lg={3} md={3} className='p-0 d-none d-md-block d-lg-block'>
                     <div style={{ margin: '0 85px' }}>
                         <SidebarList items={sidebarItemsWithActiveState} />
-                        {isGroupRoutebtn && (
+
+
+
+                    </div>
+                </Col>
+
+                <Offcanvas show={show} onHide={handleClose} className="d-lg-none d-md-none">
+                    <Offcanvas.Header closeButton>
+                        <Offcanvas.Title>Sidebar</Offcanvas.Title>
+                    </Offcanvas.Header>
+                    <Offcanvas.Body>
+                        <SidebarList items={sidebarItemsWithActiveState} />
+                    </Offcanvas.Body>
+                </Offcanvas>
+
+                <Col lg={6} md={9} xs={12} className='p-0'>
+                    <Container className='container-list d-none d-md-flex mb-4'>
+                        <div className='search-list-container'><SearchBar /></div>
+                        <InputGroup className='search-list-container location-container'>
+                            <InputGroup.Text className="search-icon bg-white search-icon-list rounded-start-5" style={{
+                                border: '1px solid #d9d9d9'
+                            }}>
+                                <ion-icon name="location-outline" style={{
+                                    fontSize: '24px',
+                                }}></ion-icon>
+                            </InputGroup.Text>
+                            <FormControl
+                                type="search"
+                                placeholder="Địa điểm"
+                                aria-label="Search"
+                                className="searchBar-list rounded-start-0 rounded-end-5 border-start-0"
+                            />
+                        </InputGroup>
+                        <Button variant='' className='d-flex align-items-center gap-2 rounded-5 btn-filter'>
+                            <ion-icon name="filter-outline" style={{
+                                fontSize: '24px',
+                            }}></ion-icon>
+                            Lọc
+                        </Button>
+                        {isGroupRoutebtn ? (
                             <FormSubmit buttonText={'Tạo nhóm'} onButtonClick={handleCreateGroup} title={'Tạo nhóm'} openModalText={'Tạo nhóm'} needAuthorize={true}>
                                 <h3>Bảng thông tin</h3>
                                 <small>Nhập thông tin chi tiết cho nhóm mới của bạn</small>
@@ -308,7 +342,6 @@ function ListLayout({ children }) {
                                             {errors.groupName}
                                         </Form.Control.Feedback>
                                     </Form.Group>
-
                                     <Form.Group id="groupDescription" className="mb-3">
                                         <Form.Label className='fw-medium'>Mô tả nhóm</Form.Label>
                                         <Form.Control
@@ -373,9 +406,7 @@ function ListLayout({ children }) {
                                     </Form.Group>
                                 </Form>
                             </FormSubmit>
-                        )}
-
-                        {isEventRouteBtn && (
+                        ) : (
                             <FormSubmit buttonText={'Tạo sự kiện'} onButtonClick={handleCreateEvent} title={'Tạo sự kiện'} openModalText={'Tạo sự kiện'} needAuthorize={true}>
                                 <h3>Bảng thông tin</h3>
                                 <small>Nhập thông tin chi tiết cho sự kiện mới của bạn</small>
@@ -516,47 +547,9 @@ function ListLayout({ children }) {
                                 </Form>
                             </FormSubmit>
                         )}
-
-                    </div>
-                </Col>
-
-                <Offcanvas show={show} onHide={handleClose} className="d-lg-none d-md-none">
-                    <Offcanvas.Header closeButton>
-                        <Offcanvas.Title>Sidebar</Offcanvas.Title>
-                    </Offcanvas.Header>
-                    <Offcanvas.Body>
-                        <SidebarList items={sidebarItemsWithActiveState} />
-                    </Offcanvas.Body>
-                </Offcanvas>
-
-                <Col lg={6} md={9} xs={12} className='p-0'>
-                    <Container className='container-list d-none d-md-flex mb-4'>
-                        <div className='search-list-container'><SearchBar /></div>
-                        <InputGroup className='search-list-container location-container'>
-                            <InputGroup.Text className="search-icon bg-white search-icon-list rounded-start-5" style={{
-                                border: '1px solid black'
-                            }}>
-                                <ion-icon name="location-outline" style={{
-                                    fontSize: '24px',
-                                }}></ion-icon>
-                            </InputGroup.Text>
-                            <FormControl
-                                type="search"
-                                placeholder="Địa điểm"
-                                aria-label="Search"
-                                className="searchBar-list rounded-start-0 rounded-end-5 border-start-0"
-                            />
-                        </InputGroup>
-                        <Button variant='outline-dark' className='d-flex align-items-center gap-2 rounded-5 btn-filter'>
-                            <ion-icon name="filter-outline" style={{
-                                fontSize: '24px',
-                            }}></ion-icon>
-                            Lọc
-                        </Button>
                     </Container>
                     {children}
                 </Col>
-
                 <Col lg={3} className='p-0 d-none d-lg-block'>
                     {isEventRoute ? (
                         <ProposeEvent />

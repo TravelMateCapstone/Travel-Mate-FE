@@ -61,7 +61,7 @@ function AboutMe() {
   }, [token, baseUrl, location.pathname]);
 
   return (
-    <Container className='py-3 px-0 border-0 rounded-5' style={{ boxShadow: '0 0 4px rgba(0, 0, 0, 0.25)' }}>
+    <Container className='py-3 px-0 border-0 rounded-5' style={{ background: '#f9f9f9' }}>
       <Row>
         <Col md={12}>
           <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">GIỚI THIỆU</h2>

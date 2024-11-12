@@ -13,11 +13,19 @@
 .container-list .myInput {
     height: 42px !important;
 }
+.container-list .myInput:hover {
+    background: #f7f7f7;
+}
 
 .btn-filter {
     padding: 8px 15px;
+    border: 1px solid #d9d9d9 !important;
+    font-weight: 400 !important;
+    font-size: 12px !important;
 }
-
+.btn-filter:hover {
+    background-color: #f7f7f7 !important;
+}
 .search-list-container .searchBar-list {
     height: 42px !important;
     border-top-right-radius: 20px !important;
@@ -27,6 +35,9 @@
 .searchBar-list:focus {
     height: 42px;
     border-left: 0px;
+}
+.searchBar-list:hover {
+   background-color: #f7f7f7 ;
 }
 
 .search-icon-list {
@@ -128,21 +139,24 @@
 /* Ensure border remains black on focus */
 .search-list-container .searchBar-list,
 .location-container .FormControl .myInput {
-    border-color: rgb(156, 145, 145) !important;
+    border-color: #d9d9d9 !important;
+    color: black !important;
 }
 
 .search-list-container .searchBar-list:focus,
 .location-container .FormControl:focus,
 .search-icon-list:focus {
-    border-color: black !important;
+    border-color: #d9d9d9 !important;
     /* Keeps border black on focus */
     box-shadow: none !important;
     /* Removes any focus outline or shadow */
+    background-color: #f7f7f7 !important;
 }
 
 .search-icon-list {
-    border-color: black !important;
+    border-color: #d9d9d9 !important;
 }
+
 
 
 @media (max-width: 1024px) {
