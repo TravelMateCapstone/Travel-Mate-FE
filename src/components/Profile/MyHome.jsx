@@ -4,6 +4,7 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { Container, Row, Col } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import "../../assets/css/Profile/MyHome.css";
 
 function MyHome() {
@@ -11,41 +12,37 @@ function MyHome() {
   const [loading, setLoading] = useState(true);
   const token = useSelector((state) => state.auth.token);
   const url = import.meta.env.VITE_BASE_API_URL;
+  const location = useLocation(); // Sử dụng để kiểm tra đường dẫn hiện tại
 
   useEffect(() => {
     const fetchHomeData = async () => {
-      // Kiểm tra xem dữ liệu có sẵn trong localStorage hay không
-      const storedData = localStorage.getItem('homeData');
-
-      if (storedData) {
-        console.log("storage", storedData);
-        // Nếu có, chuyển dữ liệu từ localStorage vào state và dừng loading
-        setHomeData(JSON.parse(storedData));
+      if (location.pathname === '/others-profile') {
+        // Nếu ở trang hồ sơ của người khác, lấy dữ liệu từ localStorage
+        const othersHome = JSON.parse(localStorage.getItem('othersHome'));
+        if (othersHome) {
+          setHomeData(othersHome);
+        } else {
+          console.error('Lỗi khi lấy dữ liệu nhà từ localStorage');
+        }
         setLoading(false);
-      } else {
+      } else if (location.pathname === '/profile') {
+        // Nếu ở trang hồ sơ cá nhân, lấy dữ liệu từ API
         try {
-          // Nếu không có, gọi API để lấy dữ liệu
           const response = await axios.get(`${url}/api/UserHome/current-user`, {
             headers: {
               Authorization: `${token}`,
             },
           });
-
-          console.log("api");
           setHomeData(response.data);
-
-          // Lưu dữ liệu vào localStorage
-          localStorage.setItem('homeData', JSON.stringify(response.data));
         } catch (error) {
-          console.error('Lỗi khi lấy dữ liệu:', error);
+          console.error('Lỗi khi lấy dữ liệu từ API:', error);
         } finally {
           setLoading(false);
         }
       }
     };
-
     fetchHomeData();
-  }, [token, url]);
+  }, [token, url, location.pathname]);
 
   return (
     <Container className='py-3 px-0 border-0 rounded-5' style={{
@@ -59,13 +56,13 @@ function MyHome() {
           <div className="small ms-3 d-flex gap-2">
             <ion-icon name="people-outline" style={{ fontSize: '16px' }}></ion-icon>
             <p className='fw-medium'>
-              {loading ? <Skeleton width={150} /> : `Số lượng khách tối đa: ${homeData.maxGuests}`}
+              {loading ? <Skeleton width={150} /> : `Số lượng khách tối đa: ${homeData?.maxGuests}`}
             </p>
           </div>
           <div className="small ms-3 d-flex gap-2">
             <ion-icon name="male-female-outline" style={{ fontSize: '16px' }}></ion-icon>
             <p className='fw-medium'>
-              {loading ? <Skeleton width={150} /> : `Giới tính tôi muốn đón: ${homeData.guestPreferences}`}
+              {loading ? <Skeleton width={150} /> : `Giới tính tôi muốn đón: ${homeData?.guestPreferences}`}
             </p>
           </div>
         </div>
@@ -77,11 +74,11 @@ function MyHome() {
           <div className="small ms-3 d-flex gap-2">
             <ion-icon name="bed-outline" style={{ fontSize: '24px' }}></ion-icon>
             <p className='fw-medium m-0' style={{ fontSize: '20px' }}>
-              {loading ? <Skeleton width={100} /> : homeData.isPrivateRoom ? "Phòng riêng" : "Phòng chung"}
+              {loading ? <Skeleton width={100} /> : homeData?.isPrivateRoom ? "Phòng riêng" : "Phòng chung"}
             </p>
           </div>
           <p className="small ms-3" style={{ fontSize: '20px' }}>
-            {loading ? <Skeleton width={250} /> : homeData.roomMateInfo}
+            {loading ? <Skeleton width={250} /> : homeData?.roomMateInfo}
           </p>
           <hr />
         </div>
@@ -95,7 +92,7 @@ function MyHome() {
             <p className='fw-medium m-0' style={{ fontSize: '20px' }}>{loading ? <Skeleton width={100} /> : 'Phòng đơn'}</p>
           </div>
           <p className="small ms-5" style={{ fontSize: '20px' }}>
-            {loading ? <Skeleton width={200} /> : homeData.description}
+            {loading ? <Skeleton width={200} /> : homeData?.roomDescription}
           </p>
 
           <div className="small ms-3 d-flex gap-2">
@@ -103,7 +100,7 @@ function MyHome() {
             <p className='fw-medium m-0' style={{ fontSize: '20px' }}>{loading ? <Skeleton width={150} /> : 'Tiện nghi'}</p>
           </div>
           <p className="small ms-5" style={{ fontSize: '20px' }}>
-            {loading ? <Skeleton width={250} /> : homeData.amenities}
+            {loading ? <Skeleton width={250} /> : homeData?.amenities}
           </p>
 
           <div className="small ms-3 d-flex gap-2">
@@ -111,7 +108,7 @@ function MyHome() {
             <p className='fw-medium m-0' style={{ fontSize: '20px' }}>{loading ? <Skeleton width={100} /> : 'Phương tiện di chuyển'}</p>
           </div>
           <p className="small ms-5" style={{ fontSize: '20px' }}>
-            {loading ? <Skeleton width={200} /> : homeData.transportation}
+            {loading ? <Skeleton width={200} /> : homeData?.transportation}
           </p>
         </div>
       </div>
@@ -126,7 +123,7 @@ function MyHome() {
               </Col>
             ))
           ) : (
-            homeData && homeData.homePhotos && homeData.homePhotos.$values.map((photo) => (
+            homeData?.homePhotos && homeData.homePhotos.$values.map((photo) => (
               <Col xs={12} md={4} className="mb-3" key={photo.photoId}>
                 <img src={photo.homePhotoUrl} alt={`House ${photo.photoId}`} className="img-fluid rounded-3" />
               </Col>

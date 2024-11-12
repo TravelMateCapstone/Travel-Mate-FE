@@ -54,6 +54,8 @@ const privateRoutes = [
     { path: RoutePath.SETTING, component: Setting, layout: NavBarLayout },
     { path: RoutePath.CHAT, component: Chat, layout: NavBarLayout },
 
+    { path: RoutePath.OTHERS_PROFILE, component: Profile, layout: ProfileLayout },
+
 
 
 ]

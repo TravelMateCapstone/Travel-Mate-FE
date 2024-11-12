@@ -5,13 +5,16 @@ import '../../assets/css/Events/JoinedEventDetail.css';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import RoutePath from '../../routes/RoutePath';
 
 function EventJoined() {
     const [members, setMembers] = useState([]);
     const [showModal, setShowModal] = useState(false);
-    const [isJoined, setIsJoined] = useState(false); // Ban đầu đặt là false
+    const [isJoined, setIsJoined] = useState(false);
     const selectedEvent = useSelector(state => state.event.selectedEvent) || JSON.parse(localStorage.getItem('selectedEvent'));
     const token = useSelector((state) => state.auth.token);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (selectedEvent) {
@@ -76,6 +79,32 @@ function EventJoined() {
                 toast.error("Lỗi khi tham gia sự kiện!");
                 console.error("Error joining event:", error);
             }
+        }
+    };
+
+    const handleViewProfile = async (userId) => {
+        try {
+            // Gọi API để lấy thông tin hồ sơ người dùng
+            const othersUserProfile = await axios.get(`https://travelmateapp.azurewebsites.net/api/Profile/${userId}`);
+            localStorage.setItem('othersProfile', JSON.stringify(othersUserProfile.data));
+
+            // Gọi API để lấy thông tin nhà người dùng
+            const userProfileResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserHome/user/${userId}`);
+            localStorage.setItem('othersHome', JSON.stringify(userProfileResponse.data));
+
+            // Gọi API để lấy thông tin hoạt động của người dùng
+            const userActivitiesResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserActivitiesWOO/user/${userId}`);
+            localStorage.setItem('othersActivity', JSON.stringify(userActivitiesResponse.data));
+
+            // Gọi API để lấy danh sách bạn bè của người dùng
+            const userFriendsResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/Friendship/List-friends/${userId}`);
+            localStorage.setItem('othersListFriend', JSON.stringify(userFriendsResponse.data));
+
+            // Chuyển hướng đến trang hồ sơ của người khác
+            navigate(RoutePath.OTHERS_PROFILE);
+        } catch (error) {
+            toast.error("Lỗi khi lấy thông tin hồ sơ!");
+            console.error("Error fetching user profile, activities, or friends:", error);
         }
     };
 
@@ -145,7 +174,7 @@ function EventJoined() {
                                     alt={`member-${index}`}
                                 />
                                 <div className='member-info'>
-                                    <p className='member-name'>{member.fullName}</p>
+                                    <p className='member-name'>{member.firstName} {member.lastName}</p>
                                     <p className='member-location'>{member.city || 'Địa điểm không xác định'}</p>
                                 </div>
                             </div>
@@ -169,7 +198,7 @@ function EventJoined() {
                                     alt={`member-${index}`}
                                 />
                                 <div className='member-info'>
-                                    <p className='member-name'>{member.fullName}</p>
+                                    <p className='member-name'>{member.firstName} {member.lastName}</p>
                                     <p className='member-location'>{member.city || 'Địa điểm không xác định'}</p>
                                 </div>
                             </div>
@@ -178,7 +207,7 @@ function EventJoined() {
                                     <ion-icon name="ellipsis-vertical-outline"></ion-icon>
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu className="dropdown-menu">
-                                    <Dropdown.Item href="#">Xem hồ sơ</Dropdown.Item>
+                                    <Dropdown.Item onClick={() => handleViewProfile(member.userId)}>Xem hồ sơ</Dropdown.Item>
                                     <Dropdown.Item href="#">Liên hệ</Dropdown.Item>
                                 </Dropdown.Menu>
                             </Dropdown>
@@ -186,7 +215,6 @@ function EventJoined() {
                     ))}
                 </Modal.Body>
             </Modal>
-
         </div>
     );
 }

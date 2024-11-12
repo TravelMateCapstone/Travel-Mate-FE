@@ -89,6 +89,11 @@ function EventCreated() {
         throw new Error("Input is not a valid string");
       }
 
+      if (inputDateStr.includes('T')) {
+        const date = new Date(inputDateStr);
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+      }
+
       const [time, period, date] = inputDateStr.split(' ');
       if (!time || !period || !date) throw new Error("Invalid date format");
 
@@ -106,15 +111,19 @@ function EventCreated() {
       } else if (period === 'AM' && hour === 12) {
         hour = 0;
       }
-      const dateObj = new Date(year, month - 1, day, hour, minute);
+
+      // Tạo đối tượng Date với giờ, phút, ngày, tháng, năm đã xử lý
+      const dateObj = new Date(Date.UTC(year, month - 1, day, hour, minute));
       if (isNaN(dateObj.getTime())) throw new Error("Invalid Date Object");
 
-      return dateObj.toISOString().slice(0, -8);
+      // Trả về chuỗi định dạng phù hợp với input 'datetime-local'
+      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
     } catch (error) {
       console.error("Date formatting error:", error.message);
-      return null; // Trả về null hoặc xử lý lỗi phù hợp
+      return null;
     }
   }
+
 
   const handleEditEventSubmit = async () => {
     const createAt = selectedEvent.createAt || new Date().toISOString();
@@ -246,6 +255,32 @@ function EventCreated() {
     setShowViewImage(false);
   };
 
+  const handleViewProfile = async (userId) => {
+    try {
+      // Gọi API để lấy thông tin hồ sơ người dùng
+      const othersUserProfile = await axios.get(`https://travelmateapp.azurewebsites.net/api/Profile/${userId}`);
+      localStorage.setItem('othersProfile', JSON.stringify(othersUserProfile.data));
+
+      // Gọi API để lấy thông tin nhà người dùng
+      const userProfileResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserHome/user/${userId}`);
+      localStorage.setItem('othersHome', JSON.stringify(userProfileResponse.data));
+
+      // Gọi API để lấy thông tin hoạt động của người dùng
+      const userActivitiesResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserActivitiesWOO/user/${userId}`);
+      localStorage.setItem('othersActivity', JSON.stringify(userActivitiesResponse.data));
+
+      // Gọi API để lấy danh sách bạn bè của người dùng
+      const userFriendsResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/Friendship/List-friends/${userId}`);
+      localStorage.setItem('othersListFriend', JSON.stringify(userFriendsResponse.data));
+
+      // Chuyển hướng đến trang hồ sơ của người khác
+      navigate(RoutePath.OTHERS_PROFILE);
+    } catch (error) {
+      toast.error("Lỗi khi lấy thông tin hồ sơ!");
+      console.error("Error fetching user profile, activities, or friends:", error);
+    }
+  };
+
   if (!selectedEvent) {
     return <div>Không có sự kiện nào được chọn</div>;
   }
@@ -335,7 +370,7 @@ function EventCreated() {
                   alt={`member-${index}`}
                 />
                 <div className='member-info'>
-                  <p className='member-name'>{member.fullName}</p>
+                  <p className='member-name'>{member.firstName} {member.lastName}</p>
                   <p className='member-location'>{member.city || 'Địa điểm không xác định'}</p>
                 </div>
               </div>
@@ -359,7 +394,7 @@ function EventCreated() {
                   alt={`member-${index}`}
                 />
                 <div className='member-info'>
-                  <p className='member-name'>{member.fullName}</p>
+                  <p className='member-name'>{member.firstName} {member.lastName}</p>
                   <p className='member-location'>{member.city || 'Địa điểm không xác định'}</p>
                 </div>
               </div>
@@ -368,7 +403,7 @@ function EventCreated() {
                   <ion-icon name="ellipsis-vertical-outline"></ion-icon>
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="dropdown-menu">
-                  <Dropdown.Item href="#">Xem hồ sơ</Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleViewProfile(member.userId)}>Xem hồ sơ</Dropdown.Item>
                   <Dropdown.Item href="#" onClick={() => handleRemoveMember(member.userId)}>Gỡ</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>

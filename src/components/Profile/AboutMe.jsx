@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import { Container, Row, Col } from 'react-bootstrap';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -11,47 +12,53 @@ function AboutMe() {
   const [activities, setActivities] = useState([]);
   const token = useSelector((state) => state.auth.token);
   const baseUrl = import.meta.env.VITE_BASE_API_URL;
+  const location = useLocation(); // Sử dụng để kiểm tra đường dẫn hiện tại
 
   useEffect(() => {
     const fetchProfileAndActivities = async () => {
-      try {
-        // Fetching the profile data
-        const profileResponse = await axios.get(`${baseUrl}/api/Profile/current-profile`, {
-          headers: { Authorization: `${token}` },
-        });
+      if (location.pathname === '/others-profile') {
+        // Nếu đang ở trang hồ sơ người khác, lấy dữ liệu từ localStorage
+        const othersProfile = JSON.parse(localStorage.getItem('othersProfile'));
+        const othersActivity = JSON.parse(localStorage.getItem('othersActivity'));
 
-        if (profileResponse.data) {
-          const profileData = profileResponse.data;
-          setProfile(profileData);
-          // localStorage.setItem('profileData', JSON.stringify(profileData));
+        if (othersProfile) {
+          setProfile(othersProfile);
+        } else {
+          console.error('Lỗi khi lấy dữ liệu hồ sơ từ localStorage');
         }
 
-        // Fetching user activities
-        const activitiesResponse = await axios.get(`${baseUrl}/api/UserActivitiesWOO/current-user`, {
-          headers: { Authorization: `${token}` },
-        });
-
-        if (activitiesResponse.data?.$values) {
-          const activitiesData = activitiesResponse.data.$values;
-          setActivities(activitiesData);
-          // localStorage.setItem('activitiesData', JSON.stringify(activitiesData));
+        if (othersActivity?.$values) {
+          setActivities(othersActivity.$values.map(item => item.activity));
+        } else {
+          console.error('Lỗi khi lấy dữ liệu hoạt động từ localStorage');
         }
-      } catch (error) {
-        console.error('Error fetching data:', error);
+      } else if (location.pathname === '/profile') {
+        // Nếu đang ở trang hồ sơ cá nhân, lấy dữ liệu từ API
+        try {
+          const profileResponse = await axios.get(`${baseUrl}/api/Profile/current-profile`, {
+            headers: { Authorization: `${token}` },
+          });
+
+          if (profileResponse.data) {
+            const profileData = profileResponse.data;
+            setProfile(profileData);
+          }
+
+          const activitiesResponse = await axios.get(`${baseUrl}/api/UserActivitiesWOO/current-user`, {
+            headers: { Authorization: `${token}` },
+          });
+
+          if (activitiesResponse.data?.$values) {
+            const activitiesData = activitiesResponse.data.$values;
+            setActivities(activitiesData);
+          }
+        } catch (error) {
+          console.error('Error fetching data from API:', error);
+        }
       }
     };
     fetchProfileAndActivities();
-
-    // Load from localStorage or fetch from API
-    // const storedProfile = localStorage.getItem('profileData');
-    // const storedActivities = localStorage.getItem('activitiesData');
-    // if (storedProfile && storedActivities) {
-    //   setProfile(JSON.parse(storedProfile));
-    //   setActivities(JSON.parse(storedActivities));
-    // } else {
-    //   fetchProfileAndActivities();
-    // }
-  }, [token, baseUrl]);
+  }, [token, baseUrl, location.pathname]);
 
   return (
     <Container className='py-3 px-0 border-0 rounded-5' style={{ boxShadow: '0 0 4px rgba(0, 0, 0, 0.25)' }}>

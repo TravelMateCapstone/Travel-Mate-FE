@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ReactPaginate from 'react-paginate';
 import { useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import '../../assets/css/Shared/Pagination.css';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -13,17 +14,21 @@ function Friends() {
   const itemsPerPage = 4;
   const token = useSelector((state) => state.auth.token);
   const url = import.meta.env.VITE_BASE_API_URL;
+  const location = useLocation(); // Sử dụng để kiểm tra đường dẫn hiện tại
 
   useEffect(() => {
     const fetchFriends = async () => {
-      const storedFriends = localStorage.getItem('friendsData');
-
-      if (storedFriends) {
-        console.log("Dữ liệu bạn bè từ localStorage:", storedFriends);
-        // Nếu có dữ liệu trong localStorage, chuyển vào state và dừng loading
-        setFriends(JSON.parse(storedFriends));
+      if (location.pathname === '/others-profile') {
+        // Nếu đang ở trang hồ sơ người khác, lấy dữ liệu từ localStorage
+        const othersListFriend = JSON.parse(localStorage.getItem('othersListFriend'));
+        if (othersListFriend) {
+          setFriends(othersListFriend.$values || []);
+        } else {
+          console.error('Lỗi khi lấy dữ liệu bạn bè từ localStorage');
+        }
         setLoading(false);
-      } else {
+      } else if (location.pathname === '/profile') {
+        // Nếu đang ở trang hồ sơ cá nhân, lấy dữ liệu từ API
         try {
           const response = await axios.get(`${url}/api/Friendship/current-user/friends`, {
             headers: {
@@ -32,8 +37,6 @@ function Friends() {
           });
 
           setFriends(response.data.$values);
-          // Lưu dữ liệu vào localStorage
-          localStorage.setItem('friendsData', JSON.stringify(response.data.$values));
         } catch (error) {
           console.error('Lỗi khi lấy dữ liệu bạn bè:', error);
         } finally {
@@ -41,9 +44,8 @@ function Friends() {
         }
       }
     };
-
     fetchFriends();
-  }, [token, url]);
+  }, [token, url, location.pathname]);
 
   // Tính toán các trang và chỉ số của các thẻ bạn bè hiện tại
   const pagesVisited = currentPage * itemsPerPage;
@@ -89,14 +91,14 @@ function Friends() {
               alignItems: 'center'
             }}>
               <img
-                src={friend.profile.imageUser}
-                alt={friend.profile.fullName}
+                src={friend.profile?.imageUser}
+                alt={friend.profile?.lastName}
                 style={{ width: '60px', height: '60px', borderRadius: '50%', marginRight: '15px', objectFit: 'cover' }} // Điều chỉnh kích thước ảnh
               />
               <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h5 style={{ margin: 0, fontWeight: 'bold' }}>{friend.profile.fullName}</h5>
-                  <p style={{ margin: 0 }}>{friend.profile.city}</p>
+                  <h5 style={{ margin: 0, fontWeight: 'bold' }}>{friend.profile?.firstName} {friend.profile?.lastName}</h5>
+                  <p style={{ margin: 0 }}>{friend.profile?.city}</p>
                 </div>
                 <i className="bi bi-three-dots"></i>
               </div>

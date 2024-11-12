@@ -53,6 +53,9 @@ const RoutePath = {
     PROFILE_FAVOURITE_LOCATION: '/profile/favourite-location',
     PROFILE_FRIEND_LIST: '/profile/friend-list',
     PROFILE_MY_HOME: '/profile/my-home',
+
+    //others Profile
+    OTHERS_PROFILE: '/others-profile',
 }
 
 export default RoutePath;

@@ -16,43 +16,29 @@ function ProfileCard() {
   const url = import.meta.env.VITE_BASE_API_URL;
 
   useEffect(() => {
-    // Lấy dữ liệu từ localStorage nếu có
-    const storedProfile = localStorage.getItem("profile");
-    const storedLanguages = localStorage.getItem("languages");
-    const storedEducation = localStorage.getItem("education");
+    // Gọi API và lấy dữ liệu trực tiếp mà không lưu vào localStorage
+    const fetchProfileData = async () => {
+      try {
+        const profileResponse = await axios.get(`${url}/api/Profile/current-profile`, {
+          headers: { Authorization: token },
+        });
+        setProfile(profileResponse.data);
 
-    if (storedProfile && storedLanguages && storedEducation) {
-      setProfile(JSON.parse(storedProfile));
-      setLanguages(JSON.parse(storedLanguages));
-      setEducation(JSON.parse(storedEducation));
-    } else {
-      // Nếu chưa có trong localStorage, gọi API và lưu dữ liệu vào localStorage
-      const fetchProfileData = async () => {
-        try {
-          const profileResponse = await axios.get(`${url}/api/Profile/current-profile`, {
-            headers: { Authorization: `${token}` },
-          });
-          setProfile(profileResponse.data);
-          localStorage.setItem("profile", JSON.stringify(profileResponse.data));
+        const languagesResponse = await axios.get(`${url}/api/SpokenLanguages/current-user`, {
+          headers: { Authorization: token },
+        });
+        setLanguages(languagesResponse.data.$values);
 
-          const languagesResponse = await axios.get(`${url}/api/SpokenLanguages/current-user`, {
-            headers: { Authorization: `${token}` },
-          });
-          setLanguages(languagesResponse.data.$values);
-          localStorage.setItem("languages", JSON.stringify(languagesResponse.data.$values));
+        const educationResponse = await axios.get(`${url}/api/UserEducation/current-user`, {
+          headers: { Authorization: token },
+        });
+        setEducation(educationResponse.data.$values);
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu:", error);
+      }
+    };
 
-          const educationResponse = await axios.get(`${url}/api/UserEducation/current-user`, {
-            headers: { Authorization: `${token}` },
-          });
-          setEducation(educationResponse.data.$values);
-          localStorage.setItem("education", JSON.stringify(educationResponse.data.$values));
-        } catch (error) {
-          console.error("Lỗi khi lấy dữ liệu:", error);
-        }
-      };
-
-      fetchProfileData();
-    }
+    fetchProfileData();
   }, [token]);
 
   if (!profile || !languages || !education) {
@@ -93,7 +79,7 @@ function ProfileCard() {
         </div>
         <div className="profile-info">
           <p className="text-center fw-medium profile-name">
-            {profile.fullName}
+            {profile.firstName} {profile.lastName}
           </p>
           <div className="d-flex align-items-center gap-1">
             <ion-icon name="location-outline"></ion-icon>
