@@ -273,6 +273,18 @@ function EventCreated() {
       const userFriendsResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/Friendship/List-friends/${userId}`);
       localStorage.setItem('othersListFriend', JSON.stringify(userFriendsResponse.data));
 
+      // Gọi API để lấy danh sách địa điểm của người dùng
+      const othersLocation = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserLocationsWOO/user/${userId}`);
+      localStorage.setItem('othersLocation', JSON.stringify(othersLocation.data));
+
+      // Gọi API để lấy trường học của người dùng
+      const othersUserEducation = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserEducation/user/${userId}`);
+      localStorage.setItem('othersEducation', JSON.stringify(othersUserEducation.data));
+
+      // Gọi API để lấy danh sách ngôn ngữ của người dùng
+      const othersUserLanguages = await axios.get(`https://travelmateapp.azurewebsites.net/api/SpokenLanguages/user/${userId}`);
+      localStorage.setItem('othersLanguages', JSON.stringify(othersUserLanguages.data));
+
       // Chuyển hướng đến trang hồ sơ của người khác
       navigate(RoutePath.OTHERS_PROFILE);
     } catch (error) {

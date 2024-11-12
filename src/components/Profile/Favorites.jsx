@@ -1,20 +1,41 @@
-import React, { useState } from 'react';
-import { Card, Image, Container, Row, Col, Button } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Container, Button } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
-
-const favoritesData = [
-  { id: 1, name: 'Phố cổ Hội An', location: 'Quảng Nam, Việt Nam', imageUrl: 'https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg' },
-  { id: 2, name: 'Bãi biển Mỹ Khê', location: 'Đà Nẵng, Việt Nam', imageUrl: 'https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg' },
-  { id: 3, name: 'Vịnh Hạ Long', location: 'Quảng Ninh, Việt Nam', imageUrl: 'https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg' },
-  { id: 4, name: 'Phố cổ Hà Nội', location: 'Hà Nội, Việt Nam', imageUrl: 'https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg' },
-  { id: 5, name: 'Thành phố Hồ Chí Minh', location: 'Việt Nam', imageUrl: 'https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg' },
-  // Add more favorite places as needed...
-];
+import axios from 'axios';
+import { useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 
 function Favorites() {
-  // State for pagination
+  // State for favorites data and pagination
+  const [favorites, setFavorites] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 4; // Number of items per page
+  const token = useSelector((state) => state.auth.token);
+  const url = import.meta.env.VITE_BASE_API_URL;
+  const location = useLocation();
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        if (location.pathname === '/others-profile') {
+          // Lấy dữ liệu từ localStorage nếu là trang /others-profile
+          const othersLocation = JSON.parse(localStorage.getItem('othersLocation'));
+          setFavorites(othersLocation?.$values || []);
+        } else {
+          // Gọi API nếu là trang /profile
+          const response = await axios.get(`${url}/api/UserLocationsWOO/get-current-user`, {
+            headers: {
+              Authorization: `${token}`,
+            },
+          });
+          setFavorites(response.data.$values);
+        }
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu địa điểm yêu thích:', error);
+      }
+    };
+    fetchFavorites();
+  }, [token, url, location.pathname]);
 
   // Function to handle page change
   const handlePageChange = (data) => {
@@ -22,7 +43,7 @@ function Favorites() {
   };
 
   // Calculate current items to display
-  const displayedFavorites = favoritesData.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
+  const displayedFavorites = favorites.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
 
   return (
     <Container className='py-3 px-0 border-0 rounded-5' style={{
@@ -37,7 +58,7 @@ function Favorites() {
         gridGap: '20px 60px',
       }} className='px-5'>
         {displayedFavorites.map((favorite) => (
-          <div key={favorite.id} style={{
+          <div key={favorite.location.locationId} style={{
             border: '1px solid black',
             padding: '20px',
             borderRadius: '10px',
@@ -45,14 +66,14 @@ function Favorites() {
             alignItems: 'center'
           }}>
             <img
-              src={favorite.imageUrl}
-              alt={favorite.name}
+              src={'https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg'}
+              alt={favorite.location.locationName}
               style={{ width: '60px', height: '60px', borderRadius: '50%', marginRight: '15px', objectFit: 'cover' }}
             />
             <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <h5 style={{ margin: 0, fontWeight: 'bold' }}>{favorite.name}</h5>
-                <p style={{ margin: 0 }}>{favorite.location}</p>
+                <h5 style={{ margin: 0, fontWeight: 'bold' }}>{favorite.location.locationName}</h5>
+                <p style={{ margin: 0 }}>Việt Nam</p>
               </div>
               <i className="bi bi-three-dots"></i>
             </div>
@@ -67,7 +88,7 @@ function Favorites() {
           nextLabel={'>'}
           breakLabel={'...'}
           breakClassName={'break-me'}
-          pageCount={Math.ceil(favoritesData.length / itemsPerPage)}
+          pageCount={Math.ceil(favorites.length / itemsPerPage)}
           marginPagesDisplayed={2}
           pageRangeDisplayed={2}
           onPageChange={handlePageChange}
@@ -77,8 +98,6 @@ function Favorites() {
           nextClassName={'next'}
         />
       </div>
-      
-     
     </Container>
   );
 }

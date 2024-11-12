@@ -73,3 +73,7 @@
 .border-line {
   border: 1px solid black;
 }
+
+.profile-button-options {
+  background-color: #E65C00 !important;
+}
