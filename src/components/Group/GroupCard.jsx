@@ -8,12 +8,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const GroupCard = ({ id, img, title, location, members, text, description }) => {
+const GroupCard = ({ id, img, title, location, members, text, description, isJoined }) => {
   const locationRoute = useLocation();
   const navigate = useNavigate(); // Add this line
   const dispatch = useDispatch();
   const [requestSent, setRequestSent] = useState(false);
   const token = useSelector((state) => state.auth.token);
+
+  console.log(isJoined);
 
   const isCreatedOrJoined =
     locationRoute.pathname === RoutePath.GROUP_CREATED ||
@@ -64,7 +66,7 @@ const GroupCard = ({ id, img, title, location, members, text, description }) => 
   };
 
   return (
-    <Card className="group-card">
+    <Card className="group-card" onClick={handleViewGroup}>
       <Card.Img variant="top" src={img} className="group-card-img" />
       <Card.Body className="group-card-body">
         <Card.Title className="group-name">{title}</Card.Title>
@@ -79,14 +81,14 @@ const GroupCard = ({ id, img, title, location, members, text, description }) => 
           </span>
         </div>
         <Card.Text className="group-card-text">{text}</Card.Text>
-        {isCreatedOrJoined || requestSent ? (
+        {isCreatedOrJoined ? (
           <Button
             variant="outline-success"
             className="group-card-button"
             onClick={handleViewGroup}
           >
             <div></div>
-            <div>{requestSent ? 'Xem nhóm' : 'Vào nhóm'}</div>
+            <div>Vào nhóm</div>
             <ion-icon name="chevron-forward-circle-outline" className="group-card-icon"></ion-icon>
           </Button>
         ) : (
@@ -97,7 +99,7 @@ const GroupCard = ({ id, img, title, location, members, text, description }) => 
             disabled={requestSent}
           >
             <div></div>
-            <div>{requestSent ? 'Đã gửi yêu cầu' : 'Tham gia'}</div>
+            <div>{(isJoined=='Pending') ? 'Đã gửi yêu cầu' : 'Tham gia'}</div>
             <ion-icon name="chevron-forward-circle-outline" className="group-card-icon"></ion-icon>
           </Button>
         )}

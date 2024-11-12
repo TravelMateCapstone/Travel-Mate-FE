@@ -33,6 +33,7 @@ import FinishContract from "../pages/Contracts/FinishContract"
 import OngoingContract from "../pages/Contracts/OngoingContract"
 import PaymentContract from "../pages/Contracts/PaymentContract"
 import ContractLayout from "../layouts/ContractLayout"
+import DefaultLayout from "../layouts/DefaultLayout"
 
 const publishRoutes = [
     { path: RoutePath.HOMEPAGE, component: Home, layout: HomeFeedLayout },
