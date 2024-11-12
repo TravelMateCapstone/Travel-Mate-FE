@@ -1,12 +1,19 @@
 import axios from 'axios';
-import React from 'react';
-import { Card, Image, Dropdown } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Card, Image, Dropdown, Modal, Button } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-function PostProfile({id, title,localName,star ,location, review, localLocation, date, description, images, userImage, userName, userReview, onDelete }) {
+import '../../assets/css/Profile/PostPastrip.css'
+function PostProfile({ isPublic, id, title, localName, star, location, review, localLocation, date, description, images, userImage, userName, userReview, onDelete }) {
+    const [show, setShow] = useState(false);
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+    const [privacy, setPrivacy] = useState(isPublic);
+
+
     const renderStars = Array(5).fill(0).map((_, index) => (
-        <ion-icon 
-            key={index} 
+        <ion-icon
+            key={index}
             name={index < star ? "star" : "star-outline"} // Hiển thị "star" nếu index < star, ngược lại là "star-outline"
             style={{ color: '#FBBC05', fontSize: '13px' }}
         ></ion-icon>
@@ -17,10 +24,10 @@ function PostProfile({id, title,localName,star ,location, review, localLocation,
         try {
             const response = await axios.delete(apiUrl, {
                 headers: {
-                  Authorization: `${token}` // Thêm token vào header
+                    Authorization: `${token}` // Thêm token vào header
                 }
-              });
-              
+            });
+
             toast.success('Xoá bài viết thành công !')
             if (onDelete) onDelete();
         } catch (error) {
@@ -72,7 +79,7 @@ function PostProfile({id, title,localName,star ,location, review, localLocation,
                         }}></ion-icon> <p className='m-0'>Ẩn bài viết</p></Dropdown.Item>
                         <Dropdown.Item className='d-flex align-items-center gap-2'><ion-icon name="create-outline" style={{
                             fontSize: '23px'
-                        }}></ion-icon> <p className='m-0'>Chỉnh sửa</p></Dropdown.Item>
+                        }}></ion-icon> <p className='m-0' onClick={handleShow}>Chỉnh sửa</p></Dropdown.Item>
                         <Dropdown.Item onClick={handleDelete} className='d-flex align-items-center gap-2'><ion-icon name="trash-outline" style={{
                             fontSize: '23px'
                         }}></ion-icon> Xóa</Dropdown.Item>
@@ -112,7 +119,7 @@ function PostProfile({id, title,localName,star ,location, review, localLocation,
                         }}>{localName}</Card.Title>
                         <div className='d-flex gap-1 align-items-center' style={{
                             fontSize: '13px',
-                            color: '#FBBC05'    
+                            color: '#FBBC05'
                         }}>
                             {renderStars}
                         </div>
@@ -125,6 +132,39 @@ function PostProfile({id, title,localName,star ,location, review, localLocation,
                     }}>{review}</Card.Text>
                 </div>
             </div>
+            <Modal show={show} onHide={handleClose}  centered className='modal_edit_post_pastrip'>
+                <Modal.Body className='d-flex flex-column'>
+                    <h5 className='m-0'>Quyền riêng tư</h5>
+                    <caption>Ai có thể xem bài viết của bạn</caption>
+                    <div className='m-3 d-flex justify-content-between w-100'>
+                        <p className='m-0'>Công khai</p>
+                        <input
+                            type="radio"
+                            checked={isPublic}
+                            readOnly
+                            style={{ width: '20px' }}
+                        />
+                    </div>
+                    <div className='m-3 d-flex justify-content-between w-100'>
+                        <p className='m-0'>Chỉ mình tôi</p>
+                        <input
+                            type="radio"
+                            checked={!isPublic}
+                            readOnly
+                            style={{ width: '20px' }}
+                        />
+                    </div>
+                    <div className='d-flex justify-content-between w-100'>
+                        <Button variant="" className='rounded-5' onClick={handleClose}>
+                            Huỷ
+                        </Button>
+                        <Button variant="success" className='rounded-5' onClick={handleClose}>
+                            Lưu thay đổi
+                        </Button>
+                    </div>
+                </Modal.Body>
+
+            </Modal>
         </Card>
     );
 }

@@ -36,7 +36,8 @@ function PastTrips() {
         localName: post.localName,
         review: post.review,
         star: post.star,
-        pastTripPostId: post.pastTripPostId
+        pastTripPostId: post.pastTripPostId,
+        isPublic: post.isPublic
       }));
       setPosts(data);
     } catch (error) {
@@ -68,6 +69,7 @@ function PastTrips() {
             review={post.review}
             star={post.star}
             id={post.pastTripPostId}
+            isPublic={post.isPublic}
             onDelete={fetchPosts}
           />
         ))}
