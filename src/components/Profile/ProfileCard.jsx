@@ -189,10 +189,7 @@ function ProfileCard() {
               ? user?.FullName
               : `${profile.firstName} ${profile.lastName}`}
           </p>
-          <div className="d-flex align-items-center gap-1">
-            <ion-icon name="location-outline"></ion-icon>
-            <p className="m-0">{profile.city}</p>
-          </div>
+
           <p className="fw-medium text-center" style={{ fontSize: "20px", color: "#007931" }}>
             {profile.hostingAvailability || "Chưa xác định"}
           </p>
