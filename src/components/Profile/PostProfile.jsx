@@ -1,7 +1,34 @@
+import axios from 'axios';
 import React from 'react';
 import { Card, Image, Dropdown } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+function PostProfile({id, title,localName,star ,location, review, localLocation, date, description, images, userImage, userName, userReview, onDelete }) {
+    const renderStars = Array(5).fill(0).map((_, index) => (
+        <ion-icon 
+            key={index} 
+            name={index < star ? "star" : "star-outline"} // Hiển thị "star" nếu index < star, ngược lại là "star-outline"
+            style={{ color: '#FBBC05', fontSize: '13px' }}
+        ></ion-icon>
+    ));
+    const token = useSelector((state) => state.auth.token)
+    const handleDelete = async () => {
+        const apiUrl = `https://travelmateapp.azurewebsites.net/api/PastTripPosts/${id}`;
+        try {
+            const response = await axios.delete(apiUrl, {
+                headers: {
+                  Authorization: `${token}` // Thêm token vào header
+                }
+              });
+              
+            toast.success('Xoá bài viết thành công !')
+            if (onDelete) onDelete();
+        } catch (error) {
+            console.error('Lỗi:', error);
+            alert('Không thể xóa bài viết. Vui lòng thử lại.');
+        }
+    };
 
-function PostProfile({ title, location, localLocation, date, description, images, userImage, userName, userReview }) {
     return (
         <Card className="py-3 px-5 mb-3 rounded-4 border-0 shadow">
             <div className="d-flex align-items-center justify-content-between">
@@ -40,8 +67,15 @@ function PostProfile({ title, location, localLocation, date, description, images
                         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15)',
                         border: 'none'
                     }}>
-                        <Dropdown.Item href="#/action-1">Chỉnh sửa</Dropdown.Item>
-                        <Dropdown.Item href="#/action-2">Xóa</Dropdown.Item>
+                        <Dropdown.Item className='d-flex align-items-center gap-2'><ion-icon name="eye-off-outline" style={{
+                            fontSize: '23px'
+                        }}></ion-icon> <p className='m-0'>Ẩn bài viết</p></Dropdown.Item>
+                        <Dropdown.Item className='d-flex align-items-center gap-2'><ion-icon name="create-outline" style={{
+                            fontSize: '23px'
+                        }}></ion-icon> <p className='m-0'>Chỉnh sửa</p></Dropdown.Item>
+                        <Dropdown.Item onClick={handleDelete} className='d-flex align-items-center gap-2'><ion-icon name="trash-outline" style={{
+                            fontSize: '23px'
+                        }}></ion-icon> Xóa</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </div>
@@ -75,16 +109,12 @@ function PostProfile({ title, location, localLocation, date, description, images
                     <div className='d-flex'>
                         <Card.Title className='fw-bold me-3' style={{
                             fontSize: '16px'
-                        }}>{userName}</Card.Title>
+                        }}>{localName}</Card.Title>
                         <div className='d-flex gap-1 align-items-center' style={{
                             fontSize: '13px',
                             color: '#FBBC05'    
                         }}>
-                            <ion-icon name="star"></ion-icon>
-                            <ion-icon name="star"></ion-icon>
-                            <ion-icon name="star"></ion-icon>
-                            <ion-icon name="star"></ion-icon>
-                            <ion-icon name="star"></ion-icon>
+                            {renderStars}
                         </div>
                     </div>
                     <Card.Title className='me-3' style={{
@@ -92,7 +122,7 @@ function PostProfile({ title, location, localLocation, date, description, images
                     }}>{localLocation}</Card.Title>
                     <Card.Text className='' style={{
                         fontSize: '16px',
-                    }}>{userReview}</Card.Text>
+                    }}>{review}</Card.Text>
                 </div>
             </div>
         </Card>

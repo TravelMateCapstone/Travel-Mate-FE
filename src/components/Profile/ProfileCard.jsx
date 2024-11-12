@@ -20,6 +20,7 @@ function ProfileCard() {
   const [isUploading, setIsUploading] = useState(false);
   const token = useSelector((state) => state.auth.token);
   const url = import.meta.env.VITE_BASE_API_URL;
+  const user = useSelector((state) => state.auth.user);
   const location = useLocation();
   const dispatch = useDispatch();
 
@@ -72,10 +73,9 @@ function ProfileCard() {
           ...prevProfile,
           imageUser: downloadURL,
         }));
-
+        toast.success('Cập nhật ảnh đại diện thành công !');
         // Dispatch action để cập nhật avatar trong Redux
         dispatch(updateUserAvatar(downloadURL));
-        toast.success('Cập nhật ảnh đại diện thành công !');
       } catch (error) {
         console.error("Lỗi khi cập nhật ảnh:", error);
       } finally {
@@ -109,15 +109,18 @@ function ProfileCard() {
 
   return (
     <div className="d-flex justify-content-center profile-card">
-      <div className="profile-card-container">
-        <div className="d-flex justify-content-center profile-image-wrapper">
-          <div style={{ position: "relative" }}>
+      <div className="profile-card-container position-relative">
+        <div className="d-flex justify-content-center profile-image-wrapper position-absolute">
+          <div style={{ position: "relative", top: '-30px' }}>
             <img
               className="rounded-circle object-fit-cover"
               src={profile.imageUser || "default-image-url"}
               alt="User profile"
               width={192}
               height={192}
+              style={{
+                border: '2px solid #d9d9d9'
+              }}
             />
             <label htmlFor="upload-image" className="upload-icon position-absolute top-0 text-white">
               <ion-icon name="camera-outline"></ion-icon>
@@ -132,13 +135,17 @@ function ProfileCard() {
           </div>
         </div>
         <div className="profile-info">
-          <p className="text-center fw-medium profile-name">
-            {profile.fullName}
-          </p>
-          <p className="fw-medium text-center" style={{ fontSize: "20px", color: "#007931" }}>
+          <div className="fw-medium text-center" style={{
+            fontSize: "24px",
+            marginBottom: '10px'
+          }}>{user.username}</div>
+          <p className="fw-medium text-center text-uppercase text" style={{ fontSize: "20px", color: "#007931", }}>
             {profile.hostingAvailability}
           </p>
-          <div className="profile-buttons">
+          <div className="profile-buttons" style={{
+            marginTop: '24px',
+            marginBottom: '24px',
+          }}>
             {(location.pathname === RoutePath.PROFILE_EDIT || location.pathname === RoutePath.PROFILE_EDIT_MY_HOME) ? (
               <Button as={Link} to={RoutePath.PROFILE} variant="success" className="profile-button profile-button-success">
                 Hồ sơ
@@ -154,30 +161,32 @@ function ProfileCard() {
           </div>
           <hr className="border-line" />
 
-          <div className="d-flex flex-column justify-content-between">
+          <div className="d-flex flex-column justify-content-between" style={{
+            gap: '20px'
+          }}>
             <div className="profile-location">
               <ion-icon name="location-outline"></ion-icon>
-              <span className="m-0 mb-2">{profile.address}</span>
+              <span className="m-0">{profile.address}</span>
             </div>
 
             <div className="profile-education">
               <ion-icon name="book-outline"></ion-icon>
-              <span className="m-0 mb-2">{education?.[0]?.university?.universityName || "Không có thông tin"}</span>
+              <span className="m-0">{education?.[0]?.university?.universityName || "Không có thông tin"}</span>
             </div>
 
             <div className="profile-language">
               <ion-icon name="language-outline"></ion-icon>
-              <span className="m-0 mb-2">{languages ? languages.map(lang => lang.languages.languagesName).join(", ") : "Không có thông tin"}</span>
+              <span className="m-0">{languages ? languages.map(lang => lang.languages.languagesName).join(", ") : "Không có thông tin"}</span>
             </div>
 
             <div className="profile-joined">
               <ion-icon name="person-add-outline"></ion-icon>
-              <span className="m-0 mb-2">Thành viên tham gia từ 2024</span>
+              <span className="m-0">Thành viên tham gia từ 2024</span>
             </div>
 
             <div className="profile-completion">
               <ion-icon name="shield-checkmark-outline"></ion-icon>
-              <span className="m-0 mb-2">65% hoàn thành hồ sơ</span>
+              <span className="m-0">65% hoàn thành hồ sơ</span>
             </div>
 
           </div>

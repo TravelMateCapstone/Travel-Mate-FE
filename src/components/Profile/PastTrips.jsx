@@ -1,41 +1,48 @@
-// PastTrips.js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import PostProfile from '../../components/Profile/PostProfile';
+import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 function PastTrips() {
-  const posts = [
-    {
-      title: "Tran Hai Dang",
-      location: "Phố cổ Hội An, Quảng Nam",
-      localLocation: 'Quảng Nam, Việt Nam',
-      date: "24 tháng 9 lúc 9:01",
-      description: "Hội An – phố cổ với những con hẻm nhỏ...",
-      images: [
-        "https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg",
-        "https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg",
-        "https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg"
-      ],
-      userImage: "https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg",
-      userName: "Hai Dang",
-      userReview: "Đăng là người bạn đồng hành tuyệt vời!"
-    },
-    {
-      title: "Stunning nature beauty Da Nang City",
-      location: "Da Nang, Viet Nam",
-      localLocation: 'Đà Nẵng, Việt Nam',
-      date: "24 tháng 9 lúc 9:01",
-      description: "Lorem ipsum dolor sit amet...",
-      images: [
-        "https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg",
-        "https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg"
-      ],
-      userImage: "https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg",
-      userName: "Hai Dang",
-      userReview: "Lorem ipsum dolor sit amet..."
-    }
-  ];
+  const [posts, setPosts] = useState([]);
+  const token = useSelector((state) => state.auth.token); // Giả sử token được lưu trong auth.token
 
+  useEffect(() => {
+    // Hàm lấy dữ liệu từ API
+
+    fetchPosts();
+  }, []);
+
+  const fetchPosts = async () => {
+    try {
+      const response = await axios.get('https://travelmateapp.azurewebsites.net/api/PastTripPosts', {
+        headers: {
+          Authorization: `${token}` // Thêm token vào header
+        }
+      });
+      const data = response.data.$values.map((post) => ({
+        title: post.caption,
+        location: post.location,
+        localLocation: post.localName,
+        date: new Date(post.createdAt).toLocaleString('vi-VN', {
+          day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
+        }),
+        description: post.caption,
+        images: post.postPhotos.$values.map(photo => photo.photoUrl),
+        userImage: post.travelerAvatar,
+        userName: post.travelerName,
+        userReview: post.review,
+        localName: post.localName,
+        review: post.review,
+        star: post.star,
+        pastTripPostId: post.pastTripPostId
+      }));
+      setPosts(data);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  };
   return (
     <Container className='border-0 rounded-5' style={{
       background: '#f9f9f9', 
@@ -46,19 +53,24 @@ function PastTrips() {
       }}>CHUYẾN ĐI</p>
       <div className=''>
       {posts.map((post, index) => (
-        <PostProfile
-          key={index}
-          title={post.title}
-          location={post.location}
-          date={post.date}
-          description={post.description}
-          images={post.images}
-          userImage={post.userImage}
-          userName={post.userName}
-          userReview={post.userReview}
-          localLocation={post.localLocation}
-        />
-      ))}
+          <PostProfile
+            key={index}
+            title={post.title}
+            location={post.location}
+            date={post.date}
+            description={post.description}
+            images={post.images}
+            userImage={post.userImage}
+            userName={post.userName}
+            userReview={post.userReview}
+            localLocation={post.localLocation}
+            localName={post.localName}
+            review={post.review}
+            star={post.star}
+            id={post.pastTripPostId}
+            onDelete={fetchPosts}
+          />
+        ))}
       </div>
     </Container>
   );

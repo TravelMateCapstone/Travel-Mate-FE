@@ -254,6 +254,9 @@ function Navbar() {
                     <Dropdown.Item as={Link} to={RoutePath.PROFILE} className="avatar-dropdown-item">
                       Hồ sơ
                     </Dropdown.Item>
+                    <Dropdown.Item as={Link} to={RoutePath.CONTRACT} className="avatar-dropdown-item">
+                      Hợp đồng
+                    </Dropdown.Item>
                     <Dropdown.Item as={Link} to={RoutePath.SETTING} className="avatar-dropdown-item">
                       Trang quản lý
                     </Dropdown.Item>
