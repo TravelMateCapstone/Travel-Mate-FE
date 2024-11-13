@@ -330,8 +330,5 @@ function IncomeStatistic() {
 
     )
 }
-    )
-}
 
-export default IncomeStatistic
 export default IncomeStatistic

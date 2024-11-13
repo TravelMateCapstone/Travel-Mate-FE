@@ -105,27 +105,53 @@ function ProfileCard() {
   if (!profile || !languages || !education) {
     return (
       <div className="d-flex justify-content-center profile-card">
-        <div className="profile-card-container">
-          <div className="d-flex justify-content-center profile-image-wrapper">
-            <Skeleton circle={true} width={192} height={192} />
+        <div className="profile-card-container position-relative">
+          <div className="d-flex justify-content-center profile-image-wrapper position-absolute">
+            <div style={{ position: "relative", top: '-30px' }}>
+              <Skeleton circle={true} width={192} height={192} />
+            </div>
           </div>
           <div className="profile-info">
-            <Skeleton width={120} height={20} />
-            <Skeleton width={100} height={20} />
-            <Skeleton width={150} height={20} />
-            <Skeleton width={100} height={40} style={{ marginRight: "10px" }} />
-            <Skeleton width={100} height={40} />
-            <Skeleton width={200} height={20} />
-            <Skeleton width={180} height={20} />
-            <Skeleton width={150} height={20} />
-            <Skeleton width={160} height={20} />
-            <Skeleton width={140} height={20} />
+            <p className="text-center fw-medium profile-name">
+              <Skeleton width={120} height={20} />
+            </p>
+            <p className="fw-medium text-center" style={{ fontSize: "20px", color: "#007931" }}>
+              <Skeleton width={100} height={20} />
+            </p>
+            <div className="profile-buttons" style={{ marginTop: '24px', marginBottom: '24px' }}>
+              <Skeleton width={100} height={40} style={{ marginRight: "10px" }} />
+              <Skeleton width={100} height={40} />
+            </div>
+  
+            <hr className="border-line" />
+  
+            <div className="d-flex flex-column justify-content-between" style={{ gap: '20px' }}>
+              <div className="profile-location">
+                <Skeleton width={200} height={20} />
+              </div>
+  
+              <div className="profile-education">
+                <Skeleton width={180} height={20} />
+              </div>
+  
+              <div className="profile-language">
+                <Skeleton width={150} height={20} />
+              </div>
+  
+              <div className="profile-joined">
+                <Skeleton width={160} height={20} />
+              </div>
+  
+              <div className="profile-completion">
+                <Skeleton width={140} height={20} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
     );
   }
-
+  
   const registrationYear = profile?.user?.registrationTime
     ? new Date(profile.user.registrationTime).getFullYear()
     : "Không xác định";
@@ -185,29 +211,24 @@ function ProfileCard() {
         </div>
         <div className="profile-info">
           <p className="text-center fw-medium profile-name">
-            {location.pathname === "/profile"
-              ? user?.FullName
-              : `${profile.firstName} ${profile.lastName}`}
+            {user?.FullName || 'Chưa cập nhật'}
           </p>
-
-          <p className="fw-medium text-center" style={{ fontSize: "20px", color: "#007931" }}>
+          <p className="fw-medium text-center text-uppercase" style={{ fontSize: "20px", color: "#007931" }}>
             {profile.hostingAvailability || "Chưa xác định"}
           </p>
-
-
           <div className="profile-buttons" style={{ marginTop: '24px', marginBottom: '24px' }}>
-            {location.pathname === "/profile" || location.pathname === "/profile-edit" || location.pathname === "/profile-edit-my-home" ? (
+            {location.pathname === RoutePath.PROFILE || location.pathname === RoutePath.PROFILE_EDIT || location.pathname === RoutePath.PROFILE_EDIT_MY_HOME ? (
               <>
-                {location.pathname === "/profile-edit" || location.pathname === "/profile-edit-my-home" ? (
-                  <Button as={Link} to="/profile" variant="success" className="profile-button profile-button-success">
+                {location.pathname === RoutePath.PROFILE_EDIT || location.pathname === RoutePath.PROFILE_EDIT_MY_HOME ? (
+                  <Button as={Link} to={RoutePath.PROFILE} variant="success" className="profile-button profile-button-success">
                     Hồ sơ
                   </Button>
                 ) : (
-                  <Button as={Link} to="/profile-edit" variant="success" className="profile-button profile-button-success">
+                  <Button as={Link} to={RoutePath.PROFILE_EDIT} variant="success" className="profile-button profile-button-success">
                     Chỉnh sửa
                   </Button>
                 )}
-                <Button as={Link} to="/setting" variant="secondary" className="profile-button profile-button-secondary">
+                <Button as={Link} to={RoutePath.SETTING} variant="secondary" className="profile-button profile-button-secondary">
                   Cài đặt
                 </Button>
               </>
@@ -223,7 +244,7 @@ function ProfileCard() {
                   className="profile-button-options"
                 >
                   <Dropdown.Item onClick={handleSendFriendRequest}>Kết bạn</Dropdown.Item>
-                  <Dropdown.Item onClick={() => alert('Bạn đã báo cáo người dùng này!')}>Báo cáo</Dropdown.Item>
+                  <Dropdown.Item onClick={() => toast.success('Bạn đã báo cáo người dùng này!')}>Báo cáo</Dropdown.Item>
                 </DropdownButton>
               </>
             )}
