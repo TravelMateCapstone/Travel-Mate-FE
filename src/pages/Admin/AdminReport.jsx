@@ -9,6 +9,7 @@ import { SetFilterModule } from "@ag-grid-enterprise/set-filter";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Button, Modal, Form } from "react-bootstrap";
+import * as XLSX from "xlsx";
 import ConfirmModal from "../../components/Shared/ConfirmModal";
 
 // Register the modules
@@ -75,7 +76,10 @@ const AdminReport = () => {
   }, []);
 
   const onExportClick = () => {
-    gridRef.current.api.exportDataAsCsv();
+    const worksheet = XLSX.utils.json_to_sheet(rowData); // Chuyển đổi rowData thành sheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "AdminReport"); // Đặt tên sheet là AccountList
+    XLSX.writeFile(workbook, "AdminReport.xlsx"); // Xuất file Excel tên là AccountList.xlsx
   };
 
   const handleView = (row) => {

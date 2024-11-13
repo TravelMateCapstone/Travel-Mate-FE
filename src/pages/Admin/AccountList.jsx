@@ -6,6 +6,7 @@ import { ColumnsToolPanelModule } from "@ag-grid-enterprise/column-tool-panel";
 import { FiltersToolPanelModule } from "@ag-grid-enterprise/filter-tool-panel";
 import { MenuModule } from "@ag-grid-enterprise/menu";
 import { SetFilterModule } from "@ag-grid-enterprise/set-filter";
+import * as XLSX from "xlsx";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Button, Modal, Form } from "react-bootstrap";
@@ -74,7 +75,10 @@ const AccountList = () => {
   }, []);
 
   const onExportClick = () => {
-    gridRef.current.api.exportDataAsCsv();
+    const worksheet = XLSX.utils.json_to_sheet(rowData); // Chuyển đổi rowData thành sheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "AccountList"); // Đặt tên sheet là AccountList
+    XLSX.writeFile(workbook, "AccountList.xlsx"); // Xuất file Excel tên là AccountList.xlsx
   };
 
   const handleView = (row) => {

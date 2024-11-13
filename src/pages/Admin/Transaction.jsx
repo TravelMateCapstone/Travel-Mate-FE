@@ -6,12 +6,12 @@ import { ColumnsToolPanelModule } from "@ag-grid-enterprise/column-tool-panel";
 import { FiltersToolPanelModule } from "@ag-grid-enterprise/filter-tool-panel";
 import { MenuModule } from "@ag-grid-enterprise/menu";
 import { SetFilterModule } from "@ag-grid-enterprise/set-filter";
+import * as XLSX from "xlsx";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { Button, Modal, Form, Image } from "react-bootstrap";
+import { Button, Modal, Form } from "react-bootstrap";
 import ConfirmModal from "../../components/Shared/ConfirmModal";
 
-// Register the modules
 ModuleRegistry.registerModules([
   ClientSideRowModelModule,
   ColumnsToolPanelModule,
@@ -29,56 +29,73 @@ const Transaction = () => {
   const [rowData, setRowData] = useState([
     {
       id: 1,
-      sender: { name: "John Doe", avatar: "path/to/avatar1.jpg" },
-      receiver: { name: "Jane Smith", avatar: "path/to/avatar2.jpg" },
-      status: "Completed",
+      sender: { name: "John Doe" },
+      receiver: { name: "Jane Smith" },
+      status: "Đã hoàn thành",
       transactionTime: "2023-10-12 14:30",
       amount: "$1000",
     },
     {
       id: 2,
-      sender: { name: "Alice Johnson", avatar: "path/to/avatar3.jpg" },
-      receiver: { name: "Robert Brown", avatar: "path/to/avatar4.jpg" },
-      status: "Pending",
+      sender: { name: "Alice Johnson" },
+      receiver: { name: "Robert Brown" },
+      status: "Đang giao dịch",
       transactionTime: "2023-10-13 11:00",
       amount: "$500",
     },
-    // Thêm các giao dịch khác nếu cần
   ]);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [rowToDelete, setRowToDelete] = useState(null);
-  const [editedRow, setEditedRow] = useState(null);
-  const [showConfirmUpdateModal, setShowConfirmUpdateModal] = useState(false);
-  const [updateRow, setUpdateRow] = useState(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [updateRow, setUpdateRow] = useState(null);
 
   const columnDefs = [
     {
       headerName: "Người gửi",
       field: "sender",
-      cellRenderer: (params) => (
-        <div className="d-flex align-items-center">
-          <Image src={params.value.avatar} roundedCircle width="30" height="30" className="me-2" />
-          {params.value.name}
-        </div>
-      ),
+      valueGetter: (params) => params.data.sender.name,
+      cellRenderer: (params) => <div>{params.value}</div>,
       editable: false,
+      filter: 'agTextColumnFilter',
     },
     {
       headerName: "Người nhận",
       field: "receiver",
-      cellRenderer: (params) => (
-        <div className="d-flex align-items-center">
-          <Image src={params.value.avatar} roundedCircle width="30" height="30" className="me-2" />
-          {params.value.name}
-        </div>
-      ),
+      valueGetter: (params) => params.data.receiver.name,
+      cellRenderer: (params) => <div>{params.value}</div>,
+      editable: false,
+      filter: 'agTextColumnFilter',
+    },
+    {
+      headerName: "Tình trạng",
+      field: "status",
+      editable: true,
+      cellEditor: "agSelectCellEditor",
+      cellEditorParams: {
+        values: ["Đã hoàn thành", "Đang giao dịch"],
+      },
+    },
+    {
+      headerName: "Thời gian giao dịch",
+      field: "transactionTime",
+      editable: false,
+      filter: "agDateColumnFilter", // Sử dụng bộ lọc thời gian
+      filterParams: {
+        comparator: (filterDate, cellValue) => {
+          const cellDate = new Date(cellValue);
+          if (cellDate < filterDate) return -1;
+          if (cellDate > filterDate) return 1;
+          return 0;
+        },
+        browserDatePicker: true, // Sử dụng date picker của trình duyệt
+      },
+    },
+    {
+      headerName: "Số tiền",
+      field: "amount",
       editable: false,
     },
-    { headerName: "Tình trạng", field: "status", editable: true },
-    { headerName: "Thời gian giao dịch", field: "transactionTime", editable: true },
-    { headerName: "Số tiền", field: "amount", editable: true },
     {
       headerName: "Actions",
       field: "actions",
@@ -101,13 +118,30 @@ const Transaction = () => {
       width: 200,
     },
   ];
+  
+  
+
+  const onCellValueChanged = (params) => {
+    if (params.column.getColId() === "status") {
+      // Cập nhật trạng thái rowData khi giá trị status thay đổi
+      setRowData((prevData) =>
+        prevData.map((row) =>
+          row.id === params.data.id ? { ...row, status: params.value } : row
+        )
+      );
+      console.log("Updated status:", params.data);
+    }
+  };
 
   const resetFilters = useCallback(() => {
     gridRef.current.api.setFilterModel(null);
   }, []);
 
   const onExportClick = () => {
-    gridRef.current.api.exportDataAsCsv();
+    const worksheet = XLSX.utils.json_to_sheet(rowData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Transaction");
+    XLSX.writeFile(workbook, "Transaction.xlsx");
   };
 
   const handleView = (row) => {
@@ -121,7 +155,6 @@ const Transaction = () => {
 
   const confirmDelete = () => {
     setRowData((prevData) => prevData.filter((item) => item.id !== rowToDelete.id));
-    console.log("Deleted row:", rowToDelete);
     setRowToDelete(null);
     setShowDeleteModal(false);
   };
@@ -135,28 +168,12 @@ const Transaction = () => {
     setRowData((prevData) =>
       prevData.map((row) => (row.id === updateRow.id ? updateRow : row))
     );
-    console.log("Updated row:", updateRow);
     setShowUpdateModal(false);
   };
 
   const handleUpdateChange = (e) => {
     const { name, value } = e.target;
     setUpdateRow((prevRow) => ({ ...prevRow, [name]: value }));
-  };
-
-  const handleCellEditingStopped = (event) => {
-    const updatedRow = event.data;
-    setEditedRow(updatedRow);
-    setShowConfirmUpdateModal(true);
-  };
-
-  const handleConfirmUpdate = () => {
-    setRowData((prevData) =>
-      prevData.map((row) => (row.id === editedRow.id ? editedRow : row))
-    );
-    console.log("Updated row:", editedRow);
-    setEditedRow(null);
-    setShowConfirmUpdateModal(false);
   };
 
   return (
@@ -172,7 +189,7 @@ const Transaction = () => {
               onClick={onExportClick}
               style={{ marginBottom: "10px", padding: "5px" }}
             >
-              Export to CSV
+              Export to Excel
             </Button>
             <Button
               variant="warning"
@@ -203,12 +220,11 @@ const Transaction = () => {
             enableRangeSelection={true}
             enableRowGroup={true}
             sideBar={"filters"}
-            onCellEditingStopped={handleCellEditingStopped}
+            onCellValueChanged={onCellValueChanged} // Cập nhật giá trị trực tiếp sau khi thay đổi
           />
         </div>
       </div>
 
-      {/* Modal cập nhật */}
       <Modal show={showUpdateModal} onHide={() => setShowUpdateModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Cập nhật dữ liệu</Modal.Title>
@@ -260,14 +276,6 @@ const Transaction = () => {
         onConfirm={confirmDelete}
         title="Xác nhận xóa"
         message="Bạn có chắc chắn muốn xóa hàng này không?"
-      />
-
-      <ConfirmModal
-        show={showConfirmUpdateModal}
-        onHide={() => setShowConfirmUpdateModal(false)}
-        onConfirm={confirmUpdate}
-        title="Xác nhận cập nhật"
-        message="Bạn có muốn cập nhật hàng này không?"
       />
     </div>
   );
