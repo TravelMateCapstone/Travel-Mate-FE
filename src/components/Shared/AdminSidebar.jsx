@@ -83,35 +83,35 @@ function AdminSidebar() {
       </li>
       {/* Nav Item - Thống kê */}
       <li className="nav-item">
-        <Link className="nav-link py-2 d-flex align-items-center gap-1" to={RoutePath.ADMIN}>
+        <Link className="nav-link d-flex align-items-center gap-1" to={RoutePath.ADMIN}>
           <ion-icon name="pie-chart"></ion-icon>
           <span>Thống kê</span>
         </Link>
       </li>
       {/* Nav Item - Quản lí khiếu nại */}
       <li className="nav-item">
-        <Link className="nav-link py-2 d-flex align-items-center gap-1" to={RoutePath.ADMIN_REPORT}>
+        <Link className="nav-link d-flex align-items-center gap-1" to={RoutePath.ADMIN_REPORT}>
           <ion-icon name="mail-open"></ion-icon>
           <span>Quản lí khiếu nại</span>
         </Link>
       </li>
       {/* Nav Item - Quản lí tài khoản */}
       <li className="nav-item">
-        <Link className="nav-link py-2 d-flex align-items-center gap-1" to={RoutePath.ADMIN_ACCOUNT_LIST}>
+        <Link className="nav-link d-flex align-items-center gap-1" to={RoutePath.ADMIN_ACCOUNT_LIST}>
           <ion-icon name="accessibility"></ion-icon>
           <span>Quản lí tài khoản</span>
         </Link>
       </li>
       {/* Nav Item - Lịch sử giao dịch */}
       <li className="nav-item">
-        <Link className="nav-link py-2 d-flex align-items-center gap-1" to={RoutePath.ADMIN_TRANSACTION}>
+        <Link className="nav-link d-flex align-items-center gap-1" to={RoutePath.ADMIN_TRANSACTION}>
           <ion-icon name="cash"></ion-icon>
           <span>Lịch sử giao dịch</span>
         </Link>
       </li>
       {/* Nav Item - Lịch sử chuyến đi */}
       <li className="nav-item">
-        <Link className="nav-link py-2 d-flex align-items-center gap-1" to={RoutePath.ADMIN_TRIP_HISTORY}>
+        <Link className="nav-link d-flex align-items-center gap-1" to={RoutePath.ADMIN_TRIP_HISTORY}>
           <ion-icon name="airplane"></ion-icon>
           <span>Lịch sử chuyến đi</span>
         </Link>
