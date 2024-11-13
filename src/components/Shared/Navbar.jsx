@@ -257,13 +257,13 @@ function Navbar() {
                     <Dropdown.Item as={Link} to={RoutePath.CONTRACT} className="avatar-dropdown-item">
                       Hợp đồng
                     </Dropdown.Item>
-                    <Dropdown.Item as={Link} to={RoutePath.SETTING} className="avatar-dropdown-item">
-                      Trang quản lý
+                    <Dropdown.Item as={Link} to={RoutePath.LOCAL_STATICTIS} className="avatar-dropdown-item">
+                      Trang quản lí
                     </Dropdown.Item>
                     <Dropdown.Divider style={{
                       marginBottom: '24px'
                     }} />
-                    <Dropdown.Item onClick={handleLogout} className="avatar-dropdown-item">
+                    <Dropdown.Item as={Link} to={RoutePath.SETTING} className="avatar-dropdown-item">
                       Cài đặt
                     </Dropdown.Item>
                     <Dropdown.Item onClick={handleLogout} className="avatar-dropdown-item mb-0">

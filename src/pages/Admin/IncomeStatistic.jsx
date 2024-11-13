@@ -254,26 +254,6 @@ function IncomeStatistic() {
                                 <p>Do you like this template ? you can download from <a href="https://github.com/indrijunanda/RuangAdmin" className="btn btn-primary btn-sm" target="_blank"><i className="fab fa-fw fa-github" />&nbsp;GitHub</a></p>
                             </div>
                         </div>
-                        {/* Modal Logout */}
-                        <div className="modal fade" id="logoutModal" tabIndex={-1} role="dialog" aria-labelledby="exampleModalLabelLogout" aria-hidden="true">
-                            <div className="modal-dialog" role="document">
-                                <div className="modal-content">
-                                    <div className="modal-header">
-                                        <h5 className="modal-title" id="exampleModalLabelLogout">Ohh No!</h5>
-                                        <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">×</span>
-                                        </button>
-                                    </div>
-                                    <div className="modal-body">
-                                        <p>Are you sure you want to logout?</p>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button type="button" className="btn btn-outline-primary" data-dismiss="modal">Cancel</button>
-                                        <a href="login.html" className="btn btn-primary">Logout</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <footer className="sticky-footer bg-white">

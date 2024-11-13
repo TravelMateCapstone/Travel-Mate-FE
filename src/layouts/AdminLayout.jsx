@@ -1,34 +1,35 @@
 import React from 'react';
 import AdminSidebar from '../components/Shared/AdminSidebar';
 import AdminNavbar from '../components/Shared/AdminNavbar';
+import { useLocation } from 'react-router-dom';
+import RoutePath from '../routes/RoutePath';
+import LocalSidebar from '../components/Shared/LocalSidebar';
+import LocalNavbar from '../components/Shared/LocalNavbar';
+import { is } from 'date-fns/locale';
 
 function AdminLayout({ children }) {
+  const location = useLocation();
+
+  const isAdmin = (location.pathname === RoutePath.ADMIN || location.pathname === RoutePath.ADMIN_ACCOUNT_LIST || location.pathname === RoutePath.ADMIN_REPORT || location.pathname === RoutePath.ADMIN_TRANSACTION || location.pathname === RoutePath.ADMIN_WALLET_MANAGEMENT || location.pathname === RoutePath.ADMIN_TRIP_HISTORY);
+
   return (
     <div id="wrapper">
-      {/* Sidebar */}
-      <AdminSidebar />
-      
-      {/* Content Wrapper */}
+      {isAdmin ? (
+        <AdminSidebar />
+      ) : (
+        <LocalSidebar />
+      )}
       <div id="content-wrapper" className="d-flex flex-column">
-        {/* Main Content */}
         <div id="content">
-          {/* Navbar */}
-          <AdminNavbar />
-
-          {/* Page Content */}
+          {isAdmin ? (
+            <AdminNavbar />
+          ) : (
+            <LocalNavbar />
+          )}
           <div className="container-fluid">
             {children}
           </div>
         </div>
-
-        {/* Footer */}
-        <footer className="sticky-footer bg-white">
-          <div className="container my-auto">
-            <div className="copyright text-center my-auto">
-              <span>Copyright © Your Website 2021</span>
-            </div>
-          </div>
-        </footer>
       </div>
     </div>
   );

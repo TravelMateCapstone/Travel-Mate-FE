@@ -34,6 +34,11 @@ import OngoingContract from "../pages/Contracts/OngoingContract"
 import PaymentContract from "../pages/Contracts/PaymentContract"
 import ContractLayout from "../layouts/ContractLayout"
 import Transaction from "../pages/Admin/Transaction"
+import LocalIncomeStaticstic from "../pages/Local/LocalIncomeStaticstic"
+import CalendarManagement from "../pages/Local/CalendarManagement"
+import LocalTripHistory from "../pages/Local/LocalTripHistory"
+import LocalWalletManagement from "../pages/Local/LocalWalletManagement"
+import PlanManagemnet from "../pages/Local/PlanManagemnet"
 
 const publishRoutes = [
     { path: RoutePath.HOMEPAGE, component: Home, layout: HomeFeedLayout },
@@ -75,6 +80,12 @@ const privateRoutes = [
     { path: RoutePath.FINISH_CONTRACT, component: FinishContract, layout: ContractLayout },
     { path: RoutePath.ONGOING_CONTRACT, component: OngoingContract, layout: ContractLayout },
     { path: RoutePath.PAYMENT_CONTRACT, component: PaymentContract, layout: ContractLayout },
+
+    { path: RoutePath.LOCAL_STATICTIS, component: LocalIncomeStaticstic, layout: AdminLayout },
+    { path: RoutePath.LOCAL_CALENDAR_MANAGEMENT, component: CalendarManagement, layout: AdminLayout },
+    { path: RoutePath.LOCAL_TRIP_HISTORY, component: LocalTripHistory, layout: AdminLayout },
+    { path: RoutePath.LOCAL_WALLET_MANAGEMENT, component: LocalWalletManagement, layout: AdminLayout },
+    { path: RoutePath.LOCAL_PLAN_MANAGEMENT, component: PlanManagemnet, layout: AdminLayout },
 ]
 
 export { publishRoutes, privateRoutes }

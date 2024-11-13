@@ -44,9 +44,11 @@ const RoutePath = {
     ADMIN_WALLET_MANAGEMENT: '/admin/wallet-management',
 
     // Local routes
+    LOCAL_STATICTIS: '/local/statistics',
     LOCAL_WALLET_MANAGEMENT: '/local/wallet-management',
     LOCAL_TRIP_HISTORY: '/local/trip-history',
     LOCAL_CALENDAR_MANAGEMENT: '/local/calendar-management',
+    LOCAL_PLAN_MANAGEMENT: '/local/plan-management',
 
     //Profile
     PROFILE: '/profile',

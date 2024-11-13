@@ -1,14 +1,14 @@
 import React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../redux/actions/authActions';
 import ConfirmModal from './ConfirmModal';
 
-function AdminNavbar() {
+function LocalNavbar() {
     const user = useSelector(state => state.auth.user);
     const dispatch = useDispatch();
     const handleLogout = () => {
         dispatch(logout());
-      };
+    };
     return (
         <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
             {/* Sidebar Toggle (Topbar) */}
@@ -188,4 +188,4 @@ function AdminNavbar() {
     )
 }
 
-export default AdminNavbar
+export default LocalNavbar
