@@ -17,7 +17,7 @@ function SidebarDashboard() {
                 </div>
             </div>
             <hr className="sidebar-divider my-0" />
-            
+
             <Link to={RoutePath.ADMIN}>
                 <li className="nav-item active">
                     <div className="nav-link">
@@ -59,7 +59,7 @@ function SidebarDashboard() {
             <Link to={RoutePath.ADMIN_TRANSACTION}>
                 <li className="nav-item">
                     <div className="nav-link d-flex align-items-center gap-2">
-                        <ion-icon name="calendar-outline"></ion-icon>
+                        <ion-icon name="cash-outline"></ion-icon>
                         <span>Lịch sử giao dịch</span>
                     </div>
                 </li>
@@ -73,30 +73,6 @@ function SidebarDashboard() {
                     </div>
                 </li>
             </Link>
-
-            <hr className="sidebar-divider" />
-            <div className="sidebar-heading">Examples</div>
-
-            <Link to={RoutePath.pages}>
-                <li className="nav-item">
-                    <div className="nav-link">
-                        <i className="fas fa-fw fa-columns" />
-                        <span>Pages</span>
-                    </div>
-                </li>
-            </Link>
-
-            <Link to={RoutePath.charts}>
-                <li className="nav-item">
-                    <div className="nav-link">
-                        <i className="fas fa-fw fa-chart-area" />
-                        <span>Charts</span>
-                    </div>
-                </li>
-            </Link>
-
-            <hr className="sidebar-divider" />
-            <div className="version" id="version-ruangadmin" />
         </ul>
     );
 }

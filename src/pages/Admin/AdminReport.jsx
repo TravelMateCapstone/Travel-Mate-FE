@@ -1,244 +1,146 @@
-import React, { useState } from 'react';
-import '../../assets/css/Admin/AdminReport.css'; // Assuming you have CSS for styling
-import { Table, InputGroup, FormControl, Button } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
-
-const reportData = [
-  {
-    id: 1,
-    name: 'Trần Duy Nguyên Nhơn',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Lạm dụng',
-    date: '24-09-2024',
-    status: 'Đã giải quyết',
-    processed: 'Có',
-    action: 'View',
-  },
-  {
-    id: 2,
-    name: 'Tesco Market',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Hành vi sai trái',
-    date: '24-09-2024',
-    status: 'Đang chờ',
-    processed: 'Chưa',
-    action: 'View',
-  },
-  {
-    id: 3,
-    name: 'Tesco Market',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Hồ sơ',
-    date: '24-09-2024',
-    status: 'Đã bác bỏ',
-    processed: 'Có',
-    action: 'View',
-  },
-  {
-    id: 4,
-    name: 'Trần Duy Nguyên Nhơn',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Lạm dụng',
-    date: '24-09-2024',
-    status: 'Đã giải quyết',
-    processed: 'Có',
-    action: 'View',
-  },
-  {
-    id: 5,
-    name: 'Tesco Market',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Hành vi sai trái',
-    date: '24-09-2024',
-    status: 'Đang chờ',
-    processed: 'Chưa',
-    action: 'View',
-  },
-  {
-    id: 6,
-    name: 'Tesco Market',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Hồ sơ',
-    date: '24-09-2024',
-    status: 'Đã bác bỏ',
-    processed: 'Có',
-    action: 'View',
-  },
-  {
-    id: 7,
-    name: 'Trần Duy Nguyên Nhơn',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Lạm dụng',
-    date: '24-09-2024',
-    status: 'Đã giải quyết',
-    processed: 'Có',
-    action: 'View',
-  },
-  {
-    id: 8,
-    name: 'Tesco Market',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Hành vi sai trái',
-    date: '24-09-2024',
-    status: 'Đang chờ',
-    processed: 'Chưa',
-    action: 'View',
-  },
-  {
-    id: 9,
-    name: 'Tesco Market',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Hồ sơ',
-    date: '24-09-2024',
-    status: 'Đã bác bỏ',
-    processed: 'Có',
-    action: 'View',
-  },
-  // Add more reports as needed
-];
+import React, { useState, useEffect } from 'react';
+import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { Button } from 'react-bootstrap';
 
 function AdminReport() {
-  const [currentPage, setCurrentPage] = useState(0);
-  const reportsPerPage = 6; // Number of reports per page
+  const [rowData, setRowData] = useState([]);
 
-  // Filtered reports based on pagination
-  const indexOfLastReport = (currentPage + 1) * reportsPerPage;
-  const indexOfFirstReport = indexOfLastReport - reportsPerPage;
-  const currentReports = reportData.slice(indexOfFirstReport, indexOfLastReport);
+  // Giả sử dữ liệu JSON có dạng như sau:
+   const data = [
+     { id: 1, name: 'Nguyễn Văn A', address: 'Hà Nội', type: 'Spam', reportDate: '2024-11-01', status: 'Pending' },
+     { id: 2, name: 'Trần Thị B', address: 'Hồ Chí Minh', type: 'Abuse', reportDate: '2024-11-02', status: 'Resolved' }
+   ];
 
-  // Handle page change
-  const handlePageClick = (data) => {
-    setCurrentPage(data.selected);
+  useEffect(() => {
+    setRowData(data)
+  }, []);
+
+  const columnDefs = [
+    { headerName: 'Người dùng', field: 'name', sortable: true, filter: true },
+    { headerName: 'Địa chỉ', field: 'address', sortable: true, filter: true },
+    { headerName: 'Loại', field: 'type', sortable: true, filter: true },
+    { headerName: 'Ngày tố cáo', field: 'reportDate', sortable: true, filter: true },
+    { headerName: 'Trạng thái', field: 'status', sortable: true, filter: true },
+    {
+      headerName: 'Action',
+      field: 'action',
+      cellRenderer: (params) => (
+        <div>
+          <Button variant='' onClick={() => handleBan(params.data)}><ion-icon name="ban-outline"></ion-icon></Button>
+          <Button variant='' onClick={() => handleDelete(params.data)}><ion-icon name="trash-outline"></ion-icon></Button>
+          <Button variant= '' onClick={() => handleEdit(params.data)}><ion-icon name="settings-outline"></ion-icon></Button>
+        </div>
+      ),
+    }
+  ];
+
+  const handleBan = (data) => {
+    console.log('Ban user:', data);
+    // Thực hiện hành động "Ban" tại đây
+  };
+
+  const handleDelete = (data) => {
+    console.log('Delete report:', data);
+    // Thực hiện hành động "Delete" tại đây
+  };
+
+  const handleEdit = (data) => {
+    console.log('Edit report:', data);
+    // Thực hiện hành động "Edit" tại đây
   };
 
   return (
-    <div className="admin-report">
-      <h2>Báo cáo</h2>
-
-      <div className='body-dashboard'>
-        {/* Overview Cards */}
-        <div className="report-overview">
-          <div className="overview-card">
-            <div className='d-flex justify-content-between align-items-center'>
-              <h3>Tổng số báo cáo</h3>
-              <i className='bi bi-layout-text-window-reverse fs-3'></i>
-            </div>
-            <p className="value">120</p>
-          </div>
-          <div className="overview-card active">
-            <div className='d-flex justify-content-between align-items-center'> <h3>Đang xử lí</h3>
-              <i className='bi bi-layout-text-window-reverse fs-3 text-warning'></i></div>
-            <p className="value">20</p>
-          </div>
-          <div className="overview-card">
-            <div className='d-flex justify-content-between align-items-center'><h3>Đã giải quyết</h3>
-              <i className='bi bi-layout-text-window-reverse fs-3 text-success'></i>
-            </div>
-            <p className="value">80</p>
-          </div>
-          <div className="overview-card">
-            <div className='d-flex justify-content-between align-items-center'><h3>Đã bác bỏ</h3>
-              <i className='bi bi-x fs-3'></i>
-            </div>
-            <p className="value">20</p>
-          </div>
-        </div>
-
-
-
-
-        {/* Report Table */}
-        <div className="table-container">
-          <div className='d-flex flex-row-reverse'>
-            <InputGroup className="mb-3" style={{ width: '400px' }}>
-              <FormControl
-                placeholder="Tìm kiếm"
-                aria-label="Search"
-                aria-describedby="basic-addon2"
-                id='search-input'
-                className='rounded-5'
-              />
-              <Button variant="" id="button-addon2">
-                <i className="bi bi-funnel fs-3"></i> {/* Bootstrap icon for filter */}
-              </Button>
-            </InputGroup>
-          </div>
-          <Table borderless hover responsive>
-            <thead>
-              <tr>
-                <th>Traveller</th>
-                <th>Mô tả</th>
-                <th>Loại</th>
-                <th>Ngày</th>
-                <th>Trạng thái</th>
-                <th>Đã xử lí</th>
-                <th>Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentReports.length > 0 ? (
-                currentReports.map((report) => (
-                  <tr key={report.id}>
-                    <td className="traveller">
-                      <img src="https://via.placeholder.com/40" alt="avatar" className="avatar" />
-                      <span>{report.name}</span>
-                    </td>
-                    <td>{report.description}</td>
-                    <td>{report.type}</td>
-                    <td>{report.date}</td>
-                    <td>
-                      <span className={`status ${report.status === 'Đã giải quyết' ? 'resolved' : report.status === 'Đang chờ' ? 'pending' : 'rejected'}`}>
-                        {report.status}
-                      </span>
-                    </td>
-                    <td>{report.processed}</td>
-                    <td className="actions">
-                      <Button variant="" className="action-btn block-btn">
-                        <i className="bi bi-slash-circle"></i>
-                      </Button>
-                      <Button variant="" className="action-btn delete-btn text-black">
-                        <i className="bi bi-trash"></i>
-                      </Button>
-                      <Button variant="" className="action-btn info-btn">
-                        <i className="bi bi-info-circle"></i>
-                      </Button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="7" className="text-center">
-                    Không tìm thấy kết quả nào
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </Table>
-        </div>
-
-        {/* React Paginate Component */}
-        <div className="pagination-container">
-          <ReactPaginate
-            previousLabel={'‹'}
-            nextLabel={'›'}
-            breakLabel={'...'}
-            pageCount={Math.ceil(reportData.length / reportsPerPage)}
-            marginPagesDisplayed={2}
-            pageRangeDisplayed={3}
-            onPageChange={handlePageClick}
-            containerClassName={'pagination'}
-            activeClassName={'active'}
-            pageClassName={'page-item'}
-            pageLinkClassName={'page-link'}
-            previousClassName={'page-item'}
-            previousLinkClassName={'page-link'}
-            nextClassName={'page-item'}
-            nextLinkClassName={'page-link'}
-            breakClassName={'page-item'}
-            breakLinkClassName={'page-link'}
-          />
-        </div>
+    <div className="ag-theme-alpine" style={{ height: 400, width: '100%' }}>
+      <div className='row'>
+           {/* Earnings (Monthly) Card Example */}
+           <div className="col-xl-3 col-md-6 mb-4">
+                                <div className="card h-100">
+                                    <div className="card-body">
+                                        <div className="row align-items-center">
+                                            <div className="col mr-2">
+                                                <div className="text-xs font-weight-bold text-uppercase mb-1">Earnings (Monthly)</div>
+                                                <div className="h5 mb-0 font-weight-bold text-gray-800">$40,000</div>
+                                                <div className="mt-2 mb-0 text-muted text-xs">
+                                                    <span className="text-success mr-2"><i className="fa fa-arrow-up" /> 3.48%</span>
+                                                    <span>Since last month</span>
+                                                </div>
+                                            </div>
+                                            <div className="col-auto">
+                                                <i className="fas fa-calendar fa-2x text-primary" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {/* Earnings (Annual) Card Example */}
+                            <div className="col-xl-3 col-md-6 mb-4">
+                                <div className="card h-100">
+                                    <div className="card-body">
+                                        <div className="row no-gutters align-items-center">
+                                            <div className="col mr-2">
+                                                <div className="text-xs font-weight-bold text-uppercase mb-1">Sales</div>
+                                                <div className="h5 mb-0 font-weight-bold text-gray-800">650</div>
+                                                <div className="mt-2 mb-0 text-muted text-xs">
+                                                    <span className="text-success mr-2"><i className="fas fa-arrow-up" /> 12%</span>
+                                                    <span>Since last years</span>
+                                                </div>
+                                            </div>
+                                            <div className="col-auto">
+                                                <i className="fas fa-shopping-cart fa-2x text-success" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {/* New User Card Example */}
+                            <div className="col-xl-3 col-md-6 mb-4">
+                                <div className="card h-100">
+                                    <div className="card-body">
+                                        <div className="row no-gutters align-items-center">
+                                            <div className="col mr-2">
+                                                <div className="text-xs font-weight-bold text-uppercase mb-1">New User</div>
+                                                <div className="h5 mb-0 mr-3 font-weight-bold text-gray-800">366</div>
+                                                <div className="mt-2 mb-0 text-muted text-xs">
+                                                    <span className="text-success mr-2"><i className="fas fa-arrow-up" /> 20.4%</span>
+                                                    <span>Since last month</span>
+                                                </div>
+                                            </div>
+                                            <div className="col-auto">
+                                                <i className="fas fa-users fa-2x text-info" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-xl-3 col-md-6 mb-4">
+                                <div className="card h-100">
+                                    <div className="card-body">
+                                        <div className="row no-gutters align-items-center">
+                                            <div className="col mr-2">
+                                                <div className="text-xs font-weight-bold text-uppercase mb-1">Pending Requests</div>
+                                                <div className="h5 mb-0 font-weight-bold text-gray-800">18</div>
+                                                <div className="mt-2 mb-0 text-muted text-xs">
+                                                    <span className="text-danger mr-2"><i className="fas fa-arrow-down" /> 1.10%</span>
+                                                    <span>Since yesterday</span>
+                                                </div>
+                                            </div>
+                                            <div className="col-auto">
+                                                <i className="fas fa-comments fa-2x text-warning" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
       </div>
+      <AgGridReact
+        rowData={rowData}
+        columnDefs={columnDefs}
+        defaultColDef={{ flex: 1, minWidth: 100, resizable: true }}
+        pagination={true}
+        paginationPageSize={10}
+      />
     </div>
   );
 }
