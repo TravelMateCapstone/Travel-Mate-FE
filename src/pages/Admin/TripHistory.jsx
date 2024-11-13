@@ -2,24 +2,14 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import { ModuleRegistry } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
-import { ColumnsToolPanelModule } from "@ag-grid-enterprise/column-tool-panel";
-import { FiltersToolPanelModule } from "@ag-grid-enterprise/filter-tool-panel";
-import { MenuModule } from "@ag-grid-enterprise/menu";
-import { SetFilterModule } from "@ag-grid-enterprise/set-filter";
+import * as XLSX from "xlsx";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Button, Modal, Form } from "react-bootstrap";
-import * as XLSX from "xlsx";
 import ConfirmModal from "../../components/Shared/ConfirmModal";
 
-// Register the modules
-ModuleRegistry.registerModules([
-  ClientSideRowModelModule,
-  ColumnsToolPanelModule,
-  FiltersToolPanelModule,
-  MenuModule,
-  SetFilterModule,
-]);
+// Đăng ký chỉ mô-đun của Community
+ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 const TripHistory = () => {
   const gridRef = useRef();
@@ -75,10 +65,10 @@ const TripHistory = () => {
   }, []);
 
   const onExportClick = () => {
-    const worksheet = XLSX.utils.json_to_sheet(rowData); // Chuyển đổi rowData thành sheet
+    const worksheet = XLSX.utils.json_to_sheet(rowData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "TripHistory"); // Đặt tên sheet là AccountList
-    XLSX.writeFile(workbook, "TripHistory.xlsx"); // Xuất file Excel tên là AccountList.xlsx
+    XLSX.utils.book_append_sheet(workbook, worksheet, "TripHistory");
+    XLSX.writeFile(workbook, "TripHistory.xlsx");
   };
 
   const handleView = (row) => {
@@ -92,7 +82,6 @@ const TripHistory = () => {
 
   const confirmDelete = () => {
     setRowData((prevData) => prevData.filter((item) => item.id !== rowToDelete.id));
-    console.log("Deleted row:", rowToDelete);
     setRowToDelete(null);
     setShowDeleteModal(false);
   };
@@ -106,7 +95,6 @@ const TripHistory = () => {
     setRowData((prevData) =>
       prevData.map((row) => (row.id === updateRow.id ? updateRow : row))
     );
-    console.log("Updated row:", updateRow);
     setShowUpdateModal(false);
   };
 
@@ -125,7 +113,6 @@ const TripHistory = () => {
     setRowData((prevData) =>
       prevData.map((row) => (row.id === editedRow.id ? editedRow : row))
     );
-    console.log("Updated row:", editedRow);
     setEditedRow(null);
     setShowConfirmUpdateModal(false);
   };
@@ -169,11 +156,7 @@ const TripHistory = () => {
             rowSelection="multiple"
             suppressRowClickSelection={true}
             domLayout="autoHeight"
-            groupDisplayType="singleColumn"
             animateRows={true}
-            enableRangeSelection={true}
-            enableRowGroup={true}
-            sideBar={"filters"}
             onCellEditingStopped={handleCellEditingStopped}
           />
         </div>

@@ -1,5 +1,6 @@
 import React from 'react'
-
+import ChartComponent from '../../components/Admin/ChartComponent'
+import PieChartComponent from '../../components/Admin/PieChartComponent'
 function IncomeStatistic() {
     return (
         <div id="wrapper">
@@ -114,9 +115,7 @@ function IncomeStatistic() {
                                         </div>
                                     </div>
                                     <div className="card-body">
-                                        <div className="chart-area">
-                                            <canvas id="myAreaChart" />
-                                        </div>
+                                        <ChartComponent />
                                     </div>
                                 </div>
                             </div>
@@ -139,46 +138,7 @@ function IncomeStatistic() {
                                         </div>
                                     </div>
                                     <div className="card-body">
-                                        <div className="mb-3">
-                                            <div className="small text-gray-500">Oblong T-Shirt
-                                                <div className="small float-right"><b>600 of 800 Items</b></div>
-                                            </div>
-                                            <div className="progress" style={{ height: 12 }}>
-                                                <div className="progress-bar bg-warning" role="progressbar" style={{ width: '80%' }} aria-valuenow={80} aria-valuemin={0} aria-valuemax={100} />
-                                            </div>
-                                        </div>
-                                        <div className="mb-3">
-                                            <div className="small text-gray-500">Gundam 90'Editions
-                                                <div className="small float-right"><b>500 of 800 Items</b></div>
-                                            </div>
-                                            <div className="progress" style={{ height: 12 }}>
-                                                <div className="progress-bar bg-success" role="progressbar" style={{ width: '70%' }} aria-valuenow={70} aria-valuemin={0} aria-valuemax={100} />
-                                            </div>
-                                        </div>
-                                        <div className="mb-3">
-                                            <div className="small text-gray-500">Rounded Hat
-                                                <div className="small float-right"><b>455 of 800 Items</b></div>
-                                            </div>
-                                            <div className="progress" style={{ height: 12 }}>
-                                                <div className="progress-bar bg-danger" role="progressbar" style={{ width: '55%' }} aria-valuenow={55} aria-valuemin={0} aria-valuemax={100} />
-                                            </div>
-                                        </div>
-                                        <div className="mb-3">
-                                            <div className="small text-gray-500">Indomie Goreng
-                                                <div className="small float-right"><b>400 of 800 Items</b></div>
-                                            </div>
-                                            <div className="progress" style={{ height: 12 }}>
-                                                <div className="progress-bar bg-info" role="progressbar" style={{ width: '50%' }} aria-valuenow={50} aria-valuemin={0} aria-valuemax={100} />
-                                            </div>
-                                        </div>
-                                        <div className="mb-3">
-                                            <div className="small text-gray-500">Remote Control Car Racing
-                                                <div className="small float-right"><b>200 of 800 Items</b></div>
-                                            </div>
-                                            <div className="progress" style={{ height: 12 }}>
-                                                <div className="progress-bar bg-success" role="progressbar" style={{ width: '30%' }} aria-valuenow={30} aria-valuemin={0} aria-valuemax={100} />
-                                            </div>
-                                        </div>
+                                        <PieChartComponent />
                                     </div>
                                     <div className="card-footer text-center">
                                         <a className="m-0 small text-primary card-link" >View More <i className="fas fa-chevron-right" /></a>

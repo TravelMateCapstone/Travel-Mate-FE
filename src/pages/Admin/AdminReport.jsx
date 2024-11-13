@@ -2,24 +2,14 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import { ModuleRegistry } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
-import { ColumnsToolPanelModule } from "@ag-grid-enterprise/column-tool-panel";
-import { FiltersToolPanelModule } from "@ag-grid-enterprise/filter-tool-panel";
-import { MenuModule } from "@ag-grid-enterprise/menu";
-import { SetFilterModule } from "@ag-grid-enterprise/set-filter";
+import * as XLSX from "xlsx";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Button, Modal, Form } from "react-bootstrap";
-import * as XLSX from "xlsx";
 import ConfirmModal from "../../components/Shared/ConfirmModal";
 
-// Register the modules
-ModuleRegistry.registerModules([
-  ClientSideRowModelModule,
-  ColumnsToolPanelModule,
-  FiltersToolPanelModule,
-  MenuModule,
-  SetFilterModule,
-]);
+// Đăng ký chỉ các mô-đun của Community
+ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 const AdminReport = () => {
   const gridRef = useRef();
@@ -43,11 +33,11 @@ const AdminReport = () => {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   const columnDefs = [
-    { headerName: "Người dùng", field: "user", editable: true },
-    { headerName: "Địa chỉ", field: "address", editable: true },
-    { headerName: "Loại", field: "type", editable: true },
-    { headerName: "Ngày tố cáo", field: "reportDate", editable: true },
-    { headerName: "Trạng thái", field: "status", editable: true },
+    { headerName: "Người dùng", field: "user", editable: true, filter: true, sortable: true },
+    { headerName: "Địa chỉ", field: "address", editable: true, filter: true, sortable: true },
+    { headerName: "Loại", field: "type", editable: true, filter: true, sortable: true },
+    { headerName: "Ngày tố cáo", field: "reportDate", editable: true, filter: true, sortable: true },
+    { headerName: "Trạng thái", field: "status", editable: true, filter: true, sortable: true },
     {
       headerName: "Actions",
       field: "actions",
@@ -76,10 +66,10 @@ const AdminReport = () => {
   }, []);
 
   const onExportClick = () => {
-    const worksheet = XLSX.utils.json_to_sheet(rowData); // Chuyển đổi rowData thành sheet
+    const worksheet = XLSX.utils.json_to_sheet(rowData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "AdminReport"); // Đặt tên sheet là AccountList
-    XLSX.writeFile(workbook, "AdminReport.xlsx"); // Xuất file Excel tên là AccountList.xlsx
+    XLSX.utils.book_append_sheet(workbook, worksheet, "AdminReport");
+    XLSX.writeFile(workbook, "AdminReport.xlsx");
   };
 
   const handleView = (row) => {
@@ -93,7 +83,6 @@ const AdminReport = () => {
 
   const confirmDelete = () => {
     setRowData((prevData) => prevData.filter((item) => item.id !== rowToDelete.id));
-    console.log("Deleted row:", rowToDelete);
     setRowToDelete(null);
     setShowDeleteModal(false);
   };
@@ -107,7 +96,6 @@ const AdminReport = () => {
     setRowData((prevData) =>
       prevData.map((row) => (row.id === updateRow.id ? updateRow : row))
     );
-    console.log("Updated row:", updateRow);
     setShowUpdateModal(false);
   };
 
@@ -126,7 +114,6 @@ const AdminReport = () => {
     setRowData((prevData) =>
       prevData.map((row) => (row.id === editedRow.id ? editedRow : row))
     );
-    console.log("Updated row:", editedRow);
     setEditedRow(null);
     setShowConfirmUpdateModal(false);
   };
@@ -139,18 +126,10 @@ const AdminReport = () => {
             <Button variant="primary">Thêm mới +</Button>
           </div>
           <div className="d-flex gap-3">
-            <Button
-              variant="success"
-              onClick={onExportClick}
-              style={{ marginBottom: "10px", padding: "5px" }}
-            >
+            <Button variant="success" onClick={onExportClick} style={{ marginBottom: "10px", padding: "5px" }}>
               Export to CSV
             </Button>
-            <Button
-              variant="warning"
-              onClick={resetFilters}
-              style={{ marginBottom: "10px", padding: "5px" }}
-            >
+            <Button variant="warning" onClick={resetFilters} style={{ marginBottom: "10px", padding: "5px" }}>
               Reset Filters
             </Button>
           </div>
@@ -170,17 +149,12 @@ const AdminReport = () => {
             rowSelection="multiple"
             suppressRowClickSelection={true}
             domLayout="autoHeight"
-            groupDisplayType="singleColumn"
             animateRows={true}
-            enableRangeSelection={true}
-            enableRowGroup={true}
-            sideBar={"filters"}
             onCellEditingStopped={handleCellEditingStopped}
           />
         </div>
       </div>
 
-      {/* Modal cập nhật */}
       <Modal show={showUpdateModal} onHide={() => setShowUpdateModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Cập nhật dữ liệu</Modal.Title>

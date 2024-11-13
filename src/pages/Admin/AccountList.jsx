@@ -2,24 +2,14 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import { ModuleRegistry } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
-import { ColumnsToolPanelModule } from "@ag-grid-enterprise/column-tool-panel";
-import { FiltersToolPanelModule } from "@ag-grid-enterprise/filter-tool-panel";
-import { MenuModule } from "@ag-grid-enterprise/menu";
-import { SetFilterModule } from "@ag-grid-enterprise/set-filter";
 import * as XLSX from "xlsx";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Button, Modal, Form } from "react-bootstrap";
 import ConfirmModal from "../../components/Shared/ConfirmModal";
 
-// Register the modules
-ModuleRegistry.registerModules([
-  ClientSideRowModelModule,
-  ColumnsToolPanelModule,
-  FiltersToolPanelModule,
-  MenuModule,
-  SetFilterModule,
-]);
+// Chỉ đăng ký các mô-đun của Community
+ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 const AccountList = () => {
   const gridRef = useRef();
@@ -43,10 +33,10 @@ const AccountList = () => {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   const columnDefs = [
-    { headerName: "Người dùng", field: "name", editable: true },
-    { headerName: "Địa chỉ", field: "address", editable: true },
-    { headerName: "Số điện thoại", field: "phone", editable: true },
-    { headerName: "Email", field: "email", editable: true },
+    { headerName: "Người dùng", field: "name", editable: true, filter: true, sortable: true },
+    { headerName: "Địa chỉ", field: "address", editable: true, filter: true, sortable: true },
+    { headerName: "Số điện thoại", field: "phone", editable: true, filter: true, sortable: true },
+    { headerName: "Email", field: "email", editable: true, filter: true, sortable: true },
     {
       headerName: "Actions",
       field: "actions",
@@ -75,10 +65,10 @@ const AccountList = () => {
   }, []);
 
   const onExportClick = () => {
-    const worksheet = XLSX.utils.json_to_sheet(rowData); // Chuyển đổi rowData thành sheet
+    const worksheet = XLSX.utils.json_to_sheet(rowData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "AccountList"); // Đặt tên sheet là AccountList
-    XLSX.writeFile(workbook, "AccountList.xlsx"); // Xuất file Excel tên là AccountList.xlsx
+    XLSX.utils.book_append_sheet(workbook, worksheet, "AccountList");
+    XLSX.writeFile(workbook, "AccountList.xlsx");
   };
 
   const handleView = (row) => {
@@ -92,7 +82,6 @@ const AccountList = () => {
 
   const confirmDelete = () => {
     setRowData((prevData) => prevData.filter((item) => item.id !== rowToDelete.id));
-    console.log("Deleted row:", rowToDelete);
     setRowToDelete(null);
     setShowDeleteModal(false);
   };
@@ -106,7 +95,6 @@ const AccountList = () => {
     setRowData((prevData) =>
       prevData.map((row) => (row.id === updateRow.id ? updateRow : row))
     );
-    console.log("Updated row:", updateRow);
     setShowUpdateModal(false);
   };
 
@@ -125,7 +113,6 @@ const AccountList = () => {
     setRowData((prevData) =>
       prevData.map((row) => (row.id === editedRow.id ? editedRow : row))
     );
-    console.log("Updated row:", editedRow);
     setEditedRow(null);
     setShowConfirmUpdateModal(false);
   };
@@ -138,18 +125,10 @@ const AccountList = () => {
             <Button variant="primary">Thêm mới +</Button>
           </div>
           <div className="d-flex gap-3">
-            <Button
-              variant="success"
-              onClick={onExportClick}
-              style={{ marginBottom: "10px", padding: "5px" }}
-            >
+            <Button variant="success" onClick={onExportClick} style={{ marginBottom: "10px", padding: "5px" }}>
               Export to CSV
             </Button>
-            <Button
-              variant="warning"
-              onClick={resetFilters}
-              style={{ marginBottom: "10px", padding: "5px" }}
-            >
+            <Button variant="warning" onClick={resetFilters} style={{ marginBottom: "10px", padding: "5px" }}>
               Reset Filters
             </Button>
           </div>
@@ -169,11 +148,7 @@ const AccountList = () => {
             rowSelection="multiple"
             suppressRowClickSelection={true}
             domLayout="autoHeight"
-            groupDisplayType="singleColumn"
             animateRows={true}
-            enableRangeSelection={true}
-            enableRowGroup={true}
-            sideBar={"filters"}
             onCellEditingStopped={handleCellEditingStopped}
           />
         </div>

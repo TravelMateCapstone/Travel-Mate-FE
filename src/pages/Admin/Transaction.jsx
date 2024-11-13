@@ -2,23 +2,14 @@ import React, { useCallback, useMemo, useRef, useState } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import { ModuleRegistry } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
-import { ColumnsToolPanelModule } from "@ag-grid-enterprise/column-tool-panel";
-import { FiltersToolPanelModule } from "@ag-grid-enterprise/filter-tool-panel";
-import { MenuModule } from "@ag-grid-enterprise/menu";
-import { SetFilterModule } from "@ag-grid-enterprise/set-filter";
 import * as XLSX from "xlsx";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Button, Modal, Form } from "react-bootstrap";
 import ConfirmModal from "../../components/Shared/ConfirmModal";
 
-ModuleRegistry.registerModules([
-  ClientSideRowModelModule,
-  ColumnsToolPanelModule,
-  FiltersToolPanelModule,
-  MenuModule,
-  SetFilterModule,
-]);
+// Chỉ đăng ký các mô-đun từ Community
+ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 const Transaction = () => {
   const gridRef = useRef();
@@ -57,7 +48,7 @@ const Transaction = () => {
       valueGetter: (params) => params.data.sender.name,
       cellRenderer: (params) => <div>{params.value}</div>,
       editable: false,
-      filter: 'agTextColumnFilter',
+      filter: true,
     },
     {
       headerName: "Người nhận",
@@ -65,7 +56,7 @@ const Transaction = () => {
       valueGetter: (params) => params.data.receiver.name,
       cellRenderer: (params) => <div>{params.value}</div>,
       editable: false,
-      filter: 'agTextColumnFilter',
+      filter: true,
     },
     {
       headerName: "Tình trạng",
@@ -80,16 +71,7 @@ const Transaction = () => {
       headerName: "Thời gian giao dịch",
       field: "transactionTime",
       editable: false,
-      filter: "agDateColumnFilter", // Sử dụng bộ lọc thời gian
-      filterParams: {
-        comparator: (filterDate, cellValue) => {
-          const cellDate = new Date(cellValue);
-          if (cellDate < filterDate) return -1;
-          if (cellDate > filterDate) return 1;
-          return 0;
-        },
-        browserDatePicker: true, // Sử dụng date picker của trình duyệt
-      },
+      filter: true,
     },
     {
       headerName: "Số tiền",
@@ -118,12 +100,9 @@ const Transaction = () => {
       width: 200,
     },
   ];
-  
-  
 
   const onCellValueChanged = (params) => {
     if (params.column.getColId() === "status") {
-      // Cập nhật trạng thái rowData khi giá trị status thay đổi
       setRowData((prevData) =>
         prevData.map((row) =>
           row.id === params.data.id ? { ...row, status: params.value } : row
@@ -215,12 +194,8 @@ const Transaction = () => {
             rowSelection="multiple"
             suppressRowClickSelection={true}
             domLayout="autoHeight"
-            groupDisplayType="singleColumn"
             animateRows={true}
-            enableRangeSelection={true}
-            enableRowGroup={true}
-            sideBar={"filters"}
-            onCellValueChanged={onCellValueChanged} // Cập nhật giá trị trực tiếp sau khi thay đổi
+            onCellValueChanged={onCellValueChanged}
           />
         </div>
       </div>
