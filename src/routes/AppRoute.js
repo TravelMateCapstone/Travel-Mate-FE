@@ -33,6 +33,7 @@ import FinishContract from "../pages/Contracts/FinishContract"
 import OngoingContract from "../pages/Contracts/OngoingContract"
 import PaymentContract from "../pages/Contracts/PaymentContract"
 import ContractLayout from "../layouts/ContractLayout"
+import Transaction from "../pages/Admin/Transaction"
 
 const publishRoutes = [
     { path: RoutePath.HOMEPAGE, component: Home, layout: HomeFeedLayout },
@@ -47,6 +48,7 @@ const privateRoutes = [
     { path: RoutePath.ADMIN_REPORT, component: AdminReport, layout: AdminLayout },
     { path: RoutePath.ADMIN_WALLET_MANAGEMENT, component: WalletManagement, layout: AdminLayout },
     { path: RoutePath.ADMIN_TRIP_HISTORY, component: TripHistory, layout: AdminLayout },
+    { path: RoutePath.ADMIN_TRANSACTION, component: Transaction, layout: AdminLayout },
 
     { path: RoutePath.GROUP_CREATED, component: GroupCreated, layout: ListLayout },
     { path: RoutePath.GROUP_VIEW, component: GroupView, layout: DetailLayout },

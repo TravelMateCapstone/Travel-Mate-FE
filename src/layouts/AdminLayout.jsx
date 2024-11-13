@@ -1,40 +1,34 @@
-import React, { useState } from 'react';
-import AdminSidebar from "../components/Shared/AdminSidebar";
-import AdminNavbar from "../components/Shared/AdminNavbar";
-import { Offcanvas } from 'react-bootstrap'; // Import Offcanvas from Bootstrap
-import '../assets/css/layouts/AdminLayout.css';
+import React from 'react';
+import AdminSidebar from '../components/Shared/AdminSidebar';
+import AdminNavbar from '../components/Shared/AdminNavbar';
 
 function AdminLayout({ children }) {
-  const [showSidebar, setShowSidebar] = useState(false); // State to toggle sidebar
-
-  const toggleSidebar = () => {
-    setShowSidebar(!showSidebar);
-  };
-
   return (
-    <div className="admin-layout">
-      <Offcanvas show={showSidebar} onHide={toggleSidebar} className="admin-sidebar-offcanvas">
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title>Menu</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          <AdminSidebar />
-        </Offcanvas.Body>
-      </Offcanvas>
+    <div id="wrapper">
+      {/* Sidebar */}
+      <AdminSidebar />
+      
+      {/* Content Wrapper */}
+      <div id="content-wrapper" className="d-flex flex-column">
+        {/* Main Content */}
+        <div id="content">
+          {/* Navbar */}
+          <AdminNavbar />
 
-      <button className="sidebar-toggle-btn" onClick={toggleSidebar}>
-        ☰
-      </button>
-
-      <div className="admin-sidebar">
-        <AdminSidebar />
-      </div>
-
-      <div className="admin-content">
-        <AdminNavbar />
-        <div className="admin-main-content">
-          {children}
+          {/* Page Content */}
+          <div className="container-fluid">
+            {children}
+          </div>
         </div>
+
+        {/* Footer */}
+        <footer className="sticky-footer bg-white">
+          <div className="container my-auto">
+            <div className="copyright text-center my-auto">
+              <span>Copyright © Your Website 2021</span>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );
