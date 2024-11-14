@@ -5,34 +5,26 @@ import RoutePath from '../../routes/RoutePath';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import Spinner from 'react-bootstrap/Spinner';
+import { useQuery } from 'react-query';
+
 function SidebarList({ items }) {
     const location = useLocation();
     const token = useSelector(state => state.auth.token);
     const user = useSelector(state => state.auth.user);
-    const [joinedGroups, setJoinedGroups] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        // Gọi API để lấy danh sách nhóm đã tham gia
-        const fetchJoinedGroups = async () => {
-            try {
-                setIsLoading(true);
-                const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Groups/JoinedGroups?pageNumber=1', {
-                    headers: { Authorization: `${token}` },
-                });
-                if (response.data.message === "No joined groups found.") {
-                    setJoinedGroups([]); // Đặt joinedGroups thành mảng rỗng nếu không có nhóm nào
-                } else {
-                    setJoinedGroups(response.data.groups.$values);
-                }
-                setIsLoading(false);
-            } catch (error) {
-                console.error('Lỗi khi lấy danh sách nhóm đã tham gia:', error);
-                setIsLoading(false);
-            }
-        };
-        fetchJoinedGroups();
-    }, [token]);
+    const fetchJoinedGroups = async () => {
+        const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Groups/JoinedGroups?pageNumber=1', {
+            headers: { Authorization: `${token}` },
+        });
+        if (response.data.message === "No joined groups found.") {
+            return [];
+        } else {
+            return response.data.groups.$values;
+        }
+    };
+
+    const { data: joinedGroups = [], isLoading } = useQuery(['joinedGroups', token], fetchJoinedGroups);
+
     return (
         <div style={{
             marginBottom: '30px',
@@ -58,9 +50,17 @@ function SidebarList({ items }) {
                 <>
                     {/* Danh sách nhóm đã tham gia */}
                     {isLoading ? (
-                        <Spinner animation="border" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                        </Spinner>
+                        <div className="joined-groups mt-4">
+                            {[...Array(5)].map((_, index) => (
+                                <div key={index} className="group-card p-3 mb-3 gap-2 w-100 d-flex rounded-3 placeholder-glow">
+                                    <div className="placeholder col-3"></div>
+                                    <div className="group-info">
+                                        <p className='fw-medium mb-1 placeholder col-7'></p>
+                                        <p className='m-0 fw-light placeholder col-4'></p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     ) : (
                         <div className="joined-groups mt-4">
                             {joinedGroups.slice(0, 5).map((group) => (

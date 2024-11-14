@@ -32,16 +32,17 @@ const GroupCard = ({ id, img, title, location, members, text, description, isJoi
   const optimizedImg = optimizeImageUrl(img);
 
   const handleViewGroup = () => {
-    const groupDetails = { id, img, title, location, members, text, description };
-    dispatch(viewGroup(groupDetails));
+    if (locationRoute.pathname === RoutePath.GROUP) {
+      const groupDetails = { id, img, title, location, members, text, description };
+      dispatch(viewGroup(groupDetails));
 
-    // Navigate to different paths based on the current location
-    if (locationRoute.pathname === RoutePath.GROUP_JOINED) {
-      navigate(RoutePath.GROUP_DETAILS);
-    } else if (locationRoute.pathname === RoutePath.GROUP_CREATED) {
-      navigate(RoutePath.GROUP_MY_DETAILS);
-    } else {
-      navigate(RoutePath.GROUP_VIEW);
+      if (locationRoute.pathname === RoutePath.GROUP_JOINED) {
+        navigate(RoutePath.GROUP_DETAILS);
+      } else if (locationRoute.pathname === RoutePath.GROUP_CREATED) {
+        navigate(RoutePath.GROUP_MY_DETAILS);
+      } else {
+        navigate(RoutePath.GROUP_VIEW);
+      }
     }
   };
 

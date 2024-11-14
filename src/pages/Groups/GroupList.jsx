@@ -15,8 +15,8 @@ function GroupList() {
 
   const fetchGroups = async (page) => {
     const endpoint = token
-      ? `${import.meta.env.VITE_BASE_API_URL}/api/Groups/UnJoinedGroups?pageNumber=${page}`
-      : `${import.meta.env.VITE_BASE_API_URL}/api/groups?pageNumber=${page}`;
+      ? `https://travelmateapp.azurewebsites.net/api/Groups/UnJoinedGroups?pageNumber=${page}`
+      : `https://travelmateapp.azurewebsites.net/api/groups?pageNumber=${page}`;
     const headers = token ? { Authorization: `${token}` } : {};
     const response = await axios.get(endpoint, { headers });
     return response.data;
@@ -24,6 +24,7 @@ function GroupList() {
 
   const { data, isLoading } = useQuery(['groups', currentPage, token, refreshGroups], () => fetchGroups(currentPage), {
     keepPreviousData: true,
+    refetchOnWindowFocus: false,
   });
 
   const handlePageChange = useCallback((data) => {
@@ -68,19 +69,32 @@ function GroupList() {
               </Card.Body>
             </Card>
           ))
-          : data?.listUnjoinedGroups.$values.map((group) => (
-            <GroupCard
-              id={group.group.groupId}
-              key={group.group.groupId}
-              img={group.group.groupImageUrl}
-              title={group.group.groupName}
-              location={group.group.location}
-              members={`${group.group.numberOfParticipants}`}
-              text={group.group.description}
-              isJoined={group.userJoinedStatus}
-              loading="lazy" 
-            />
-          ))}
+          : token
+          ? data?.listUnjoinedGroups?.$values?.map((group) => (
+              <GroupCard
+                id={group.group.groupId}
+                key={group.group.groupId}
+                img={group.group.groupImageUrl}
+                title={group.group.groupName}
+                location={group.group.location}
+                members={`${group.group.numberOfParticipants}`}
+                text={group.group.description}
+                isJoined={group.userJoinedStatus}
+                loading="lazy"
+              />
+            ))
+          : data?.groups?.$values?.map((group) => (
+              <GroupCard
+                id={group.groupId}
+                key={group.groupId}
+                img={group.groupImageUrl}
+                title={group.groupName}
+                location={group.location}
+                members={`${group.numberOfParticipants}`}
+                text={group.description}
+                loading="lazy"
+              />
+            ))}
       </div>
 
       <ReactPaginate
