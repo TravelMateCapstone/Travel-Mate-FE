@@ -1,36 +1,26 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import ReactPaginate from 'react-paginate';
 import GroupCard from '../../components/Group/GroupCard';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
-import { Placeholder, Card } from 'react-bootstrap';
+import { Placeholder, Card, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useQuery } from 'react-query';
 
 function GroupCreated() {
   const token = useSelector((state) => state.auth.token);
 
-  const [data, setData] = useState([]);
-  const [pageCount, setPageCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async (page = 1) => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Groups/CreatedGroups?pageNumber=${page}`, { headers: { Authorization: `${token}` } });
-        const groupsData = response.data.groups.$values;
-        const totalPages = response.data.totalPages;
-        setData(groupsData);
-        setPageCount(totalPages);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData(currentPage);
-  }, [currentPage, token]);
+  const fetchGroups = async ({ queryKey }) => {
+    const [, page] = queryKey;
+    const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Groups/CreatedGroups?pageNumber=${page}`, { headers: { Authorization: `${token}` } });
+    return response.data;
+  };
+
+  const { data, isLoading } = useQuery(['groups', currentPage], fetchGroups, {
+    keepPreviousData: true,
+  });
 
   const handlePageChange = useCallback((data) => {
     const selectedPage = data.selected + 1;
@@ -66,13 +56,18 @@ function GroupCreated() {
                   <Placeholder xs={8} />
                   <Placeholder xs={6} />
                 </Placeholder>
+                <Button variant="outline-success" className="group-card-button" disabled>
+                  <div></div>
+                  <div>Vào nhóm</div>
+                  <ion-icon name="chevron-forward-circle-outline" className="group-card-icon"></ion-icon>
+                </Button>
               </Card.Body>
             </Card>
           ))
-        ) : data.length === 0 ? (
+        ) : data && data.groups.$values.length === 0 ? (
           <div style={{ textAlign: 'center', marginTop: '20px' }}>Chưa có nhóm nào được tạo</div>
         ) : (
-          data.map((group) => (
+          data && data.groups.$values.map((group) => (
             <GroupCard
               description={group.description}
               id={group.groupId}
@@ -87,13 +82,13 @@ function GroupCreated() {
         )}
       </div>
 
-      {data.length > 0 && (
+      {data && data.groups.$values.length > 0 && (
         <ReactPaginate
           previousLabel={'<'}
           nextLabel={'>'}
           breakLabel={'...'}
           breakClassName={'break-me'}
-          pageCount={pageCount}
+          pageCount={data.totalPages}
           marginPagesDisplayed={2}
           pageRangeDisplayed={2}
           onPageChange={handlePageChange}

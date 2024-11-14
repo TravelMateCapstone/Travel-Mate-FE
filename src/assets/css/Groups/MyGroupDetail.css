@@ -88,7 +88,9 @@
   margin: 0;
   padding: 0;
   text-align: start;
-  border: 0;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 .form_edit_group .mybutton:hover {
   color: black;

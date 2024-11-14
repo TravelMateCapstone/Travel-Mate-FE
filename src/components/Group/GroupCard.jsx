@@ -8,18 +8,28 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const GroupCard = ({ id, img, title, location, members, text, description, isJoined }) => {
+const optimizeImageUrl = (url) => {
+  // Custom function to optimize and compress image URL
+  if (!url) return url;
+  const params = new URLSearchParams({
+    width: 300,
+    height: 200,
+    quality: 'auto',
+    format: 'auto',
+  });
+  return `${url}?${params.toString()}`;
+};
+
+const GroupCard = ({ id, img, title, location, members, text, description, isJoined, loading }) => {
   const locationRoute = useLocation();
   const navigate = useNavigate(); // Add this line
   const dispatch = useDispatch();
   const [requestSent, setRequestSent] = useState(false);
   const token = useSelector((state) => state.auth.token);
-
-  console.log(isJoined);
-
   const isCreatedOrJoined =
     locationRoute.pathname === RoutePath.GROUP_CREATED ||
     locationRoute.pathname === RoutePath.GROUP_JOINED;
+  const optimizedImg = optimizeImageUrl(img);
 
   const handleViewGroup = () => {
     const groupDetails = { id, img, title, location, members, text, description };
@@ -66,8 +76,8 @@ const GroupCard = ({ id, img, title, location, members, text, description, isJoi
   };
 
   return (
-    <Card className="group-card" onClick={handleViewGroup}>
-      <Card.Img variant="top" src={img} className="group-card-img" />
+    <Card className="group-card" style={{ width: '100%' }} onClick={handleViewGroup}>
+      <Card.Img variant="top" src={optimizedImg} className="group-card-img" loading={loading} />
       <Card.Body className="group-card-body">
         <Card.Title className="group-name">{title}</Card.Title>
         <div className="group-card-info">

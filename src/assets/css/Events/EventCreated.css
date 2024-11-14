@@ -223,7 +223,7 @@
 
 #dropdown-basic {
     background-color: white;
-    border-color: white;
+    border-color: black !important;
 }
 
 

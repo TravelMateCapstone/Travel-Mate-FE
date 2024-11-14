@@ -1,41 +1,36 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import ReactPaginate from 'react-paginate';
 import GroupCard from '../../components/Group/GroupCard';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
-import { Placeholder, Card } from 'react-bootstrap';
+import { Placeholder, Card, Button } from 'react-bootstrap';
+import { useQuery } from 'react-query';
 
 function GroupJoined() {
   const token = useSelector((state) => state.auth.token);
   const refreshGroups = useSelector((state) => state.group.refreshGroups); 
 
-  const [data, setData] = useState([]);
-  const [pageCount, setPageCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async (page = 1) => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Groups/JoinedGroups?pageNumber=${page}`, {
-          headers: {
-            Authorization: `${token}`,
-          },
-        });
-        const groupsData = response.data.groups.$values;
-        const totalPages = response.data.totalPages;
-        setData(groupsData);
-        setPageCount(totalPages);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
+  const fetchGroups = async ({ queryKey }) => {
+    const [_key, page] = queryKey;
+    const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Groups/JoinedGroups?pageNumber=${page}`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return response.data;
+  };
+
+  const { data, isLoading } = useQuery(['groups', currentPage, refreshGroups], fetchGroups, {
+    keepPreviousData: true,
+    retry: false, 
+    onSuccess: (data) => {
+      if (data.message === "No joined groups found.") {
         setIsLoading(false);
       }
-    };
-
-    fetchData(currentPage);
-  }, [currentPage, token, refreshGroups]);
+    },
+  });
 
   const handlePageChange = useCallback((data) => {
     const selectedPage = data.selected + 1;
@@ -71,11 +66,16 @@ function GroupJoined() {
                   <Placeholder xs={8} />
                   <Placeholder xs={6} />
                 </Placeholder>
+                <Button variant="outline-success" className="group-card-button" disabled>
+                  <div></div>
+                  <div>Vào nhóm</div>
+                  <ion-icon name="chevron-forward-circle-outline" className="group-card-icon"></ion-icon>
+                </Button>
               </Card.Body>
             </Card>
           ))}
         </div>
-      ) : data.length === 0 ? (
+      ) : !data || data.message === "No joined groups found." ? (
         <p>Bạn chưa tham gia nhóm nào.</p>
       ) : (
         <div
@@ -85,7 +85,7 @@ function GroupJoined() {
             gap: '42px',
           }}
         >
-          {data.map((group) => (
+          {data.groups.$values.map((group) => (
             <GroupCard
               id={group.groupId}
               key={group.groupId}
@@ -99,13 +99,13 @@ function GroupJoined() {
         </div>
       )}
 
-      {!isLoading && data.length > 0 && (
+      {!isLoading && data && data.groups.$values.length > 0 && (
         <ReactPaginate
           previousLabel={'<'}
           nextLabel={'>'}
           breakLabel={'...'}
           breakClassName={'break-me'}
-          pageCount={pageCount}
+          pageCount={data.totalPages}
           marginPagesDisplayed={2}
           pageRangeDisplayed={2}
           onPageChange={handlePageChange}

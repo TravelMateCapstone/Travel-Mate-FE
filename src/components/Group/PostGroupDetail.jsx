@@ -10,25 +10,154 @@ import { toast } from 'react-toastify';
 import FormSubmit from '../Shared/FormSubmit';
 import { storage } from '../../../firebaseConfig';
 import EmojiPicker from 'emoji-picker-react';
+import { useMutation, useQueryClient } from 'react-query';
+import { format } from 'date-fns';
+import { vi } from 'date-fns/locale';
 
-const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
+const PostGroupDetail = ({ post }) => {
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const [uploadedImages, setUploadedImages] = useState([]);
+  const [uploadedImages, setUploadedImages] = useState(post.groupPostPhotos?.$values || []);
   const [newTitle, setNewTitle] = useState(post.title);
   const [visibleComments, setVisibleComments] = useState(5);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.auth.user);
   const groupDataRedux = useSelector((state) => state.group.selectedGroup);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false); // Thêm trạng thái cho Emoji Picker
+
+  console.log(post);
+
+
+  const queryClient = useQueryClient();
+
+  const deletePostMutation = useMutation(async () => {
+    try {
+      await axios.delete(
+        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}`,
+        { headers: { Authorization: `${token}` } }
+      );
+      toast.success('Xóa bài viết thành công');
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      toast.error('Không thể xóa bài viết');
+    }
+  }, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['posts', groupDataRedux.id || groupDataRedux.groupId]);
+    },
+  });
+
+  const updatePostMutation = useMutation(async () => {
+    console.log('update post', uploadedImages);
+
+    try {
+      const uploadedUrls = await Promise.all(selectedFiles.map(async (file) => {
+        const storageRef = ref(storage, `group_posts/${file.name}`);
+        const snapshot = await uploadBytes(storageRef, file);
+        return await getDownloadURL(snapshot.ref);
+      }));
+      const updatedData = {
+        title: newTitle,
+        GroupPostPhotos: uploadedUrls.map((url) => ({ photoUrl: url })),
+      };
+      await axios.put(
+        `${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}`,
+        updatedData,
+        { headers: { Authorization: `${token}` } }
+      );
+      toast.success('Cập nhật bài viết thành công');
+      setUploadedImages(uploadedUrls.map((url) => ({ photoUrl: url }))); // Update state with new images
+    } catch (error) {
+      toast.error('Không thể cập nhật bài viết');
+    }
+  }, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['posts', groupDataRedux.id || groupDataRedux.groupId]);
+    },
+  });
+
+  const updateCommentMutation = useMutation(async ({ postCommentId, updatedText }) => {
+    await axios.put(
+      `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments/${postCommentId}`,
+      { commentText: updatedText },
+      { headers: { Authorization: `${token}` } }
+    );
+  }, {
+    onSuccess: (data, variables) => {
+      setComments((prev) => prev.map((comment) =>
+        comment.postCommentId === variables.postCommentId
+          ? { ...comment, commentText: variables.updatedText, isEdited: true }
+          : comment
+      ));
+      toast.success('Cập nhật bình luận thành công');
+      queryClient.invalidateQueries(['comments', post.groupPostId]);
+    },
+  });
+
+  const deleteCommentMutation = useMutation(async (postCommentId) => {
+    await axios.delete(
+      `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments/${postCommentId}`,
+      { headers: { Authorization: `${token}` } }
+    );
+  }, {
+    onSuccess: (data, variables) => {
+      setComments((prev) => prev.filter((comment) => comment.postCommentId !== variables));
+      toast.success('Xóa bình luận thành công');
+      queryClient.invalidateQueries(['comments', post.groupPostId]);
+    },
+    onError: () => {
+      toast.error('Không thể xóa bình luận');
+    }
+  });
+
+  const addCommentMutation = useMutation(async () => {
+    if (!newComment.trim()) {
+      toast.error('Bình luận không được để trống');
+      return;
+    }
+    const response = await axios.post(
+      `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments`,
+      { commentText: newComment },
+      { headers: { Authorization: `${token}` } }
+    );
+    return response.data;
+  }, {
+    onSuccess: (data) => {
+      const newCommentData = {
+        ...data,
+        commentor: user.FullName,
+        commentorAvatar: user.avatarUrl
+      };
+      setComments((prev) => [...prev, newCommentData]);
+      setNewComment('');
+      toast.success('Bình luận thành công');
+      queryClient.invalidateQueries(['comments', post.groupPostId]);
+    },
+    onError: () => {
+      toast.error('Không thể thêm bình luận');
+    }
+  });
 
   useEffect(() => {
     if (post.groupPostPhotos && post.groupPostPhotos.$values) setUploadedImages(post.groupPostPhotos.$values);
-    if (showComments) fetchComments();
+    if (showComments) {
+      (async () => {
+        try {
+          const response = await axios.get(
+            `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments`,
+            { headers: { Authorization: `${token}` } }
+          );
+          setComments(response.data.$values);
+        } catch (error) {
+          console.error('Error fetching comments:', error);
+          toast.error('Không thể tải bình luận');
+        }
+      })();
+    }
   }, [post, showComments]);
 
   const autoResize = (e) => {
@@ -38,69 +167,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
 
   const handleToggleComments = () => setShowComments(!showComments);
 
-  const fetchComments = async () => {
-    try {
-      const response = await axios.get(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments`,
-        { headers: { Authorization: `${token}` } }
-      );
-      setComments(response.data.$values);
-    } catch (error) {
-      console.error('Error fetching comments:', error);
-      toast.error('Không thể tải bình luận');
-    }
-  };
   const loadMoreComments = () => setVisibleComments((prev) => prev + 5);
-  const uploadFiles = async () => {
-    const uploadedUrls = [];
-    for (let file of selectedFiles) {
-      const storageRef = ref(storage, `group_posts/${file.name}`);
-      try {
-        const snapshot = await uploadBytes(storageRef, file);
-        const downloadUrl = await getDownloadURL(snapshot.ref);
-        uploadedUrls.push(downloadUrl);
-      } catch (error) {
-        console.error('Error uploading file:', error);
-      }
-    }
-    return uploadedUrls;
-  };
-
-  const deletePost = async () => {
-    try {
-      await axios.delete(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}`,
-        { headers: { Authorization: `${token}` } }
-      );
-      onDelete(post.groupPostId);
-      toast.success('Xóa bài viết thành công');
-    } catch (error) {
-      console.error('Error deleting post:', error);
-      toast.error('Không thể xóa bài viết');
-    }
-  };
-
-  const updatePost = async () => {
-    try {
-      const uploadedUrls = await uploadFiles();
-      const updatedData = {
-        title: newTitle,
-        GroupPostPhotos: [
-          ...uploadedImages.map((url) => ({ photoUrl: url })),
-          ...uploadedUrls.map((url) => ({ photoUrl: url })),
-        ],
-      };
-      await axios.put(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}`,
-        updatedData,
-        { headers: { Authorization: `${token}` } }
-      );
-      toast.success('Cập nhật bài viết thành công');
-      fetchPosts();
-    } catch (error) {
-      toast.error('Không thể cập nhật bài viết');
-    }
-  };
 
   const handleFileChange = (event) => setSelectedFiles([...event.target.files]);
 
@@ -112,94 +179,52 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
     }
   };
 
-  const handleAddComment = async () => {
-    if (!newComment.trim()) {
-      toast.error('Bình luận không được để trống');
-      return;
-    }
-    try {
-      const response = await axios.post(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments`,
-        { commentText: newComment },
-        { headers: { Authorization: `${token}` } }
-      );
-      // Thêm thông tin người dùng hiện tại vào bình luận mới
-      const newCommentData = {
-        ...response.data,
-        commentor: user.FullName, // Thêm tên người bình luận
-        commentorAvatar: user.avatarUrl // Thêm avatar người bình luận
-      };
-      setComments((prev) => [...prev, newCommentData]);
-      setNewComment('');
-      toast.success('Bình luận thành công');
-    } catch (error) {
-      console.error('Error adding comment:', error);
-      toast.error('Không thể thêm bình luận');
-    }
+  const handleAddComment = () => {
+    addCommentMutation.mutate();
   };
 
-  const handleUpdateComment = async (postCommentId, updatedText) => {
-    try {
-      await axios.put(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments/${postCommentId}`,
-        { commentText: updatedText },
-        { headers: { Authorization: `${token}` } }
-      );
-      setComments((prev) =>
-        prev.map((comment) =>
-          comment.postCommentId === postCommentId
-            ? { ...comment, commentText: updatedText, isEdited: true } // Thêm thuộc tính isEdited
-            : comment
-        )
-      );
-      toast.success('Sửa bình luận thành công');
-    } catch (error) {
-      console.error('Error updating comment:', error);
-      toast.error('Không thể sửa bình luận');
-    }
+  const handleUpdateComment = (postCommentId, updatedText) => {
+    updateCommentMutation.mutate({ postCommentId, updatedText });
   };
 
-  const handleDeleteComment = async (postCommentId) => {
-    try {
-      await axios.delete(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments/${postCommentId}`,
-        { headers: { Authorization: `${token}` } }
-      );
-      setComments((prev) => prev.filter((comment) => comment.postCommentId !== postCommentId));
-      toast.success('Xóa bình luận thành công');
-    } catch (error) {
-      console.error('Error deleting comment:', error);
-      toast.error('Không thể xóa bình luận');
-    }
+  const handleDeleteComment = (postCommentId) => {
+    deleteCommentMutation.mutate(postCommentId);
   };
+
   const onEmojiClick = (emojiData) => {
     setNewComment((prev) => prev + emojiData.emoji);
     setShowEmojiPicker(false);
   };
 
+  const toggleEmojiPicker = () => setShowEmojiPicker((prev) => !prev);
 
-  const toggleEmojiPicker = () => setShowEmojiPicker((prev) => !prev); // Mở/đóng Emoji Picker
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return format(date, "dd 'tháng' MM 'lúc' HH:mm", { locale: vi });
+  };
 
+  console.log(post.postById+ '-'+  user.id);
+  
 
   return (
-    <div className="post mb-3" >
+    <div className="post mb-3">
       <div className="d-flex align-items-center gap-3">
         <img src={post.postCreatorAvatar || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'} alt="avatar" width={70} height={70} className="rounded-circle object-fit-cover" />
         <div className="d-flex justify-content-between w-100">
           <div>
             <h5 className="m-0">{post.postCreatorName || post.commentor}</h5>
-            <p>{post.createdTime}</p>
+            <p>{formatDate(post.createdTime)}</p>
           </div>
           {post.postById == user.id && (
             <Dropdown>
-              <Dropdown.Toggle variant="success" id="dropdown-basic" className="border-0 bg-transparent">
+              <Dropdown.Toggle variant="success" className="border-0 bg-transparent shadow-none text-black">
                 <ion-icon name="ellipsis-vertical-outline"></ion-icon>
               </Dropdown.Toggle>
-              <Dropdown.Menu>
+              <Dropdown.Menu align="end">
                 <Dropdown.Item className='form_edit_post'>
-                  <FormSubmit buttonText="Lưu thay đổi" openModalText="Sửa bài viết" onButtonClick={updatePost} title={'Chỉnh sửa bài viết'}>
+                  <FormSubmit buttonText="Lưu thay đổi" openModalText="Sửa bài viết" onButtonClick={() => updatePostMutation.mutate()} title={'Chỉnh sửa bài viết'}>
                     <h4>Bảng thông tin</h4>
-                    <p>Nhập thông  tin chỉnh sửa bài viết của bạn</p>
+                    <p>Nhập thông tin chỉnh sửa bài viết của bạn</p>
                     <h4>Nội dung</h4>
                     <textarea
                       placeholder="Nội dung bài viết"
@@ -220,34 +245,58 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
                     <Button variant='' className='button_upload_images rounded-5 d-flex gap-1 mb-3' onClick={() => document.getElementById('image_update').click()}>
                       Nhấn vào đây để <p className='m-0 text-primary'>upload</p>
                     </Button>
-                    <div className="uploaded_image_container d-flex flex-row gap-2">
-                      {[...uploadedImages, ...selectedFiles].map((file, index) => (
-                        <div key={index} className="uploaded_image position-relative" style={{ width: '100px', height: '100px' }}>
-                          <img
-                            src={typeof file === 'string' ? file : (file instanceof File ? URL.createObjectURL(file) : '')}
-                            alt="Uploaded image"
-                            width={100}
-                            height={100}
-                            className="w-100 h-100 object-fit-cover"
-                          />
-                          <div className="overlay-buttons position-absolute top-50 start-50 translate-middle d-flex gap-2">
-                            <Button
-                              variant=""
-                              onClick={() => window.open(typeof file === 'string' ? file : (file instanceof File ? URL.createObjectURL(file) : ''), '_blank')}
-                            >
-                              <ion-icon name="eye-outline"></ion-icon>
-                            </Button>
-                            <Button variant="" onClick={() => handleDeleteImage(index)}>
-                              <ion-icon name="trash-outline"></ion-icon>
-                            </Button>
+                    <div className="uploaded_image_container d-flex flex-wrap flex-row gap-2">
+                      {selectedFiles.length > 0 ? (
+                        selectedFiles.map((file, index) => (
+                          <div key={index} className="uploaded_image position-relative" style={{ width: '100px', height: '100px' }}>
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt="Selected image"
+                              width={100}
+                              height={100}
+                              className="w-100 h-100 object-fit-cover"
+                            />
+                            <div className="overlay-buttons position-absolute top-50 start-50 translate-middle d-flex gap-2">
+                              <Button
+                                variant=""
+                                onClick={() => window.open(URL.createObjectURL(file), '_blank')}
+                              >
+                                <ion-icon name="eye-outline"></ion-icon>
+                              </Button>
+                              <Button variant="" onClick={() => handleDeleteImage(index)}>
+                                <ion-icon name="trash-outline"></ion-icon>
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))
+                      ) : (
+                        uploadedImages.map((image, index) => (
+                          <div key={index} className="uploaded_image position-relative" style={{ width: '100px', height: '100px' }}>
+                            <img
+                              src={image.photoUrl}
+                              alt="Uploaded image"
+                              width={100}
+                              height={100}
+                              className="w-100 h-100 object-fit-cover"
+                            />
+                            <div className="overlay-buttons position-absolute top-50 start-50 translate-middle d-flex gap-2">
+                              <Button
+                                variant=""
+                                onClick={() => window.open(image.photoUrl, '_blank')}
+                              >
+                                <ion-icon name="eye-outline"></ion-icon>
+                              </Button>
+                              <Button variant="" onClick={() => handleDeleteImage(index)}>
+                                <ion-icon name="trash-outline"></ion-icon>
+                              </Button>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
-
                   </FormSubmit>
                 </Dropdown.Item>
-                <Dropdown.Item onClick={() => setShowDeleteModal(true)}>Xóa bài viết</Dropdown.Item>
+                <Dropdown.Item onClick={() => deletePostMutation.mutate()}>Xóa bài viết</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           )}
@@ -275,7 +324,6 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
           ></ion-icon>
           {showComments ? `${comments.length} Bình luận` : 'Bình luận'}
         </Button>
-
         <Button variant="" className="button_action_comment p-0 gap-2 rounded-circle d-flex align-items-center justify-content-center">
           <ion-icon name="share-social-outline" style={{
             fontSize: '30px',
@@ -316,7 +364,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
                 placeholder="Viết bình luận..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                onInput={autoResize} // Thêm thuộc tính này
+                onInput={autoResize}
               ></textarea>
               <div className="d-flex justify-content-between">
                 <Button variant="light" onClick={toggleEmojiPicker} className="me-2">
@@ -327,7 +375,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
                 </Button>
               </div>
               {showEmojiPicker && (
-                <div style={{ position: 'absolute', }}>
+                <div style={{ position: 'absolute' }}>
                   <EmojiPicker onEmojiClick={onEmojiClick} />
                 </div>
               )}
@@ -335,16 +383,13 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
           </div>
         </div>
       )}
-
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered className="custom-modal_deletPostGroup">
         <Modal.Body className="custom-modal-body">
           <div>
-            <ion-icon name="warning-outline" style={
-              {
-                fontSize: '30px',
-                color: '#AC0B0B',
-              }
-            }></ion-icon>
+            <ion-icon name="warning-outline" style={{
+              fontSize: '30px',
+              color: '#AC0B0B',
+            }}></ion-icon>
           </div>
           <p className='mb-0 fw-medium text-black'>Bạn có muốn xóa không ?</p>
           <p className='m-0' style={{
@@ -357,7 +402,7 @@ const PostGroupDetail = ({ post, onDelete, fetchPosts }) => {
             Hủy
           </Button>
           <Button variant="" onClick={() => {
-            deletePost();
+            deletePostMutation.mutate();
             setShowDeleteModal(false);
           }}
             className='rounded-5'

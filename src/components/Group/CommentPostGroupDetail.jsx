@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { useSelector } from 'react-redux';
+import { useMutation, useQueryClient } from 'react-query';
 import '../../assets/css/Groups/CommentPostGroupDetail.css'
 
 const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) => {
@@ -12,8 +13,9 @@ const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) =
   const [isLongComment, setIsLongComment] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const queryClient = useQueryClient();
+
   useEffect(() => {
-    // Kiểm tra chiều cao của phần tử để xác định nếu bình luận vượt quá 2 dòng
     if (commentContentRef.current) {
       setIsLongComment(commentContentRef.current.scrollHeight > commentContentRef.current.clientHeight);
     }
@@ -50,6 +52,10 @@ const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) =
     setIsEditing(false);
   };
 
+  const handleDeleteComment = () => {
+    onDeleteComment(comment.postCommentId);
+  };
+
   const toggleFullComment = () => {
     setIsExpanded(!isExpanded);
   };
@@ -77,7 +83,7 @@ const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) =
                 boxShadow: '0px 0px 8px rgba(0,0,0,0.25)',
               }}>
                 <Dropdown.Item onClick={() => setIsEditing(true)}>Sửa bình luận</Dropdown.Item>
-                <Dropdown.Item onClick={() => onDeleteComment(comment.postCommentId)}>Xóa bình luận</Dropdown.Item>
+                <Dropdown.Item onClick={handleDeleteComment}>Xóa bình luận</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           )}

@@ -20,23 +20,33 @@
 .button_upload_images:hover {
   border: 1px dashed #7ba2e7;
 }
+.mybutton:hover{
+  border: 0 !important;
+  box-shadow: none !important;
+  
+}
 .form_edit_post .mybutton {
   margin: 0;
   padding: 0;
   text-align: start;
   border: 0;
+  box-shadow: none !important;
 }
 .form_edit_post .mybutton:hover {
   color: black;
   background: transparent;
 }
+#dropdown-basic {
+  box-shadow: none !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
 .button_action_comment {
   border-radius: 50%;
-   border: 0px;
+  border: 0px;
 }
 .button_action_comment:hover {
   color: #409034;
- 
 }
 .container_write_comment {
   padding: 20px;
@@ -54,22 +64,22 @@
 #write_comment_area:focus {
   outline: none;
 }
-.button_send_comment{
-    outline: none;
-    border: 0px;
+.button_send_comment {
+  outline: none;
+  border: 0px;
 }
-.button_send_comment ion-icon:hover{
+.button_send_comment ion-icon:hover {
   color: #409034 !important;
 }
-.button_loadmore_comment{
+.button_loadmore_comment {
   font-size: 20px;
   margin-bottom: 30px;
 }
 
 .custom-modal_deletPostGroup .modal-content {
-  height: 100%!important;
+  height: 100% !important;
   width: 60% !important;
-  left: 20%!important;
+  left: 20% !important;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.17);
   border: 0px !important;
 }

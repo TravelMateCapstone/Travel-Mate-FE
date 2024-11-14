@@ -66,7 +66,7 @@ function ListLayout({ children }) {
         currentPath.startsWith(RoutePath.EVENT_JOINED) ||
         currentPath.startsWith(RoutePath.EVENT_CREATED);
 
-    const isGroupRoutebtn = currentPath === RoutePath.GROUP;
+    const isGroupRoutebtn = currentPath === RoutePath.GROUP || currentPath === RoutePath.GROUP_CREATED || currentPath === RoutePath.GROUP_JOINED;
     const isEventRouteBtn = currentPath === RoutePath.EVENT;
 
     const sidebarData = isEventRoute ? sidebarItemsEvent : sidebarItems;
@@ -326,8 +326,6 @@ function ListLayout({ children }) {
                         </Button>
                         {isGroupRoutebtn ? (
                             <FormSubmit buttonText={'Tạo nhóm'} onButtonClick={handleCreateGroup} title={'Tạo nhóm'} openModalText={'Tạo nhóm'} needAuthorize={true}>
-                                <h3>Bảng thông tin</h3>
-                                <small>Nhập thông tin chi tiết cho nhóm mới của bạn</small>
                                 <Form>
                                     <Form.Group id="groupName" className="mb-3 mt-3">
                                         <Form.Label className='fw-medium'>Tên nhóm</Form.Label>
@@ -408,8 +406,6 @@ function ListLayout({ children }) {
                             </FormSubmit>
                         ) : (
                             <FormSubmit buttonText={'Tạo sự kiện'} onButtonClick={handleCreateEvent} title={'Tạo sự kiện'} openModalText={'Tạo sự kiện'} needAuthorize={true}>
-                                <h3>Bảng thông tin</h3>
-                                <small>Nhập thông tin chi tiết cho sự kiện mới của bạn</small>
                                 <Form>
                                     <Form.Group id="eventName" className="mb-3 mt-3">
                                         <Form.Label className='fw-bold'>Tên sự kiện</Form.Label>

@@ -5,6 +5,9 @@ import DefaultLayout from "./layouts/DefaultLayout";
 import { ToastContainer } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux"; 
 import { openLoginModal } from "./redux/actions/modalActions"; 
+import { QueryClient, QueryClientProvider } from 'react-query'; // Added import
+
+const queryClient = new QueryClient(); // Added query client initialization
 
 const RouteWrapper = ({ component: Component, layout: Layout, path }) => {
   const dispatch = useDispatch(); 
@@ -46,24 +49,26 @@ const RouteWrapper = ({ component: Component, layout: Layout, path }) => {
 
 function App() {
   return (
-    <Router >
-      <Routes>
-        {publishRoutes.map(({ path, component: Component, layout: Layout }, index) => (
-          <Route
-            key={index}
-            path={path}
-            element={<RouteWrapper component={Component} layout={Layout} path={path} />}
-          />
-        ))}
-        {privateRoutes.map(({ path, component: Component, layout: Layout }, index) => (
-          <Route
-            key={index}
-            path={path}
-            element={<RouteWrapper component={Component} layout={Layout} path={path} />}
-          />
-        ))}
-      </Routes>
-    </Router>
+    <QueryClientProvider client={queryClient}>
+      <Router >
+        <Routes>
+          {publishRoutes.map(({ path, component: Component, layout: Layout }, index) => (
+            <Route
+              key={index}
+              path={path}
+              element={<RouteWrapper component={Component} layout={Layout} path={path} />}
+            />
+          ))}
+          {privateRoutes.map(({ path, component: Component, layout: Layout }, index) => (
+            <Route
+              key={index}
+              path={path}
+              element={<RouteWrapper component={Component} layout={Layout} path={path} />}
+            />
+          ))}
+        </Routes>
+      </Router>
+    </QueryClientProvider>
   );
 }
 

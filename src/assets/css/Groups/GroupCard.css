@@ -7,8 +7,9 @@
 .group-card-img {
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  height: 193px;
-  object-fit: cover;
+  height: 200px; /* Adjusted height */
+  width: 100%; /* Ensure the image takes full width */
+  object-fit: cover; /* Ensure the image covers the area */
 }
 
 .group-name {

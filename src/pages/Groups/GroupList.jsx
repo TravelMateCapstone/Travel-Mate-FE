@@ -1,50 +1,30 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import ReactPaginate from 'react-paginate';
 import GroupCard from '../../components/Group/GroupCard';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
-import { Placeholder, Card } from 'react-bootstrap';
+import { Placeholder, Card, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useQuery } from 'react-query';
 
 function GroupList() {
   const token = useSelector((state) => state.auth.token);
   const refreshGroups = useSelector((state) => state.group.refreshGroups);
 
-  const [data, setData] = useState([]);
-  const [pageCount, setPageCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async (page = 1) => {
-      setIsLoading(true);
-      try {
-        // Determine API endpoint based on token availability
-        const endpoint = token
-          ? `${import.meta.env.VITE_BASE_API_URL}/api/Groups/UnJoinedGroups?pageNumber=${page}`
-          : `${import.meta.env.VITE_BASE_API_URL}/api/groups?pageNumber=${page}`;
+  const fetchGroups = async (page) => {
+    const endpoint = token
+      ? `${import.meta.env.VITE_BASE_API_URL}/api/Groups/UnJoinedGroups?pageNumber=${page}`
+      : `${import.meta.env.VITE_BASE_API_URL}/api/groups?pageNumber=${page}`;
+    const headers = token ? { Authorization: `${token}` } : {};
+    const response = await axios.get(endpoint, { headers });
+    return response.data;
+  };
 
-        // Set headers only if using UnJoinedGroups endpoint
-        const headers = token ? { Authorization: `${token}` } : {};
-
-        const response = await axios.get(endpoint, { headers });
-        console.log(response.data);
-        const groupsData = response.data.listUnjoinedGroups.$values || [];
-        const totalPages = response.data.totalPages || 0;
-
-      
-
-        setData(groupsData);
-        setPageCount(totalPages);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData(currentPage);
-  }, [currentPage, token, refreshGroups]);
+  const { data, isLoading } = useQuery(['groups', currentPage, token, refreshGroups], () => fetchGroups(currentPage), {
+    keepPreviousData: true,
+  });
 
   const handlePageChange = useCallback((data) => {
     const selectedPage = data.selected + 1;
@@ -80,10 +60,15 @@ function GroupList() {
                   <Placeholder xs={8} />
                   <Placeholder xs={6} />
                 </Placeholder>
+                <Button variant="outline-success" className="group-card-button" disabled>
+                  <div></div>
+                  <div>Tham gia</div>
+                  <ion-icon name="chevron-forward-circle-outline" className="group-card-icon"></ion-icon>
+                </Button>
               </Card.Body>
             </Card>
           ))
-          : data.map((group) => (
+          : data?.listUnjoinedGroups.$values.map((group) => (
             <GroupCard
               id={group.group.groupId}
               key={group.group.groupId}
@@ -93,6 +78,7 @@ function GroupList() {
               members={`${group.group.numberOfParticipants}`}
               text={group.group.description}
               isJoined={group.userJoinedStatus}
+              loading="lazy" 
             />
           ))}
       </div>
@@ -102,7 +88,7 @@ function GroupList() {
         nextLabel={'>'}
         breakLabel={'...'}
         breakClassName={'break-me'}
-        pageCount={pageCount}
+        pageCount={data?.totalPages || 0}
         marginPagesDisplayed={2}
         pageRangeDisplayed={2}
         onPageChange={handlePageChange}

@@ -134,7 +134,7 @@ function Navbar() {
 
               <div className='d-flex'>
                 <Dropdown onSelect={handleSelect} align="end">
-                  <Dropdown.Toggle variant="success" id="dropdown-basic" style={{
+                  <Dropdown.Toggle variant="success" id="dropdown-basic-Navbar" style={{
                     fontSize: '12px'
                   }} className='rounded-start-0 rounded-end-5 border-start-0 d-flex align-items-center gap-2'>
                     <p className='m-0 fw-semibold'>{selectedItem}</p>
