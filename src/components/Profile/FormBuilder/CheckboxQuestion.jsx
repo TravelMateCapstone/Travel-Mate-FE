@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Form, FormGroup, FormControl, FormLabel, Button } from 'react-bootstrap';
 
-function CheckboxQuestion({ question, onUpdate }) {
+function CheckboxQuestion({ question, onUpdate, onDelete }) {
   const [text, setText] = useState(question.text || '');
   const [options, setOptions] = useState(question.options || []);
 
@@ -14,7 +14,7 @@ function CheckboxQuestion({ question, onUpdate }) {
   };
 
   return (
-    <Form style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px' }}>
+    <Form style={{ border: '1px solid #ccc', padding: '10px', borderRadius: '5px', position: 'relative' }}>
       <FormGroup>
         <FormLabel style={{ color: 'green' }}>Câu hỏi nhiều đáp án nhiều lựa chọn</FormLabel>
         <FormControl 
@@ -35,12 +35,19 @@ function CheckboxQuestion({ question, onUpdate }) {
                 newOptions[index] = e.target.value;
                 setOptions(newOptions);
               }} 
-              style={{ width: '100%' }} 
+              style={{ width: '100%', marginTop: '10px' }} 
             />
           </div>
         ))}
-        <Button style={{ backgroundColor: 'green', borderColor: 'green' }} onClick={addOption}>Thêm câu trả lời</Button>
+        <Button style={{ backgroundColor: 'green', borderColor: 'green', marginTop: '10px' }} onClick={addOption}>Thêm câu trả lời</Button>
       </FormGroup>
+      <button 
+        type="button" 
+        onClick={() => onDelete(question.id)} 
+        style={{ position: 'absolute', top: '10px', right: '10px', backgroundColor: 'red', color: 'white', border: 'none', borderRadius: '5px' }}
+      >
+        Xóa
+      </button>
     </Form>
   );
 }

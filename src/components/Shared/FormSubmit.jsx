@@ -97,8 +97,8 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
             transform: 'translate(-50%, -50%)',
             padding: '30px 70px',
             borderRadius: '20px',
-            width: '897px',
-            maxHeight: '100vh',
+            width: '1000px', // Increased width
+            height: '95vh', // Full viewport height
             position: 'relative',
             display: 'flex',
             flexDirection: 'column', // Thêm dòng này để sắp xếp các phần của modal theo chiều dọc
@@ -111,7 +111,7 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
         {/* Phần nội dung con được truyền vào component */}
         <div style={{
           overflowY: 'auto',  // Kích hoạt cuộn dọc nếu nội dung quá dài
-          maxHeight: 'calc(80vh - 150px)', // Điều chỉnh chiều cao tối đa của nội dung
+          flex: '1', // Chiếm toàn bộ chiều cao còn lại của modal
           paddingBottom: '20px',
         }}>
           {children}

@@ -4,16 +4,16 @@ import YesNoQuestion from './YesNoQuestion';
 import MultipleChoiceQuestion from './MultipleChoiceQuestion';
 import CheckboxQuestion from './CheckboxQuestion';
 
-function Question({ question, onUpdate }) {
+function Question({ question, onUpdate, onDelete }) {
   switch (question.type) {
     case 'text':
-      return <TextInputQuestion question={question} onUpdate={onUpdate} />;
+      return <TextInputQuestion question={question} onUpdate={onUpdate} onDelete={onDelete} />;
     case 'yesno':
-      return <YesNoQuestion question={question} onUpdate={onUpdate} />;
+      return <YesNoQuestion question={question} onUpdate={onUpdate} onDelete={onDelete} />;
     case 'multiple-choice':
-      return <MultipleChoiceQuestion question={question} onUpdate={onUpdate} />;
+      return <MultipleChoiceQuestion question={question} onUpdate={onUpdate} onDelete={onDelete} />;
     case 'checkbox':
-      return <CheckboxQuestion question={question} onUpdate={onUpdate} />;
+      return <CheckboxQuestion question={question} onUpdate={onUpdate} onDelete={onDelete} />;
     default:
       return null;
   }
