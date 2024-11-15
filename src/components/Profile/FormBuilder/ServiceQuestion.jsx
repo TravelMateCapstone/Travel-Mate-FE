@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Button, InputGroup, Row, Col } from 'react-bootstrap';
+import { Form, Button, InputGroup } from 'react-bootstrap';
 
 function ServiceQuestion({ question, onUpdate, onAddService, onDelete }) {
   const [serviceName, setServiceName] = useState(question.serviceName || '');
@@ -16,37 +16,21 @@ function ServiceQuestion({ question, onUpdate, onAddService, onDelete }) {
   };
 
   return (
-    <Form style={{ width: '100%' }} className='mb-2'>
-      <Row className="align-items-center">
-        <Col xs={12} md={5}>
-          <Form.Group controlId="serviceName">
-            <Form.Control
-              type="text"
-              placeholder="Tên dịch vụ"
-              value={serviceName}
-              onChange={handleServiceNameChange}
-            />
-          </Form.Group>
-        </Col>
-        <Col xs={12} md={5}>
-          <Form.Group controlId="amount">
-            <InputGroup>
-              <Form.Control
-                type="number"
-                placeholder="Số tiền"
-                value={amount}
-                onChange={handleAmountChange}
-              />
-            </InputGroup>
-          </Form.Group>
-        </Col>
-        <Col xs={12} md={2} className="d-flex justify-content-end">
-          <Button variant="danger" onClick={() => onDelete(question.id)}>
-            Xóa
-          </Button>
-        </Col>
-      </Row>
-    </Form>
+    <div style={{ width: '100%' }} className='mb-2 p-0'>
+      <div className="w-100 d-flex align-items-center gap-2">
+        <Form.Group controlId="serviceName" className='w-100'>
+          <Form.Control type="text" placeholder="Tên dịch vụ" value={serviceName} onChange={handleServiceNameChange} style={{ height: '47px' }} />
+        </Form.Group>
+        <Form.Group controlId="amount">
+          <InputGroup>
+            <Form.Control type="number" placeholder="Số tiền" value={amount} onChange={handleAmountChange} style={{ height: '47px' }} />
+          </InputGroup>
+        </Form.Group>
+        <Button style={{ height: '100%' }} variant="" className='rounded-5 d-flex justify-content-center align-items-center' onClick={() => onDelete(question.id)}>
+          <ion-icon name="close-circle-outline" style={{ fontSize: '24px' }}></ion-icon>
+        </Button>
+      </div>
+    </div>
   );
 }
 

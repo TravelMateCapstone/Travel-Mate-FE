@@ -1,12 +1,12 @@
 .form_builder .modal-content {
-  width: 1000px !important; /* Increased width */
-  height: 100% !important; /* Increased height */
+  width: 897px !important; 
+  height: 100% !important; 
 }
 
 .custom-modal-formbuilder .modal-dialog {
-  max-width: 1000px;
+  max-width: 897px;
 }
 
 .custom-modal-formbuilder .modal-content {
-  height: 95vh !important; /* Increased height */
+  height: 95vh !important;
 }
