@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState, useMemo, useCallback } from "react";
 import axios from "axios";
 import { Button, Dropdown, DropdownButton } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
@@ -24,6 +24,27 @@ function ProfileCard() {
   const location = useLocation();
   const dispatch = useDispatch();
 
+  const fetchProfileData = useCallback(async () => {
+    try {
+      const profileResponse = await axios.get(`${url}/api/Profile/current-profile`, {
+        headers: { Authorization: token },
+      });
+      setProfile(profileResponse.data);
+
+      const languagesResponse = await axios.get(`${url}/api/SpokenLanguages/current-user`, {
+        headers: { Authorization: token },
+      });
+      setLanguages(languagesResponse.data.$values);
+
+      const educationResponse = await axios.get(`${url}/api/UserEducation/current-user`, {
+        headers: { Authorization: token },
+      });
+      setEducation(educationResponse.data.$values);
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu:", error);
+    }
+  }, [token, url]);
+
   useEffect(() => {
     if (location.pathname === "/others-profile") {
       // Lấy dữ liệu từ localStorage khi ở đường dẫn /others-profile
@@ -41,33 +62,11 @@ function ProfileCard() {
         setEducation(othersEducation);
       }
     } else {
-      // Gọi API khi ở đường dẫn /profile
-      const fetchProfileData = async () => {
-        try {
-          const profileResponse = await axios.get(`${url}/api/Profile/current-profile`, {
-            headers: { Authorization: token },
-          });
-          setProfile(profileResponse.data);
-
-          const languagesResponse = await axios.get(`${url}/api/SpokenLanguages/current-user`, {
-            headers: { Authorization: token },
-          });
-          setLanguages(languagesResponse.data.$values);
-
-          const educationResponse = await axios.get(`${url}/api/UserEducation/current-user`, {
-            headers: { Authorization: token },
-          });
-          setEducation(educationResponse.data.$values);
-        } catch (error) {
-          console.error("Lỗi khi lấy dữ liệu:", error);
-        }
-      };
-
       fetchProfileData();
     }
-  }, [token, url, location.pathname]);
+  }, [fetchProfileData, location.pathname]);
 
-  const handleImageUpload = async (event) => {
+  const handleImageUpload = useCallback(async (event) => {
     const file = event.target.files[0];
     if (file) {
       setIsUploading(true);
@@ -101,7 +100,40 @@ function ProfileCard() {
         setIsUploading(false);
       }
     }
-  };
+  }, [dispatch, token, url]);
+
+  const registrationYear = useMemo(() => {
+    return profile?.user?.registrationTime
+      ? new Date(profile.user.registrationTime).getFullYear()
+      : "Không xác định";
+  }, [profile]);
+
+  const handleSendFriendRequest = useCallback(async () => {
+    try {
+      // Lấy userId từ othersProfile
+      const userId = profile.userId;
+
+      console.log("check id", userId);
+      // Gửi yêu cầu kết bạn đến API
+      const response = await axios.post(
+        `${url}/api/Friendship/send?toUserId=${userId}`,
+        {},
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success('Bạn đã gửi yêu cầu kết bạn thành công!');
+      }
+    } catch (error) {
+      console.error('Lỗi khi gửi yêu cầu kết bạn:', error);
+      toast.error('Lỗi khi gửi yêu cầu kết bạn. Vui lòng thử lại sau.');
+    }
+  }, [profile, token, url]);
+
   if (!profile || !languages || !education) {
     return (
       <div className="d-flex justify-content-center profile-card">
@@ -152,36 +184,6 @@ function ProfileCard() {
     );
   }
   
-  const registrationYear = profile?.user?.registrationTime
-    ? new Date(profile.user.registrationTime).getFullYear()
-    : "Không xác định";
-
-  const handleSendFriendRequest = async () => {
-    try {
-      // Lấy userId từ othersProfile
-      const userId = profile.userId;
-
-      console.log("check id", userId);
-      // Gửi yêu cầu kết bạn đến API
-      const response = await axios.post(
-        `${url}/api/Friendship/send?toUserId=${userId}`,
-        {},
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        toast.success('Bạn đã gửi yêu cầu kết bạn thành công!');
-      }
-    } catch (error) {
-      console.error('Lỗi khi gửi yêu cầu kết bạn:', error);
-      toast.error('Lỗi khi gửi yêu cầu kết bạn. Vui lòng thử lại sau.');
-    }
-  };
-
   return (
     <div className="d-flex justify-content-center profile-card">
       <div className="profile-card-container position-relative">
@@ -189,7 +191,7 @@ function ProfileCard() {
           <div style={{ position: "relative", top: '-30px' }}>
             <img
               className="rounded-circle object-fit-cover"
-              src={profile.imageUser || "default-image-url"}
+              src={user.avatarUrl || "default-image-url"}
               alt="User profile"
               width={192}
               height={192}
@@ -288,4 +290,4 @@ function ProfileCard() {
   );
 }
 
-export default ProfileCard;
+export default memo(ProfileCard);

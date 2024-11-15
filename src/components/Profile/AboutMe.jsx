@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import "../../assets/css/Profile/AboutMe.css";
+import FormSubmit from '../../components/Shared/FormSubmit';
+import FormBuilder from './FormBuilder/FormBuilder';
 
 function AboutMe() {
   const [profile, setProfile] = useState(null);
@@ -16,45 +18,26 @@ function AboutMe() {
 
   useEffect(() => {
     const fetchProfileAndActivities = async () => {
-      if (location.pathname === '/others-profile') {
-        // Nếu đang ở trang hồ sơ người khác, lấy dữ liệu từ localStorage
-        const othersProfile = JSON.parse(localStorage.getItem('othersProfile'));
-        const othersActivity = JSON.parse(localStorage.getItem('othersActivity'));
+      try {
+        const profileResponse = await axios.get(`${baseUrl}/api/Profile/current-profile`, {
+          headers: { Authorization: `${token}` },
+        });
 
-        if (othersProfile) {
-          setProfile(othersProfile);
-        } else {
-          console.error('Lỗi khi lấy dữ liệu hồ sơ từ localStorage');
+        if (profileResponse.data) {
+          const profileData = profileResponse.data;
+          setProfile(profileData);
         }
 
-        if (othersActivity?.$values) {
-          setActivities(othersActivity.$values.map(item => item.activity));
-        } else {
-          console.error('Lỗi khi lấy dữ liệu hoạt động từ localStorage');
+        const activitiesResponse = await axios.get(`${baseUrl}/api/UserActivitiesWOO/current-user`, {
+          headers: { Authorization: `${token}` },
+        });
+
+        if (activitiesResponse.data?.$values) {
+          const activitiesData = activitiesResponse.data.$values;
+          setActivities(activitiesData);
         }
-      } else if (location.pathname === '/profile') {
-        // Nếu đang ở trang hồ sơ cá nhân, lấy dữ liệu từ API
-        try {
-          const profileResponse = await axios.get(`${baseUrl}/api/Profile/current-profile`, {
-            headers: { Authorization: `${token}` },
-          });
-
-          if (profileResponse.data) {
-            const profileData = profileResponse.data;
-            setProfile(profileData);
-          }
-
-          const activitiesResponse = await axios.get(`${baseUrl}/api/UserActivitiesWOO/current-user`, {
-            headers: { Authorization: `${token}` },
-          });
-
-          if (activitiesResponse.data?.$values) {
-            const activitiesData = activitiesResponse.data.$values;
-            setActivities(activitiesData);
-          }
-        } catch (error) {
-          console.error('Error fetching data from API:', error);
-        }
+      } catch (error) {
+        console.error('Error fetching data from API:', error);
       }
     };
     fetchProfileAndActivities();
@@ -62,9 +45,12 @@ function AboutMe() {
 
   return (
     <Container className='py-3 px-0 border-0 rounded-5' style={{ background: '#f9f9f9' }}>
-      <Row>
+      <Row className='w-100'>
         <Col md={12}>
-          <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">GIỚI THIỆU</h2>
+          <div className='d-flex align-items-center justify-content-between'>
+            <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">GIỚI THIỆU</h2>
+            <FormBuilder/>
+          </div>
           <ul className="cbp_tmtimeline">
             <li>
               <div className="cbp_tmicon"><i className="zmdi zmdi-label"></i></div>
@@ -87,7 +73,7 @@ function AboutMe() {
                 <div className='d-flex favorite-tag'>
                   {activities.length > 0 ? (
                     activities.map((activity, index) => (
-                      <div key={index} className="small border border-dark btn mx-3 rounded-pill">
+                      <div key={index} className="small border border-dark btn mx-3 rounded-pill text-success">
                         {activity.activityName}
                       </div>
                     ))
