@@ -21,7 +21,6 @@
   text-overflow: ellipsis;  /* Adds ellipsis (…) for overflow */
 }
 
-
 .group-card-body {
   height: 193px;
   padding: 18px 22.5px 5px 22.5px;
@@ -112,7 +111,6 @@
   padding: 10px;
 }
 
-
   .group-card-info {
     font-size: 7px !important;
     margin: 0px !important;
@@ -183,4 +181,9 @@
     width: 20px;
     font-size: 20px;
   }
+}
+
+.no-padding-margin {
+  padding: 0;
+  margin: 0;
 }

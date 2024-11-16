@@ -1,47 +1,44 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
-import { Container, Row, Col, Button } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { useQuery } from 'react-query';
 import "../../assets/css/Profile/AboutMe.css";
-import FormSubmit from '../../components/Shared/FormSubmit';
 import FormBuilder from './FormBuilder/FormBuilder';
 
 function AboutMe() {
-  const [profile, setProfile] = useState(null);
-  const [activities, setActivities] = useState([]);
   const token = useSelector((state) => state.auth.token);
   const baseUrl = import.meta.env.VITE_BASE_API_URL;
-  const location = useLocation(); // Sử dụng để kiểm tra đường dẫn hiện tại
+  const location = useLocation();
 
-  useEffect(() => {
-    const fetchProfileAndActivities = async () => {
-      try {
-        const profileResponse = await axios.get(`${baseUrl}/api/Profile/current-profile`, {
-          headers: { Authorization: `${token}` },
-        });
+  const fetchProfile = useCallback(async (token, baseUrl) => {
+    const response = await axios.get(`${baseUrl}/api/Profile/current-profile`, {
+      headers: { Authorization: `${token}` },
+    });
+    return response.data?.$values || response.data;
+  }, []);
 
-        if (profileResponse.data) {
-          const profileData = profileResponse.data;
-          setProfile(profileData);
-        }
+  const fetchActivities = useCallback(async (token, baseUrl) => {
+    const response = await axios.get(`${baseUrl}/api/UserActivitiesWOO/current-user`, {
+      headers: { Authorization: `${token}` },
+    });
+    return response.data?.$values || response.data;
+  }, []);
 
-        const activitiesResponse = await axios.get(`${baseUrl}/api/UserActivitiesWOO/current-user`, {
-          headers: { Authorization: `${token}` },
-        });
+  const { data: profile, isLoading: isProfileLoading } = useQuery(
+    ['profile', token, baseUrl],
+    () => fetchProfile(token, baseUrl),
+    { enabled: !!token }
+  );
 
-        if (activitiesResponse.data?.$values) {
-          const activitiesData = activitiesResponse.data.$values;
-          setActivities(activitiesData);
-        }
-      } catch (error) {
-        console.error('Error fetching data from API:', error);
-      }
-    };
-    fetchProfileAndActivities();
-  }, [token, baseUrl, location.pathname]);
+  const { data: activities, isLoading: isActivitiesLoading } = useQuery(
+    ['activities', token, baseUrl],
+    () => fetchActivities(token, baseUrl),
+    { enabled: !!token }
+  );
 
   return (
     <Container className='py-3 px-0 border-0 rounded-5' style={{ background: '#f9f9f9' }}>
@@ -56,14 +53,14 @@ function AboutMe() {
               <div className="cbp_tmicon"><i className="zmdi zmdi-label"></i></div>
               <div className="cbp_tmlabel">
                 <h4>MÔ TẢ</h4>
-                <p>{profile ? profile.description : <Skeleton width={200} height={20} />}</p>
+                <p>{isProfileLoading ? <Skeleton width={200} height={20} /> : profile?.description}</p>
               </div>
             </li>
             <li>
               <div className="cbp_tmicon"><i className="zmdi zmdi-label"></i></div>
               <div className="cbp_tmlabel">
                 <h4>TẠI SAO TÔI SỬ DỤNG TRAVEL MATE</h4>
-                <p>{profile ? profile.whyUseTravelMate : <Skeleton width={200} height={20} />}</p>
+                <p>{isProfileLoading ? <Skeleton width={200} height={20} /> : profile?.whyUseTravelMate}</p>
               </div>
             </li>
             <li>
@@ -71,14 +68,14 @@ function AboutMe() {
               <div className="cbp_tmlabel">
                 <h4>SỞ THÍCH</h4>
                 <div className='d-flex favorite-tag'>
-                  {activities.length > 0 ? (
-                    activities.map((activity, index) => (
+                  {isActivitiesLoading ? (
+                    <Skeleton width={200} height={20} />
+                  ) : (
+                    activities?.map((activity, index) => (
                       <div key={index} className="small border border-dark btn mx-3 rounded-pill text-success">
                         {activity.activityName}
                       </div>
                     ))
-                  ) : (
-                    <Skeleton width={200} height={20} />
                   )}
                 </div>
               </div>
@@ -87,14 +84,14 @@ function AboutMe() {
               <div className="cbp_tmicon"><i className="zmdi zmdi-case"></i></div>
               <div className="cbp_tmlabel">
                 <h4>ÂM NHẠC, PHIM ẢNH & SÁCH</h4>
-                <p>{profile ? profile.musicMoviesBooks : <Skeleton width={200} height={20} />}</p>
+                <p>{isProfileLoading ? <Skeleton width={200} height={20} /> : profile?.musicMoviesBooks}</p>
               </div>
             </li>
             <li>
               <div className="cbp_tmicon"><i className="zmdi zmdi-case"></i></div>
               <div className="cbp_tmlabel">
                 <h4>TÔI CÓ THỂ CHIA SẺ GÌ VỚI BẠN</h4>
-                <p>{profile ? profile.whatToShare : <Skeleton width={200} height={20} />}</p>
+                <p>{isProfileLoading ? <Skeleton width={200} height={20} /> : profile?.whatToShare}</p>
               </div>
             </li>
           </ul>
@@ -104,4 +101,4 @@ function AboutMe() {
   );
 }
 
-export default AboutMe;
+export default React.memo(AboutMe);

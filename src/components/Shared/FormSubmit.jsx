@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Button } from 'react-bootstrap';
 import Modal from 'react-modal';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,15 +11,14 @@ import '../../assets/css/Shared/FormSubmit.css';
 // Đặt vị trí modal vào root của ứng dụng để đảm bảo nó hiển thị chính xác
 Modal.setAppElement('#root');
 
-function FormSubmit({ children, buttonText, onButtonClick, title, openModalText, needAuthorize, autoOpen, }) {
+const FormSubmit = React.memo(({ children, buttonText, onButtonClick, title, openModalText, needAuthorize, autoOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token); // Get token from Redux store
   const isGroupEditModalOpen = useSelector((state) => state.modal.isGroupEditModalOpen);
   const location = useLocation();
 
-
-  const openModal = () => {
+  const openModal = useCallback(() => {
     // Check if authorization is needed
     if (needAuthorize && !token) {
       dispatch(openLoginModal()); // Open login modal if not authenticated
@@ -27,17 +26,14 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
       return;
     }
     setIsOpen(true);
-  };
+  }, [needAuthorize, token, dispatch]);
+
   useEffect(() => {
-    // Nếu autoOpen là true, mở modal ngay lập tức
     if (autoOpen) {
       openModal();
     }
-  }, [autoOpen]);
-  const closeModal = () => setIsOpen(false);
-
-
-
+  }, [autoOpen, openModal]);
+  const closeModal = useCallback(() => setIsOpen(false), []);
   return (
     <div>
       {(location.pathname === RoutePath.GROUP || location.pathname === RoutePath.GROUP_CREATED || location.pathname === RoutePath.GROUP_JOINED) ? (
@@ -98,7 +94,7 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
             padding: '30px 70px',
             borderRadius: '20px',
             width: '1000px', // Increased width
-            height: '95vh', // Full viewport height
+            height: '84%', // Full viewport height
             position: 'relative',
             display: 'flex',
             flexDirection: 'column', // Thêm dòng này để sắp xếp các phần của modal theo chiều dọc
@@ -140,6 +136,6 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
 
     </div>
   );
-}
+});
 
 export default FormSubmit;

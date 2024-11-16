@@ -2,16 +2,34 @@ import React, { useEffect, useState } from 'react';
 import '../../assets/css/Groups/MyGroupDetail.css';
 import { useSelector } from 'react-redux';
 import { Button } from 'react-bootstrap';
-
+import axios from 'axios';
+import PostGroupDetail from '../../components/Group/PostGroupDetail';
 
 const GroupView = () => {
   const groupDataRedux = useSelector((state) => state.group.selectedGroup);
+  const token = useSelector((state) => state.auth.token);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [status, setStatus] = useState('Hủy yêu cầu');
+  const [posts, setPosts] = useState([]);
+
   const toggleDescription = () => {
     setShowFullDescription(!showFullDescription);
   };
 
+  const fetchPosts = async () => {
+    const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    setPosts(response.data.$values.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime)));
+  };
+
+  useEffect(() => {
+    if (groupDataRedux.isJoined !== 'Pending' && groupDataRedux.isJoined !== 'UnJoined') {
+      fetchPosts();
+    }
+  }, [groupDataRedux]);
 
   return (
     <div className='my_group_detail_container'>
@@ -71,6 +89,17 @@ const GroupView = () => {
         </button>
       )}
       <hr className='my-5' />
+      {groupDataRedux.isJoined !== 'Pending' && groupDataRedux.isJoined !== 'UnJoined' && (
+        <>
+          {posts.length > 0 ? (
+            posts.map((post) => (
+              <PostGroupDetail key={post.groupPostId} post={post} />
+            ))
+          ) : (
+            <p>Chưa có bài viết nào</p>
+          )}
+        </>
+      )}
     </div>
   );
 };

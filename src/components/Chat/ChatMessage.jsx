@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../Chat/../../assets/css/Chat/Chat.css';
 
 function ChatMessage({ sender, text, time, isSentByUser }) {
@@ -20,4 +20,4 @@ function ChatMessage({ sender, text, time, isSentByUser }) {
   );
 }
 
-export default ChatMessage;
+export default memo(ChatMessage);

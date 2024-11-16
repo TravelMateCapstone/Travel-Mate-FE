@@ -12,6 +12,7 @@ import FormSubmit from '../../components/Shared/FormSubmit';
 import Form from 'react-bootstrap/Form';
 import { toast } from 'react-toastify';
 import RoutePath from '../../routes/RoutePath';
+import { useQuery } from 'react-query';
 
 const GroupDetail = () => {
   const navigate = useNavigate();
@@ -19,10 +20,8 @@ const GroupDetail = () => {
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
   const [groupData, setGroupData] = useState();
-  const [posts, setPosts] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
-  const [locations, setLocations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const [description, setDescription] = useState(groupDataRedux?.description || '');
@@ -35,32 +34,28 @@ const GroupDetail = () => {
     setShowFullDescription(!showFullDescription);
   };
 
-  useEffect(() => {
-    setGroupData(groupDataRedux);
-    setDescription(groupDataRedux?.description || '');
-    setLocation(groupDataRedux?.location || '');
-    setBannerImage(groupDataRedux?.img || groupDataRedux.groupImageUrl || '');
-    setGroupName(groupDataRedux?.text || groupDataRedux.groupName || '');
-    fetchPosts();
-    fetchLocations();
-  }, [groupDataRedux]);
+  const fetchLocations = async () => {
+    const response = await axios.get('https://provinces.open-api.vn/api/');
+    return response.data.map((location) => ({
+      ...location,
+      name: location.name.replace(/^Tỉnh |^Thành phố /, ''),
+    }));
+  };
 
+  const fetchPosts = async () => {
+    const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return response.data.$values.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
+  };
+
+  const { data: locations, error: locationsError } = useQuery('locations', fetchLocations);
+  const { data: posts, error: postsError, refetch: refetchPosts } = useQuery('posts', fetchPosts);
 
   const handleFileChange = (event) => {
     setSelectedFiles([...event.target.files]);
-  };
-
-  const fetchLocations = async () => {
-    try {
-      const response = await axios.get('https://provinces.open-api.vn/api/');
-      const processedLocations = response.data.map((location) => ({
-        ...location,
-        name: location.name.replace(/^Tỉnh |^Thành phố /, ''),
-      }));
-      setLocations(processedLocations);
-    } catch (error) {
-      console.error('Error fetching locations:', error);
-    }
   };
 
   const handleDeletePost = (groupPostId) => {
@@ -88,8 +83,6 @@ const GroupDetail = () => {
   };
 
   const createPost = async () => {
-
-
     const uploadedUrls = await uploadFiles();
     setUploadedImageUrls(uploadedUrls);
     const newPost = {
@@ -117,19 +110,6 @@ const GroupDetail = () => {
     setSelectedFiles(newSelectedFiles);
   };
 
-  const fetchPosts = async () => {
-    try {
-      const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts`, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
-      const sortedPosts = response.data.$values.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
-      setPosts(sortedPosts);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-    }
-  };
   const leaveGroup = async () => {
     try {
       await axios.delete(`https://travelmateapp.azurewebsites.net/api/Groups/LeaveGroup/${groupDataRedux.id || groupDataRedux.groupId}`, {
@@ -149,6 +129,15 @@ const GroupDetail = () => {
     e.target.style.height = 'auto';
     e.target.style.height = `${e.target.scrollHeight}px`;
   };
+
+  useEffect(() => {
+    setGroupData(groupDataRedux);
+    setDescription(groupDataRedux?.description || '');
+    setLocation(groupDataRedux?.location || '');
+    setBannerImage(groupDataRedux?.img || groupDataRedux.groupImageUrl || '');
+    setGroupName(groupDataRedux?.text || groupDataRedux.groupName || '');
+    refetchPosts(); // Refetch posts when groupDataRedux changes
+  }, [groupDataRedux]);
 
   return (
     <div className='my_group_detail_container'>
@@ -245,7 +234,7 @@ const GroupDetail = () => {
       </div>
       <hr className='mb-4 line_spit' />
 
-      {posts.length > 0 ? (
+      {posts?.length > 0 ? (
         posts.map((post) => (
           <PostGroupDetail key={post.groupPostId} post={post} onDelete={handleDeletePost} fetchPosts={fetchPosts} />
         ))

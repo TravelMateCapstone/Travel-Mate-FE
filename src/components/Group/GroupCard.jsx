@@ -9,61 +9,41 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const optimizeImageUrl = (url) => {
-  // Custom function to optimize and compress image URL
   if (!url) return url;
-  const params = new URLSearchParams({
-    width: 300,
-    height: 200,
-    quality: 'auto',
-    format: 'auto',
-  });
+  const params = new URLSearchParams({ width: 300, height: 200, quality: 'auto', format: 'auto' });
   return `${url}?${params.toString()}`;
 };
 
 const GroupCard = ({ id, img, title, location, members, text, description, isJoined, loading }) => {
   const locationRoute = useLocation();
-  const navigate = useNavigate(); // Add this line
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [requestSent, setRequestSent] = useState(false);
   const token = useSelector((state) => state.auth.token);
-  const isCreatedOrJoined =
-    locationRoute.pathname === RoutePath.GROUP_CREATED ||
-    locationRoute.pathname === RoutePath.GROUP_JOINED;
+  const isCreatedOrJoined = locationRoute.pathname === RoutePath.GROUP_CREATED || locationRoute.pathname === RoutePath.GROUP_JOINED;
   const optimizedImg = optimizeImageUrl(img);
 
+  
+
   const handleViewGroup = () => {
-    const groupDetails = { id, img, title, location, members, text, description };
+    const groupDetails = { id, img, title, location, members, text, description, isJoined };
+    console.log(isJoined);
+    
     dispatch(viewGroup(groupDetails));
-    if (locationRoute.pathname === RoutePath.GROUP_JOINED) {
-      navigate(RoutePath.GROUP_DETAILS);
-    } else if (locationRoute.pathname === RoutePath.GROUP_CREATED) {
-      navigate(RoutePath.GROUP_MY_DETAILS);
-    } else {
-      navigate(RoutePath.GROUP_VIEW);
-    }
+    if (locationRoute.pathname === RoutePath.GROUP_JOINED) navigate(RoutePath.GROUP_DETAILS);
+    else if (locationRoute.pathname === RoutePath.GROUP_CREATED) navigate(RoutePath.GROUP_MY_DETAILS);
+    else navigate(RoutePath.GROUP_VIEW);
   };
 
   const handleJoinGroup = async () => {
     try {
-      const response = await axios.post(
-        `https://travelmateapp.azurewebsites.net/api/Groups/JoinedGroups/Join/${id}`,
-        {},
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
-        }
-      );
+      const response = await axios.post(`https://travelmateapp.azurewebsites.net/api/Groups/JoinedGroups/Join/${id}`, {}, { headers: { Authorization: `${token}` } });
       if (response.status === 200) {
         toast.success('Yêu cầu tham gia nhóm đã được gửi thành công!');
         setRequestSent(true);
       }
     } catch (error) {
-      if (
-        error.response &&
-        error.response.status === 404 &&
-        error.response.data === 'You have sent join request!'
-      ) {
+      if (error.response && error.response.status === 404 && error.response.data === 'You have sent join request!') {
         toast.info('Đang xử lí yêu cầu');
         setRequestSent(true);
       } else {
@@ -74,38 +54,23 @@ const GroupCard = ({ id, img, title, location, members, text, description, isJoi
   };
 
   return (
-    <Card className="group-card" style={{ width: '100%' }} onClick={handleViewGroup}>
+    <Card className="group-card p-0" onClick={handleViewGroup}>
       <Card.Img variant="top" src={optimizedImg} className="group-card-img" loading={loading} />
       <Card.Body className="group-card-body">
         <Card.Title className="group-name">{title}</Card.Title>
         <div className="group-card-info">
-          <span className="d-flex align-items-center">
-            <ion-icon name="location-outline" style={{ marginRight: '5px' }}></ion-icon>
-            {location}
-          </span>
-          <span className="group-card-members">
-            <ion-icon name="people-outline" style={{ marginRight: '5px' }}></ion-icon>
-            {members}
-          </span>
+          <span className="d-flex align-items-center"><ion-icon name="location-outline" className="icon-margin"></ion-icon>{location}</span>
+          <span className="group-card-members"><ion-icon name="people-outline" className="icon-margin"></ion-icon>{members}</span>
         </div>
         <Card.Text className="group-card-text">{text}</Card.Text>
         {isCreatedOrJoined ? (
-          <Button
-            variant="outline-success"
-            className="group-card-button"
-            onClick={handleViewGroup}
-          >
+          <Button variant="outline-success" className="group-card-button" onClick={handleViewGroup}>
             <div></div>
             <div>Vào nhóm</div>
             <ion-icon name="chevron-forward-circle-outline" className="group-card-icon"></ion-icon>
           </Button>
         ) : (
-          <Button
-            variant="outline-success"
-            className="group-card-button"
-            onClick={handleJoinGroup}
-            disabled={requestSent}
-          >
+          <Button variant="outline-success" className="group-card-button" onClick={handleJoinGroup} disabled={requestSent}>
             <div></div>
             <div>{(isJoined=='Pending') ? 'Đã gửi yêu cầu' : 'Tham gia'}</div>
             <ion-icon name="chevron-forward-circle-outline" className="group-card-icon"></ion-icon>

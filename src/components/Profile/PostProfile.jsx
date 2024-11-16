@@ -4,12 +4,14 @@ import { Card, Image, Dropdown, Modal, Button } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import '../../assets/css/Profile/PostPastrip.css'
+import { useMutation, useQueryClient } from 'react-query';
+
 function PostProfile({ isPublic, id, title, localName, star, location, review, localLocation, date, description, images, userImage, userName, userReview, onDelete }) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
     const [privacy, setPrivacy] = useState(isPublic);
-
+    const queryClient = useQueryClient();
 
     const renderStars = Array(5).fill(0).map((_, index) => (
         <ion-icon
@@ -19,21 +21,31 @@ function PostProfile({ isPublic, id, title, localName, star, location, review, l
         ></ion-icon>
     ));
     const token = useSelector((state) => state.auth.token)
-    const handleDelete = async () => {
-        const apiUrl = `https://travelmateapp.azurewebsites.net/api/PastTripPosts/${id}`;
-        try {
-            const response = await axios.delete(apiUrl, {
+
+    const deletePostMutation = useMutation(
+        async () => {
+            const apiUrl = `https://travelmateapp.azurewebsites.net/api/PastTripPosts/${id}`;
+            return await axios.delete(apiUrl, {
                 headers: {
-                    Authorization: `${token}` // Thêm token vào header
+                    Authorization: `${token}`
                 }
             });
-
-            toast.success('Xoá bài viết thành công !')
-            if (onDelete) onDelete();
-        } catch (error) {
-            console.error('Lỗi:', error);
-            alert('Không thể xóa bài viết. Vui lòng thử lại.');
+        },
+        {
+            onSuccess: () => {
+                toast.success('Xoá bài viết thành công !');
+                queryClient.invalidateQueries('posts');
+                if (onDelete) onDelete();
+            },
+            onError: (error) => {
+                console.error('Lỗi:', error);
+                alert('Không thể xóa bài viết. Vui lòng thử lại.');
+            }
         }
+    );
+
+    const handleDelete = () => {
+        deletePostMutation.mutate();
     };
 
     return (
@@ -94,7 +106,7 @@ function PostProfile({ isPublic, id, title, localName, star, location, review, l
             </Card.Text>
 
             <div className="d-flex align-items-center justify-content-start">
-                {images.map((image, index) => (
+                {images && images.map((image, index) => (
                     <Image
                         key={index}
                         src={image}

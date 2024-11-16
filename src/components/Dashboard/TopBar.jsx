@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ConfirmModal from "../Shared/ConfirmModal";
 import { logout } from "../../redux/actions/authActions";
@@ -9,9 +9,9 @@ function TopBar() {
   const user = useSelector((state) => state.auth.user);
   const location = useLocation();
   const dispatch = useDispatch();
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     dispatch(logout());
-  };
+  }, [dispatch]);
   return (
     <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
       <button
@@ -281,4 +281,4 @@ function TopBar() {
     </nav>
   );
 }
-export default TopBar;
+export default React.memo(TopBar);

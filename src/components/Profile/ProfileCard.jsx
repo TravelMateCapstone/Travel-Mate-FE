@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState, useMemo, useCallback } from "react";
+import React, { memo, useEffect, useState, useCallback, useMemo } from "react";
 import axios from "axios";
 import { Button, Dropdown, DropdownButton } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,12 +11,9 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../../../firebaseConfig";
 import { updateUserAvatar } from "../../redux/actions/authActions";
 import { toast } from "react-toastify";
-
+import { useQuery } from 'react-query';
 
 function ProfileCard() {
-  const [profile, setProfile] = useState(null);
-  const [languages, setLanguages] = useState(null);
-  const [education, setEducation] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const token = useSelector((state) => state.auth.token);
   const url = import.meta.env.VITE_BASE_API_URL;
@@ -24,75 +21,37 @@ function ProfileCard() {
   const location = useLocation();
   const dispatch = useDispatch();
 
-  const fetchProfileData = useCallback(async () => {
-    try {
-      const profileResponse = await axios.get(`${url}/api/Profile/current-profile`, {
-        headers: { Authorization: token },
-      });
-      setProfile(profileResponse.data);
+  const fetchProfile = async () => {
+    const response = await axios.get(`${url}/api/Profile/current-profile`, { headers: { Authorization: token } });
+    return response.data;
+  };
 
-      const languagesResponse = await axios.get(`${url}/api/SpokenLanguages/current-user`, {
-        headers: { Authorization: token },
-      });
-      setLanguages(languagesResponse.data.$values);
+  const fetchLanguages = async () => {
+    const response = await axios.get(`${url}/api/SpokenLanguages/current-user`, { headers: { Authorization: token } });
+    return response.data.$values;
+  };
 
-      const educationResponse = await axios.get(`${url}/api/UserEducation/current-user`, {
-        headers: { Authorization: token },
-      });
-      setEducation(educationResponse.data.$values);
-    } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu:", error);
-    }
-  }, [token, url]);
+  const fetchEducation = async () => {
+    const response = await axios.get(`${url}/api/UserEducation/current-user`, { headers: { Authorization: token } });
+    return response.data.$values;
+  };
 
-  useEffect(() => {
-    if (location.pathname === "/others-profile") {
-      // Lấy dữ liệu từ localStorage khi ở đường dẫn /others-profile
-      const othersProfile = JSON.parse(localStorage.getItem('othersProfile'));
-      const othersLanguages = JSON.parse(localStorage.getItem('othersLanguages'))?.$values || [];
-      const othersEducation = JSON.parse(localStorage.getItem('othersEducation'))?.$values || [];
-
-      if (othersProfile) {
-        setProfile(othersProfile);
-      }
-      if (othersLanguages) {
-        setLanguages(othersLanguages);
-      }
-      if (othersEducation) {
-        setEducation(othersEducation);
-      }
-    } else {
-      fetchProfileData();
-    }
-  }, [fetchProfileData, location.pathname]);
+  const { data: profile, isLoading: isProfileLoading } = useQuery('profile', fetchProfile, { retry: false });
+  const { data: languages, isLoading: isLanguagesLoading } = useQuery('languages', fetchLanguages, { retry: false });
+  const { data: education, isLoading: isEducationLoading } = useQuery('education', fetchEducation, { retry: false });
 
   const handleImageUpload = useCallback(async (event) => {
     const file = event.target.files[0];
     if (file) {
       setIsUploading(true);
-
       try {
         const storageRef = ref(storage, `profile-images/${file.name}`);
         await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(storageRef);
-
-        await axios.put(
-          `${url}/api/Profile/current-user/update-image`,
-          downloadURL,
-          {
-            headers: {
-              Authorization: `${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        setProfile((prevProfile) => ({
-          ...prevProfile,
-          imageUser: downloadURL,
-        }));
+        await axios.put(`${url}/api/Profile/current-user/update-image`, downloadURL, {
+          headers: { Authorization: token, "Content-Type": "application/json" }
+        });
         toast.success('Cập nhật ảnh đại diện thành công !');
-        // Dispatch action để cập nhật avatar trong Redux
         dispatch(updateUserAvatar(downloadURL));
       } catch (error) {
         console.error("Lỗi khi cập nhật ảnh:", error);
@@ -102,29 +61,12 @@ function ProfileCard() {
     }
   }, [dispatch, token, url]);
 
-  const registrationYear = useMemo(() => {
-    return profile?.user?.registrationTime
-      ? new Date(profile.user.registrationTime).getFullYear()
-      : "Không xác định";
-  }, [profile]);
-
   const handleSendFriendRequest = useCallback(async () => {
     try {
-      // Lấy userId từ othersProfile
       const userId = profile.userId;
-
-      console.log("check id", userId);
-      // Gửi yêu cầu kết bạn đến API
-      const response = await axios.post(
-        `${url}/api/Friendship/send?toUserId=${userId}`,
-        {},
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
-        }
-      );
-
+      const response = await axios.post(`${url}/api/Friendship/send?toUserId=${userId}`, {}, {
+        headers: { Authorization: token }
+      });
       if (response.status === 200) {
         toast.success('Bạn đã gửi yêu cầu kết bạn thành công!');
       }
@@ -134,7 +76,7 @@ function ProfileCard() {
     }
   }, [profile, token, url]);
 
-  if (!profile || !languages || !education) {
+  if (isProfileLoading || isLanguagesLoading || isEducationLoading) {
     return (
       <div className="d-flex justify-content-center profile-card">
         <div className="profile-card-container position-relative">
@@ -154,26 +96,20 @@ function ProfileCard() {
               <Skeleton width={100} height={40} style={{ marginRight: "10px" }} />
               <Skeleton width={100} height={40} />
             </div>
-  
             <hr className="border-line" />
-  
             <div className="d-flex flex-column justify-content-between" style={{ gap: '20px' }}>
               <div className="profile-location">
                 <Skeleton width={200} height={20} />
               </div>
-  
               <div className="profile-education">
                 <Skeleton width={180} height={20} />
               </div>
-  
               <div className="profile-language">
                 <Skeleton width={150} height={20} />
               </div>
-  
               <div className="profile-joined">
                 <Skeleton width={160} height={20} />
               </div>
-  
               <div className="profile-completion">
                 <Skeleton width={140} height={20} />
               </div>
@@ -183,7 +119,7 @@ function ProfileCard() {
       </div>
     );
   }
-  
+
   return (
     <div className="d-flex justify-content-center profile-card">
       <div className="profile-card-container position-relative">
@@ -191,13 +127,11 @@ function ProfileCard() {
           <div style={{ position: "relative", top: '-30px' }}>
             <img
               className="rounded-circle object-fit-cover"
-              src={user.avatarUrl || "default-image-url"}
+              src={user.avatarUrl || "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"}
               alt="User profile"
               width={192}
               height={192}
-              style={{
-                border: '2px solid #d9d9d9'
-              }}
+              style={{ border: '2px solid #d9d9d9' }}
             />
             <label htmlFor="upload-image" className="upload-icon position-absolute top-0 text-white">
               <ion-icon name="camera-outline"></ion-icon>
@@ -216,7 +150,7 @@ function ProfileCard() {
             {user?.FullName || 'Chưa cập nhật'}
           </p>
           <p className="fw-medium text-center text-uppercase" style={{ fontSize: "20px", color: "#007931" }}>
-            {profile.hostingAvailability || "Chưa xác định"}
+            {profile?.hostingAvailability || "Chưa xác định"}
           </p>
           <div className="profile-buttons" style={{ marginTop: '24px', marginBottom: '24px' }}>
             {location.pathname === RoutePath.PROFILE || location.pathname === RoutePath.PROFILE_EDIT || location.pathname === RoutePath.PROFILE_EDIT_MY_HOME ? (
@@ -251,38 +185,28 @@ function ProfileCard() {
               </>
             )}
           </div>
-
-
           <hr className="border-line" />
-
-          <div className="d-flex flex-column justify-content-between" style={{
-            gap: '20px'
-          }}>
+          <div className="d-flex flex-column justify-content-between" style={{ gap: '20px' }}>
             <div className="profile-location">
               <ion-icon name="location-outline"></ion-icon>
-              <span className="m-0">{profile.address}</span>
+              <span className="m-0">{profile?.address || "Không có thông tin"}</span>
             </div>
-
             <div className="profile-education">
               <ion-icon name="book-outline"></ion-icon>
               <span className="m-0">{education?.[0]?.university?.universityName || "Không có thông tin"}</span>
             </div>
-
             <div className="profile-language">
               <ion-icon name="language-outline"></ion-icon>
               <span className="m-0">{languages ? languages.map(lang => lang.languages.languagesName).join(", ") : "Không có thông tin"}</span>
             </div>
-
             <div className="profile-joined">
               <ion-icon name="person-add-outline"></ion-icon>
               <span className="m-0">Thành viên tham gia từ 2024</span>
             </div>
-
             <div className="profile-completion">
               <ion-icon name="shield-checkmark-outline"></ion-icon>
               <span className="m-0">65% hoàn thành hồ sơ</span>
             </div>
-
           </div>
         </div>
       </div>

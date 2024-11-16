@@ -13,6 +13,7 @@ import EmojiPicker from 'emoji-picker-react';
 import { useMutation, useQueryClient } from 'react-query';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import TextareaAutosize from 'react-textarea-autosize';
 
 const PostGroupDetail = ({ post }) => {
   const [showComments, setShowComments] = useState(false);
@@ -24,13 +25,13 @@ const PostGroupDetail = ({ post }) => {
   const [visibleComments, setVisibleComments] = useState(5);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isPostingComment, setIsPostingComment] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
 
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.auth.user);
   const groupDataRedux = useSelector((state) => state.group.selectedGroup);
-
-  console.log(post);
-
 
   const queryClient = useQueryClient();
 
@@ -71,12 +72,14 @@ const PostGroupDetail = ({ post }) => {
       );
       toast.success('Cập nhật bài viết thành công');
       setUploadedImages(uploadedUrls.map((url) => ({ photoUrl: url }))); // Update state with new images
+      setSelectedFiles([]); // Reset selected files after update
     } catch (error) {
       toast.error('Không thể cập nhật bài viết');
     }
   }, {
     onSuccess: () => {
       queryClient.invalidateQueries(['posts', groupDataRedux.id || groupDataRedux.groupId]);
+      queryClient.invalidateQueries(['groupData', groupDataRedux.id || groupDataRedux.groupId]); // Add this line to invalidate group data
     },
   });
 
@@ -119,6 +122,7 @@ const PostGroupDetail = ({ post }) => {
       toast.error('Bình luận không được để trống');
       return;
     }
+    setIsPostingComment(true);
     const response = await axios.post(
       `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments`,
       { commentText: newComment },
@@ -139,6 +143,9 @@ const PostGroupDetail = ({ post }) => {
     },
     onError: () => {
       toast.error('Không thể thêm bình luận');
+    },
+    onSettled: () => {
+      setIsPostingComment(false);
     }
   });
 
@@ -169,7 +176,9 @@ const PostGroupDetail = ({ post }) => {
 
   const loadMoreComments = () => setVisibleComments((prev) => prev + 5);
 
-  const handleFileChange = (event) => setSelectedFiles([...event.target.files]);
+  const handleFileChange = (event) => {
+    setSelectedFiles((prev) => [...prev, ...event.target.files]);
+  };
 
   const handleDeleteImage = (index) => {
     if (index < uploadedImages.length) {
@@ -195,17 +204,25 @@ const PostGroupDetail = ({ post }) => {
     setNewComment((prev) => prev + emojiData.emoji);
     setShowEmojiPicker(false);
   };
-
   const toggleEmojiPicker = () => setShowEmojiPicker((prev) => !prev);
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return format(date, "dd 'tháng' MM 'lúc' HH:mm", { locale: vi });
   };
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      handleAddComment();
+    }
+  };
+  const toggleExpand = () => setIsExpanded(!isExpanded);
+  const handleImageClick = () => {
+    setShowImageModal(true);
+  };
 
-  console.log(post.postById+ '-'+  user.id);
-  
-
+  const handleCloseImageModal = () => {
+    setShowImageModal(false);
+  };
   return (
     <div className="post mb-3">
       <div className="d-flex align-items-center gap-3">
@@ -223,10 +240,8 @@ const PostGroupDetail = ({ post }) => {
               <Dropdown.Menu align="end">
                 <Dropdown.Item className='form_edit_post'>
                   <FormSubmit buttonText="Lưu thay đổi" openModalText="Sửa bài viết" onButtonClick={() => updatePostMutation.mutate()} title={'Chỉnh sửa bài viết'}>
-                    <h4>Bảng thông tin</h4>
-                    <p>Nhập thông tin chỉnh sửa bài viết của bạn</p>
                     <h4>Nội dung</h4>
-                    <textarea
+                    <TextareaAutosize
                       placeholder="Nội dung bài viết"
                       value={newTitle}
                       onChange={(e) => setNewTitle(e.target.value)}
@@ -248,22 +263,25 @@ const PostGroupDetail = ({ post }) => {
                     <div className="uploaded_image_container d-flex flex-wrap flex-row gap-2">
                       {selectedFiles.length > 0 ? (
                         selectedFiles.map((file, index) => (
-                          <div key={index} className="uploaded_image position-relative" style={{ width: '100px', height: '100px' }}>
+                          <div key={index} className="uploaded_image position-relative">
                             <img
                               src={URL.createObjectURL(file)}
                               alt="Selected image"
-                              width={100}
-                              height={100}
                               className="w-100 h-100 object-fit-cover"
                             />
                             <div className="overlay-buttons position-absolute top-50 start-50 translate-middle d-flex gap-2">
                               <Button
+                                key={index} // Add key prop
                                 variant=""
                                 onClick={() => window.open(URL.createObjectURL(file), '_blank')}
                               >
                                 <ion-icon name="eye-outline"></ion-icon>
                               </Button>
-                              <Button variant="" onClick={() => handleDeleteImage(index)}>
+                              <Button
+                                key={`delete-${index}`} // Add key prop
+                                variant=""
+                                onClick={() => handleDeleteImage(index)}
+                              >
                                 <ion-icon name="trash-outline"></ion-icon>
                               </Button>
                             </div>
@@ -271,22 +289,25 @@ const PostGroupDetail = ({ post }) => {
                         ))
                       ) : (
                         uploadedImages.map((image, index) => (
-                          <div key={index} className="uploaded_image position-relative" style={{ width: '100px', height: '100px' }}>
+                          <div key={index} className="uploaded_image position-relative">
                             <img
                               src={image.photoUrl}
                               alt="Uploaded image"
-                              width={100}
-                              height={100}
                               className="w-100 h-100 object-fit-cover"
                             />
                             <div className="overlay-buttons position-absolute top-50 start-50 translate-middle d-flex gap-2">
                               <Button
+                                key={index} // Add key prop
                                 variant=""
                                 onClick={() => window.open(image.photoUrl, '_blank')}
                               >
                                 <ion-icon name="eye-outline"></ion-icon>
                               </Button>
-                              <Button variant="" onClick={() => handleDeleteImage(index)}>
+                              <Button
+                                key={`delete-${index}`} // Add key prop
+                                variant=""
+                                onClick={() => handleDeleteImage(index)}
+                              >
                                 <ion-icon name="trash-outline"></ion-icon>
                               </Button>
                             </div>
@@ -302,11 +323,24 @@ const PostGroupDetail = ({ post }) => {
           )}
         </div>
       </div>
-      <p className='mt-3 mb-4'>{post.title}</p>
+      <p className={`mt-3 mb-0 ${isExpanded ? '' : 'line-clamp-2'}`}>{post.title}</p>
+      {post.title.length > 100 && (
+        <p onClick={toggleExpand} className="text-success">
+          {isExpanded ? 'Thu gọn' : 'Xem thêm'
+          }
+        </p>
+      )}
       {post.groupPostPhotos && (
-        <div className="images_post_container">
-          {post.groupPostPhotos.$values.map((image, index) => (
-            <img key={index} src={image.photoUrl} className='object-fit-cover' alt="Post image" />
+        <div className={`images_post_container ${post.groupPostPhotos.$values.length === 1 ? 'single-image' : post.groupPostPhotos.$values.length === 2 ? 'two-images' : post.groupPostPhotos.$values.length === 3 ? 'three-images' : ''}`}>
+          {post.groupPostPhotos.$values.slice(0, 4).map((image, index) => (
+            <div key={index} className="image-wrapper">
+              <img src={image.photoUrl} className='object-fit-cover' alt="Post image" />
+              {index === 3 && post.groupPostPhotos.$values.length > 4 && (
+                <div className="overlay-more-images" onClick={handleImageClick}>
+                  +{post.groupPostPhotos.$values.length - 4}
+                </div>
+              )}
+            </div>
           ))}
         </div>
       )}
@@ -318,16 +352,12 @@ const PostGroupDetail = ({ post }) => {
         >
           <ion-icon
             name="chatbubble-outline"
-            style={{
-              fontSize: '30px',
-            }}
+            className="icon-large"
           ></ion-icon>
           {showComments ? `${comments.length} Bình luận` : 'Bình luận'}
         </Button>
         <Button variant="" className="button_action_comment p-0 gap-2 rounded-circle d-flex align-items-center justify-content-center">
-          <ion-icon name="share-social-outline" style={{
-            fontSize: '30px',
-          }}></ion-icon> Chia sẻ
+          <ion-icon name="share-social-outline" className="icon-large"></ion-icon> Chia sẻ
         </Button>
       </div>
       {showComments && (
@@ -348,34 +378,32 @@ const PostGroupDetail = ({ post }) => {
           {visibleComments < comments.length && (
             <div className="d-flex justify-content-start my-3">
               <Button variant="" className='rounded-5 py-0 d-flex align-items-center gap-2 button_loadmore_comment' onClick={loadMoreComments}>
-                Xem thêm bình luận <ion-icon name="chevron-down-outline" style={{
-                  fontSize: '20px',
-                }}></ion-icon>
+                Xem thêm bình luận <ion-icon name="chevron-down-outline" className="icon-medium"></ion-icon>
               </Button>
             </div>
           )}
           <div className="write_comment_container d-flex gap-3 mb-3">
-            <img src={user.avatarUrl} alt="avatar" width={50} height={50} className="rounded-circle" />
+            <img src={user.avatarUrl} alt="avatar" width={50} height={50} className="rounded-circle object-fit-cover" />
             <div className="w-100 container_write_comment">
-              <textarea
+              <TextareaAutosize
                 name=""
                 className="w-100"
                 id="write_comment_area"
                 placeholder="Viết bình luận..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                onInput={autoResize}
-              ></textarea>
+                onKeyPress={handleKeyPress}
+              />
               <div className="d-flex justify-content-between">
                 <Button variant="light" onClick={toggleEmojiPicker} className="me-2">
-                  <ion-icon name="happy-outline" style={{ fontSize: '1.5rem' }}></ion-icon>
+                  <ion-icon name="happy-outline" className="icon-medium"></ion-icon>
                 </Button>
-                <Button variant="" className={`rounded-5 button_send_comment p-0 ${!newComment.trim() ? 'disabled' : ''}`} onClick={handleAddComment}>
-                  <ion-icon name="send" style={{ fontSize: '1.5rem', color: '#979797' }}></ion-icon>
+                <Button variant="" className={`rounded-5 button_send_comment p-0 ${!newComment.trim() || isPostingComment ? 'disabled' : ''}`} onClick={handleAddComment}>
+                  <ion-icon name="send" className="icon-medium text-muted"></ion-icon>
                 </Button>
               </div>
               {showEmojiPicker && (
-                <div style={{ position: 'absolute' }}>
+                <div className="emoji-picker-container">
                   <EmojiPicker onEmojiClick={onEmojiClick} />
                 </div>
               )}
@@ -383,19 +411,22 @@ const PostGroupDetail = ({ post }) => {
           </div>
         </div>
       )}
+      <Modal show={showImageModal} onHide={handleCloseImageModal} centered className="transparent-modal">
+        <Modal.Body>
+          <div className="modal-images-container">
+            {post.groupPostPhotos.$values.map((image, index) => (
+              <img key={index} src={image.photoUrl} className='object-fit-cover' alt="Post image" />
+            ))}
+          </div>
+        </Modal.Body>
+      </Modal>
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered className="custom-modal_deletPostGroup">
         <Modal.Body className="custom-modal-body">
           <div>
-            <ion-icon name="warning-outline" style={{
-              fontSize: '30px',
-              color: '#AC0B0B',
-            }}></ion-icon>
+            <ion-icon name="warning-outline" className="icon-large text-danger"></ion-icon>
           </div>
           <p className='mb-0 fw-medium text-black'>Bạn có muốn xóa không ?</p>
-          <p className='m-0' style={{
-            fontSize: '12px',
-            color: '#6E6E6E',
-          }}>Sau khi xóa bạn không thể hoàn tác</p>
+          <p className='m-0 text-muted small'>Sau khi xóa bạn không thể hoàn tác</p>
         </Modal.Body>
         <Modal.Footer className='d-flex gap-3 justify-content-center'>
           <Button variant="" onClick={() => setShowDeleteModal(false)}>
@@ -405,11 +436,7 @@ const PostGroupDetail = ({ post }) => {
             deletePostMutation.mutate();
             setShowDeleteModal(false);
           }}
-            className='rounded-5'
-            style={{
-              background: '#AC0B0B',
-              color: '#fff',
-            }}>
+            className='rounded-5 btn-danger text-white'>
             Xóa bài viết
           </Button>
         </Modal.Footer>

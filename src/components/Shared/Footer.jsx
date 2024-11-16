@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo } from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
 
 function Footer() {
@@ -15,4 +15,4 @@ function Footer() {
   )
 }
 
-export default Footer
+export default memo(Footer)

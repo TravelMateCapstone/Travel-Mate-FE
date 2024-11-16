@@ -4,6 +4,7 @@ import RoutePath from '../routes/RoutePath';
 import TopBar from '../components/Dashboard/TopBar';
 import Sidebar from '../components/Dashboard/Sidebar';
 import Navbar from '../components/Shared/Navbar'
+import { is } from 'date-fns/locale';
 function AdminLayout({ children }) {
   const location = useLocation();
   const sidebarItemsAdmin = [
@@ -22,21 +23,27 @@ function AdminLayout({ children }) {
   ];
   const isAdmin = (location.pathname === RoutePath.ADMIN || location.pathname === RoutePath.ADMIN_ACCOUNT_LIST || location.pathname === RoutePath.ADMIN_REPORT || location.pathname === RoutePath.ADMIN_TRANSACTION || location.pathname === RoutePath.ADMIN_WALLET_MANAGEMENT || location.pathname === RoutePath.ADMIN_TRIP_HISTORY);
   return (
-    <div id="wrapper">
-      {isAdmin ? (
-        <Sidebar items={sidebarItemsAdmin} />
-      ) : (
-        <Sidebar items={sidebarItemsLocal} />
+   <div>
+      {!isAdmin &&(
+        <Navbar />
       )}
-      <div id="content-wrapper" className="d-flex flex-column">
-        <div id="content">
-          <TopBar />
-          <div className="container-fluid">
-            {children}
+      <div id="wrapper">
+        {isAdmin ? (
+          <Sidebar items={sidebarItemsAdmin} />
+        ) : (
+          <Sidebar items={sidebarItemsLocal} />
+        )}
+        <div id="content-wrapper" className="d-flex flex-column">
+          <div id="content">
+            <TopBar />
+            <div className="container-fluid">
+              {children}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+   </div>
+  
   );
 }
 export default AdminLayout;

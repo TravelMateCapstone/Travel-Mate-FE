@@ -1,36 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import mention from '../../assets/images/mention.png';
 import Picker from 'emoji-picker-react';
 
-function ChatInput({ onSendMessage }) {
+const ChatInput = React.memo(({ onSendMessage }) => {
   const [message, setMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   // Handle input change
-  const handleInputChange = (e) => {
+  const handleInputChange = useCallback((e) => {
     setMessage(e.target.value);
-  };
+  }, []);
 
   // Handle sending the message
-  const handleSend = () => {
+  const handleSend = useCallback(() => {
     if (message.trim()) {
       onSendMessage(message); // Send the message to the parent component
       setMessage(''); // Clear the input after sending
     }
-  };
+  }, [message, onSendMessage]);
 
   // Handle pressing the Enter key
-  const handleKeyPress = (e) => {
+  const handleKeyPress = useCallback((e) => {
     if (e.key === 'Enter') {
       handleSend();
     }
-  };
+  }, [handleSend]);
 
   // Handle emoji click
-  const onEmojiClick = (emojiData, event) => {
+  const onEmojiClick = useCallback((emojiData, event) => {
     setMessage(prevMessage => prevMessage + emojiData.emoji); // Thêm emoji vào tin nhắn
     setShowEmojiPicker(false); // Đóng Emoji Picker sau khi chọn
-  };
+  }, []);
 
   return (
     <div className="chat-input-container">
@@ -61,6 +61,6 @@ function ChatInput({ onSendMessage }) {
       </button>
     </div>
   );
-}
+});
 
 export default ChatInput;

@@ -2,7 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { useSelector } from 'react-redux';
 import { useMutation, useQueryClient } from 'react-query';
+import TextareaAutosize from 'react-textarea-autosize';
 import '../../assets/css/Groups/CommentPostGroupDetail.css'
+import { format } from 'date-fns';
+import { vi } from 'date-fns/locale';
 
 const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -20,7 +23,7 @@ const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) =
       setIsLongComment(commentContentRef.current.scrollHeight > commentContentRef.current.clientHeight);
     }
     if (isEditing && editTextareaRef.current) {
-      autoResize({ target: editTextareaRef.current }); // Gọi autoResize khi mở chỉnh sửa
+      autoResize({ target: editTextareaRef.current }); 
     }
   }, [editedText, isEditing]);
 
@@ -33,17 +36,12 @@ const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) =
     const commentDate = new Date(timeString);
     const now = new Date();
 
-    // Kiểm tra xem có phải là "hôm qua" không
-    const isYesterday = (now - commentDate) / (1000 * 60 * 60 * 24) >= 1 && now.getDate() - commentDate.getDate() === 1;
+    const isYesterday = now.getDate() - commentDate.getDate() === 1 && now.getMonth() === commentDate.getMonth() && now.getFullYear() === commentDate.getFullYear();
 
     if (isYesterday) {
       return 'Hôm qua';
     } else {
-      const day = String(commentDate.getDate()).padStart(2, '0');
-      const month = String(commentDate.getMonth() + 1).padStart(2, '0');
-      const hours = String(commentDate.getHours()).padStart(2, '0');
-      const minutes = String(commentDate.getMinutes()).padStart(2, '0');
-      return `${day} tháng ${month} lúc ${hours}:${minutes}`;
+      return format(commentDate, "dd 'tháng' MM 'lúc' HH:mm", { locale: vi });
     }
   };
 
@@ -76,12 +74,7 @@ const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) =
               <Dropdown.Toggle variant="success" id="dropdown-basic_comment" className='border-0 text-black bg-transparent'>
                 <ion-icon name="ellipsis-vertical-outline"></ion-icon>
               </Dropdown.Toggle>
-              <Dropdown.Menu style={{
-                backgroundColor: 'white',
-                borderRadius: '10px',
-                border: '0px',
-                boxShadow: '0px 0px 8px rgba(0,0,0,0.25)',
-              }}>
+              <Dropdown.Menu className="comment-dropdown-menu">
                 <Dropdown.Item onClick={() => setIsEditing(true)}>Sửa bình luận</Dropdown.Item>
                 <Dropdown.Item onClick={handleDeleteComment}>Xóa bình luận</Dropdown.Item>
               </Dropdown.Menu>
@@ -90,13 +83,11 @@ const CommentPostGroupDetail = ({ comment, onUpdateComment, onDeleteComment }) =
         </div>
         {isEditing ? (
           <div className='bg'>
-            <textarea
+            <TextareaAutosize
               ref={editTextareaRef}
               value={editedText}
-              onInput={autoResize}
               onChange={(e) => setEditedText(e.target.value)}
-              className="w-100 mb-2 p-2 rounded-4"
-              style={{ border: '1px solid #d9d9d9', background: '#f9f9f9', height: '100%' }}
+              className="w-100 mb-2 p-2 rounded-4 edit-textarea"
             />
             <button className="btn btn-success btn-sm" onClick={handleSaveEdit}>Lưu</button>
             <button className="btn btn-secondary btn-sm ms-2" onClick={() => setIsEditing(false)}>Hủy</button>

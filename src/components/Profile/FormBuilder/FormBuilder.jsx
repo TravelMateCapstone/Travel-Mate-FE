@@ -81,7 +81,7 @@ function FormBuilder() {
 
   return (
     <div>
-      <Button variant="primary" style={{ backgroundColor: 'green', borderColor: 'green' }} onClick={handleShow}>Xem các câu hỏi</Button>
+      <Button variant="primary" className='rounded-5' style={{ backgroundColor: 'green', borderColor: 'green' }} onClick={handleShow}>Tạo mẫu thông tin</Button>
       <Modal show={showModal} centered onHide={handleClose} className='form_builder custom-modal-formbuilder'>
         <Modal.Header closeButton>
           <Modal.Title>Mẫu thông tin local</Modal.Title>

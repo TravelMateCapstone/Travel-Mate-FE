@@ -7,6 +7,7 @@ import { loginSuccess } from '../../redux/actions/authActions'; // Import loginS
 import '../../assets/css/Shared/Register.css';
 import google from '../../assets/images/google.png';
 import facebook from '../../assets/images/facebook.png';
+import axios from 'axios'; // Import axios
 
 const Register = ({ show, handleClose }) => {
   const [email, setEmail] = useState('');
@@ -14,6 +15,7 @@ const Register = ({ show, handleClose }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
+  const [fullName, setFullName] = useState('');
 
   const dispatch = useDispatch(); // Sử dụng dispatch để gọi action
 
@@ -26,24 +28,18 @@ const Register = ({ show, handleClose }) => {
     }
 
     try {
-      const response = await fetch('https://travelmateapp.azurewebsites.net/api/Auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: username,
-          email: email,
-          password: password,
-          fullName: username,
-        }),
+      const response = await axios.post('https://travelmateapp.azurewebsites.net/api/Auth/register', {
+        username: username,
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+        fullName: fullName,
       });
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Có lỗi xảy ra, vui lòng thử lại.');
-      }
+      console.log(data);
+      
 
       // Nếu đăng ký thành công, hiển thị thông báo và tự động đăng nhập
       toast.success('Đăng ký thành công!');
@@ -60,7 +56,7 @@ const Register = ({ show, handleClose }) => {
 
       handleClose(); // Đóng modal sau khi đăng ký và đăng nhập thành công
     } catch (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(error.response?.data?.error || 'Có lỗi xảy ra, vui lòng thử lại.');
     }
   };
 
@@ -75,12 +71,12 @@ const Register = ({ show, handleClose }) => {
         {errorMessage && <small className="text-danger fw-normal small-text">{errorMessage}</small>}
 
         <Form onSubmit={handleSubmit}>
-          <Form.Group controlId="formUsername" className="mt-3">
+        <Form.Group controlId="formFullName" className="mt-3">
             <Form.Control
               type="text"
-              placeholder="Têm tài khoản"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Họ và tên"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               className="form-control-custom"
               required
             />
@@ -91,6 +87,16 @@ const Register = ({ show, handleClose }) => {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="form-control-custom"
+              required
+            />
+          </Form.Group>
+          <Form.Group controlId="formUsername" className="mt-3">
+            <Form.Control
+              type="text"
+              placeholder="Têm tài khoản"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="form-control-custom"
               required
             />

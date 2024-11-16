@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-function PieChartComponent() {
-  const data = {
+const PieChartComponent = React.memo(() => {
+  const data = useMemo(() => ({
     labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
     datasets: [
       {
@@ -42,9 +42,9 @@ function PieChartComponent() {
         borderWidth: 1,
       },
     ],
-  };
+  }), []);
 
-  const options = {
+  const options = useMemo(() => ({
     responsive: true,
     plugins: {
       legend: {
@@ -58,9 +58,9 @@ function PieChartComponent() {
         },
       },
     },
-  };
+  }), []);
 
   return <Pie data={data} options={options} />;
-}
+});
 
 export default PieChartComponent;

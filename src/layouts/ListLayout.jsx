@@ -27,6 +27,9 @@ function ListLayout({ children }) {
     const [tempImageUrl, setTempImageUrl] = useState(null);
     const [locations, setLocations] = useState([]);
 
+    console.log('Layout render');
+    
+
 
     const sidebarItems = [
         { iconName: 'list-circle', title: 'Danh sách nhóm', route: RoutePath.GROUP },
@@ -304,12 +307,8 @@ function ListLayout({ children }) {
                     <Container className='container-list d-none d-md-flex mb-4'>
                         <div className='search-list-container'><SearchBar /></div>
                         <InputGroup className='search-list-container location-container'>
-                            <InputGroup.Text className="search-icon bg-white search-icon-list rounded-start-5" style={{
-                                border: '1px solid #d9d9d9'
-                            }}>
-                                <ion-icon name="location-outline" style={{
-                                    fontSize: '24px',
-                                }}></ion-icon>
+                            <InputGroup.Text className="search-icon bg-white search-icon-list rounded-start-5">
+                                <ion-icon name="location-outline" style={{ fontSize: '24px' }}></ion-icon>
                             </InputGroup.Text>
                             <FormControl
                                 type="search"
@@ -319,9 +318,7 @@ function ListLayout({ children }) {
                             />
                         </InputGroup>
                         <Button variant='' className='d-flex align-items-center gap-2 rounded-5 btn-filter'>
-                            <ion-icon name="filter-outline" style={{
-                                fontSize: '24px',
-                            }}></ion-icon>
+                            <ion-icon name="filter-outline" style={{ fontSize: '24px' }}></ion-icon>
                             Lọc
                         </Button>
                         {isGroupRoutebtn ? (
@@ -369,11 +366,7 @@ function ListLayout({ children }) {
 
                                     <Form.Group id="groupImage" className="mb-3 d-flex flex-column">
                                         <Form.Label className='fw-medium'>Ảnh bìa nhóm</Form.Label>
-                                        <Button variant="outline-primary" onClick={triggerFileInput} className="d-flex rounded-5 gap-1 alignItems-center mb-2 text-black" style={{
-                                            width: '30%',
-                                            borderStyle: 'dashed',
-                                            backgroundColor: '#f2f7ff',
-                                        }}>
+                                        <Button variant="outline-primary" onClick={triggerFileInput} className="d-flex rounded-5 gap-1 alignItems-center mb-2 text-black upload-button">
                                             Nhấn vào đây để <p className='text-primary m-0'>upload</p>
                                         </Button>
                                         <Form.Control
@@ -384,15 +377,14 @@ function ListLayout({ children }) {
                                         />
                                         {isUploading ? (
                                             <Placeholder as="div" animation="glow" className="mt-3">
-                                                <Placeholder xs={12} style={{ height: '100px', width: '100px', borderRadius: '5px' }} />
+                                                <Placeholder xs={12} className="upload-placeholder" />
                                             </Placeholder>
                                         ) : (
                                             uploadedUrl && (
                                                 <img
                                                     src={uploadedUrl}
                                                     alt="Ảnh bìa nhóm"
-                                                    className="mt-3"
-                                                    style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '5px' }}
+                                                    className="mt-3 upload-image"
                                                 />
                                             )
                                         )}
@@ -491,7 +483,7 @@ function ListLayout({ children }) {
                                         />
                                         {isUploading ? (
                                             <Placeholder as="div" animation="glow" className="mt-3">
-                                                <Placeholder xs={12} style={{ height: '100px', width: '100px', borderRadius: '5px' }} />
+                                                <Placeholder xs={12} className="upload-placeholder" />
                                             </Placeholder>
                                         ) : (
                                             uploadedEventUrl && (
@@ -499,36 +491,17 @@ function ListLayout({ children }) {
                                                     <img
                                                         src={uploadedEventUrl || eventImage}
                                                         alt="Ảnh đại diện sự kiện"
-                                                        className="ms-3 mt-3"
-                                                        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '5px', marginBottom: '50px' }}
+                                                        className="ms-3 mt-3 event-image"
                                                     />
                                                     <ion-icon
                                                         name="eye-outline"
-                                                        style={{
-                                                            color: 'white',
-                                                            cursor: 'pointer',
-                                                            position: 'absolute',
-                                                            top: '40%',
-                                                            right: '50%',
-                                                            fontSize: '32px',
-                                                            borderRadius: '50%',
-                                                            padding: '3px'
-                                                        }}
+                                                        className="view-icon"
                                                         onClick={() => handleView(uploadedEventUrl || eventImage)}
                                                     ></ion-icon>
 
                                                     <ion-icon
                                                         name="trash-outline"
-                                                        style={{
-                                                            color: 'white',
-                                                            cursor: 'pointer',
-                                                            position: 'absolute',
-                                                            top: '40%',
-                                                            right: '25%',
-                                                            fontSize: '32px',
-                                                            borderRadius: '50%',
-                                                            padding: '3px'
-                                                        }}
+                                                        className="delete-icon"
                                                         onClick={handleDeleteImage}
                                                     ></ion-icon>
                                                 </div>

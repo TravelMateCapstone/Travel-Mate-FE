@@ -1,15 +1,15 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import ReactPaginate from 'react-paginate';
 import GroupCard from '../../components/Group/GroupCard';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { Placeholder, Card, Button } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { useQuery } from 'react-query';
+
+const GroupCardMemo = React.memo(GroupCard);
 
 function GroupCreated() {
   const token = useSelector((state) => state.auth.token);
-
   const [currentPage, setCurrentPage] = useState(1);
 
   const fetchGroups = async ({ queryKey }) => {
@@ -18,14 +18,29 @@ function GroupCreated() {
     return response.data;
   };
 
-  const { data, isLoading } = useQuery(['groups', currentPage], fetchGroups, {
+  const { data, isLoading } = useQuery(['groups', currentPage, token], fetchGroups, {
     keepPreviousData: true,
+    retry: false, // Disable retry on API errors
   });
 
   const handlePageChange = useCallback((data) => {
-    const selectedPage = data.selected + 1;
-    setCurrentPage(selectedPage);
+    setCurrentPage(data.selected + 1);
   }, []);
+
+  const memoizedGroups = useMemo(() => {
+    return data?.groups.$values.map((group) => (
+      <GroupCardMemo
+        description={group.description}
+        id={group.groupId}
+        key={group.groupId}
+        img={group.groupImageUrl}
+        title={group.groupName}
+        location={group.location}
+        members={`${group.numberOfParticipants}`}
+        text={group.description}
+      />
+    ));
+  }, [data]);
 
   return (
     <div>
@@ -64,25 +79,14 @@ function GroupCreated() {
               </Card.Body>
             </Card>
           ))
-        ) : data && data.groups.$values.length === 0 ? (
-          <div style={{ textAlign: 'center', marginTop: '20px' }}>Chưa có nhóm nào được tạo</div>
+        ) : data && data.groups && data.groups.$values.length === 0 ? (
+          <div style={{ textAlign: 'center', marginTop: '20px' }}>Bạn chưa tạo nhóm nào</div>
         ) : (
-          data && data.groups.$values.map((group) => (
-            <GroupCard
-              description={group.description}
-              id={group.groupId}
-              key={group.groupId}
-              img={group.groupImageUrl}
-              title={group.groupName}
-              location={group.location}
-              members={`${group.numberOfParticipants}`}
-              text={group.description}
-            />
-          ))
+          memoizedGroups
         )}
       </div>
 
-      {data && data.groups.$values.length > 0 && (
+      {data && data.groups && data.groups.$values.length > 0 && data.totalPages > 1 && (
         <ReactPaginate
           previousLabel={'<'}
           nextLabel={'>'}

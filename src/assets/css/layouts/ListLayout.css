@@ -157,7 +157,51 @@
     border-color: #d9d9d9 !important;
 }
 
+.upload-button {
+    width: 30%;
+    border-style: dashed;
+    background-color: #f2f7ff;
+}
 
+.upload-placeholder {
+    height: 100px;
+    width: 100px;
+    border-radius: 5px;
+}
+
+.upload-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.event-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 50px;
+}
+
+.view-icon,
+.delete-icon {
+    color: white;
+    cursor: pointer;
+    position: absolute;
+    top: 40%;
+    font-size: 32px;
+    border-radius: 50%;
+    padding: 3px;
+}
+
+.view-icon {
+    right: 50%;
+}
+
+.delete-icon {
+    right: 25%;
+}
 
 @media (max-width: 1024px) {
     .container-list {

@@ -76,6 +76,37 @@ border-radius: 19px;
 border: 1px dashed rgb(68, 176, 200) !important;
 }
 
+.box-shadow {
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
+}
+
+.form-input-myhome {
+  height: 30px;
+}
+
+.input-save {
+  border-radius: 20px;
+  border: 1px dashed black;
+  background-color: #F2F7FF;
+  color: black;
+}
+
+.rounded-20 {
+  border-radius: 20px;
+}
+
+.border-1 {
+  border: 1px solid;
+}
+
+.bg-white {
+  background-color: white;
+}
+
+.text-black {
+  color: black;
+}
+
 @media (max-width: 1024px) and (min-width: 768px) {
 
 .edit-pro-container-myhome{

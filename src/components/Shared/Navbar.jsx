@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Navbar as BootstrapNavbar, Nav, Row, Col, Container, Dropdown, Button, Offcanvas } from 'react-bootstrap';
 import { Link, NavLink } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
@@ -15,7 +15,7 @@ import NotifyItem from "../Shared/NotifyItem";
 import MessengerItem from "../Shared/MessengerItem";
 import { logout } from "../../redux/actions/authActions";
 
-function Navbar() {
+const Navbar = React.memo(() => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const [selectedItem, setSelectedItem] = useState('Địa điểm du lịch');
   const [showOffcanvas, setShowOffcanvas] = useState(false); 
@@ -25,9 +25,9 @@ function Navbar() {
   const isRegisterModalOpen = useSelector((state) => state.modal.isRegisterModalOpen);
   const user = useSelector((state) => state.auth.user);
 
-  const handelShowOffcanvas = () => {
+  const handelShowOffcanvas = useCallback(() => {
     setShowOffcanvas(true);
-  }
+  }, []);
 
   const notifications = [
     {
@@ -84,33 +84,33 @@ function Navbar() {
     },
   ];
 
-  const handleLoginModal = () => {
+  const handleLoginModal = useCallback(() => {
     if (isLoginModalOpen) {
       dispatch(closeLoginModal());
     } else {
       dispatch(openLoginModal());
     }
-  };
+  }, [dispatch, isLoginModalOpen]);
 
-  const handleRegisterModal = () => {
+  const handleRegisterModal = useCallback(() => {
     if (isRegisterModalOpen) {
       dispatch(closeRegisterModal());
     } else {
       dispatch(openRegisterModal());
     }
-  };
+  }, [dispatch, isRegisterModalOpen]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     dispatch(logout());
-  };
+  }, [dispatch]);
 
-  const handleSelect = (eventKey) => {
+  const handleSelect = useCallback((eventKey) => {
     setSelectedItem(eventKey);
     console.log(`Selected item: ${eventKey}`);
-  };
+  }, []);
 
-  const handleShow = () => setShowOffcanvas(true); // Mở Offcanvas
-  const handleClose = () => setShowOffcanvas(false); // Đóng Offcanvas
+  const handleShow = useCallback(() => setShowOffcanvas(true), []); 
+  const handleClose = useCallback(() => setShowOffcanvas(false), []); 
 
   return (
     <BootstrapNavbar bg="white" expand="lg" className='my-navbar shadow fixed-top'>
@@ -336,6 +336,6 @@ function Navbar() {
 
     </BootstrapNavbar>
   );
-}
+});
 
 export default Navbar;

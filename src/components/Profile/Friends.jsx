@@ -1,51 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import ReactPaginate from 'react-paginate';
 import { useSelector } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useQuery } from 'react-query';
 import '../../assets/css/Shared/Pagination.css';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { useLocation } from 'react-router-dom';
 
 function Friends() {
-  const [friends, setFriends] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 4;
   const token = useSelector((state) => state.auth.token);
   const url = import.meta.env.VITE_BASE_API_URL;
-  const location = useLocation(); // Sử dụng để kiểm tra đường dẫn hiện tại
+  const location = useLocation();
 
-  useEffect(() => {
-    const fetchFriends = async () => {
-      if (location.pathname === '/others-profile') {
-        // Nếu đang ở trang hồ sơ người khác, lấy dữ liệu từ localStorage
-        const othersListFriend = JSON.parse(localStorage.getItem('othersListFriend'));
-        if (othersListFriend) {
-          setFriends(othersListFriend.$values || []);
-        } else {
-          console.error('Lỗi khi lấy dữ liệu bạn bè từ localStorage');
-        }
-        setLoading(false);
-      } else if (location.pathname === '/profile') {
-        // Nếu đang ở trang hồ sơ cá nhân, lấy dữ liệu từ API
-        try {
-          const response = await axios.get(`${url}/api/Friendship/current-user/friends`, {
-            headers: {
-              Authorization: `${token}`,
-            },
-          });
+  const fetchFriends = async () => {
+    const response = await axios.get(`${url}/api/Friendship/current-user/friends`, {
+      headers: {
+        Authorization: `${token}`,
+      },
+    });
+    return response.data.$values;
+  };
 
-          setFriends(response.data.$values);
-        } catch (error) {
-          console.error('Lỗi khi lấy dữ liệu bạn bè:', error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-    fetchFriends();
-  }, [token, url, location.pathname]);
+  const { data: friends = [], isLoading } = useQuery(['friends', location.pathname], fetchFriends, {
+    retry: false,
+  });
 
   // Tính toán các trang và chỉ số của các thẻ bạn bè hiện tại
   const pagesVisited = currentPage * itemsPerPage;
@@ -65,7 +46,7 @@ function Friends() {
         gridTemplateColumns: 'repeat(2, 1fr)',
         gridGap: '20px 60px',
       }} className='px-5'>
-        {loading ? (
+        {isLoading ? (
           [...Array(itemsPerPage)].map((_, index) => (
             <div key={index} style={{
               border: '1px solid black',
@@ -82,53 +63,59 @@ function Friends() {
             </div>
           ))
         ) : (
-          displayedFriends.map((friend, index) => (
-            <div key={index} style={{
-              border: '1px solid black',
-              padding: '20px',
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center'
-            }}>
-              <img
-                src={friend.profile?.imageUser}
-                alt={friend.profile?.lastName}
-                style={{ width: '60px', height: '60px', borderRadius: '50%', marginRight: '15px', objectFit: 'cover' }} // Điều chỉnh kích thước ảnh
-              />
-              <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h5 style={{ margin: 0, fontWeight: 'bold' }}>{friend.profile?.firstName} {friend.profile?.lastName}</h5>
-                  <p style={{ margin: 0 }}>{friend.profile?.city}</p>
+          displayedFriends.length > 0 ? (
+            displayedFriends.map((friend, index) => (
+              <div key={index} style={{
+                border: '1px solid black',
+                padding: '20px',
+                borderRadius: '10px',
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                <img
+                  src={friend.profile?.imageUser}
+                  alt={friend.profile?.lastName}
+                  style={{ width: '60px', height: '60px', borderRadius: '50%', marginRight: '15px', objectFit: 'cover' }} // Điều chỉnh kích thước ảnh
+                />
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h5 style={{ margin: 0, fontWeight: 'bold' }}>{friend.profile?.firstName} {friend.profile?.lastName}</h5>
+                    <p style={{ margin: 0 }}>{friend.profile?.city}</p>
+                  </div>
+                  <i className="bi bi-three-dots"></i>
                 </div>
-                <i className="bi bi-three-dots"></i>
               </div>
-            </div>
-          ))
+            ))
+          ) : (
+            <p>Bạn chưa có bạn bè nào</p>
+          )
         )}
       </div>
 
       {/* Center the button and remove background */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: '20px'
-      }}>
-        <ReactPaginate
-          previousLabel={'<'}
-          nextLabel={'>'}
-          breakLabel={'...'}
-          breakClassName={'break-me'}
-          pageCount={pageCount}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={2}
-          onPageChange={handlePageChange}
-          containerClassName={'pagination'}
-          activeClassName={'active-pagination'}
-          previousClassName={'previous'}
-          nextClassName={'next'}
-        />
-      </div>
+      {pageCount >= 2 && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginTop: '20px'
+        }}>
+          <ReactPaginate
+            previousLabel={'<'}
+            nextLabel={'>'}
+            breakLabel={'...'}
+            breakClassName={'break-me'}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={2}
+            onPageChange={handlePageChange}
+            containerClassName={'pagination'}
+            activeClassName={'active-pagination'}
+            previousClassName={'previous'}
+            nextClassName={'next'}
+          />
+        </div>
+      )}
     </div>
   );
 }

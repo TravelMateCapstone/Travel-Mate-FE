@@ -10,6 +10,38 @@
     color: black;
 }
 
-.cus-prioritize h4, .cus-home h4, .cus-details h4{
+.cus-prioritize h4, .cus-home h4, .cus-details h4 {
     color: #ED6542;
+}
+
+.my-home-container {
+    background: #f9f9f9;
+}
+
+.home-room-type {
+    font-size: 20px;
+}
+
+.home-room-mate-info {
+    font-size: 20px;
+}
+
+.home-room-description {
+    font-size: 20px;
+}
+
+.home-amenities {
+    font-size: 20px;
+}
+
+.home-amenities-description {
+    font-size: 20px;
+}
+
+.home-transportation {
+    font-size: 20px;
+}
+
+.home-transportation-description {
+    font-size: 20px;
 }
