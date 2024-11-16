@@ -16,6 +16,7 @@ import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { refreshGroups, viewGroup } from '../redux/actions/groupActions';
 import { toast } from 'react-toastify';
+import TextareaAutosize from 'react-textarea-autosize';
 
 function ListLayout({ children }) {
     const [show, setShow] = useState(false);
@@ -153,8 +154,12 @@ function ListLayout({ children }) {
         if (!groupDescription) {
             newErrors.groupDescription = 'Vui lòng nhập mô tả nhóm';
         }
+        if (!groupLocation) {
+            newErrors.groupLocation = 'Vui lòng chọn địa điểm';
+        }
         setErrors(newErrors);
         if (Object.keys(newErrors).length > 0) {
+            Object.values(newErrors).forEach(error => toast.error(error));
             return;
         }
         const newGroup = {
@@ -201,7 +206,7 @@ function ListLayout({ children }) {
                 toast.success('Ảnh đã được tải lên thành công');
             } catch (error) {
                 console.error("Error uploading file:", error);
-                setErrors(prevErrors => ({ ...prevErrors, uploadedEventUrl: 'Lỗi khi tải lên ảnh sự kiện' }));
+                setErrors(prevErrors => ({ ...prevErrors, uploadedEventUrl: 'Lỗi khi tải l��n ảnh sự kiện' }));
                 toast.error('Lỗi khi tải lên ảnh sự kiện');
             } finally {
                 setIsUploading(false);
@@ -211,20 +216,26 @@ function ListLayout({ children }) {
 
     const handleCreateEvent = async () => {
         const newErrors = {};
-
         if (!eventName) {
             newErrors.eventName = 'Vui lòng nhập tên sự kiện';
         }
         if (!eventDescription) {
             newErrors.eventDescription = 'Vui lòng nhập mô tả sự kiện';
         }
-        if (!uploadedEventUrl) {
-            newErrors.uploadedEventUrl = 'Vui lòng tải lên ảnh đại diện sự kiện';
+        if (!eventLocation) {
+            newErrors.eventLocation = 'Vui lòng chọn địa điểm';
         }
-
+        if (!startAt) {
+            newErrors.startAt = 'Vui lòng chọn thời gian bắt đầu';
+        }
+        if (!endAt) {
+            newErrors.endAt = 'Vui lòng chọn thời gian kết thúc';
+        }
         setErrors(newErrors);
-        if (Object.keys(newErrors).length > 0) return;
-
+        if (Object.keys(newErrors).length > 0) {
+            Object.values(newErrors).forEach(error => toast.error(error));
+            return;
+        }
         const newEvent = {
             eventName,
             description: eventDescription,
@@ -339,13 +350,12 @@ function ListLayout({ children }) {
                                     </Form.Group>
                                     <Form.Group id="groupDescription" className="mb-3">
                                         <Form.Label className='fw-medium'>Mô tả nhóm</Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            rows={3}
+                                        <TextareaAutosize
+                                            minRows={3}
                                             placeholder="Nhập mô tả nhóm"
                                             value={groupDescription}
                                             onChange={(e) => setGroupDescription(e.target.value)}
-                                            isInvalid={!!errors.groupDescription}
+                                            className={`form-control ${errors.groupDescription ? 'is-invalid' : ''}`}
                                         />
                                         <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
                                             {errors.groupDescription}
@@ -416,14 +426,12 @@ function ListLayout({ children }) {
 
                                     <Form.Group id="eventDescription" className="mb-3">
                                         <Form.Label className='fw-bold'>Mô tả sự kiện</Form.Label>
-                                        <Form.Control
-                                            className='form-input input-des'
-                                            as="textarea"
-                                            rows={3}
+                                        <TextareaAutosize
+                                            minRows={3}
                                             placeholder="Nhập mô tả sự kiện"
                                             value={eventDescription}
                                             onChange={(e) => setEventDescription(e.target.value)}
-                                            isInvalid={!!errors.eventDescription}
+                                            className={`form-control ${errors.eventDescription ? 'is-invalid' : ''}`}
                                         />
                                         <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
                                             {errors.eventDescription}

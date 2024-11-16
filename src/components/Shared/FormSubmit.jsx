@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, Spinner } from 'react-bootstrap';
 import Modal from 'react-modal';
 import { useDispatch, useSelector } from 'react-redux';
 import { openLoginModal } from '../../redux/actions/modalActions';
@@ -13,6 +13,7 @@ Modal.setAppElement('#root');
 
 const FormSubmit = React.memo(({ children, buttonText, onButtonClick, title, openModalText, needAuthorize, autoOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token); // Get token from Redux store
   const isGroupEditModalOpen = useSelector((state) => state.modal.isGroupEditModalOpen);
@@ -34,6 +35,16 @@ const FormSubmit = React.memo(({ children, buttonText, onButtonClick, title, ope
     }
   }, [autoOpen, openModal]);
   const closeModal = useCallback(() => setIsOpen(false), []);
+
+  const handleButtonClick = async () => {
+    setIsProcessing(true);
+    try {
+      await onButtonClick();
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <div>
       {(location.pathname === RoutePath.GROUP || location.pathname === RoutePath.GROUP_CREATED || location.pathname === RoutePath.GROUP_JOINED) ? (
@@ -91,9 +102,9 @@ const FormSubmit = React.memo(({ children, buttonText, onButtonClick, title, ope
             bottom: 'auto',
             marginRight: '-50%',
             transform: 'translate(-50%, -50%)',
-            padding: '30px 70px',
+            padding: '20px 30px',
             borderRadius: '20px',
-            width: '1000px', // Increased width
+            width: '600px', // Increased width
             height: '84%', // Full viewport height
             position: 'relative',
             display: 'flex',
@@ -102,7 +113,7 @@ const FormSubmit = React.memo(({ children, buttonText, onButtonClick, title, ope
         }}
       >
         {/* Tiêu đề của form, được truyền qua prop title */}
-        <h2 className='text-center mb-4 fw-bolder'>{title}</h2>
+        <h2 className='text-center mb-4 fw-bolder' style={{ fontSize: '1.5rem' }}>{title}</h2>
 
         {/* Phần nội dung con được truyền vào component */}
         <div style={{
@@ -124,13 +135,14 @@ const FormSubmit = React.memo(({ children, buttonText, onButtonClick, title, ope
           padding: '10px 0', // Thêm padding để tách biệt với nội dung cuộn
         }}>
           {/* Nút truyền vào */}
-          <Button onClick={onButtonClick} style={{ marginRight: '10px', background: '#007931' }} className='rounded-5 border-0 fw-medium'>
-            {buttonText}
-          </Button>
-          {/* Nút đóng modal */}
           <Button variant='outline-dark' onClick={closeModal} className='rounded-5 fw-medium'>
             Hủy
           </Button>
+          <Button onClick={handleButtonClick} style={{ marginLeft: '10px', background: '#007931' }} className='rounded-5 border-0 fw-medium' disabled={isProcessing}>
+            {isProcessing ? <><Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> {buttonText}</> : buttonText}
+          </Button>
+          {/* Nút đóng modal */}
+         
         </div>
       </Modal>
 
