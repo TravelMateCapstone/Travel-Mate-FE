@@ -204,18 +204,19 @@ const GroupView = () => {
 
   const handleLeaveGroup = useCallback(async () => {
     try {
-      await axios.delete(`${import.meta.env.VITE_BASE_API_URL}/api/Groups/LeaveGroup/${groupDataRedux?.id || groupDataRedux?.groupId}`, {
+      await axios.delete(`${import.meta.env.VITE_BASE_API_URL}/api/Groups/CancelJoinRequest/${groupDataRedux?.id || groupDataRedux?.groupId}`, {
         headers: {
           Authorization: `${token}`,
         },
       });
-      toast.success('Yêu cầu rời nhóm đã được gửi');
+      toast.success('Yêu cầu hủy tham gia nhóm đã được gửi');
       setUserJoinedStatus('Unjoin');
     } catch (error) {
-      console.error('Error sending leave request:', error);
-      toast.error('Không thể gửi yêu cầu rời nhóm');
+      console.error('Error sending cancel join request:', error);
+      toast.error('Không thể gửi yêu cầu hủy tham gia nhóm');
     }
   }, [groupDataRedux?.id, groupDataRedux?.groupId, token]);
+  
 
   const { data, refetch } = useQuery(
     ['groupData', groupDataRedux?.id || groupDataRedux?.groupId],
