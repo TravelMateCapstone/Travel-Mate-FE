@@ -1,88 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar as BootstrapNavbar, Nav, Row, Col, Container, Dropdown, Button, Offcanvas } from 'react-bootstrap';
 import { Link, NavLink } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
 import '../../assets/css/Shared/NavBar.css';
 import logo from '../../assets/images/logo.png';
-import logoMobile from '../../assets/images/logo.svg'
+import logoMobile from '../../assets/images/logo.svg';
 import { useDispatch, useSelector } from "react-redux";
 import Login from './Login';
-import Register from './Register'
+import Register from './Register';
 import { openLoginModal, closeLoginModal, openRegisterModal, closeRegisterModal } from "../../redux/actions/modalActions";
-import chatbubble from '../../assets/images/chatbubbles.svg'
-import notify from '../../assets/images/notify.svg'
+import axios from 'axios';
 import NotifyItem from "../Shared/NotifyItem";
 import MessengerItem from "../Shared/MessengerItem";
 import { logout } from "../../redux/actions/authActions";
+import { toast } from 'react-toastify';
 
 function Navbar() {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const [selectedItem, setSelectedItem] = useState('Địa điểm du lịch');
-  const [showOffcanvas, setShowOffcanvas] = useState(false); 
+  const [showOffcanvas, setShowOffcanvas] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [messages, setMessages] = useState([]); // Added messages state
   const dispatch = useDispatch();
 
   const isLoginModalOpen = useSelector((state) => state.modal.isLoginModalOpen);
   const isRegisterModalOpen = useSelector((state) => state.modal.isRegisterModalOpen);
   const user = useSelector((state) => state.auth.user);
+  const token = useSelector((state) => state.auth.token);
 
   const handelShowOffcanvas = () => {
     setShowOffcanvas(true);
-  }
+  };
 
-  const notifications = [
-    {
-      "id": 1,
-      "isRequest": true,
-      "avatar": "https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj",
-      "content": "Bạn có một yêu cầu kết bạn",
-      "name": "Sơn Tùng MTP"
-    },
-    {
-      "id": 2,
-      "isRequest": false,
-      "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3xjGTAPhRSIQ9TpbJbBKruRQpaTepXiKL3Q&s",
-      "content": "Tin nhắn từ nhóm",
-      "name": "Đức Phúc"
-    },
-    {
-      "id": 3,
-      "isRequest": true,
-      "avatar": "https://cdn.tuoitre.vn/zoom/700_525/471584752817336320/2024/8/29/hieuthuhai-6-1724922106140134622997-0-0-994-1897-crop-17249221855301721383554.jpg",
-      "content": "Yêu cầu tham gia sự kiện",
-      "name": "HIEUTHUHAI"
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      axios.get('https://travelmateapp.azurewebsites.net/api/Notification/current-user/notifications', {
+        headers: {
+          Authorization: `${token}`
+        }
+      })
+        .then(response => {
+          if (response.data?.$values) {
+            const updatedNotifications = response.data.$values.map(notification => {
+              return {
+                ...notification,
+                isRequest: notification.message.includes("Bạn đã nhận được một lời mời kết bạn từ"),
+                senderId: notification.senderId ? notification.senderId : null
+              };
+            });
+            setNotifications(updatedNotifications);
+            console.log("Notifications data: ", updatedNotifications);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching notifications:', error);
+        });
     }
-  ];
+  }, [isAuthenticated, token]);
 
-  const messages = [
-    {
-      id: 1,
-      avatar: 'https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj',
-      name: 'Sơn Tùng MTP',
-      message: 'Hello, how are you? ',
-      time: '10:30 AM',
-    },
-    {
-      id: 2,
-      avatar: 'https://cdn.tuoitre.vn/zoom/700_525/471584752817336320/2024/8/29/hieuthuhai-6-1724922106140134622997-0-0-994-1897-crop-17249221855301721383554.jpg',
-      name: 'HIEUTHUHAI',
-      message: 'Let’s meet up this weekend!',
-      time: '09:45 AM',
-    },
-    {
-      id: 3,
-      avatar: 'https://tq10.mediacdn.vn/thumb_w/1000/160588918557773824/2022/11/17/truong-giang-1668657634653863093929.jpg',
-      name: 'Trường Giang',
-      message: 'I’ve sent you the document.',
-      time: 'Yesterday',
-    },
-    {
-      id: 4,
-      avatar: 'https://tudienwiki.com/wp-content/uploads/2023/02/Soobin-Hoang-Son.jpg',
-      name: 'MCK',
-      message: 'I’ve sent you the document.',
-      time: 'Yesterday',
-    },
-  ];
 
   const handleLoginModal = () => {
     if (isLoginModalOpen) {
@@ -111,6 +86,47 @@ function Navbar() {
 
   const handleShow = () => setShowOffcanvas(true); // Mở Offcanvas
   const handleClose = () => setShowOffcanvas(false); // Đóng Offcanvas
+
+  const handleAcceptFriendRequest = async (senderId) => {
+    try {
+      const response = await axios.post(
+        `https://travelmateapp.azurewebsites.net/api/Friendship/accept?fromUserId=${senderId}`,
+        {},
+        {
+          headers: {
+            Authorization: `${token}`
+          }
+        }
+      );
+      if (response.status === 200) {
+        toast.success("Chấp nhận kết bạn thành công!");
+      }
+    } catch (error) {
+      console.error('Error accepting friend request:', error);
+      toast.error("Lỗi khi chấp nhận kết bạn!");
+    }
+  };
+
+  const handleRejectFriendRequest = async (userIdRequest) => {
+    try {
+      const response = await axios.delete(
+        `https://travelmateapp.azurewebsites.net/api/Friendship/remove?friendUserId=${userIdRequest}`,
+        {
+          headers: {
+            Authorization: `${token}`, // Đảm bảo Bearer token được truyền vào đúng định dạng
+          },
+        }
+      );
+      if (response.status === 200) {
+        toast.success("Từ chối kết bạn thành công!");
+      }
+    } catch (error) {
+      console.error('Error rejecting friend request:', error);
+      toast.error("Lỗi khi từ chối kết bạn!");
+    }
+  };
+
+
 
   return (
     <BootstrapNavbar bg="white" expand="lg" className='my-navbar shadow fixed-top'>
@@ -182,7 +198,6 @@ function Navbar() {
             </div>
           </Col>
           <Col xs={4} className="d-flex justify-content-end gap-2 align-items-center pe-0">
-
             {isAuthenticated ? (
               <>
                 <Dropdown align="end">
@@ -225,17 +240,24 @@ function Navbar() {
 
                   <Dropdown.Menu className="py-3 dropdown-menu-notify">
                     {notifications.map((notification) => (
-                      <Dropdown.Item key={notification.id} href={`#notification${notification.id}`}>
-                        <NotifyItem avatar={notification.avatar} content={notification.content} isRequest={notification.isRequest} name={notification.name} />
+                      <Dropdown.Item key={notification.notificationId} href={`#notification${notification.notificationId}`}>
+                        <NotifyItem
+                          avatar={user?.avatarUrl || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'}
+                          content={notification.message}
+                          isRequest={notification.isRequest}
+                          name={user?.username || 'User'}
+                          onAccept={() => handleAcceptFriendRequest(notification.senderId)}
+                          onDecline={() => handleRejectFriendRequest(notification.senderId)}
+                        />
                       </Dropdown.Item>
                     ))}
                     <div className="d-flex align-items-center justify-content-center mt-2 gap-1">
                       <p className="m-0 messege-more">Xem thêm thông báo</p>
-                      <ion-icon name="chevron-down-circle-outline" style={{
-                        fontSize: '20px'
-                      }}></ion-icon>
+                      <ion-icon name="chevron-down-circle-outline" style={{ fontSize: '20px' }}></ion-icon>
                     </div>
                   </Dropdown.Menu>
+
+
                 </Dropdown>
 
                 <Dropdown align="end">
@@ -250,7 +272,7 @@ function Navbar() {
                     <ion-icon name="menu-outline"></ion-icon>
                   </Dropdown.Toggle>
 
-                  <Dropdown.Menu className="p-1 avatar-dropdown" >
+                  <Dropdown.Menu className="p-1 avatar-dropdown">
                     <Dropdown.Item as={Link} to={RoutePath.PROFILE} className="avatar-dropdown-item">
                       Hồ sơ
                     </Dropdown.Item>
@@ -292,8 +314,6 @@ function Navbar() {
                 {/* Nút để mở Offcanvas */}
                 <Button variant='outline-secondary' className='d-lg-none' onClick={handleShow}><ion-icon name="menu-outline"></ion-icon></Button></>
             )}
-
-
           </Col>
         </Row>
       </Container>
@@ -312,9 +332,15 @@ function Navbar() {
               <input type="text" placeholder="Tìm kiếm..." style={{ border: 'none', outline: 'none', flex: 1 }} />
             </div>
             <Dropdown onSelect={handleSelect} align="end">
-              <Dropdown.Toggle variant="success" id="" style={
-                { borderTopLeftRadius: '0', borderBottomLeftRadius: '0', borderTopRightRadius: '20px', borderBottomRightRadius: '20px', width: '120px', fontSize: '10px', height: '38px' }
-              }>
+              <Dropdown.Toggle variant="success" id="" style={{
+                borderTopLeftRadius: '0',
+                borderBottomLeftRadius: '0',
+                borderTopRightRadius: '20px',
+                borderBottomRightRadius: '20px',
+                width: '120px',
+                fontSize: '10px',
+                height: '38px'
+              }}>
                 {selectedItem}
               </Dropdown.Toggle>
               <Dropdown.Menu>

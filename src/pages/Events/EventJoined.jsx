@@ -179,10 +179,10 @@ function EventJoined() {
                         <a href="#" className='view-all-link m-3' onClick={handleShowModal}>Xem tất cả</a>
                     </div>
                     <div className='members-list m-3'>
-                        {members.slice(0, 3).map((member, index) => (
+                        {members.slice(0, 5).map((member, index) => (
                             <div key={index} className='member-item d-flex align-items-center'>
                                 <img
-                                    src={member.imageUser}
+                                    src={member?.imageUser || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'}
                                     className='members-img'
                                     alt={`member-${index}`}
                                 />
@@ -206,7 +206,7 @@ function EventJoined() {
                         <div key={index} className='member-item d-flex justify-content-between align-items-center member-list-item'>
                             <div className='d-flex align-items-center member-info-container'>
                                 <img
-                                    src={member.imageUser}
+                                    src={member?.imageUser || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'}
                                     className='members-img member-img'
                                     alt={`member-${index}`}
                                 />
