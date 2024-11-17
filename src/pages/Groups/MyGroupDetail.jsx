@@ -15,8 +15,6 @@ import { toast } from 'react-toastify';
 import { viewGroup } from '../../redux/actions/groupActions';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import TextareaAutosize from 'react-textarea-autosize';
-import ConfirmModal from '../../components/Shared/ConfirmModal';
-import { useCustomQuery, useCustomMutation, fetchData, postData, putData, deleteData } from '../../hooks/customHook';
 
 const MyGroupDetail = () => {
   const navigate = useNavigate();
@@ -36,11 +34,13 @@ const MyGroupDetail = () => {
   const editTextareaRef = useRef(null);
   const [postTitle, setPostTitle] = useState('');
   const [isPosting, setIsPosting] = useState(false);
+
   const [description, setDescription] = useState(groupDataRedux?.description || groupDataRedux?.text || '');
   const [location, setLocation] = useState(groupDataRedux?.location || '');
   const [bannerImage, setBannerImage] = useState(groupDataRedux?.img || groupDataRedux.groupImageUrl || '');
   const [groupName, setGroupName] = useState(groupDataRedux?.title || groupDataRedux.groupName || '');
   const [showFullDescription, setShowFullDescription] = useState(false);
+
   const queryClient = useQueryClient();
 
   const uploadFiles = useCallback(async () => {
@@ -73,11 +73,13 @@ const MyGroupDetail = () => {
   const fetchGroupData = useCallback(async () => {
     try {
       const [postsResponse, locationsResponse] = await Promise.all([
-        fetchData(`${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux?.id || groupDataRedux?.groupId}/groupposts`, token),
+        axios.get(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux?.id || groupDataRedux?.groupId}/groupposts`, {
+          headers: { Authorization: `${token}` },
+        }),
         axios.get('https://provinces.open-api.vn/api/')
       ]);
 
-      const sortedPosts = postsResponse.$values.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
+      const sortedPosts = postsResponse.data.$values.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
       const processedLocations = locationsResponse.data.map((location) => ({
         ...location,
         name: location.name.replace(/^Tỉnh |^Thành phố /, ''),
@@ -99,7 +101,12 @@ const MyGroupDetail = () => {
       GroupPostPhotos: uploadedUrls.map((url) => ({ photoUrl: url })),
     };
     try {
-      await postData(`${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux?.id || groupDataRedux?.groupId}/groupposts`, newPost, token);
+      await axios.post(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux?.id || groupDataRedux?.groupId}/groupposts`, newPost, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      // Clear input fields and selected images
       setPostTitle('');
       setSelectedFiles([]);
       toast.success('Bài viết đã được đăng thành công');
@@ -125,7 +132,11 @@ const MyGroupDetail = () => {
         description: description,
         groupImageUrl: newBannerUrl,
       };
-      await putData(`${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux?.id || groupDataRedux?.groupId}`, updatedGroup, token);
+      await axios.put(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux?.id || groupDataRedux?.groupId}`, updatedGroup, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
       toast.success('Nhóm đã được cập nhật thành công');
       dispatch(viewGroup(updatedGroup));
     } catch (error) {
@@ -137,7 +148,11 @@ const MyGroupDetail = () => {
 
   const deleteGroup = useCallback(async () => {
     try {
-      await deleteData(`${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux?.id || groupDataRedux?.groupId}`, token);
+      await axios.delete(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux?.id || groupDataRedux?.groupId}`, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
       console.log('Nhóm đã được xóa thành công');
     } catch (error) {
       console.error('Error deleting group:', error);
@@ -146,7 +161,11 @@ const MyGroupDetail = () => {
 
   const updatePost = useCallback(async (postId, updatedData) => {
     try {
-      await putData(`${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux?.id || groupDataRedux?.groupId}/groupposts/${postId}`, updatedData, token);
+      await axios.put(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux?.id || groupDataRedux?.groupId}/groupposts/${postId}`, updatedData, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
       toast.success('Bài viết đã được cập nhật thành công');
     } catch (error) {
       console.error('Error updating post:', error);
@@ -154,31 +173,31 @@ const MyGroupDetail = () => {
     }
   }, [groupDataRedux?.id, groupDataRedux?.groupId, token]);
 
-  const { data, refetch } = useCustomQuery(
+  const { data, refetch } = useQuery(
     ['groupData', groupDataRedux?.id || groupDataRedux?.groupId],
     fetchGroupData,
     { enabled: !!groupDataRedux?.id || !!groupDataRedux?.groupId }
   );
 
-  const createPostMutation = useCustomMutation(createPost, {
+  const createPostMutation = useMutation(createPost, {
     onSuccess: () => {
       queryClient.invalidateQueries(['groupData', groupDataRedux?.id || groupDataRedux?.groupId]);
     },
   });
 
-  const updateGroupMutation = useCustomMutation(updateGroup, {
+  const updateGroupMutation = useMutation(updateGroup, {
     onSuccess: () => {
       queryClient.invalidateQueries(['groupData', groupDataRedux?.id || groupDataRedux?.groupId]);
     },
   });
 
-  const deleteGroupMutation = useCustomMutation(deleteGroup, {
+  const deleteGroupMutation = useMutation(deleteGroup, {
     onSuccess: () => {
       navigate('/group');
     },
   });
 
-  const updatePostMutation = useCustomMutation(updatePost, {
+  const updatePostMutation = useMutation(updatePost, {
     onSuccess: () => {
       queryClient.invalidateQueries(['groupData', groupDataRedux?.id || groupDataRedux?.groupId]);
       refetch(); // Add this line to refetch the data
@@ -239,8 +258,7 @@ const MyGroupDetail = () => {
 
   const handleDeletePost = useCallback((groupPostId) => {
     setPosts((prevPosts) => prevPosts.filter((post) => post.groupPostId !== groupPostId));
-    refetch(); // Add this line to refetch the data
-  }, [refetch]);
+  }, []);
 
   const handleDeleteImage = useCallback((index) => {
     setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
@@ -358,13 +376,9 @@ const MyGroupDetail = () => {
             </Dropdown.Item>
 
             <Dropdown.Item>
-              <Link className='text-black' to={RoutePath.Group_Management} style={{
-                fontSize: '16px',
-              }}>Quản lí thành viên</Link>
+              <Link className='text-black' to={RoutePath.Group_Management}>Quản lí thành viên</Link>
             </Dropdown.Item>
-            <Dropdown.Item onClick={() => setShowDeleteModal(true)} style={{
-                fontSize: '16px',
-              }}>Xóa nhóm</Dropdown.Item>
+            <Dropdown.Item onClick={() => setShowDeleteModal(true)}>Xóa nhóm</Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
       </div>
@@ -389,6 +403,7 @@ const MyGroupDetail = () => {
         </button>
       )}
       <hr className='mt-4 mb-5 line_spit' />
+
       <div className='write_post_container mb-5'>
         <div className='d-flex align-items-center gap-3'>
           <img src={user.avatarUrl || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw'} alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
@@ -448,16 +463,39 @@ const MyGroupDetail = () => {
         <p>Chưa có bài viết nào</p>
       )}
 
-      <ConfirmModal
-        show={showDeleteModal}
-        onHide={() => setShowDeleteModal(false)}
-        onConfirm={() => {
-          deleteGroupMutation.mutate();
-          setShowDeleteModal(false);
-        }}
-        title="Bạn có muốn xóa không?"
-        message="Nhóm sẽ bị xóa vĩnh viễn"
-      />
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered className="custom-modal_deletGroup">
+        <Modal.Body className="custom-modal-body">
+          <div>
+            <ion-icon name="warning-outline" style={
+              {
+                fontSize: '30px',
+                color: '#AC0B0B',
+              }
+            }></ion-icon>
+          </div>
+          <p className='mb-0 fw-medium text-black'>Bạn có muốn xóa không ?</p>
+          <p className='m-0' style={{
+            fontSize: '12px',
+            color: '#6E6E6E',
+          }}>Sau khi xóa bạn không thể hoàn tác</p>
+        </Modal.Body>
+        <Modal.Footer className='d-flex gap-3 justify-content-center'>
+          <Button variant="" onClick={() => setShowDeleteModal(false)}>
+            Hủy
+          </Button>
+          <Button variant="" onClick={() => {
+            deleteGroupMutation.mutate();
+            setShowDeleteModal(false);
+          }}
+            className='rounded-5'
+            style={{
+              background: '#AC0B0B',
+              color: '#fff',
+            }}>
+            Xóa nhóm
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
