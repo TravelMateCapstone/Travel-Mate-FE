@@ -9,8 +9,8 @@ function AdminLayout({ children }) {
   const location = useLocation();
   const sidebarItemsAdmin = [
     { icon: 'pie-chart', title: 'Thống kê', route: RoutePath.ADMIN },
-    { icon: 'mail-open', title: 'Quản lí khiếu nại', route: RoutePath.ADMIN_REPORT },
-    { icon: 'accessibility', title: 'Quản lí tài khoản', route: RoutePath.ADMIN_ACCOUNT_LIST },
+    { icon: 'mail-open', title: 'Quản lý khiếu nại', route: RoutePath.ADMIN_REPORT },
+    { icon: 'accessibility', title: 'Quản lý tài khoản', route: RoutePath.ADMIN_ACCOUNT_LIST },
     { icon: 'cash', title: 'Lịch sử giao dịch', route: RoutePath.ADMIN_TRANSACTION },
     { icon: 'airplane', title: 'Lịch sử chuyến đi', route: RoutePath.ADMIN_TRIP_HISTORY },
   ];
@@ -24,9 +24,7 @@ function AdminLayout({ children }) {
   const isAdmin = (location.pathname === RoutePath.ADMIN || location.pathname === RoutePath.ADMIN_ACCOUNT_LIST || location.pathname === RoutePath.ADMIN_REPORT || location.pathname === RoutePath.ADMIN_TRANSACTION || location.pathname === RoutePath.ADMIN_WALLET_MANAGEMENT || location.pathname === RoutePath.ADMIN_TRIP_HISTORY);
   return (
    <div>
-      {!isAdmin &&(
-        <Navbar />
-      )}
+
       <div id="wrapper">
         {isAdmin ? (
           <Sidebar items={sidebarItemsAdmin} />

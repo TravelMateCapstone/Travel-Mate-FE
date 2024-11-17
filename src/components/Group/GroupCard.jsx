@@ -44,7 +44,7 @@ const GroupCard = ({ id, img, title, location, members, text, description, isJoi
       }
     } catch (error) {
       if (error.response && error.response.status === 404 && error.response.data === 'You have sent join request!') {
-        toast.info('Đang xử lí yêu cầu');
+        toast.info('Đang xử lý yêu cầu');
         setRequestSent(true);
       } else {
         toast.error('Có lỗi xảy ra khi gửi yêu cầu tham gia nhóm.');

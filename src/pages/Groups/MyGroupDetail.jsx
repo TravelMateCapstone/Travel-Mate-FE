@@ -376,7 +376,7 @@ const MyGroupDetail = () => {
             </Dropdown.Item>
 
             <Dropdown.Item>
-              <Link className='text-black' to={RoutePath.Group_Management}>Quản lí thành viên</Link>
+              <Link className='text-black' to={RoutePath.Group_Management}>Quản lý thành viên</Link>
             </Dropdown.Item>
             <Dropdown.Item onClick={() => setShowDeleteModal(true)}>Xóa nhóm</Dropdown.Item>
           </Dropdown.Menu>

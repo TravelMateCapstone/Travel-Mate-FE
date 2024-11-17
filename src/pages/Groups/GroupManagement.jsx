@@ -313,7 +313,7 @@ const GroupManagement = () => {
                                 </FormSubmit>
                             </React.Suspense>
                         </Dropdown.Item>
-                        <Dropdown.Item>Quản lí thành viên</Dropdown.Item>
+                        <Dropdown.Item>Quản lý thành viên</Dropdown.Item>
                         <Dropdown.Item onClick={() => setShowDeleteModal(true)}>Xóa nhóm</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
@@ -357,7 +357,7 @@ const GroupManagement = () => {
                         ))}
                     </div>
                 </Tab>
-                <Tab eventKey="manageMembers" title="Quản lí thành viên">
+                <Tab eventKey="manageMembers" title="Quản lý thành viên">
                     <div className="member-list">
                         {members?.length > 0 ? (
                             members.map((member) => (

@@ -17,7 +17,7 @@ const ToolBar = React.memo(() => {
                     <ion-icon name="add-circle"></ion-icon>
                 </Link>
             </OverlayTrigger>
-            <OverlayTrigger placement="top" overlay={renderTooltip(null, 'Quản lí nhóm')}>
+            <OverlayTrigger placement="top" overlay={renderTooltip(null, 'Quản lý nhóm')}>
                 <Link to="/people" style={{ color: 'inherit', textDecoration: 'none' }}>
                     <ion-icon name="people"></ion-icon>
                 </Link>

@@ -258,7 +258,7 @@ const Navbar = React.memo(() => {
                       Hợp đồng
                     </Dropdown.Item>
                     <Dropdown.Item as={Link} to={RoutePath.LOCAL_STATICTIS} className="avatar-dropdown-item">
-                      Trang quản lí
+                      Trang quản lý
                     </Dropdown.Item>
                     <Dropdown.Divider style={{
                       marginBottom: '24px'
@@ -282,7 +282,7 @@ const Navbar = React.memo(() => {
               </>
             ) : (
               <>
-                <Button variant='' className='text-nowrap btn-action rounded-5 fw-normal' onClick={handleRegisterModal}>Đăng kí</Button>
+                <Button variant='' className='text-nowrap btn-action rounded-5 fw-normal' onClick={handleRegisterModal}>Đăng ký</Button>
                 <Button variant='' className='text-nowrap btn-action rounded-5 fw-normal'
                   onClick={handleLoginModal}
                   style={{

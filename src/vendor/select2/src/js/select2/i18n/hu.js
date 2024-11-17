@@ -27,7 +27,7 @@ define(function () {
       return 'Keresés…';
     },
     removeAllItems: function () {
-      return 'Távolítson el minden elemet';
+      return 'Távolýtson el minden elemet';
     }
   };
 });

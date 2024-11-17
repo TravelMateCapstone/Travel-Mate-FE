@@ -36,6 +36,36 @@ function AutoSuggestInput() {
     }
   };
 
+  // Hàm gọi API để viết tiếp nội dung
+  const fetchContinuedContent = async () => {
+    if (suggestions.length === 0) return; // Nếu không có gợi ý, không gửi yêu cầu
+
+    setLoading(true); // Bắt đầu quá trình gọi API
+
+    try {
+      // Khởi tạo GoogleGenerativeAI với API Key
+      const genAI = new GoogleGenerativeAI('AIzaSyCzk1Tbx4lW3F4IIZrDvusRj7g3uvNeG-w');
+
+      // Lấy mô hình generative AI từ Google
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+      // Cung cấp prompt để tạo nội dung tiếp theo
+      const prompt = `Viết tiếp nội dung sau: ${suggestions[0]}`;
+
+      // Gọi API để tạo nội dung
+      const result = await model.generateContent(prompt);
+      const text = await result.response.text();
+
+      // Lưu kết quả vào state
+      setSuggestions([...suggestions, text]);
+    } catch (error) {
+      console.error('Error fetching continued content:', error);
+      setSuggestions([...suggestions, 'Sorry, something went wrong.']);
+    } finally {
+      setLoading(false); // Kết thúc quá trình gọi API
+    }
+  };
+
   return (
     <div>
       <input
@@ -46,6 +76,9 @@ function AutoSuggestInput() {
       />
       <button onClick={fetchSuggestions} disabled={loading}>
         {loading ? 'Loading...' : 'Get Suggestions'}
+      </button>
+      <button onClick={fetchContinuedContent} disabled={loading || suggestions.length === 0}>
+        {loading ? 'Loading...' : 'Continue Content'}
       </button>
       <ul>
         {suggestions.length > 0 ? (
