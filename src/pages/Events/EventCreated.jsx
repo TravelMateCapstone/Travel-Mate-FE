@@ -59,7 +59,7 @@ function EventCreated() {
     if (storedEvent) {
       const fetchMembers = async () => {
         try {
-          const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/EventControllerWOO/${storedEvent.id}/Event-With-Profiles-join`);
+          const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/EventControllerWOO/${storedEvent.id}/Event-With-Profiles-join`);
           setMembers(response.data.$values.map(item => item.profile));
         } catch (error) {
           console.error('Lỗi khi lấy danh sách người tham gia:', error);
@@ -145,7 +145,7 @@ function EventCreated() {
       console.log("Dữ liệu sự kiện cập nhật:", updatedEventData);
 
       const response = await axios.put(
-        `https://travelmateapp.azurewebsites.net/api/EventControllerWOO/edit-by-current-user/${selectedEvent.id}`,
+        `${import.meta.env.VITE_BASE_API_URL}/api/EventControllerWOO/edit-by-current-user/${selectedEvent.id}`,
         updatedEventData,
         {
           headers: { Authorization: `${token}` },
@@ -171,7 +171,7 @@ function EventCreated() {
   const handleDeleteEvent = async () => {
     if (window.confirm('Bạn có chắc chắn muốn xóa sự kiện này không?')) {
       try {
-        await axios.delete(`https://travelmateapp.azurewebsites.net/api/EventControllerWOO/current-user-delete-event/${selectedEvent.id}`, {
+        await axios.delete(`${import.meta.env.VITE_BASE_API_URL}/api/EventControllerWOO/current-user-delete-event/${selectedEvent.id}`, {
           headers: { Authorization: `${token}` },
         });
         alert('Xóa sự kiện thành công!');
@@ -188,7 +188,7 @@ function EventCreated() {
     console.log("us", userId);
     if (window.confirm('Bạn có chắc chắn muốn gỡ người này khỏi sự kiện?')) {
       try {
-        await axios.delete(`https://travelmateapp.azurewebsites.net/api/EventParticipants/${selectedEvent.id}/${userId}`, {
+        await axios.delete(`${import.meta.env.VITE_BASE_API_URL}/api/EventParticipants/${selectedEvent.id}/${userId}`, {
           headers: { Authorization: `${token}` },
         });
         toast.success('Đã gỡ người tham gia khỏi sự kiện!');
@@ -258,31 +258,31 @@ function EventCreated() {
   const handleViewProfile = async (userId) => {
     try {
       // Gọi API để lấy thông tin hồ sơ người dùng
-      const othersUserProfile = await axios.get(`https://travelmateapp.azurewebsites.net/api/Profile/${userId}`);
+      const othersUserProfile = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Profile/${userId}`);
       localStorage.setItem('othersProfile', JSON.stringify(othersUserProfile.data));
 
       // Gọi API để lấy thông tin nhà người dùng
-      const userProfileResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserHome/user/${userId}`);
+      const userProfileResponse = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/UserHome/user/${userId}`);
       localStorage.setItem('othersHome', JSON.stringify(userProfileResponse.data));
 
       // Gọi API để lấy thông tin hoạt động của người dùng
-      const userActivitiesResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserActivitiesWOO/user/${userId}`);
+      const userActivitiesResponse = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/UserActivitiesWOO/user/${userId}`);
       localStorage.setItem('othersActivity', JSON.stringify(userActivitiesResponse.data));
 
       // Gọi API để lấy danh sách bạn bè của người dùng
-      const userFriendsResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/Friendship/List-friends/${userId}`);
+      const userFriendsResponse = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Friendship/List-friends/${userId}`);
       localStorage.setItem('othersListFriend', JSON.stringify(userFriendsResponse.data));
 
       // Gọi API để lấy danh sách địa điểm của người dùng
-      const othersLocation = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserLocationsWOO/user/${userId}`);
+      const othersLocation = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/UserLocationsWOO/user/${userId}`);
       localStorage.setItem('othersLocation', JSON.stringify(othersLocation.data));
 
       // Gọi API để lấy trường học của người dùng
-      const othersUserEducation = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserEducation/user/${userId}`);
+      const othersUserEducation = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/UserEducation/user/${userId}`);
       localStorage.setItem('othersEducation', JSON.stringify(othersUserEducation.data));
 
       // Gọi API để lấy danh sách ngôn ngữ của người dùng
-      const othersUserLanguages = await axios.get(`https://travelmateapp.azurewebsites.net/api/SpokenLanguages/user/${userId}`);
+      const othersUserLanguages = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/SpokenLanguages/user/${userId}`);
       localStorage.setItem('othersLanguages', JSON.stringify(othersUserLanguages.data));
 
       // Chuyển hướng đến trang hồ sơ của người khác

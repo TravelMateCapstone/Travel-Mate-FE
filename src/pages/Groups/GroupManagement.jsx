@@ -36,7 +36,7 @@ const GroupManagement = () => {
     const { data: joinRequests, refetch: refetchJoinRequests } = useQuery(
         ['joinRequests', groupDataRedux.groupId || groupDataRedux.id],
         async () => {
-            const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Groups/ListJoinGroupRequest/${groupDataRedux.groupId || groupDataRedux.id}`, {
+            const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Groups/ListJoinGroupRequest/${groupDataRedux.groupId || groupDataRedux.id}`, {
                 headers: {
                     Authorization: `${token}`,
                 },
@@ -56,7 +56,7 @@ const GroupManagement = () => {
     const { data: members, refetch: refetchMembers } = useQuery(
         ['members', groupDataRedux.groupId || groupDataRedux.id],
         async () => {
-            const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Groups/${groupDataRedux.groupId || groupDataRedux.id}/Members`, {
+            const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Groups/${groupDataRedux.groupId || groupDataRedux.id}/Members`, {
                 headers: {
                     Authorization: `${token}`,
                 },
@@ -83,7 +83,7 @@ const GroupManagement = () => {
     const approveRequestMutation = useMutation(
         async (userId) => {
             await axios.post(
-                `https://travelmateapp.azurewebsites.net/api/Groups/JoinedGroups/${groupDataRedux.groupId || groupDataRedux.id}/AcceptJoin?requesterId=${userId}`,
+                `${import.meta.env.VITE_BASE_API_URL}/api/Groups/JoinedGroups/${groupDataRedux.groupId || groupDataRedux.id}/AcceptJoin?requesterId=${userId}`,
                 { userId },
                 {
                     headers: {
@@ -102,7 +102,7 @@ const GroupManagement = () => {
     const rejectRequestMutation = useMutation(
         async (userId) => {
             await axios.post(
-                `https://travelmateapp.azurewebsites.net/api/Groups/JoinedGroups/${groupDataRedux.groupId || groupDataRedux.id}/RejectJoinGroup?requesterId=${userId}`,
+                `${import.meta.env.VITE_BASE_API_URL}/api/Groups/JoinedGroups/${groupDataRedux.groupId || groupDataRedux.id}/RejectJoinGroup?requesterId=${userId}`,
                 { userId },
                 {
                     headers: {
@@ -120,7 +120,7 @@ const GroupManagement = () => {
 
     const updateGroupMutation = useMutation(
         async (updatedGroup) => {
-            await axios.put(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}`, updatedGroup, {
+            await axios.put(`${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux.id || groupDataRedux.groupId}`, updatedGroup, {
                 headers: {
                     Authorization: `${token}`,
                 },
@@ -136,7 +136,7 @@ const GroupManagement = () => {
 
     const deleteGroupMutation = useMutation(
         async () => {
-            await axios.delete(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}`, {
+            await axios.delete(`${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux.id || groupDataRedux.groupId}`, {
                 headers: {
                     Authorization: `${token}`,
                 },

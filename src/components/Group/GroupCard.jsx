@@ -37,7 +37,7 @@ const GroupCard = ({ id, img, title, location, members, text, description, isJoi
 
   const handleJoinGroup = async () => {
     try {
-      const response = await axios.post(`https://travelmateapp.azurewebsites.net/api/Groups/JoinedGroups/Join/${id}`, {}, { headers: { Authorization: `${token}` } });
+      const response = await axios.post(`${import.meta.env.VITE_BASE_API_URL}/api/Groups/JoinedGroups/Join/${id}`, {}, { headers: { Authorization: `${token}` } });
       if (response.status === 200) {
         toast.success('Yêu cầu tham gia nhóm đã được gửi thành công!');
         setRequestSent(true);

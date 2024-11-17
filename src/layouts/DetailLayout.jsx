@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Navbar from '../components/Shared/Navbar';
 import { Col, Container, Row, Offcanvas, Button } from 'react-bootstrap';
 import Footer from '../components/Shared/Footer';
@@ -9,7 +9,6 @@ function DetailLayout({ children }) {
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-    const [previousPath, setPreviousPath] = useState('');
 
     const sidebarItems = [
         { iconName: 'list-circle', title: 'Danh sách nhóm', route: RoutePath.GROUP },
@@ -22,24 +21,14 @@ function DetailLayout({ children }) {
         { iconName: 'add-circle', title: 'Sự kiện đã tạo', route: RoutePath.EVENT_CREATED },
         { iconName: 'calendar-number', title: 'Sự kiện tham gia', route: RoutePath.EVENT_JOINED },
     ];
-    const currentPath = location.pathname;
-    useEffect(() => {
-        const currentPath = location.pathname;
-        const previousPath = localStorage.getItem('lastPath');
-        localStorage.setItem('lastPath', currentPath);
-    }, [location]);
-    const isEventRoute = currentPath.startsWith(RoutePath.EVENT) ||
-        currentPath.startsWith(RoutePath.EVENT_JOINED) ||
-        currentPath.startsWith(RoutePath.EVENT_CREATED);
 
-    const isGroupRoutebtn = currentPath === RoutePath.GROUP;
-    const isEventRouteBtn = currentPath === RoutePath.EVENT;
-    const isActiveGroupDetail = currentPath === RoutePath.GROUP_DETAILS || previousPath === RoutePath.GROUP;
+    const currentPath = location.pathname;
+    const isEventRoute = currentPath.startsWith(RoutePath.EVENT);
     const sidebarData = isEventRoute ? sidebarItemsEvent : sidebarItems;
     const sidebarItemsWithActiveState = sidebarData.map(item => ({
-        ...item,
-        isActive: currentPath === item.route || (item.route === RoutePath.GROUP && isActiveGroupDetail)
+        ...item
     }));
+
     return (
         <Container fluid className='container-main'>
             <Row>

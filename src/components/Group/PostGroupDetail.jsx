@@ -14,6 +14,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import TextareaAutosize from 'react-textarea-autosize';
+import ConfirmModal from '../Shared/ConfirmModal';
 
 const PostGroupDetail = ({ post }) => {
   const [showComments, setShowComments] = useState(false);
@@ -38,7 +39,7 @@ const PostGroupDetail = ({ post }) => {
   const deletePostMutation = useMutation(async () => {
     try {
       await axios.delete(
-        `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}`,
+        `${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}`,
         { headers: { Authorization: `${token}` } }
       );
       toast.success('Xóa bài viết thành công');
@@ -49,6 +50,7 @@ const PostGroupDetail = ({ post }) => {
   }, {
     onSuccess: () => {
       queryClient.invalidateQueries(['posts', groupDataRedux.id || groupDataRedux.groupId]);
+      queryClient.invalidateQueries(['groupData', groupDataRedux.id || groupDataRedux.groupId]); // Add this line to invalidate group data
     },
   });
 
@@ -85,7 +87,7 @@ const PostGroupDetail = ({ post }) => {
 
   const updateCommentMutation = useMutation(async ({ postCommentId, updatedText }) => {
     await axios.put(
-      `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments/${postCommentId}`,
+      `${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments/${postCommentId}`,
       { commentText: updatedText },
       { headers: { Authorization: `${token}` } }
     );
@@ -103,7 +105,7 @@ const PostGroupDetail = ({ post }) => {
 
   const deleteCommentMutation = useMutation(async (postCommentId) => {
     await axios.delete(
-      `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments/${postCommentId}`,
+      `${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments/${postCommentId}`,
       { headers: { Authorization: `${token}` } }
     );
   }, {
@@ -124,7 +126,7 @@ const PostGroupDetail = ({ post }) => {
     }
     setIsPostingComment(true);
     const response = await axios.post(
-      `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments`,
+      `${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments`,
       { commentText: newComment },
       { headers: { Authorization: `${token}` } }
     );
@@ -155,7 +157,7 @@ const PostGroupDetail = ({ post }) => {
       (async () => {
         try {
           const response = await axios.get(
-            `https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments`,
+            `${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts/${post.groupPostId}/postcomments`,
             { headers: { Authorization: `${token}` } }
           );
           setComments(response.data.$values);
@@ -223,6 +225,9 @@ const PostGroupDetail = ({ post }) => {
   const handleCloseImageModal = () => {
     setShowImageModal(false);
   };
+  const handleDeletePost = () => {
+    setShowDeleteModal(true);
+  };
   return (
     <div className="post mb-3">
       <div className="d-flex align-items-center gap-3">
@@ -237,7 +242,11 @@ const PostGroupDetail = ({ post }) => {
               <Dropdown.Toggle variant="success" className="border-0 bg-transparent shadow-none text-black">
                 <ion-icon name="ellipsis-vertical-outline"></ion-icon>
               </Dropdown.Toggle>
-              <Dropdown.Menu align="end">
+              <Dropdown.Menu align="end" style={{
+                 border: 'none',
+                 boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+                 borderRadius: '10px',
+              }}>
                 <Dropdown.Item className='form_edit_post'>
                   <FormSubmit buttonText="Lưu thay đổi" openModalText="Sửa bài viết" onButtonClick={() => updatePostMutation.mutate()} title={'Chỉnh sửa bài viết'}>
                     <h4>Nội dung</h4>
@@ -317,7 +326,9 @@ const PostGroupDetail = ({ post }) => {
                     </div>
                   </FormSubmit>
                 </Dropdown.Item>
-                <Dropdown.Item onClick={() => deletePostMutation.mutate()}>Xóa bài viết</Dropdown.Item>
+                <Dropdown.Item style={{
+                  fontSize: '16px',
+                }} onClick={handleDeletePost}>Xóa bài viết</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           )}
@@ -420,27 +431,16 @@ const PostGroupDetail = ({ post }) => {
           </div>
         </Modal.Body>
       </Modal>
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered className="custom-modal_deletPostGroup">
-        <Modal.Body className="custom-modal-body">
-          <div>
-            <ion-icon name="warning-outline" className="icon-large text-danger"></ion-icon>
-          </div>
-          <p className='mb-0 fw-medium text-black'>Bạn có muốn xóa không ?</p>
-          <p className='m-0 text-muted small'>Sau khi xóa bạn không thể hoàn tác</p>
-        </Modal.Body>
-        <Modal.Footer className='d-flex gap-3 justify-content-center'>
-          <Button variant="" onClick={() => setShowDeleteModal(false)}>
-            Hủy
-          </Button>
-          <Button variant="" onClick={() => {
-            deletePostMutation.mutate();
-            setShowDeleteModal(false);
-          }}
-            className='rounded-5 btn-danger text-white'>
-            Xóa bài viết
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ConfirmModal
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          deletePostMutation.mutate();
+          setShowDeleteModal(false);
+        }}
+        title="Bạn có muốn xóa không?"
+        message="Bài viết sẽ bị xóa vĩnh viễn"
+      />
     </div>
   );
 };

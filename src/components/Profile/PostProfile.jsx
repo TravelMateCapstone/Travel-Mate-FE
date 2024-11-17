@@ -24,7 +24,7 @@ function PostProfile({ isPublic, id, title, localName, star, location, review, l
 
     const deletePostMutation = useMutation(
         async () => {
-            const apiUrl = `https://travelmateapp.azurewebsites.net/api/PastTripPosts/${id}`;
+            const apiUrl = `${import.meta.env.VITE_BASE_API_URL}/api/PastTripPosts/${id}`;
             return await axios.delete(apiUrl, {
                 headers: {
                     Authorization: `${token}`
