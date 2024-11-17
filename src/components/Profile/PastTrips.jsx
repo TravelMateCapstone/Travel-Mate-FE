@@ -11,7 +11,7 @@ function PastTrips() {
   const token = useSelector((state) => state.auth.token);
 
   const fetchPosts = useCallback(async () => {
-    const response = await axios.get('https://travelmateapp.azurewebsites.net/api/PastTripPosts', {
+    const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/PastTripPosts`, {
       headers: {
         Authorization: `${token}`
       }

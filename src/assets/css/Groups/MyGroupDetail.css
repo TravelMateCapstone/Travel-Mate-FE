@@ -139,9 +139,6 @@
   width: calc(100% + 86px); /* Chiều rộng cộng thêm phần bị dịch sang trái */
 }
 
-.button_setting:hover{
-  color: #007931;
-}
 .custom-modal_deletGroup .modal-content{
   height: 100%!important;
   width: 60% !important;

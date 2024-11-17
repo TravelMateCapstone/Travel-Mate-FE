@@ -8,7 +8,7 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Button, Modal, Form } from "react-bootstrap";
 import ConfirmModal from "../../components/Shared/ConfirmModal";
 
-// Chỉ đăng ký các mô-đun của Community
+// Chỉ Đăng ký các mô-đun của Community
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 const AccountList = () => {

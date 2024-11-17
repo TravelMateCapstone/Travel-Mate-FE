@@ -14,7 +14,7 @@ const SidebarList = React.memo(({ items }) => {
     const navigate = useNavigate();
 
     const fetchJoinedGroups = useCallback(async () => {
-        const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Groups/JoinedGroups?pageNumber=1', {
+        const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Groups/JoinedGroups?pageNumber=1`, {
             headers: { Authorization: `${token}` },
         });
         return response.data.message === "No joined groups found." ? [] : response.data.groups.$values;

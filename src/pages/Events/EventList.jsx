@@ -20,9 +20,9 @@ function EventList() {
   const token = useSelector((state) => state.auth.token);
 
   // API URLs
-  const joinedUrl = 'https://travelmateapp.azurewebsites.net/api/EventControllerWOO/user/joined';
-  const notJoinedUrl = 'https://travelmateapp.azurewebsites.net/api/EventControllerWOO/user/not-joined';
-  const createdUrl = 'https://travelmateapp.azurewebsites.net/api/EventControllerWOO/get-event-current-user';
+  const joinedUrl = `${import.meta.env.VITE_BASE_API_URL}/api/EventControllerWOO/user/joined`;
+  const notJoinedUrl = `${import.meta.env.VITE_BASE_API_URL}/api/EventControllerWOO/user/not-joined`;
+  const createdUrl = `${import.meta.env.VITE_BASE_API_URL}/api/EventControllerWOO/get-event-current-user`;
 
   useEffect(() => {
     const fetchData = async () => {

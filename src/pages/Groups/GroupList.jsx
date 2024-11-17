@@ -15,8 +15,8 @@ function GroupList() {
 
   const fetchGroups = useMemo(() => async (page) => {
     const endpoint = token
-      ? `https://travelmateapp.azurewebsites.net/api/Groups/UnJoinedGroups?pageNumber=${page}`
-      : `https://travelmateapp.azurewebsites.net/api/groups?pageNumber=${page}`;
+      ? `${import.meta.env.VITE_BASE_API_URL}/api/Groups/UnJoinedGroups?pageNumber=${page}`
+      : `${import.meta.env.VITE_BASE_API_URL}/api/groups?pageNumber=${page}`;
     const headers = token ? { Authorization: `${token}` } : {};
     const response = await axios.get(endpoint, { headers });
     return response.data;

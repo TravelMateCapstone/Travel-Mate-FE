@@ -28,7 +28,7 @@ const Register = ({ show, handleClose }) => {
     }
 
     try {
-      const response = await axios.post('https://travelmateapp.azurewebsites.net/api/Auth/register', {
+      const response = await axios.post(`${import.meta.env.VITE_BASE_API_URL}/api/Auth/register`, {
         username: username,
         email: email,
         password: password,
@@ -41,7 +41,7 @@ const Register = ({ show, handleClose }) => {
       console.log(data);
       
 
-      // Nếu đăng ký thành công, hiển thị thông báo và tự động đăng nhập
+      // Nếu Đăng ký thành công, hiển thị thông báo và tự động đăng nhập
       toast.success('Đăng ký thành công!');
 
       // Dispatch loginSuccess để đăng nhập người dùng ngay lập tức
@@ -54,7 +54,7 @@ const Register = ({ show, handleClose }) => {
         token: data.token, // Giả sử phản hồi trả về token
       }));
 
-      handleClose(); // Đóng modal sau khi đăng ký và đăng nhập thành công
+      handleClose(); // Đóng modal sau khi Đăng ký và đăng nhập thành công
     } catch (error) {
       setErrorMessage(error.response?.data?.error || 'Có lỗi xảy ra, vui lòng thử lại.');
     }
@@ -63,7 +63,7 @@ const Register = ({ show, handleClose }) => {
   return (
     <Modal show={show} onHide={handleClose} centered dialogClassName="register-modal">
       <Modal.Header className="modal-header-custom">
-        <Modal.Title className="modal-title-centered fw-semibold">Đăng kí</Modal.Title>
+        <Modal.Title className="modal-title-centered fw-semibold">Đăng ký</Modal.Title>
         <Button className="modal-close-btn" onClick={handleClose}>x</Button>
       </Modal.Header>
       <Modal.Body>
@@ -132,11 +132,11 @@ const Register = ({ show, handleClose }) => {
           <div className="text-center">
             <Button variant="outline-dark" className="social-btn">
               <img src={google} alt="google icon" />
-              <span>Đăng kí bằng Google</span>
+              <span>Đăng ký bằng Google</span>
             </Button>
             <Button variant="outline-dark" className="social-btn">
               <img src={facebook} alt="facebook icon" />
-              <span>Đăng kí bằng Facebook</span>
+              <span>Đăng ký bằng Facebook</span>
             </Button>
           </div>
         </Form>
