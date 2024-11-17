@@ -27,7 +27,7 @@ const EventCard = ({ id, img, startTime, endTime, title, location, text }) => {
         const fetchParticipantCount = async () => {
             try {
                 const response = await axios.get(
-                    `https://travelmateapp.azurewebsites.net/api/EventParticipants/event/${id}/count-user-join`
+                    `${import.meta.env.VITE_BASE_API_URL}/api/EventParticipants/event/${id}/count-user-join`
                 );
                 if (response.status === 200) {
                     setParticipantCount(response.data.participantCount);
@@ -53,7 +53,7 @@ const EventCard = ({ id, img, startTime, endTime, title, location, text }) => {
             setLoading(true); // Bắt đầu loading
             try {
                 const response = await axios.post(
-                    'https://travelmateapp.azurewebsites.net/api/EventParticipants/current-user-join-event',
+                    `${import.meta.env.VITE_BASE_API_URL}/api/EventParticipants/current-user-join-event`,
                     { eventId: id, joinedAt: new Date().toISOString(), notification: true },
                     { headers: { Authorization: token } }
                 );

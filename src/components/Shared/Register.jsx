@@ -28,7 +28,7 @@ const Register = ({ show, handleClose }) => {
     }
 
     try {
-      const response = await axios.post('https://travelmateapp.azurewebsites.net/api/Auth/register', {
+      const response = await axios.post(`${import.meta.env.VITE_BASE_API_URL}/api/Auth/register`, {
         username: username,
         email: email,
         password: password,

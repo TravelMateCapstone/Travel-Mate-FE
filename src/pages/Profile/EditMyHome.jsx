@@ -25,9 +25,9 @@ const EditMyHome = () => {
   });
   const [userHomeId, setUserHomeId] = useState(null);
   const token = useSelector((state) => state.auth.token);
-  const apiUrl = 'https://travelmateapp.azurewebsites.net/api/UserHome/current-user';
-  const updateApiUrl = 'https://travelmateapp.azurewebsites.net/api/UserHome/edit-current-user';
-  const addImagesApiUrl = 'https://travelmateapp.azurewebsites.net/api/HomePhoto/currentAddImagesHome';
+  const apiUrl = `${import.meta.env.VITE_BASE_API_URL}/api/UserHome/current-user`;
+  const updateApiUrl = `${import.meta.env.VITE_BASE_API_URL}/api/UserHome/edit-current-user`;
+  const addImagesApiUrl = `${import.meta.env.VITE_BASE_API_URL}/api/HomePhoto/currentAddImagesHome`;
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();

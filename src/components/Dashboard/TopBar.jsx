@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ConfirmModal from "../Shared/ConfirmModal";
 import { logout } from "../../redux/actions/authActions";
@@ -9,8 +9,13 @@ function TopBar() {
   const user = useSelector((state) => state.auth.user);
   const location = useLocation();
   const dispatch = useDispatch();
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const handleLogout = useCallback(() => {
+    setShowConfirmModal(true);
+  }, []);
+  const confirmLogout = useCallback(() => {
     dispatch(logout());
+    setShowConfirmModal(false);
   }, [dispatch]);
   return (
     <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
@@ -276,7 +281,9 @@ function TopBar() {
         id="logoutModal"
         title="Đăng xuất"
         message="Bạn có chắc chắn muốn đăng xuất?"
-        onConfirm={handleLogout}
+        onConfirm={confirmLogout}
+        show={showConfirmModal}
+        onHide={() => setShowConfirmModal(false)}
       />
     </nav>
   );

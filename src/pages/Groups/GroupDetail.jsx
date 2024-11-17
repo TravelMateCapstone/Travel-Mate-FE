@@ -1,18 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import PostGroupDetail from '../../components/Group/PostGroupDetail';
 import '../../assets/css/Groups/MyGroupDetail.css';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Dropdown from 'react-bootstrap/Dropdown';
-import { Button } from 'react-bootstrap';
+import { Button, Modal, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import { storage } from '../../../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import FormSubmit from '../../components/Shared/FormSubmit';
 import Form from 'react-bootstrap/Form';
-import { toast } from 'react-toastify';
 import RoutePath from '../../routes/RoutePath';
-import { useQuery } from 'react-query';
+import { toast } from 'react-toastify';
+import { viewGroup } from '../../redux/actions/groupActions';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
+import TextareaAutosize from 'react-textarea-autosize';
+import ConfirmModal from '../../components/Shared/ConfirmModal';
 
 const GroupDetail = () => {
   const navigate = useNavigate();
@@ -20,54 +23,32 @@ const GroupDetail = () => {
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
   const [groupData, setGroupData] = useState();
+  const [posts, setPosts] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [selectedBannerFile, setSelectedBannerFile] = useState(null);
   const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
+  const [locations, setLocations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const editTextareaRef = useRef(null);
+  const [postTitle, setPostTitle] = useState('');
+  const [isPosting, setIsPosting] = useState(false);
 
-  const [description, setDescription] = useState(groupDataRedux?.description || '');
+  const [description, setDescription] = useState(groupDataRedux?.description || groupDataRedux?.text || '');
   const [location, setLocation] = useState(groupDataRedux?.location || '');
   const [bannerImage, setBannerImage] = useState(groupDataRedux?.img || groupDataRedux.groupImageUrl || '');
-  const [groupName, setGroupName] = useState(groupDataRedux?.text || groupDataRedux.groupName || '');
+  const [groupName, setGroupName] = useState(groupDataRedux?.title || groupDataRedux.groupName || '');
   const [showFullDescription, setShowFullDescription] = useState(false);
 
-  const toggleDescription = () => {
-    setShowFullDescription(!showFullDescription);
-  };
 
-  const fetchLocations = async () => {
-    const response = await axios.get('https://provinces.open-api.vn/api/');
-    return response.data.map((location) => ({
-      ...location,
-      name: location.name.replace(/^Tỉnh |^Thành phố /, ''),
-    }));
-  };
+  console.log(groupDataRedux);
+  
 
-  const fetchPosts = async () => {
-    const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
-    return response.data.$values.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
-  };
+  const queryClient = useQueryClient();
 
-  const { data: locations, error: locationsError } = useQuery('locations', fetchLocations);
-  const { data: posts, error: postsError, refetch: refetchPosts } = useQuery('posts', fetchPosts);
-
-  const handleFileChange = (event) => {
-    setSelectedFiles([...event.target.files]);
-  };
-
-  const handleDeletePost = (groupPostId) => {
-    setPosts((prevPosts) => prevPosts.filter((post) => post.groupPostId !== groupPostId));
-  };
-
-  const handleModalFileChange = (event) => {
-    const files = [...event.target.files];
-    setSelectedFiles(files);
-  };
-
-  const uploadFiles = async () => {
+  const uploadFiles = useCallback(async () => {
     const uploadedUrls = [];
     for (let file of selectedFiles) {
       const storageRef = ref(storage, `group_posts/${file.name}`);
@@ -80,131 +61,295 @@ const GroupDetail = () => {
       }
     }
     return uploadedUrls;
-  };
+  }, [selectedFiles]);
 
-  const createPost = async () => {
+  const uploadBannerImage = useCallback(async () => {
+    if (!selectedBannerFile) return null;
+    const storageRef = ref(storage, `group_banners/${selectedBannerFile.name}`);
+    try {
+      const snapshot = await uploadBytes(storageRef, selectedBannerFile);
+      return await getDownloadURL(snapshot.ref);
+    } catch (error) {
+      console.error('Error uploading banner image:', error);
+      return null;
+    }
+  }, [selectedBannerFile]);
+
+  const fetchGroupData = useCallback(async () => {
+    try {
+      const [postsResponse, locationsResponse] = await Promise.all([
+        axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux?.id || groupDataRedux?.groupId}/groupposts`, {
+          headers: { Authorization: `${token}` },
+        }),
+        axios.get('https://provinces.open-api.vn/api/')
+      ]);
+
+      const sortedPosts = postsResponse.data.$values.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
+      const processedLocations = locationsResponse.data.map((location) => ({
+        ...location,
+        name: location.name.replace(/^Tỉnh |^Thành phố /, ''),
+      }));
+
+      return { sortedPosts, processedLocations };
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      return { sortedPosts: [], processedLocations: [] };
+    }
+  }, [groupDataRedux?.id, groupDataRedux?.groupId, token]);
+
+  const createPost = useCallback(async () => {
+    setIsPosting(true);
     const uploadedUrls = await uploadFiles();
     setUploadedImageUrls(uploadedUrls);
     const newPost = {
-      title: document.getElementById('post_title').value,
+      title: postTitle,
       GroupPostPhotos: uploadedUrls.map((url) => ({ photoUrl: url })),
     };
-    console.log(newPost);
     try {
-      const respone = await axios.post(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}/groupposts`, newPost, {
+      await axios.post(`${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux?.id || groupDataRedux?.groupId}/groupposts`, newPost, {
         headers: {
           Authorization: `${token}`,
         },
       });
-      console.log(respone.data);
-
-      fetchPosts();
+      // Clear input fields and selected images
+      setPostTitle('');
+      setSelectedFiles([]);
+      toast.success('Bài viết đã được đăng thành công');
     } catch (error) {
       console.error('Error creating post:', error);
+    } finally {
+      setIsPosting(false);
     }
-  };
+  }, [groupDataRedux?.id, groupDataRedux?.groupId, postTitle, token, uploadFiles]);
 
-  const handleDeleteImage = (index) => {
-    const newSelectedFiles = [...selectedFiles];
-    newSelectedFiles.splice(index, 1);
-    setSelectedFiles(newSelectedFiles);
-  };
-
-  const leaveGroup = async () => {
+  const updateGroup = useCallback(async () => {
+    setIsLoading(true);
+    let newBannerUrl = bannerImage;
+    if (selectedBannerFile) {
+      newBannerUrl = await uploadBannerImage();
+      setBannerImage(newBannerUrl);
+    }
     try {
-      await axios.delete(`https://travelmateapp.azurewebsites.net/api/Groups/LeaveGroup/${groupDataRedux.id || groupDataRedux.groupId}`, {
+      const updatedGroup = {
+        id: groupDataRedux?.id || groupDataRedux?.groupId,
+        groupName: groupName,
+        location: location,
+        description: description,
+        groupImageUrl: newBannerUrl,
+      };
+      await axios.put(`${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux?.id || groupDataRedux?.groupId}`, updatedGroup, {
         headers: {
           Authorization: `${token}`,
         },
       });
-      toast.success('Rời nhóm thành công');
-      navigate(RoutePath.GROUP); // Điều hướng người dùng trở lại trang nhóm
+      toast.success('Nhóm đã được cập nhật thành công');
+      dispatch(viewGroup(updatedGroup));
+    } catch (error) {
+      console.error('Error updating group:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [bannerImage, description, dispatch, groupDataRedux?.groupId, groupDataRedux?.id, groupName, location, selectedBannerFile, token, uploadBannerImage]);
+
+  const deleteGroup = useCallback(async () => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux?.id || groupDataRedux?.groupId}`, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      console.log('Nhóm đã được xóa thành công');
+    } catch (error) {
+      console.error('Error deleting group:', error);
+    }
+  }, [groupDataRedux?.groupId, groupDataRedux?.id, token]);
+
+  const updatePost = useCallback(async (postId, updatedData) => {
+    try {
+      await axios.put(`${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux?.id || groupDataRedux?.groupId}/groupposts/${postId}`, updatedData, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      toast.success('Bài viết đã được cập nhật thành công');
+    } catch (error) {
+      console.error('Error updating post:', error);
+      toast.error('Không thể cập nhật bài viết');
+    }
+  }, [groupDataRedux?.id, groupDataRedux?.groupId, token]);
+
+  const leaveGroup = useCallback(async () => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_BASE_API_URL}/api/Groups/LeaveGroup/${groupDataRedux?.id || groupDataRedux?.groupId}`, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      toast.success('Bạn đã rời nhóm thành công');
+      navigate('/group');
     } catch (error) {
       console.error('Error leaving group:', error);
-      alert('Có lỗi xảy ra khi rời nhóm');
+      toast.error('Không thể rời nhóm');
     }
-  };
+  }, [groupDataRedux?.id, groupDataRedux?.groupId, token, navigate]);
 
-  const autoResize = (e) => {
-    e.target.style.height = 'auto';
-    e.target.style.height = `${e.target.scrollHeight}px`;
-  };
+  const { data, refetch } = useQuery(
+    ['groupData', groupDataRedux?.id || groupDataRedux?.groupId],
+    fetchGroupData,
+    { enabled: !!groupDataRedux?.id || !!groupDataRedux?.groupId }
+  );
+
+  const createPostMutation = useMutation(createPost, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['groupData', groupDataRedux?.id || groupDataRedux?.groupId]);
+    },
+  });
+
+  const updateGroupMutation = useMutation(updateGroup, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['groupData', groupDataRedux?.id || groupDataRedux?.groupId]);
+    },
+  });
+
+  const deleteGroupMutation = useMutation(deleteGroup, {
+    onSuccess: () => {
+      navigate('/group');
+    },
+  });
+
+  const updatePostMutation = useMutation(updatePost, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['groupData', groupDataRedux?.id || groupDataRedux?.groupId]);
+      refetch(); // Add this line to refetch the data
+    },
+  });
+
+  useEffect(() => {
+    if (data) {
+      setPosts(data.sortedPosts);
+      setLocations(data.processedLocations);
+    }
+  }, [data]);
 
   useEffect(() => {
     setGroupData(groupDataRedux);
-    setDescription(groupDataRedux?.description || '');
+    setDescription(groupDataRedux?.description || groupDataRedux?.text || '');
     setLocation(groupDataRedux?.location || '');
-    setBannerImage(groupDataRedux?.img || groupDataRedux.groupImageUrl || '');
-    setGroupName(groupDataRedux?.text || groupDataRedux.groupName || '');
-    refetchPosts(); // Refetch posts when groupDataRedux changes
-  }, [groupDataRedux]);
+    setBannerImage(groupDataRedux?.img || groupDataRedux?.groupImageUrl || '');
+    setGroupName(groupDataRedux?.title || groupDataRedux?.groupName || '');
+    refetch();
+  }, [groupDataRedux, refetch]);
+
+  useEffect(() => {
+    const textarea = document.querySelector('.description_group');
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  }, [showDeleteModal]);
+
+  const autoResize = useCallback((e) => {
+    e.target.style.height = 'auto';
+    e.target.style.height = `${e.target.scrollHeight}px`;
+  }, []);
+
+  const toggleDescription = useCallback(() => {
+    setShowFullDescription((prev) => !prev);
+  }, []);
+
+  const handleGroupNameChange = useCallback((e) => {
+    const value = e.target.value;
+    if (value.length > 25) {
+      setErrorMessage('Tên nhóm không được vượt quá 25 ký tự');
+    } else if (value.length < 10) {
+      setErrorMessage('Tên nhóm phải có ít nhất 10 ký tự');
+    } else {
+      setErrorMessage(''); // Xóa thông báo lỗi nếu hợp lệ
+    }
+    setGroupName(value);
+  }, []);
+
+  const handleFileChange = useCallback((event) => {
+    setSelectedFiles([...event.target.files]);
+  }, []);
+  const handleBannerFileChange = useCallback((event) => {
+    setSelectedBannerFile(event.target.files[0]);
+  }, []);
+
+  const handleDeletePost = useCallback((groupPostId) => {
+    setPosts((prevPosts) => prevPosts.filter((post) => post.groupPostId !== groupPostId));
+    refetch(); // Add this line to refetch the data
+  }, [refetch]);
+
+  const handleDeleteImage = useCallback((index) => {
+    setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+  }, []);
 
   return (
     <div className='my_group_detail_container'>
-      <img src={groupDataRedux.img || groupDataRedux.groupImageUrl} alt="" className='banner_group' />
+      <img src={groupDataRedux?.img || groupDataRedux?.groupImageUrl} alt="" className='banner_group' />
       <div className='d-flex justify-content-between'>
         <div className='d-flex flex-column'>
           <p className='fw-bold m-0' style={{
             fontSize: '40px',
-          }}>{groupDataRedux?.title || groupDataRedux.groupName || ''}</p>
+          }}>{groupDataRedux?.title || groupDataRedux?.groupName || ''}</p>
           <p className='m-0 fw-medium' style={{
             fontSize: '20px',
-          }}>{groupDataRedux.location}</p>
+          }}>{groupDataRedux?.location}</p>
         </div>
-        <Form.Select
-          size="lg"
-          className='rounded-5'
-          style={{
-            width: '175px',
-            height: '44px',
-            border: '1px solid #409034',
-            borderRadius: '10px',
-            color: '#409034',
-            fontSize: '16px',
-            textAlign: 'center'
-          }}
-          onChange={(e) => {
-            if (e.target.value === 'Rời nhóm') {
-              leaveGroup();
-            }
-          }}
-        >
-          <option>Đã tham gia</option>
-          <option>Rời nhóm</option>
-        </Form.Select>
+        <Dropdown>
+          <Dropdown.Toggle variant="outline-success" className='rounded-5'>
+            Đã tham gia
+          </Dropdown.Toggle>
 
+          <Dropdown.Menu style={{
+            border: 'none',
+            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+            borderRadius: '10px',
+          }}>
+            <Dropdown.Item className='form_edit_group'>
+              Đã tham gia
+            </Dropdown.Item>
+            <Dropdown.Item onClick={leaveGroup}>
+              Rời nhóm
+            </Dropdown.Item>
+          </Dropdown.Menu>
+        </Dropdown>
       </div>
       <p className='fw-medium d-flex align-items-center gap-2 my-1'><ion-icon name="people-outline" style={{
         fontSize: '20px',
-      }}></ion-icon> {groupDataRedux.members || groupDataRedux.numberOfParticipants} thành viên</p>
-
+      }}></ion-icon> {groupDataRedux?.members || groupDataRedux?.numberOfParticipants} thành viên</p>
       <p className={`m-0 ${showFullDescription ? '' : 'description_short'}`}>
-        {groupDataRedux.text || groupDataRedux.description}
+        {groupDataRedux?.text || groupDataRedux?.description}
       </p>
-      {!showFullDescription && (groupDataRedux.description || groupDataRedux.text).length > 100 && (
-        <button className='btn p-0' onClick={toggleDescription} style={{
+      {!showFullDescription && (groupDataRedux?.description || groupDataRedux?.text)?.length > 100 && (
+        <p className='p-0' onClick={toggleDescription} style={{
           color: '#007931',
         }}>
           Xem thêm
-        </button>
+        </p>
       )}
       {showFullDescription && (
-        <button className='btn p-0' style={{
+        <p className='p-0' style={{
           color: '#007931',
         }} onClick={toggleDescription}>
           Thu gọn
-        </button>
+        </p>
       )}
-
       <hr className='mt-4 mb-5 line_spit' />
-
 
       <div className='write_post_container mb-5'>
         <div className='d-flex align-items-center gap-3'>
-          <img src={user.avatarUrl || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw'} alt="" width={50} height={50} className='rounded-circle' />
+          <img src={user.avatarUrl || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw'} alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
           <h5 className='m-0'>{user.FullName}</h5>
         </div>
-        <textarea name="" id="post_title" placeholder='Bạn đang nghĩ gì... ?' onInput={autoResize} ></textarea>
+        <TextareaAutosize
+          name=""
+          id="post_title"
+          placeholder='Bạn đang nghĩ gì... ?'
+          value={postTitle}
+          onChange={(e) => setPostTitle(e.target.value)}
+        ></TextareaAutosize>
         <input
           type="file"
           id="file-input"
@@ -229,18 +374,39 @@ const GroupDetail = () => {
         </div>
 
         <div className='w-100 d-flex justify-content-end'>
-          <Button variant='outline-success' className='rounded-5' onClick={createPost}>Đăng bài</Button>
+          <Button variant='outline-success' className='rounded-5' onClick={() => createPostMutation.mutate()} disabled={isPosting}>
+            {isPosting ? <><Spinner  as="span"
+                    animation="border"
+                    size="sm"
+                    role="status"
+                    aria-hidden="true"
+                    className="me-2"/> Đang đăng</> : 'Đăng bài'}
+          </Button>
         </div>
       </div>
-      <hr className='mb-4 line_spit' />
 
-      {posts?.length > 0 ? (
+
+      {posts.length > 0 ? (
         posts.map((post) => (
-          <PostGroupDetail key={post.groupPostId} post={post} onDelete={handleDeletePost} fetchPosts={fetchPosts} />
+          <div key={post.groupPostId}>
+            <hr className='line_spit' />
+            <PostGroupDetail post={post} onDelete={handleDeletePost} fetchPosts={refetch} />
+          </div>
         ))
       ) : (
         <p>Chưa có bài viết nào</p>
       )}
+
+      <ConfirmModal
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          deleteGroupMutation.mutate();
+          setShowDeleteModal(false);
+        }}
+        title="Bạn có muốn xóa không?"
+        message="Nhóm sẽ bị xóa vĩnh viễn"
+      />
     </div>
   );
 };

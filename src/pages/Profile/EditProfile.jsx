@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 import { useQuery } from 'react-query';
 
 const fetchProfile = async (token) => {
-  const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Profile/current-profile', {
+  const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Profile/current-profile`, {
     headers: {
       Authorization: `${token}`,
     },
@@ -17,7 +17,7 @@ const fetchProfile = async (token) => {
 };
 
 const fetchActivity = async (token) => {
-  const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Activity', {
+  const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Activity`, {
     headers: {
       Authorization: `${token}`,
     },
@@ -26,7 +26,7 @@ const fetchActivity = async (token) => {
 };
 
 const fetchLanguage = async (token) => {
-  const response = await axios.get('https://travelmateapp.azurewebsites.net/api/SpokenLanguages/current-user', {
+  const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/SpokenLanguages/current-user`, {
     headers: {
       Authorization: `${token}`,
     },
@@ -35,7 +35,7 @@ const fetchLanguage = async (token) => {
 };
 
 const fetchUniversities = async (token) => {
-  const response = await axios.get('https://travelmateapp.azurewebsites.net/api/University', {
+  const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/University`, {
     headers: {
       Authorization: `${token}`,
     },
@@ -118,7 +118,7 @@ const EditProfile = () => {
     };
 
     try {
-      const response = await axios.put('https://travelmateapp.azurewebsites.net/api/Profile/edit-by-current-user', payload, {
+      const response = await axios.put(`${import.meta.env.VITE_BASE_API_URL}/api/Profile/edit-by-current-user`, payload, {
         headers: {
           Authorization: `${token}`,
           'Content-Type': 'application/json',
