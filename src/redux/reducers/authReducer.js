@@ -1,9 +1,9 @@
 import { LOGIN_SUCCESS, LOGOUT, UPDATE_USER_AVATAR } from "../actionTypes";
 
 const initialState = {
-  isAuthenticated: false,
+  isAuthenticated: !!localStorage.getItem('token'),
   user: null,
-  token: null,
+  token: localStorage.getItem('token'),
 };
 
 const authReducer = (state = initialState, action) => {

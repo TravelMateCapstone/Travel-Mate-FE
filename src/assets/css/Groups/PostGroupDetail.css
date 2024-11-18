@@ -98,10 +98,13 @@
 }
 .button_action_comment {
   border-radius: 50%;
-  border: 0px;
+  border: 0px !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 .button_action_comment:hover {
   color: #409034;
+ 
 }
 .container_write_comment {
   padding: 20px;

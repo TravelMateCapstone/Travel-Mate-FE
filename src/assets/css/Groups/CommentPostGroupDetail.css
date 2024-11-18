@@ -17,7 +17,7 @@
   display: block;
 }
 .isEditText {
-  color: #e65c00;
+  color: #e65c00 !important;
 }
 .comment_time {
   margin-bottom: 10px !important;

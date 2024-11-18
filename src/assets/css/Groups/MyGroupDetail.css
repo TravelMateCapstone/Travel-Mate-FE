@@ -84,6 +84,19 @@
   margin: 0 10px;
   font-size: 24px;
 }
+
+.image-container {
+  position: relative;
+}
+
+.delete-button {
+  display: none;
+}
+
+.image-container:hover .delete-button {
+  display: block;
+}
+
 .form_edit_group .mybutton {
   margin: 0;
   padding: 0;

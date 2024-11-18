@@ -44,6 +44,9 @@ const Register = ({ show, handleClose }) => {
       // Nếu Đăng ký thành công, hiển thị thông báo và tự động đăng nhập
       toast.success('Đăng ký thành công!');
 
+      // Store token in localStorage
+      localStorage.setItem('token', data.token);
+
       // Dispatch loginSuccess để đăng nhập người dùng ngay lập tức
       dispatch(loginSuccess({
         user: {

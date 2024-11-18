@@ -40,6 +40,9 @@ const Login = ({ show, handleClose }) => {
       }
       console.log(user);
       
+      // Store token in localStorage
+      localStorage.setItem('token', token);
+
       dispatch(loginSuccess({ user, token }));
       toast.success('Đăng nhập thành công!', {
         position: "bottom-right",
