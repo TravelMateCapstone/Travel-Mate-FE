@@ -18,11 +18,13 @@ import RoutePath from '../../routes/RoutePath';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import ProvinceSelector from '../../components/Shared/ProvinceSelector';
+import { useQueryClient } from 'react-query';
 
 const GroupDetail = () => {
   const group = useSelector(state => state.group.selectedGroup);
   const userJoinedStatus = useSelector(state => state.group.userJoinedStatus);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // State for group posts
   const [groupPosts, setGroupPosts] = useState([]);
@@ -153,6 +155,8 @@ const GroupDetail = () => {
     updateGroup({ id: group?.groupId, updatedData: updatedGroup }, {
       onSuccess: () => {
         dispatch(updateGroupAction(updatedGroup));
+        queryClient.invalidateQueries('joinedGroup');
+        queryClient.invalidateQueries('createdGroups');
         handleCloseFormModal();
         toast.success('Cập nhật thông tin nhóm thành công');
       }

@@ -9,7 +9,7 @@ import ProposeEvent from '../components/Event/ProposeEvent';
 import SearchBar from '../components/Shared/SearchBar';
 import '../assets/css/layouts/ListLayout.css';
 import { useLocation, useNavigate } from 'react-router-dom';
-import FormSubmit from '../components/Shared/FormSubmit';
+import FormModal from '../components/Shared/FormModal';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../firebaseConfig';
 import axios from 'axios';
@@ -17,6 +17,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { refreshGroups, viewGroup } from '../redux/actions/groupActions';
 import { toast } from 'react-toastify';
 import TextareaAutosize from 'react-textarea-autosize';
+import FormSubmit from '../components/Shared/FormSubmit';
+import ImageSelector from '../components/Shared/ImageSelector';
+import useApi from '../hooks/useApi';
+import ProvinceSelector from '../components/Shared/ProvinceSelector';
 
 function ListLayout({ children }) {
     const [show, setShow] = useState(false);
@@ -27,6 +31,11 @@ function ListLayout({ children }) {
     const [isUploading, setIsUploading] = useState(false);
     const [tempImageUrl, setTempImageUrl] = useState(null);
     const [locations, setLocations] = useState([]);
+    const [showGroupModal, setShowGroupModal] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const { useCreate } = useApi(`${import.meta.env.VITE_BASE_API_URL}/api/groups`, 'createdGroups');
+    const { mutate: createGroup, isLoading: isCreatingGroup } = useCreate();
 
     console.log('Layout render');
     
@@ -104,8 +113,7 @@ function ListLayout({ children }) {
         setErrors(newErrors);
     }, [groupName, groupDescription, uploadedUrl]);
 
-    const handleFileSelect = async (event) => {
-        const file = event.target.files[0];
+    const handleFileSelect = async (file) => {
         if (file) {
             setSelectedFile(file);
             setFilePlaceholder(file.name);
@@ -120,8 +128,7 @@ function ListLayout({ children }) {
             } catch (error) {
                 setErrors(prevErrors => ({ ...prevErrors, groupImageUrl: 'Lỗi khi tải lên ảnh bìa' }));
                 toast.error('Lỗi khi tải lên ảnh bìa');
-            }
-            finally {
+            } finally {
                 setIsUploading(false);
             }
         }
@@ -147,6 +154,7 @@ function ListLayout({ children }) {
     const selectedGroup = useSelector((state) => state.group.selectedGroup);
 
     const handleCreateGroup = async () => {
+        setIsSubmitting(true);
         const newErrors = {};
         if (!groupName || groupName.length < 10 || groupName.length > 25) {
             newErrors.groupName = 'Tên nhóm phải từ 10-25 ký tự';
@@ -160,6 +168,7 @@ function ListLayout({ children }) {
         setErrors(newErrors);
         if (Object.keys(newErrors).length > 0) {
             Object.values(newErrors).forEach(error => toast.error(error));
+            setIsSubmitting(false);
             return;
         }
         const newGroup = {
@@ -168,28 +177,20 @@ function ListLayout({ children }) {
             location: groupLocation,
             groupImageUrl: uploadedUrl ?? 'https://images.unsplash.com/photo-1725500221821-c4c770db5290?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         };
-        try {
-            const apiUrl = import.meta.env.VITE_BASE_API_URL;
-            const response = await axios.post(
-                `${apiUrl}/api/groups`,
-                newGroup,
-                {
-                    headers: {
-                        Authorization: `${token}`
-                    }
-                }
-            );
-            dispatch(viewGroup(response.data));
-            console.log('selected group', selectedGroup);
-            dispatch(refreshGroups());
-            navigate(RoutePath.GROUP_MY_DETAILS, {
-                state: { successMessage: 'Nhóm mới đã được tạo thành công', groupData: response.data }
-            });
-
-        } catch (error) {
-            console.error('Error creating group:', error.response || error.message);
-            toast.error('Đã xảy ra lỗi khi tạo nhóm');
-        }
+        createGroup(newGroup, {
+            onSuccess: (data) => {
+                dispatch(viewGroup(data, 'Owner'));
+                navigate(RoutePath.GROUP_DETAILS);
+                setIsSubmitted(true);
+            },
+            onError: (error) => {
+                console.error('Error creating group:', error.response || error.message);
+                toast.error('Đã xảy ra lỗi khi tạo nhóm');
+            },
+            onSettled: () => {
+                setIsSubmitting(false);
+            }
+        });
     };
 
     const handleFileSelectForEvent = async (event) => {
@@ -206,7 +207,7 @@ function ListLayout({ children }) {
                 toast.success('Ảnh đã được tải lên thành công');
             } catch (error) {
                 console.error("Error uploading file:", error);
-                setErrors(prevErrors => ({ ...prevErrors, uploadedEventUrl: 'Lỗi khi tải l��n ảnh sự kiện' }));
+                setErrors(prevErrors => ({ ...prevErrors, uploadedEventUrl: 'Lỗi khi tải lên ảnh sự kiện' }));
                 toast.error('Lỗi khi tải lên ảnh sự kiện');
             } finally {
                 setIsUploading(false);
@@ -333,79 +334,77 @@ function ListLayout({ children }) {
                             Lọc
                         </Button>
                         {isGroupRoutebtn ? (
-                            <FormSubmit buttonText={'Tạo nhóm'} onButtonClick={handleCreateGroup} title={'Tạo nhóm'} openModalText={'Tạo nhóm'} needAuthorize={true}>
-                                <Form>
-                                    <Form.Group id="groupName" className="mb-3 mt-3">
-                                        <Form.Label className='fw-medium'>Tên nhóm</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            placeholder="Nhập tên nhóm (10-25 ký tự)"
-                                            value={groupName}
-                                            onChange={(e) => setGroupName(e.target.value)}
-                                            isInvalid={!!errors.groupName}
-                                        />
-                                        <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
-                                            {errors.groupName}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-                                    <Form.Group id="groupDescription" className="mb-3">
-                                        <Form.Label className='fw-medium'>Mô tả nhóm</Form.Label>
-                                        <TextareaAutosize
-                                            minRows={3}
-                                            placeholder="Nhập mô tả nhóm"
-                                            value={groupDescription}
-                                            onChange={(e) => setGroupDescription(e.target.value)}
-                                            className={`form-control ${errors.groupDescription ? 'is-invalid' : ''}`}
-                                        />
-                                        <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
-                                            {errors.groupDescription}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-
-                                    <Form.Group id="location" className="mb-3">
-                                        <Form.Label className='fw-medium'>Địa điểm</Form.Label>
-                                        <Form.Select value={groupLocation} onChange={(e) => setGroupLocation(e.target.value)}>
-                                            <option>Chọn địa điểm</option>
-                                            {locations.map((location) => (
-                                                <option key={location.code} value={location.name}>
-                                                    {location.name}
-                                                </option>
-                                            ))}
-                                        </Form.Select>
-                                    </Form.Group>
-
-                                    <Form.Group id="groupImage" className="mb-3 d-flex flex-column">
-                                        <Form.Label className='fw-medium'>Ảnh bìa nhóm</Form.Label>
-                                        <Button variant="outline-primary" onClick={triggerFileInput} className="d-flex rounded-5 gap-1 alignItems-center mb-2 text-black upload-button">
-                                            Nhấn vào đây để <p className='text-primary m-0'>upload</p>
-                                        </Button>
-                                        <Form.Control
-                                            type="file"
-                                            id="fileInputGroup"
-                                            onChange={handleFileSelect}
-                                            className="d-none"
-                                        />
-                                        {isUploading ? (
-                                            <Placeholder as="div" animation="glow" className="mt-3">
-                                                <Placeholder xs={12} className="upload-placeholder" />
-                                            </Placeholder>
-                                        ) : (
-                                            uploadedUrl && (
-                                                <img
-                                                    src={uploadedUrl}
-                                                    alt="Ảnh bìa nhóm"
-                                                    className="mt-3 upload-image"
-                                                />
-                                            )
-                                        )}
-                                        {errors.groupImageUrl && (
-                                            <div style={{ color: 'red', marginTop: '5px' }}>
-                                                {errors.groupImageUrl}
-                                            </div>
-                                        )}
-                                    </Form.Group>
-                                </Form>
-                            </FormSubmit>
+                            <>
+                                <Button className='rounded-5 d-flex align-items-center gap-2' variant="success" onClick={() => setShowGroupModal(true)}>
+                                    Tạo nhóm <ion-icon name="add-circle" style={{
+                                        fontSize: '24px',
+                                    }}></ion-icon>
+                                </Button>
+                                <FormModal
+                                    show={showGroupModal}
+                                    handleClose={() => setShowGroupModal(false)}
+                                    title="Tạo nhóm"
+                                    saveButtonText="Tạo nhóm"
+                                    handleSave={handleCreateGroup}
+                                    isSubmitting={isSubmitting}
+                                    isSubmitted={isSubmitted}
+                                >
+                                    <Form>
+                                        <Form.Group id="groupName" className="mb-3 mt-3">
+                                            <Form.Label className='fw-medium'>Tên nhóm</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                placeholder="Nhập tên nhóm (10-25 ký tự)"
+                                                value={groupName}
+                                                onChange={(e) => setGroupName(e.target.value)}
+                                                isInvalid={!!errors.groupName}
+                                            />
+                                            <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
+                                                {errors.groupName}
+                                            </Form.Control.Feedback>
+                                        </Form.Group>
+                                        <Form.Group id="groupDescription" className="mb-3">
+                                            <Form.Label className='fw-medium'>Mô tả nhóm</Form.Label>
+                                            <TextareaAutosize
+                                                minRows={3}
+                                                placeholder="Nhập mô tả nhóm"
+                                                value={groupDescription}
+                                                onChange={(e) => setGroupDescription(e.target.value)}
+                                                className={`form-control ${errors.groupDescription ? 'is-invalid' : ''}`}
+                                            />
+                                            <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
+                                                {errors.groupDescription}
+                                            </Form.Control.Feedback>
+                                        </Form.Group>
+                                        <Form.Group id="location" className="mb-3">
+                                            <Form.Label className='fw-medium'>Địa điểm</Form.Label>
+                                            <ProvinceSelector onSelect={(value) => setGroupLocation(value)} />
+                                        </Form.Group>
+                                        <Form.Group id="groupImage" className="mb-3 d-flex flex-column">
+                                            <Form.Label className='fw-medium'>Ảnh bìa nhóm</Form.Label>
+                                            <ImageSelector onSelect={handleFileSelect} />
+                                            {isUploading ? (
+                                                <Placeholder as="div" animation="glow" className="mt-3">
+                                                    <Placeholder xs={12} className="upload-placeholder" />
+                                                </Placeholder>
+                                            ) : (
+                                                uploadedUrl && (
+                                                    <img
+                                                        src={uploadedUrl}
+                                                        alt="Ảnh bìa nhóm"
+                                                        className="mt-3 upload-image"
+                                                    />
+                                                )
+                                            )}
+                                            {errors.groupImageUrl && (
+                                                <div style={{ color: 'red', marginTop: '5px' }}>
+                                                    {errors.groupImageUrl}
+                                                </div>
+                                            )}
+                                        </Form.Group>
+                                    </Form>
+                                </FormModal>
+                            </>
                         ) : (
                             <FormSubmit buttonText={'Tạo sự kiện'} onButtonClick={handleCreateEvent} title={'Tạo sự kiện'} openModalText={'Tạo sự kiện'} needAuthorize={true}>
                                 <Form>

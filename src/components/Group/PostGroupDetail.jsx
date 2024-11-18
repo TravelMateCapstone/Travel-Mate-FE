@@ -221,7 +221,7 @@ const PostGroupDetail = ({ post }) => {
           )}
           <div className="write_comment_container d-flex gap-3 mb-3">
             <img src={user.avatarUrl} alt="avatar" width={50} height={50} className="rounded-circle object-fit-cover" />
-            <div className="w-100 container_write_comment">
+            <div className="w-100 container_write_comment position-relative">
               <TextareaAutosize
                 name="comment"
                 className="w-100"
@@ -244,7 +244,7 @@ const PostGroupDetail = ({ post }) => {
                 </Button>
               </div>
               {showEmojiPicker && (
-                <div className="emoji-picker-container">
+                <div className="emoji-picker-container position-absolute">
                   <EmojiPicker onEmojiClick={handleEmojiClick} />
                 </div>
               )}
