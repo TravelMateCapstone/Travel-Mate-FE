@@ -1,184 +1,81 @@
-import axios from 'axios';
 import React, { useState } from 'react';
-import { Card, Image, Dropdown, Modal, Button } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
-import '../../assets/css/Profile/PostPastrip.css'
-import { useMutation, useQueryClient } from 'react-query';
 
-function PostProfile({ isPublic, id, title, localName, star, location, review, localLocation, date, description, images, userImage, userName, userReview, onDelete }) {
-    const [show, setShow] = useState(false);
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
-    const [privacy, setPrivacy] = useState(isPublic);
-    const queryClient = useQueryClient();
+function PostProfile({ pastTripPostId, location, travelerId, travelerName, travelerAvatar, isPublic, caption, localId, localName, localAvatar, review, star, createdAt, postPhotos }) {
+    const [showModal, setShowModal] = useState(false);
 
-    const renderStars = Array(5).fill(0).map((_, index) => (
-        <ion-icon
-            key={index}
-            name={index < star ? "star" : "star-outline"} // Hiển thị "star" nếu index < star, ngược lại là "star-outline"
-            style={{ color: '#FBBC05', fontSize: '13px' }}
-        ></ion-icon>
-    ));
-    const token = useSelector((state) => state.auth.token)
+    const handleShowModal = () => setShowModal(true);
+    const handleCloseModal = () => setShowModal(false);
 
-    const deletePostMutation = useMutation(
-        async () => {
-            const apiUrl = `${import.meta.env.VITE_BASE_API_URL}/api/PastTripPosts/${id}`;
-            return await axios.delete(apiUrl, {
-                headers: {
-                    Authorization: `${token}`
-                }
-            });
-        },
-        {
-            onSuccess: () => {
-                toast.success('Xoá bài viết thành công !');
-                queryClient.invalidateQueries('posts');
-                if (onDelete) onDelete();
-            },
-            onError: (error) => {
-                console.error('Lỗi:', error);
-                alert('Không thể xóa bài viết. Vui lòng thử lại.');
-            }
+    const renderPhotos = () => {
+        const photos = postPhotos.$values;
+        if (photos.length === 1) {
+            return <img src={photos[0].photoUrl} alt="Post" style={{ width: '100%', height: '300px', objectFit: 'cover', marginBottom: '10px' }} />;
+        } else if (photos.length === 2) {
+            return photos.map(photo => (
+                <img key={photo.postPhotoId} src={photo.photoUrl} alt="Post" style={{ width: '50%', height: '300px', objectFit: 'cover', marginBottom: '10px' }} />
+            ));
+        } else if (photos.length > 2) {
+            return (
+                <div className='d-flex flex-wrap position-relative' style={{ height: '300px', gap: '10px' }}>
+                    {photos.slice(0, 2).map(photo => (
+                        <img key={photo.postPhotoId} src={photo.photoUrl} alt="Post" style={{ width: 'calc(50% - 5px)', height: '300px', objectFit: 'cover' }} />
+                    ))}
+                    <div className='position-relative' style={{ width: 'calc(50% - 5px)', height: '300px' }}>
+                        <img src={photos[2].photoUrl} alt="Post" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        {photos.length > 3 && (
+                            <div className='position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center' style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', color: 'white', fontSize: '24px', cursor: 'pointer' }} onClick={handleShowModal}>
+                                +{photos.length - 3}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
         }
-    );
-
-    const handleDelete = () => {
-        deletePostMutation.mutate();
     };
 
     return (
-        <Card className="py-3 px-5 mb-3 rounded-4 border-0 shadow">
-            <div className="d-flex align-items-center justify-content-between">
-                <div className="d-flex align-items-center">
-                    <Image
-                        src={userImage}
-                        roundedCircle
-                        className="me-2 object-fit-cover"
-                        style={{ width: '60px', height: '60px' }}
-                    />
-                    <div>
-                        <div className="d-flex">
-                            <Card.Title className="mb-0 fw-medium mx-2" style={{
-                                fontSize: '16.5px'
-                            }}>{userName}</Card.Title>
-                            <Card.Text className='fw-medium' style={{
-                                fontSize: '13px',
-                            }}>{location}</Card.Text>
-                        </div>
-                        <div className="mx-2 fw-medium" style={{
-                            fontSize: '13px',
-                        }}>
-                            {date}
-                        </div>
-                    </div>
-                </div>
-
-                <Dropdown align="end">
-                    <Dropdown.Toggle as="div" id="dropdown-custom-components" style={{ cursor: 'pointer' }}>
-                        <ion-icon name="ellipsis-vertical-outline"></ion-icon>
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu style={{
-                        background: 'white',
-                        borderRadius: '8px',
-                        padding: '12px',
-                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.15)',
-                        border: 'none'
-                    }}>
-                        <Dropdown.Item className='d-flex align-items-center gap-2'><ion-icon name="eye-off-outline" style={{
-                            fontSize: '23px'
-                        }}></ion-icon> <p className='m-0'>Ẩn bài viết</p></Dropdown.Item>
-                        <Dropdown.Item className='d-flex align-items-center gap-2'><ion-icon name="create-outline" style={{
-                            fontSize: '23px'
-                        }}></ion-icon> <p className='m-0' onClick={handleShow}>Chỉnh sửa</p></Dropdown.Item>
-                        <Dropdown.Item onClick={handleDelete} className='d-flex align-items-center gap-2'><ion-icon name="trash-outline" style={{
-                            fontSize: '23px'
-                        }}></ion-icon> Xóa</Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
-            </div>
-
-            <Card.Text className='mt-3 mb-1 fw-medium' style={{
-                fontSize: '13px',
-            }}>
-                {description}
-            </Card.Text>
-
-            <div className="d-flex align-items-center justify-content-start">
-                {images && images.map((image, index) => (
-                    <Image
-                        key={index}
-                        src={image}
-                        className='me-3'
-                        style={{ width: '30%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
-                    />
-                ))}
-            </div>
-
-            <Card.Title className='mb-0 fw-bold m-2'>Guest Review</Card.Title>
-            <div className="d-flex align-items-center m-2">
-                <Image
-                    src={userImage}
-                    roundedCircle
-                    className='me-3 object-fit-cover'
-                    style={{ width: '60px', height: '60px' }}
-                />
+        <div className='shadow px-5 py-4 rounded-4 mb-2'>
+            <div className='d-flex gap-2 mb-2'>
+                <img src={travelerAvatar} alt="avatar" width={60} height={60} className='object-fit-cover rounded-circle' />
                 <div>
-                    <div className='d-flex'>
-                        <Card.Title className='fw-bold me-3' style={{
-                            fontSize: '16px'
-                        }}>{localName}</Card.Title>
-                        <div className='d-flex gap-1 align-items-center' style={{
-                            fontSize: '13px',
-                            color: '#FBBC05'
-                        }}>
-                            {renderStars}
-                        </div>
+                    <div className='d-flex gap-2 align-items-end'>
+                        <p className='m-0 fw-bold'>{travelerName}</p>
+                        <small className='m-0 text-success fw-medium' style={{
+                            fontSize: '14px',
+                        }}>{location}</small>
                     </div>
-                    <Card.Title className='me-3' style={{
-                        fontSize: '13px',
-                    }}>{localLocation}</Card.Title>
-                    <Card.Text className='' style={{
-                        fontSize: '16px',
-                    }}>{review}</Card.Text>
+                    <small className='m-0'>{createdAt}</small>
                 </div>
             </div>
-            <Modal show={show} onHide={handleClose}  centered className='modal_edit_post_pastrip'>
-                <Modal.Body className='d-flex flex-column'>
-                    <h5 className='m-0'>Quyền riêng tư</h5>
-                    <caption>Ai có thể xem bài viết của bạn</caption>
-                    <div className='m-3 d-flex justify-content-between w-100'>
-                        <p className='m-0'>Công khai</p>
-                        <input
-                            type="radio"
-                            checked={isPublic}
-                            readOnly
-                            style={{ width: '20px' }}
-                        />
+            <p>{caption}</p>
+            <div className='d-flex flex-wrap mb-2'>
+                {renderPhotos()}
+            </div>
+            <div className='d-flex gap-2'>
+                <img src={localAvatar} alt={localName} width={60} height={60} className='object-fit-cover rounded-circle' />
+                <div>
+                    <div className='d-flex gap-2'>
+                        <p className='m-0'>{localName}</p>
+                        <p className='m-0'>
+                            {Array.from({ length: star }, (_, i) => (
+                                <ion-icon key={i} name="star" style={{ color: '#ffd250', marginRight: '4px' }}></ion-icon>
+                            ))}
+                        </p>
                     </div>
-                    <div className='m-3 d-flex justify-content-between w-100'>
-                        <p className='m-0'>Chỉ mình tôi</p>
-                        <input
-                            type="radio"
-                            checked={!isPublic}
-                            readOnly
-                            style={{ width: '20px' }}
-                        />
+                    <p>{review}</p>
+                </div>
+            </div>
+            {showModal && (
+                <div className='modal' onClick={handleCloseModal}>
+                    <div className='modal-content'>
+                        {postPhotos.$values.map(photo => (
+                            <img key={photo.postPhotoId} src={photo.photoUrl} alt="Post" style={{ width: '100%', marginBottom: '10px' }} />
+                        ))}
                     </div>
-                    <div className='d-flex justify-content-between w-100'>
-                        <Button variant="" className='rounded-5' onClick={handleClose}>
-                            Huỷ
-                        </Button>
-                        <Button variant="success" className='rounded-5' onClick={handleClose}>
-                            Lưu thay đổi
-                        </Button>
-                    </div>
-                </Modal.Body>
-
-            </Modal>
-        </Card>
-    );
+                </div>
+            )}
+        </div>
+    )
 }
 
-export default PostProfile;
+export default PostProfile

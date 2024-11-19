@@ -1,127 +1,213 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Button, Row, Dropdown, DropdownButton } from 'react-bootstrap';
-import Question from './Question';
-import MultipleChoiceQuestion from './MultipleChoiceQuestion';
-import ServiceQuestion from './ServiceQuestion';
-import { toast } from 'react-toastify';
-import '../../../assets/css/Profile/FormBuilder/FormBuilder.css';
-import { useSelector } from 'react-redux';
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import { Button, Dropdown, Modal, Form, Row, Col } from 'react-bootstrap'
+import { useSelector } from 'react-redux'
+import '../../../assets/css/Profile/FormBuilder/FormBuilder.css'
+import { toast } from 'react-toastify'
+import FormModal from '../../Shared/FormModal';
 
 function FormBuilder() {
-  const user = useSelector(state => state.auth.user);
-  console.log('User:', user);
+  const [questions, setQuestions] = useState([])
+  const [services, setServices] = useState([{ id: new Date().getTime(), serviceName: '', amount: 0 }])
+  const [showModal, setShowModal] = useState(false)
+  const user = useSelector(state => state.auth.user)
 
-  const [questions, setQuestions] = useState(() => {
-    const savedQuestions = localStorage.getItem('questions');
-    const initialQuestions = savedQuestions ? JSON.parse(savedQuestions) : [];
-    return initialQuestions.filter(q => q.type !== 'service');
-  });
-
-  const [serviceQuestions, setServiceQuestions] = useState(() => {
-    const savedQuestions = localStorage.getItem('questions');
-    const initialQuestions = savedQuestions ? JSON.parse(savedQuestions) : [];
-    if (initialQuestions.length === 0 || !initialQuestions.some(q => q.type === 'service')) {
-      initialQuestions.push({ type: 'service', serviceName: '', amount: '' });
-    }
-    return initialQuestions.filter(q => q.type === 'service');
-  });
-
-  const [showModal, setShowModal] = useState(false);
-
-  const addQuestion = (type) => {
+  const addQuestion = useCallback(() => {
     const newQuestion = {
-      id: Date.now(),
-      type: type,
-      options: type === 'multiple-choice' || type === 'checkbox' ? ['Lựa chọn 1'] : [],
-      serviceName: type === 'service' ? '' : undefined,
-      amount: type === 'service' ? '' : undefined,
-    };
-    if (type === 'service') {
-      setServiceQuestions([...serviceQuestions, newQuestion]);
-    } else {
-      setQuestions([...questions, newQuestion]);
+      id: new Date().getTime(),
+      type: 'text',
+      question: '',
+      option: [],
     }
-  };
+    setQuestions(prevQuestions => [...prevQuestions, newQuestion])
+  }, [])
 
-  const handleShow = () => setShowModal(true);
-  const handleClose = () => setShowModal(false);
-
-  const handleSave = () => {
-    const allQuestions = [...questions, ...serviceQuestions];
-    const groupedServiceQuestions = allQuestions.filter(q => q.type === 'service');
-    const nonServiceQuestions = allQuestions.filter(q => q.type !== 'service');
-    const dataToSave = { createById: user.id, questions: nonServiceQuestions, services: groupedServiceQuestions };
-    localStorage.setItem('questionsAndServices', JSON.stringify(dataToSave));
-    console.log('Data saved to localStorage:', dataToSave);
-  };
-
-  const handleClearQuestions = () => {
-    setQuestions([]);
-    setServiceQuestions([{ id: Date.now(), type: 'service', serviceName: '', amount: '' }]);
-  };
-
-  const updateQuestion = (updatedQuestion) => {
-    if (updatedQuestion.type === 'service') {
-      setServiceQuestions(serviceQuestions.map(q => q.id === updatedQuestion.id ? updatedQuestion : q));
-    } else {
-      setQuestions(questions.map(q => q.id === updatedQuestion.id ? updatedQuestion : q));
+  const addService = useCallback(() => {
+    const newService = {
+      id: new Date().getTime(),
+      serviceName: '',
+      amount: 0
     }
-  };
+    setServices(prevServices => [...prevServices, newService])
+  }, [])
 
-  const deleteQuestion = (id) => {
-    const remainingQuestions = questions.filter(q => q.id !== id);
-    const remainingServiceQuestions = serviceQuestions.filter(q => q.id !== id);
-    if (remainingServiceQuestions.length === 0) {
-      toast.error('Phải có ít nhất 1 dịch vụ !');
+  const updateService = useCallback((id, updatedService) => {
+    setServices(prevServices => prevServices.map(service => service.id === id ? updatedService : service))
+  }, [])
+
+  const handleChangeService = useCallback((id, e) => {
+    const { name, value } = e.target
+    setServices(prevServices => prevServices.map(service => service.id === id ? { ...service, [name]: value } : service))
+  }, [])
+
+  const handleChangeQuestion = useCallback((id, e) => {
+    const { value } = e.target;
+    setQuestions(prevQuestions => prevQuestions.map(question => question.id === id ? { ...question, question: value } : question));
+  }, [])
+
+  const handleDeleteService = useCallback((id) => {
+    setServices(prevServices => prevServices.filter(service => service.id !== id))
+  }, [])
+
+  const handleSave = useCallback(() => {
+    if (services.length === 0) {
+      toast.error('Phải có ít nhất 1 dịch vụ')
       return;
     }
-    setQuestions(remainingQuestions);
-    setServiceQuestions(remainingServiceQuestions);
-  };
+    const dataSave = {
+      questions: questions,
+      services: services,
+      createByUser: user.id
+    }
+    localStorage.setItem('form_data', JSON.stringify(dataSave))
+    toast.success('Lưu thành công')
+  }, [questions, services, user.id])
+
+  const deleteQuestion = useCallback((id) => {
+    setQuestions(prevQuestions => prevQuestions.filter(question => question.id !== id))
+  }, [])
+
+  const deleteAllQuestions = useCallback(() => {
+    setQuestions([])
+  }, [])
+
+  const deleteAllServices = useCallback(() => {
+    setServices([{ id: new Date().getTime(), serviceName: '', amount: 0 }])
+  }, [])
+
+  const addOption = useCallback((questionId) => {
+    setQuestions(prevQuestions => prevQuestions.map(question =>
+      question.id === questionId
+        ? { ...question, option: [...question.option, { id: new Date().getTime(), text: '' }] }
+        : question
+    ));
+  }, [])
+
+  const handleOptionChange = useCallback((questionId, optionId, e) => {
+    const { value } = e.target;
+    setQuestions(prevQuestions => prevQuestions.map(question =>
+      question.id === questionId
+        ? { ...question, option: question.option.map(opt => opt.id === optionId ? { ...opt, text: value } : opt) }
+        : question
+    ));
+  }, [])
+
+  const updateQuestionType = useCallback((id, type) => {
+    setQuestions(prevQuestions => prevQuestions.map(question =>
+      question.id === id
+        ? { ...question, type, option: type === 'single' || type === 'multiple' ? [{ id: new Date().getTime(), text: '' }] : [] }
+        : question
+    ));
+  }, [])
+
+  const handleDeleteQuestion = useCallback((id) => {
+    setQuestions(prevQuestions => prevQuestions.filter(question => question.id !== id));
+  }, [])
+
+  const handleDeleteOption = useCallback((questionId, optionId) => {
+    setQuestions(prevQuestions => prevQuestions.map(question =>
+      question.id === questionId
+        ? { ...question, option: question.option.filter(opt => opt.id !== optionId) }
+        : question
+    ));
+  }, [])
+
+  const renderedServices = useMemo(() => services.map(service => (
+    <div key={service.id} className='w-100 d-flex align-items-center gap-2 mb-2'>
+      <Form.Control
+        type="text"
+        name="serviceName"
+        value={service.serviceName}
+        onChange={(e) => handleChangeService(service.id, e)}
+        placeholder="Tên dịch vụ"
+        className='service-name'
+      />
+      <Form.Control
+        type="number"
+        name="amount"
+        value={service.amount}
+        onChange={(e) => handleChangeService(service.id, e)}
+        placeholder="Giá"
+        className='service-amount'
+      />
+      <Button size='sm' className='bg-transparent text-danger border-0 shadow-none px-1 button-delete-service' variant="danger" onClick={() => handleDeleteService(service.id)}>
+        <ion-icon name="trash-outline" style={{ fontSize: '20px' }}></ion-icon>
+      </Button>
+    </div>
+  )), [services, handleChangeService, handleDeleteService])
+
+  const renderedQuestions = useMemo(() => questions.map(question => (
+    <div key={question.id} className='question mb-2'>
+      <div className='d-flex justify-content-between align-items-center gap-2 mb-2'>
+        <Form.Control
+          type="text"
+          placeholder="Nhập câu hỏi"
+          value={question.question}
+          onChange={(e) => handleChangeQuestion(question.id, e)}
+        />
+        <div className='d-flex gap-2'>
+          <Dropdown>
+            <Dropdown.Toggle size='sm' variant="success" className=''>
+              <ion-icon name="funnel-outline"></ion-icon>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={() => updateQuestionType(question.id, 'text')}>Câu hỏi mở</Dropdown.Item>
+              <Dropdown.Item onClick={() => updateQuestionType(question.id, 'yesno')}>Câu hỏi đóng (Có/Không)</Dropdown.Item>
+              <Dropdown.Item onClick={() => updateQuestionType(question.id, 'single')}>Câu hỏi trắc nghiệm đơn lựa chọn</Dropdown.Item>
+              <Dropdown.Item onClick={() => updateQuestionType(question.id, 'multiple')}>Câu hỏi trắc nghiệm nhiều lựa chọn</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+          <Button size='sm' variant='danger' className='' onClick={() => handleDeleteQuestion(question.id)}> <ion-icon name="trash-outline"></ion-icon></Button>
+        </div>
+      </div>
+      <div>
+        {question.type === 'single' || question.type === 'multiple' ? (
+          <div className='options'>
+            {question.option.map(opt => (
+              <div key={opt.id} className='d-flex align-items-center mb-2'>
+                <Form.Control
+                  type="text"
+                  placeholder="Nhập lựa chọn"
+                  value={opt.text}
+                  onChange={(e) => handleOptionChange(question.id, opt.id, e)}
+                />
+                <Button variant="danger" onClick={() => handleDeleteOption(question.id, opt.id)}>
+                  <ion-icon name="trash-outline"></ion-icon>
+                </Button>
+              </div>
+            ))}
+            <Button onClick={() => addOption(question.id)}>Thêm lựa chọn</Button>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  )), [questions, handleChangeQuestion, updateQuestionType, handleDeleteQuestion, handleOptionChange, handleDeleteOption, addOption])
 
   return (
     <div>
-      <Button variant="primary" className='rounded-5' style={{ backgroundColor: 'green', borderColor: 'green' }} onClick={handleShow}>Tạo mẫu thông tin</Button>
-      <Modal show={showModal} centered onHide={handleClose} className='form_builder custom-modal-formbuilder'>
-        <Modal.Header closeButton>
-          <Modal.Title>Mẫu thông tin local</Modal.Title>
-        </Modal.Header>
-        <Modal.Body style={{ overflowY: 'auto' }}>
-          <h6>Dịch vụ</h6>
-          {serviceQuestions.map((q) => (
-            <Row key={q.id} className='w-100'>
-              <ServiceQuestion question={q} onUpdate={updateQuestion} onAddService={() => addQuestion('service')} onDelete={deleteQuestion} />
-            </Row>
-          ))}
-          {serviceQuestions.length > 0 && (
-            <div className='w-100'>
-              <Button variant='success' className='mb-2 d-flex align-items-center gap-2' onClick={() => addQuestion('service')}>Thêm dịch vụ <ion-icon name="add-outline"></ion-icon></Button>
-            </div>
-          )}
-          {questions.map((q) => (
-            <Row key={q.id} className='w-100 mb-4'>
-              {q.type === 'multiple-choice' ? (
-                <MultipleChoiceQuestion question={q} onUpdate={updateQuestion} onDelete={deleteQuestion} />
-              ) : (
-                <Question question={q} onUpdate={updateQuestion} onDelete={deleteQuestion} />
-              )}
-            </Row>
-          ))}
-        </Modal.Body>
-        <Modal.Footer>
-          <DropdownButton id="dropdown-basic-button" title="Thêm câu hỏi" className='rounded-5'>
-            <Dropdown.Item onClick={() => addQuestion('text')}>Thêm câu hỏi nhập văn bản</Dropdown.Item>
-            <Dropdown.Item onClick={() => addQuestion('yesno')}>Thêm câu hỏi Yes/No</Dropdown.Item>
-            <Dropdown.Item onClick={() => addQuestion('multiple-choice')}>Thêm câu hỏi trắc nghiệm</Dropdown.Item>
-            <Dropdown.Item onClick={() => addQuestion('checkbox')}>Thêm câu hỏi checkbox</Dropdown.Item>
-          </DropdownButton>
-          <Button variant="danger" className='rounded-5' onClick={handleClearQuestions}>Xóa hết câu hỏi</Button>
-          <Button variant="secondary" className='rounded-5' style={{ backgroundColor: 'green', borderColor: 'green' }} onClick={handleSave}>Lưu câu hỏi</Button>
-          <Button variant='secondary' className='rounded-5' onClick={handleClose}>Đóng</Button>
-        </Modal.Footer>
-      </Modal>
+      <Button variant='success' className='rounded-5' onClick={() => setShowModal(true)}>Tạo mẫu thông tin</Button>
+      <FormModal
+        show={showModal}
+        handleClose={() => setShowModal(false)}
+        title="Tạo mẫu thông tin"
+        saveButtonText="Lưu thay đổi"
+        handleSave={handleSave}
+        isSubmitting={false}
+        isSubmitted={false}
+      >
+        <div className='w-100'>
+          <h5>Dịch vụ</h5>
+          {renderedServices}
+          <Button size='sm' onClick={addService} className='d-flex align-items-center gap-1 rounded-5'>Thêm dịch vụ <ion-icon name="restaurant-outline" style={{ fontSize: '20px' }}></ion-icon></Button>
+        </div>
+
+        <div className='w-100'>
+          <h5>Câu hỏi</h5>
+          {renderedQuestions}
+          <Button size='sm' onClick={addQuestion} className='d-flex align-items-center gap-1 rounded-5'>Thêm câu hỏi <ion-icon name="help-circle-outline" style={{ fontSize: '20px' }}></ion-icon></Button>
+        </div>
+      </FormModal>
     </div>
-  );
+  )
 }
 
-export default FormBuilder;
+export default FormBuilder

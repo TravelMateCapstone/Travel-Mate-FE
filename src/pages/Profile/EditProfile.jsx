@@ -6,6 +6,7 @@ import RoutePath from '../../routes/RoutePath';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useQuery } from 'react-query';
+import { toast } from 'react-toastify';
 
 const fetchProfile = async (token) => {
   const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Profile/current-profile`, {
@@ -125,7 +126,7 @@ const EditProfile = () => {
         },
       });
       if (response.status === 200) {
-        alert("Profile updated successfully!");
+        toast.success('Câp nhật thông tin thành công');
       }
     } catch (error) {
       console.error("Error updating profile data:", error);

@@ -1,8 +1,8 @@
 import React from 'react';
 import { Container, Row, Col, Card, ProgressBar } from 'react-bootstrap';
 import ToolBar from '../components/Shared/ToolBar';
-import AnswerQuestion from '../components/Profile/FormBuilder/AnswerQuestion';
 import AutoSuggestInput from '../components/Shared/AutoSuggestInput';
+import AnswerQuestion from '../components/Profile/FormBuilder/AnswerQuestion';
 
 function Home() {
   return (

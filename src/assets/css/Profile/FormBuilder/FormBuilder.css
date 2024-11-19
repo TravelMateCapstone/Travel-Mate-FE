@@ -1,6 +1,13 @@
 .form_builder .modal-content {
-  width: 897px !important; 
-  height: 100% !important; 
+  border: none !important; /* Remove border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important; /* Add shadow */
+}
+
+.service-name{
+  flex: 2.75 !important;
+}
+.service-amount{
+  flex: 1 !important;
 }
 
 .custom-modal-formbuilder .modal-dialog {
@@ -9,4 +16,12 @@
 
 .custom-modal-formbuilder .modal-content {
   height: 95vh !important;
+  border: none !important; /* Remove border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important; /* Add shadow */
+}
+
+.dropdown-menu {
+  border: none !important; /* Remove border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5) !important; /* Add shadow */
+  border-radius: 10px;
 }
