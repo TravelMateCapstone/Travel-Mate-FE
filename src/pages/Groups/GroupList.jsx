@@ -1,115 +1,71 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import ReactPaginate from 'react-paginate';
-import GroupCard from '../../components/Group/GroupCard';
-import axios from 'axios';
-import { useSelector } from 'react-redux';
-import { Placeholder, Card } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState } from "react";
+import GroupCard from "../../components/Group/GroupCard";
+import "../../assets/css/Groups/GroupList.css";
+import useApi from "../../hooks/useApi";
+import ReactPaginate from "react-paginate";
+import { Card, Placeholder } from "react-bootstrap";
+import { useSelector } from "react-redux";
 
 function GroupList() {
+  const [pageNumber, setPageNumber] = useState(1);
   const token = useSelector((state) => state.auth.token);
-  const refreshGroups = useSelector((state) => state.group.refreshGroups);
+  
+  const endpoint = token 
+    ? `https://travelmateapp.azurewebsites.net/api/Groups/UnJoinedGroups?pageNumber=${pageNumber}`
+    : `https://travelmateapp.azurewebsites.net/api/groups?pageNumber=${pageNumber}`;
+  const { useFetch } = useApi(endpoint);
+  const { data, isLoading, error } = useFetch();
 
-  const [data, setData] = useState([]);
-  const [pageCount, setPageCount] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
+  if (isLoading) return  <div className="group-list">
+  {[...Array(6)].map((_, index) => (
+    <Card className="group-card p-0" key={index}>
+      <Placeholder as={Card.Img} variant="top" animation="glow" className="group-card-img" />
+      <Card.Body className="group-card-body">
+        <Placeholder as={Card.Title} animation="glow" className="group-name">
+          <Placeholder xs={6} />
+        </Placeholder>
+        <div className="group-card-info">
+          <Placeholder as="span" animation="glow" className="d-flex align-items-center">
+            <Placeholder xs={4} />
+          </Placeholder>
+          <Placeholder as="span" animation="glow" className="group-card-members">
+            <Placeholder xs={4} />
+          </Placeholder>
+        </div>
+        <Placeholder as={Card.Text} animation="glow" className="group-card-text">
+          <Placeholder xs={7} />
+          <Placeholder xs={4} />
+        </Placeholder>
+        <Placeholder.Button variant="outline-success" className="group-card-button" xs={12} />
+      </Card.Body>
+    </Card>
+  ))}
+</div>;
+  if (error) return <div>Error loading groups</div>;
 
-  useEffect(() => {
-    const fetchData = async (page = 1) => {
-      setIsLoading(true);
-      try {
-        // Determine API endpoint based on token availability
-        const endpoint = token
-          ? `${import.meta.env.VITE_BASE_API_URL}/api/Groups/UnJoinedGroups?pageNumber=${page}`
-          : `${import.meta.env.VITE_BASE_API_URL}/api/groups?pageNumber=${page}`;
-
-        // Set headers only if using UnJoinedGroups endpoint
-        const headers = token ? { Authorization: `${token}` } : {};
-
-        const response = await axios.get(endpoint, { headers });
-        console.log(response.data);
-        const groupsData = response.data.listUnjoinedGroups.$values || [];
-        const totalPages = response.data.totalPages || 0;
-
-      
-
-        setData(groupsData);
-        setPageCount(totalPages);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData(currentPage);
-  }, [currentPage, token, refreshGroups]);
-
-  const handlePageChange = useCallback((data) => {
-    const selectedPage = data.selected + 1;
-    setCurrentPage(selectedPage);
-  }, []);
+  const handlePageClick = (event) => {
+    setPageNumber(event.selected + 1);
+  };
 
   return (
     <div>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-          gap: '42px',
-        }}
-      >
-        {isLoading
-          ? Array.from({ length: 6 }).map((_, index) => (
-            <Card key={index} className="group-card" style={{ width: '100%' }}>
-              <Placeholder as={Card.Img} variant="top" className="group-card-img" />
-              <Card.Body className="group-card-body">
-                <Placeholder as={Card.Title} animation="glow" className="group-name">
-                  <Placeholder xs={6} />
-                </Placeholder>
-                <div className="group-card-info">
-                  <Placeholder animation="glow">
-                    <Placeholder xs={4} />
-                  </Placeholder>
-                  <Placeholder animation="glow">
-                    <Placeholder xs={3} />
-                  </Placeholder>
-                </div>
-                <Placeholder as={Card.Text} animation="glow" className="group-card-text">
-                  <Placeholder xs={8} />
-                  <Placeholder xs={6} />
-                </Placeholder>
-              </Card.Body>
-            </Card>
-          ))
-          : data.map((group) => (
-            <GroupCard
-              id={group.group.groupId}
-              key={group.group.groupId}
-              img={group.group.groupImageUrl}
-              title={group.group.groupName}
-              location={group.group.location}
-              members={`${group.group.numberOfParticipants}`}
-              text={group.group.description}
-              isJoined={group.userJoinedStatus}
-            />
-          ))}
+      <div className="group-list">
+        {token ? data.listUnjoinedGroups.$values.map((item) => (
+          <GroupCard key={item.group.groupId} group={item.group} userJoinedStatus={item.userJoinedStatus}/>
+        )) : data.groups.$values.map((group) => (
+          <GroupCard key={group.groupId} group={group} />
+        ))}
       </div>
-
       <ReactPaginate
-        previousLabel={'<'}
-        nextLabel={'>'}
-        breakLabel={'...'}
-        breakClassName={'break-me'}
-        pageCount={pageCount}
+        previousLabel={"previous"}
+        nextLabel={"next"}
+        breakLabel={"..."}
+        pageCount={data.totalPages}
         marginPagesDisplayed={2}
-        pageRangeDisplayed={2}
-        onPageChange={handlePageChange}
-        containerClassName={'pagination'}
-        activeClassName={'active-pagination'}
-        previousClassName={'previous'}
-        nextClassName={'next'}
+        pageRangeDisplayed={3}
+        onPageChange={handlePageClick}
+        containerClassName={"pagination"}
+        activeClassName={"active"}
       />
     </div>
   );

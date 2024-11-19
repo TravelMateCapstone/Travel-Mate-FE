@@ -1,16 +1,7 @@
-
-.container-group-joined{
-    padding: 0 85px;
+.group-card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 42px;
 }
 
-@media (max-width: 1024px) {
-    .container-group-joined{
-        padding: 0 20px;
-    }
-}
-
-@media (max-width: 480px){
-    .container-group-joined{
-        padding: 0px;
-    }
-}
+/* ...existing code... */

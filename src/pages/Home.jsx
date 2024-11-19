@@ -1,6 +1,8 @@
 import React from 'react';
 import { Container, Row, Col, Card, ProgressBar } from 'react-bootstrap';
 import ToolBar from '../components/Shared/ToolBar';
+import AutoSuggestInput from '../components/Shared/AutoSuggestInput';
+import AnswerQuestion from '../components/Profile/FormBuilder/AnswerQuestion';
 
 function Home() {
   return (
@@ -16,7 +18,8 @@ function Home() {
           </Col>
           {/* Main Content */}
           <Col md={8}>
-            body
+            <AnswerQuestion/>
+            <AutoSuggestInput/>
           </Col>
           {/* Right Sidebar */}
           <Col md={2}>

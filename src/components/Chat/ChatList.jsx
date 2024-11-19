@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import flying from '../../assets/images/flying.png';
 
-function ChatList({ chats, activeChat, onChatClick }) {
+const ChatList = React.memo(({ chats, activeChat, onChatClick }) => {
+  const handleChatClick = useCallback((id) => {
+    onChatClick(id);
+  }, [onChatClick]);
+
   return (
     <div className="chat-list rounded-top-3">
       <ul>
@@ -9,7 +13,7 @@ function ChatList({ chats, activeChat, onChatClick }) {
           <li
             key={chat.id}
             className={activeChat === chat.id ? 'active' : 'd-flex'}
-            onClick={() => onChatClick(chat.id)}
+            onClick={() => handleChatClick(chat.id)}
           >
             <div><img src={chat.avatar} alt={`${chat.name} avatar`} className="chat-avatar" /></div>
             <div className='d-lg-flex align-items-lg-end gap-lg-4 content-chat'>
@@ -28,6 +32,6 @@ function ChatList({ chats, activeChat, onChatClick }) {
       </ul>
     </div>
   );
-}
+});
 
 export default ChatList;

@@ -1,20 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Row, Col, Button } from 'react-bootstrap';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Form, Row, Col, Button, Spinner } from 'react-bootstrap';
 import '../../assets/css/Profile/EditProfile.css';
 import { Link } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import { useQuery } from 'react-query';
+import { toast } from 'react-toastify';
+
+const fetchProfile = async (token) => {
+  const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Profile/current-profile`, {
+    headers: {
+      Authorization: `${token}`,
+    },
+  });
+  return response.data;
+};
+
+const fetchActivity = async (token) => {
+  const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Activity`, {
+    headers: {
+      Authorization: `${token}`,
+    },
+  });
+  return response.data.$values;
+};
+
+const fetchLanguage = async (token) => {
+  const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/SpokenLanguages/current-user`, {
+    headers: {
+      Authorization: `${token}`,
+    },
+  });
+  return response.data.$values;
+};
+
+const fetchUniversities = async (token) => {
+  const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/University`, {
+    headers: {
+      Authorization: `${token}`,
+    },
+  });
+  return response.data.$values;
+};
 
 const EditProfile = () => {
   const user = useSelector((state) => state.auth.user);
-  const [universities, setUniversities] = useState([]);
   const token = useSelector((state) => state.auth.token);
-  const apiUrlProfiel = 'https://travelmateapp.azurewebsites.net/api/Profile/current-profile';
-  const apiLanguage = 'https://travelmateapp.azurewebsites.net/api/SpokenLanguages/current-user';
-  const apiActivity = 'https://travelmateapp.azurewebsites.net/api/Activity';
-  const apiUniversity = 'https://travelmateapp.azurewebsites.net/api/University';
-  const apiUpdateProfile = 'https://travelmateapp.azurewebsites.net/api/Profile/edit-by-current-user';
   const [formData, setFormData] = useState({
     fullName: '',
     guestStatus: '',
@@ -29,97 +61,52 @@ const EditProfile = () => {
     musicFilmPhotos: '',
     imageUser: user.avatarUrl || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw',
   });
+  const [isSaving, setIsSaving] = useState(false);
 
-  console.log(formData);
-
+  const { data: profileData } = useQuery(['profile', token], () => fetchProfile(token), { enabled: !!token });
+  const { data: activityData } = useQuery(['activity', token], () => fetchActivity(token), { enabled: !!token });
+  const { data: languageData } = useQuery(['language', token], () => fetchLanguage(token), { enabled: !!token });
+  const { data: universitiesData } = useQuery(['universities', token], () => fetchUniversities(token), { enabled: !!token });
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await axios.get(apiUrlProfiel, {
-          headers: {
-            Authorization: `${token}`,
-          },
-        });
-        if (response.data) {
-          setFormData(prevState => ({
-            ...prevState,
-            fullName: response.data.fullName || '',
-            guestStatus: response.data.hostingAvailability || '',
-            whereBorn: response.data.address || '',
-            addressLiving: response.data.city || '',
-            introduction: response.data.description || '',
-            whyTravelMate: response.data.whyUseTravelMate || '',
-            musicFilmPhotos: response.data.musicMoviesBooks || '',
-          }));
-        }
-      } catch (error) {
-        console.error("Error fetching profile data:", error);
-      }
-    };
-
-    const fetchActivity = async () => {
-      try {
-        const response = await axios.get(apiActivity, {
-          headers: {
-            Authorization: `${token}`,
-          },
-        });
-        if (response.data && response.data.$values) {
-          const hobbies = response.data.$values.map(activity => activity.activityName);
-          setFormData(prevState => ({
-            ...prevState,
-            hobbies: hobbies,
-          }));
-        }
-      } catch (error) {
-        console.error("Error fetching activity data:", error);
-      }
-    };
-
-    const fetchLanguage = async () => {
-      try {
-        const response = await axios.get(apiLanguage, {
-          headers: {
-            Authorization: `${token}`,
-          },
-        });
-        if (response.data && response.data.$values) {
-          const languages = response.data.$values.map(lang => `${lang.languages.languagesName} (${lang.proficiency})`).join(', ');
-          setFormData(prevState => ({
-            ...prevState,
-            languageKnowned: languages,
-          }));
-        }
-      } catch (error) {
-        console.error("Error fetching language data:", error);
-      }
-    };
-
-    const fetchUniversities = async () => {
-      try {
-        const response = await axios.get(apiUniversity, {
-          headers: {
-            Authorization: `${token}`, // Ensure "Bearer" is included if required by the API
-          },
-        });
-        if (response.data && response.data.$values) {
-          setUniversities(response.data.$values);
-        }
-      } catch (error) {
-        console.error("Error fetching university data:", error);
-      }
-    };
-
-    if (token) {
-      fetchProfile();
-      fetchActivity();
-      fetchLanguage();
-      fetchUniversities();
+    if (profileData) {
+      setFormData(prevState => ({
+        ...prevState,
+        fullName: profileData.fullName || '',
+        guestStatus: profileData.hostingAvailability || '',
+        whereBorn: profileData.address || '',
+        addressLiving: profileData.city || '',
+        introduction: profileData.description || '',
+        whyTravelMate: profileData.whyUseTravelMate || '',
+        musicFilmPhotos: profileData.musicMoviesBooks || '',
+      }));
     }
-  }, [token]);
+  }, [profileData]);
 
-  const handleSaveChanges = async () => {
+  useEffect(() => {
+    if (activityData) {
+      const hobbies = activityData.map(activity => activity.activityName);
+      setFormData(prevState => ({
+        ...prevState,
+        hobbies: hobbies,
+      }));
+    }
+  }, [activityData]);
+
+  useEffect(() => {
+    if (languageData) {
+      const languages = languageData.map(lang => `${lang.languages.languagesName} (${lang.proficiency})`).join(', ');
+      setFormData(prevState => ({
+        ...prevState,
+        languageKnowned: languages,
+      }));
+    }
+  }, [languageData]);
+
+  const universities = useMemo(() => universitiesData || [], [universitiesData]);
+
+  const handleSaveChanges = useCallback(async () => {
+    setIsSaving(true);
     const payload = {
       fullName: formData.fullName,
       address: formData.whereBorn,
@@ -132,25 +119,25 @@ const EditProfile = () => {
     };
 
     try {
-      const response = await axios.put(apiUpdateProfile, payload, {
+      const response = await axios.put(`${import.meta.env.VITE_BASE_API_URL}/api/Profile/edit-by-current-user`, payload, {
         headers: {
-          Authorization: `${token}`, // Ensure "Bearer" is included if required by the API
+          Authorization: `${token}`,
           'Content-Type': 'application/json',
         },
       });
       if (response.status === 200) {
-        alert("Profile updated successfully!");
+        toast.success('Câp nhật thông tin thành công');
       }
     } catch (error) {
       console.error("Error updating profile data:", error);
       alert("An error occurred while updating the profile. Please try again.");
+    } finally {
+      setIsSaving(false);
     }
-  };
+  }, [formData, token, user.avatarUrl]);
 
   return (
-    <div className="p-4 edit-pro-container border-0 w-100" style={{
-      boxShadow: '0 0 4px rgba(0, 0, 0, 0.25)',
-    }}>
+    <div className="p-4 edit-pro-container border-0 w-100 box-shadow">
       <Form>
         {/* Title */}
         <div className="d-flex justify-content-start mb-4">
@@ -255,15 +242,10 @@ const EditProfile = () => {
 
         {/* Save/Cancel Buttons */}
         <div className="d-flex justify-content-end mt-4">
-          <Button variant="success" className="me-2" style={{ borderRadius: '20px' }} onClick={handleSaveChanges}>
-            Lưu thay đổi
+          <Button variant="success" className="me-2 rounded-button" onClick={handleSaveChanges} disabled={isSaving}>
+            {isSaving ? <><Spinner animation="border" size="sm" /> Đang lưu</> : 'Lưu thay đổi'}
           </Button>
-          <Button variant="secondary" style={{
-            borderRadius: '20px',
-            border: '1px solid',
-            backgroundColor: 'white',
-            color: 'black',
-          }}>
+          <Button variant="secondary" className="rounded-button cancel-button" disabled={isSaving}>
             Hủy
           </Button>
         </div>

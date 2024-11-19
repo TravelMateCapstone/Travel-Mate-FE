@@ -1,246 +1,240 @@
-import React, { useState } from 'react';
-import '../../assets/css/Admin/AdminReport.css'; // Assuming you have CSS for styling
-import { Table, InputGroup, FormControl, Button } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
+import React, { useCallback, useMemo, useRef, useState } from "react";
+import { AgGridReact } from "@ag-grid-community/react";
+import { ModuleRegistry } from "@ag-grid-community/core";
+import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
+import * as XLSX from "xlsx";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
+import { Button, Modal, Form } from "react-bootstrap";
+import ConfirmModal from "../../components/Shared/ConfirmModal";
 
-const reportData = [
-  {
-    id: 1,
-    name: 'Trần Duy Nguyên Nhơn',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Lạm dụng',
-    date: '24-09-2024',
-    status: 'Đã giải quyết',
-    processed: 'Có',
-    action: 'View',
-  },
-  {
-    id: 2,
-    name: 'Tesco Market',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Hành vi sai trái',
-    date: '24-09-2024',
-    status: 'Đang chờ',
-    processed: 'Chưa',
-    action: 'View',
-  },
-  {
-    id: 3,
-    name: 'Tesco Market',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Hồ sơ',
-    date: '24-09-2024',
-    status: 'Đã bác bỏ',
-    processed: 'Có',
-    action: 'View',
-  },
-  {
-    id: 4,
-    name: 'Trần Duy Nguyên Nhơn',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Lạm dụng',
-    date: '24-09-2024',
-    status: 'Đã giải quyết',
-    processed: 'Có',
-    action: 'View',
-  },
-  {
-    id: 5,
-    name: 'Tesco Market',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Hành vi sai trái',
-    date: '24-09-2024',
-    status: 'Đang chờ',
-    processed: 'Chưa',
-    action: 'View',
-  },
-  {
-    id: 6,
-    name: 'Tesco Market',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Hồ sơ',
-    date: '24-09-2024',
-    status: 'Đã bác bỏ',
-    processed: 'Có',
-    action: 'View',
-  },
-  {
-    id: 7,
-    name: 'Trần Duy Nguyên Nhơn',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Lạm dụng',
-    date: '24-09-2024',
-    status: 'Đã giải quyết',
-    processed: 'Có',
-    action: 'View',
-  },
-  {
-    id: 8,
-    name: 'Tesco Market',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Hành vi sai trái',
-    date: '24-09-2024',
-    status: 'Đang chờ',
-    processed: 'Chưa',
-    action: 'View',
-  },
-  {
-    id: 9,
-    name: 'Tesco Market',
-    description: 'Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, Đà Nẵng 550000',
-    type: 'Hồ sơ',
-    date: '24-09-2024',
-    status: 'Đã bác bỏ',
-    processed: 'Có',
-    action: 'View',
-  },
-  // Add more reports as needed
-];
+// Đăng ký chỉ các mô-đun của Community
+ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
-function AdminReport() {
-  const [currentPage, setCurrentPage] = useState(0);
-  const reportsPerPage = 6; // Number of reports per page
+const AdminReport = () => {
+  const gridRef = useRef();
 
-  // Filtered reports based on pagination
-  const indexOfLastReport = (currentPage + 1) * reportsPerPage;
-  const indexOfFirstReport = indexOfLastReport - reportsPerPage;
-  const currentReports = reportData.slice(indexOfFirstReport, indexOfLastReport);
+  const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
+  const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
 
-  // Handle page change
-  const handlePageClick = (data) => {
-    setCurrentPage(data.selected);
+  const [rowData, setRowData] = useState([
+    { id: 1, user: "John Doe", address: "123 Main St", type: "Fraud", reportDate: "2023-10-12", status: "Pending" },
+    { id: 2, user: "Jane Smith", address: "456 Oak Ave", type: "Abuse", reportDate: "2023-09-25", status: "Resolved" },
+    { id: 3, user: "Alice Johnson", address: "789 Pine Rd", type: "Spam", reportDate: "2023-11-01", status: "Under Review" },
+    { id: 4, user: "Robert Brown", address: "321 Maple Ln", type: "Harassment", reportDate: "2023-10-05", status: "Pending" },
+    { id: 5, user: "Michael Miller", address: "654 Elm St", type: "Fraud", reportDate: "2023-08-18", status: "Resolved" },
+  ]);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [rowToDelete, setRowToDelete] = useState(null);
+  const [editedRow, setEditedRow] = useState(null);
+  const [showConfirmUpdateModal, setShowConfirmUpdateModal] = useState(false);
+  const [updateRow, setUpdateRow] = useState(null);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+
+  const columnDefs = [
+    { headerName: "Người dùng", field: "user", editable: true, filter: true, sortable: true },
+    { headerName: "Địa chỉ", field: "address", editable: true, filter: true, sortable: true },
+    { headerName: "Loại", field: "type", editable: true, filter: true, sortable: true },
+    { headerName: "Ngày tố cáo", field: "reportDate", editable: true, filter: true, sortable: true },
+    { headerName: "Trạng thái", field: "status", editable: true, filter: true, sortable: true },
+    {
+      headerName: "Actions",
+      field: "actions",
+      cellRenderer: (params) => (
+        <div>
+          <Button variant="info" size="sm" onClick={() => handleView(params.data)}>
+            View
+          </Button>{" "}
+          <Button variant="warning" size="sm" onClick={() => handleUpdate(params.data)}>
+            Update
+          </Button>{" "}
+          <Button variant="danger" size="sm" onClick={() => handleDelete(params.data)}>
+            Delete
+          </Button>
+        </div>
+      ),
+      editable: false,
+      filter: false,
+      sortable: false,
+      width: 200,
+    },
+  ];
+
+  const resetFilters = useCallback(() => {
+    gridRef.current.api.setFilterModel(null);
+  }, []);
+
+  const onExportClick = () => {
+    const worksheet = XLSX.utils.json_to_sheet(rowData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "AdminReport");
+    XLSX.writeFile(workbook, "AdminReport.xlsx");
+  };
+
+  const handleView = (row) => {
+    console.log("Viewing row:", row);
+  };
+
+  const handleDelete = (row) => {
+    setRowToDelete(row);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    setRowData((prevData) => prevData.filter((item) => item.id !== rowToDelete.id));
+    setRowToDelete(null);
+    setShowDeleteModal(false);
+  };
+
+  const handleUpdate = (row) => {
+    setUpdateRow(row);
+    setShowUpdateModal(true);
+  };
+
+  const confirmUpdate = () => {
+    setRowData((prevData) =>
+      prevData.map((row) => (row.id === updateRow.id ? updateRow : row))
+    );
+    setShowUpdateModal(false);
+  };
+
+  const handleUpdateChange = (e) => {
+    const { name, value } = e.target;
+    setUpdateRow((prevRow) => ({ ...prevRow, [name]: value }));
+  };
+
+  const handleCellEditingStopped = (event) => {
+    const updatedRow = event.data;
+    setEditedRow(updatedRow);
+    setShowConfirmUpdateModal(true);
+  };
+
+  const handleConfirmUpdate = () => {
+    setRowData((prevData) =>
+      prevData.map((row) => (row.id === editedRow.id ? editedRow : row))
+    );
+    setEditedRow(null);
+    setShowConfirmUpdateModal(false);
   };
 
   return (
-    <div className="admin-report">
-      <h2>Báo cáo</h2>
-
-      <div className='body-dashboard'>
-        {/* Overview Cards */}
-        <div className="report-overview">
-          <div className="overview-card">
-            <div className='d-flex justify-content-between align-items-center'>
-              <h3>Tổng số báo cáo</h3>
-              <i className='bi bi-layout-text-window-reverse fs-3'></i>
-            </div>
-            <p className="value">120</p>
+    <div style={containerStyle}>
+      <div className="example-wrapper">
+        <div className="d-flex justify-content-between">
+          <div>
+            <Button variant="primary">Thêm mới +</Button>
           </div>
-          <div className="overview-card active">
-            <div className='d-flex justify-content-between align-items-center'> <h3>Đang xử lí</h3>
-              <i className='bi bi-layout-text-window-reverse fs-3 text-warning'></i></div>
-            <p className="value">20</p>
-          </div>
-          <div className="overview-card">
-            <div className='d-flex justify-content-between align-items-center'><h3>Đã giải quyết</h3>
-              <i className='bi bi-layout-text-window-reverse fs-3 text-success'></i>
-            </div>
-            <p className="value">80</p>
-          </div>
-          <div className="overview-card">
-            <div className='d-flex justify-content-between align-items-center'><h3>Đã bác bỏ</h3>
-              <i className='bi bi-x fs-3'></i>
-            </div>
-            <p className="value">20</p>
+          <div className="d-flex gap-3">
+            <Button variant="success" onClick={onExportClick} style={{ marginBottom: "10px", padding: "5px" }}>
+              Export to CSV
+            </Button>
+            <Button variant="warning" onClick={resetFilters} style={{ marginBottom: "10px", padding: "5px" }}>
+              Reset Filters
+            </Button>
           </div>
         </div>
-
-
-
-
-        {/* Report Table */}
-        <div className="table-container">
-          <div className='d-flex flex-row-reverse'>
-            <InputGroup className="mb-3" style={{ width: '400px' }}>
-              <FormControl
-                placeholder="Tìm kiếm"
-                aria-label="Search"
-                aria-describedby="basic-addon2"
-                id='search-input'
-                className='rounded-5'
-              />
-              <Button variant="" id="button-addon2">
-                <i className="bi bi-funnel fs-3"></i> {/* Bootstrap icon for filter */}
-              </Button>
-            </InputGroup>
-          </div>
-          <Table borderless hover responsive>
-            <thead>
-              <tr>
-                <th>Traveller</th>
-                <th>Mô tả</th>
-                <th>Loại</th>
-                <th>Ngày</th>
-                <th>Trạng thái</th>
-                <th>Đã xử lí</th>
-                <th>Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentReports.length > 0 ? (
-                currentReports.map((report) => (
-                  <tr key={report.id}>
-                    <td className="traveller">
-                      <img src="https://via.placeholder.com/40" alt="avatar" className="avatar" />
-                      <span>{report.name}</span>
-                    </td>
-                    <td>{report.description}</td>
-                    <td>{report.type}</td>
-                    <td>{report.date}</td>
-                    <td>
-                      <span className={`status ${report.status === 'Đã giải quyết' ? 'resolved' : report.status === 'Đang chờ' ? 'pending' : 'rejected'}`}>
-                        {report.status}
-                      </span>
-                    </td>
-                    <td>{report.processed}</td>
-                    <td className="actions">
-                      <Button variant="" className="action-btn block-btn">
-                        <i className="bi bi-slash-circle"></i>
-                      </Button>
-                      <Button variant="" className="action-btn delete-btn text-black">
-                        <i className="bi bi-trash"></i>
-                      </Button>
-                      <Button variant="" className="action-btn info-btn">
-                        <i className="bi bi-info-circle"></i>
-                      </Button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="7" className="text-center">
-                    Không tìm thấy kết quả nào
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </Table>
-        </div>
-
-        {/* React Paginate Component */}
-        <div className="pagination-container">
-          <ReactPaginate
-            previousLabel={'‹'}
-            nextLabel={'›'}
-            breakLabel={'...'}
-            pageCount={Math.ceil(reportData.length / reportsPerPage)}
-            marginPagesDisplayed={2}
-            pageRangeDisplayed={3}
-            onPageChange={handlePageClick}
-            containerClassName={'pagination'}
-            activeClassName={'active'}
-            pageClassName={'page-item'}
-            pageLinkClassName={'page-link'}
-            previousClassName={'page-item'}
-            previousLinkClassName={'page-link'}
-            nextClassName={'page-item'}
-            nextLinkClassName={'page-link'}
-            breakClassName={'page-item'}
-            breakLinkClassName={'page-link'}
+        <div style={gridStyle} className={"ag-theme-alpine"}>
+          <AgGridReact
+            ref={gridRef}
+            rowData={rowData}
+            columnDefs={columnDefs}
+            defaultColDef={{
+              sortable: true,
+              filter: true,
+              resizable: true,
+            }}
+            pagination={true}
+            paginationPageSize={10}
+            rowSelection="multiple"
+            suppressRowClickSelection={true}
+            domLayout="autoHeight"
+            animateRows={true}
+            onCellEditingStopped={handleCellEditingStopped}
           />
         </div>
       </div>
+
+      <Modal show={showUpdateModal} onHide={() => setShowUpdateModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Cập nhật dữ liệu</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formUser">
+              <Form.Label>Người dùng</Form.Label>
+              <Form.Control
+                type="text"
+                name="user"
+                value={updateRow?.user || ""}
+                onChange={handleUpdateChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formAddress" className="mt-2">
+              <Form.Label>Địa chỉ</Form.Label>
+              <Form.Control
+                type="text"
+                name="address"
+                value={updateRow?.address || ""}
+                onChange={handleUpdateChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formType" className="mt-2">
+              <Form.Label>Loại</Form.Label>
+              <Form.Control
+                type="text"
+                name="type"
+                value={updateRow?.type || ""}
+                onChange={handleUpdateChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formReportDate" className="mt-2">
+              <Form.Label>Ngày tố cáo</Form.Label>
+              <Form.Control
+                type="date"
+                name="reportDate"
+                value={updateRow?.reportDate || ""}
+                onChange={handleUpdateChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formStatus" className="mt-2">
+              <Form.Label>Trạng thái</Form.Label>
+              <Form.Control
+                type="text"
+                name="status"
+                value={updateRow?.status || ""}
+                onChange={handleUpdateChange}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowUpdateModal(false)}>
+            Hủy
+          </Button>
+          <Button variant="primary" onClick={confirmUpdate}>
+            Cập nhật
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <ConfirmModal
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        title="Xác nhận xóa"
+        message="Bạn có chắc chắn muốn xóa hàng này không?"
+      />
+
+      <ConfirmModal
+        show={showConfirmUpdateModal}
+        onHide={() => setShowConfirmUpdateModal(false)}
+        onConfirm={confirmUpdate}
+        title="Xác nhận cập nhật"
+        message="Bạn có muốn cập nhật hàng này không?"
+      />
     </div>
   );
-}
+};
 
 export default AdminReport;

@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../assets/css/Contracts/TimeLine.css';
 
-function TimeLine({ activeStep = 0 }) {
+const TimeLine = React.memo(({ activeStep = 0 }) => {
     return (
         <div className="container">
             <ul className="timeline">
@@ -12,6 +12,6 @@ function TimeLine({ activeStep = 0 }) {
             </ul>
         </div>
     );
-}
+});
 
 export default TimeLine;

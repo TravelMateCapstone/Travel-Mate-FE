@@ -1,13 +1,68 @@
+.images_post_container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 10px;
+  position: relative;
+}
 .images_post_container img {
   border-radius: 10px;
   height: 300px;
   width: 300px;
   object-fit: cover;
 }
-.images_post_container {
+.images_post_container.single-image img {
+  width: 100%;
+  height: auto;
+}
+
+.images_post_container.single-image {
+  grid-template-columns: 1fr;
+}
+
+.images_post_container.two-images {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.images_post_container.two-images img {
+  width: 100%;
+  height: 300px;
+}
+
+.images_post_container.three-images {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.images_post_container.three-images img {
+  width: 100%;
+  height: 300px;
+}
+.image-wrapper {
+  position: relative;
+}
+.overlay-more-images {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 24px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.modal-images-container {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+.modal-images-container img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
 }
 .post_title {
   height: 105px;
@@ -20,19 +75,32 @@
 .button_upload_images:hover {
   border: 1px dashed #7ba2e7;
 }
+.mybutton:hover{
+  border: 0 !important;
+  box-shadow: none !important;
+  
+}
 .form_edit_post .mybutton {
   margin: 0;
   padding: 0;
   text-align: start;
   border: 0;
+  box-shadow: none !important;
 }
 .form_edit_post .mybutton:hover {
   color: black;
   background: transparent;
 }
+#dropdown-basic {
+  box-shadow: none !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
 .button_action_comment {
   border-radius: 50%;
-   border: 0px;
+  border: 0px !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 .button_action_comment:hover {
   color: #409034;
@@ -54,22 +122,75 @@
 #write_comment_area:focus {
   outline: none;
 }
-.button_send_comment{
-    outline: none;
-    border: 0px;
+.button_send_comment {
+  outline: none;
+  border: 0px;
 }
-.button_send_comment ion-icon:hover{
+.button_send_comment ion-icon:hover {
   color: #409034 !important;
 }
-.button_loadmore_comment{
+.button_loadmore_comment {
   font-size: 20px;
   margin-bottom: 30px;
 }
 
 .custom-modal_deletPostGroup .modal-content {
-  height: 100%!important;
+  height: 100% !important;
   width: 60% !important;
-  left: 20%!important;
+  left: 20% !important;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.17);
   border: 0px !important;
+}
+
+.uploaded_image {
+  width: 100px;
+  height: 100px;
+}
+.overlay-buttons {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.icon-large {
+  font-size: 30px;
+}
+.icon-medium {
+  font-size: 20px;
+}
+.text-primary {
+  color: #007bff;
+}
+.text-muted {
+  color: #979797;
+}
+.text-danger {
+  color: #AC0B0B;
+}
+.btn-danger {
+  background: #AC0B0B;
+}
+.emoji-picker-container {
+  position: absolute;
+  top: 100px; /* Adjust this value as needed */
+  left: 0;
+  z-index: 1000;
+}
+.small {
+  font-size: 12px;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.transparent-modal .modal-content {
+  background: transparent;
+  border: none;
+}
+.transparent-modal .modal-body {
+  padding: 0;
 }

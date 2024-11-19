@@ -84,11 +84,26 @@
   margin: 0 10px;
   font-size: 24px;
 }
+
+.image-container {
+  position: relative;
+}
+
+.delete-button {
+  display: none;
+}
+
+.image-container:hover .delete-button {
+  display: block;
+}
+
 .form_edit_group .mybutton {
   margin: 0;
   padding: 0;
   text-align: start;
-  border: 0;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 .form_edit_group .mybutton:hover {
   color: black;
@@ -100,9 +115,7 @@
 .selecte_location{
   height: 47px;
 }
-.description_group{
-  height: 74px;
-}
+
 .button_banner_group{
   width: 260px;
   height: 44px;
@@ -139,9 +152,6 @@
   width: calc(100% + 86px); /* Chiều rộng cộng thêm phần bị dịch sang trái */
 }
 
-.button_setting:hover{
-  color: #007931;
-}
 .custom-modal_deletGroup .modal-content{
   height: 100%!important;
   width: 60% !important;
@@ -155,4 +165,12 @@
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
+}
+.btn-link {
+  color: #007bff;
+  text-decoration: none;
+}
+.btn-link:hover {
+  color: #0056b3;
+  text-decoration: underline;
 }

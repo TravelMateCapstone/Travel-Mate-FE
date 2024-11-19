@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Button } from 'react-bootstrap';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Button, Spinner } from 'react-bootstrap';
 import Modal from 'react-modal';
 import { useDispatch, useSelector } from 'react-redux';
 import { openLoginModal } from '../../redux/actions/modalActions';
@@ -11,15 +11,15 @@ import '../../assets/css/Shared/FormSubmit.css';
 // Đặt vị trí modal vào root của ứng dụng để đảm bảo nó hiển thị chính xác
 Modal.setAppElement('#root');
 
-function FormSubmit({ children, buttonText, onButtonClick, title, openModalText, needAuthorize, autoOpen, }) {
+const FormSubmit = React.memo(({ children, buttonText, onButtonClick, title, openModalText, needAuthorize, autoOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token); // Get token from Redux store
   const isGroupEditModalOpen = useSelector((state) => state.modal.isGroupEditModalOpen);
   const location = useLocation();
 
-
-  const openModal = () => {
+  const openModal = useCallback(() => {
     // Check if authorization is needed
     if (needAuthorize && !token) {
       dispatch(openLoginModal()); // Open login modal if not authenticated
@@ -27,16 +27,23 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
       return;
     }
     setIsOpen(true);
-  };
+  }, [needAuthorize, token, dispatch]);
+
   useEffect(() => {
-    // Nếu autoOpen là true, mở modal ngay lập tức
     if (autoOpen) {
       openModal();
     }
-  }, [autoOpen]);
-  const closeModal = () => setIsOpen(false);
+  }, [autoOpen, openModal]);
+  const closeModal = useCallback(() => setIsOpen(false), []);
 
-
+  const handleButtonClick = async () => {
+    setIsProcessing(true);
+    try {
+      await onButtonClick();
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div>
@@ -95,10 +102,10 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
             bottom: 'auto',
             marginRight: '-50%',
             transform: 'translate(-50%, -50%)',
-            padding: '30px 70px',
+            padding: '20px 30px',
             borderRadius: '20px',
-            width: '897px',
-            maxHeight: '100vh',
+            width: '600px', // Increased width
+            height: '84%', // Full viewport height
             position: 'relative',
             display: 'flex',
             flexDirection: 'column', // Thêm dòng này để sắp xếp các phần của modal theo chiều dọc
@@ -106,12 +113,12 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
         }}
       >
         {/* Tiêu đề của form, được truyền qua prop title */}
-        <h2 className='text-center mb-4 fw-bolder'>{title}</h2>
+        <h2 className='text-center mb-4 fw-bolder' style={{ fontSize: '1.5rem' }}>{title}</h2>
 
         {/* Phần nội dung con được truyền vào component */}
         <div style={{
           overflowY: 'auto',  // Kích hoạt cuộn dọc nếu nội dung quá dài
-          maxHeight: 'calc(80vh - 150px)', // Điều chỉnh chiều cao tối đa của nội dung
+          flex: '1', // Chiếm toàn bộ chiều cao còn lại của modal
           paddingBottom: '20px',
         }}>
           {children}
@@ -128,18 +135,19 @@ function FormSubmit({ children, buttonText, onButtonClick, title, openModalText,
           padding: '10px 0', // Thêm padding để tách biệt với nội dung cuộn
         }}>
           {/* Nút truyền vào */}
-          <Button onClick={onButtonClick} style={{ marginRight: '10px', background: '#007931' }} className='rounded-5 border-0 fw-medium'>
-            {buttonText}
-          </Button>
-          {/* Nút đóng modal */}
           <Button variant='outline-dark' onClick={closeModal} className='rounded-5 fw-medium'>
             Hủy
           </Button>
+          <Button onClick={handleButtonClick} style={{ marginLeft: '10px', background: '#007931' }} className='rounded-5 border-0 fw-medium' disabled={isProcessing}>
+            {isProcessing ? <><Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" /> {buttonText}</> : buttonText}
+          </Button>
+          {/* Nút đóng modal */}
+         
         </div>
       </Modal>
 
     </div>
   );
-}
+});
 
 export default FormSubmit;
