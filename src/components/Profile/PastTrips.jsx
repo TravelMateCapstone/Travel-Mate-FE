@@ -11,7 +11,7 @@ function PastTrips() {
   const token = useSelector(state => state.auth.token);
 
   useEffect(() => {
-    axios.get('https://travelmateapp.azurewebsites.net/api/PastTripPosts', {
+    axios.get('https://travelmateapp.azurewebsites.net/api/PastTripPosts/UserTrips', {
       headers: {
         Authorization: `${token}`
       }
