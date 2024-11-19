@@ -21,6 +21,7 @@ import FormSubmit from '../components/Shared/FormSubmit';
 import ImageSelector from '../components/Shared/ImageSelector';
 import useApi from '../hooks/useApi';
 import ProvinceSelector from '../components/Shared/ProvinceSelector';
+import { generateText } from '../utils/generateTextAI';
 
 function ListLayout({ children }) {
     const [show, setShow] = useState(false);
@@ -36,10 +37,8 @@ function ListLayout({ children }) {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const { useCreate } = useApi(`${import.meta.env.VITE_BASE_API_URL}/api/groups`, 'createdGroups');
     const { mutate: createGroup, isLoading: isCreatingGroup } = useCreate();
-
-    console.log('Layout render');
-    
-
+    const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
+    const [showEventModal, setShowEventModal] = useState(false);
 
     const sidebarItems = [
         { iconName: 'list-circle', title: 'Danh sách nhóm', route: RoutePath.GROUP },
@@ -170,13 +169,16 @@ function ListLayout({ children }) {
             Object.values(newErrors).forEach(error => toast.error(error));
             setIsSubmitting(false);
             return;
-        }
+        }      
+
         const newGroup = {
             groupName,
             description: groupDescription,
             location: groupLocation,
             groupImageUrl: uploadedUrl ?? 'https://images.unsplash.com/photo-1725500221821-c4c770db5290?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         };
+        console.log(newGroup);
+        
         createGroup(newGroup, {
             onSuccess: (data) => {
                 dispatch(viewGroup(data, 'Owner'));
@@ -284,6 +286,13 @@ function ListLayout({ children }) {
         setShowViewImage(false);
     };
 
+    const handleGenerateDescription = async () => {
+        setIsGeneratingDescription(true);
+        const generatedText = await generateText(`Viết một đoạn mô tả dài 40 từ cho nhóm có tên là ${groupName}.`);
+        setGroupDescription(generatedText);
+        setIsGeneratingDescription(false);
+    };
+
     return (
         <Container fluid className='container-main'>
             <Row>
@@ -372,6 +381,14 @@ function ListLayout({ children }) {
                                                 onChange={(e) => setGroupDescription(e.target.value)}
                                                 className={`form-control ${errors.groupDescription ? 'is-invalid' : ''}`}
                                             />
+                                            <Button 
+                                                variant="secondary" 
+                                                onClick={handleGenerateDescription} 
+                                                className="mt-2"
+                                                disabled={isGeneratingDescription}
+                                            >
+                                                {isGeneratingDescription ? 'Đang tạo...' : 'Viết mô tả tự động'}
+                                            </Button>
                                             <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
                                                 {errors.groupDescription}
                                             </Form.Control.Feedback>
@@ -406,122 +423,135 @@ function ListLayout({ children }) {
                                 </FormModal>
                             </>
                         ) : (
-                            <FormSubmit buttonText={'Tạo sự kiện'} onButtonClick={handleCreateEvent} title={'Tạo sự kiện'} openModalText={'Tạo sự kiện'} needAuthorize={true}>
-                                <Form>
-                                    <Form.Group id="eventName" className="mb-3 mt-3">
-                                        <Form.Label className='fw-bold'>Tên sự kiện</Form.Label>
-                                        <Form.Control
-                                            className='form-input'
-                                            type="text"
-                                            placeholder="Nhập tên sự kiện"
-                                            value={eventName}
-                                            onChange={(e) => setEventName(e.target.value)}
-                                            isInvalid={!!errors.eventName}
-                                        />
-                                        <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
-                                            {errors.eventName}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-
-                                    <Form.Group id="eventDescription" className="mb-3">
-                                        <Form.Label className='fw-bold'>Mô tả sự kiện</Form.Label>
-                                        <TextareaAutosize
-                                            minRows={3}
-                                            placeholder="Nhập mô tả sự kiện"
-                                            value={eventDescription}
-                                            onChange={(e) => setEventDescription(e.target.value)}
-                                            className={`form-control ${errors.eventDescription ? 'is-invalid' : ''}`}
-                                        />
-                                        <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
-                                            {errors.eventDescription}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
-
-                                    <div className='time-event d-flex align-items-center'>
-                                        <Form.Group id="startAt" className="mb-3 mt-3">
-                                            <Form.Label className='fw-bold'>Thời gian bắt đầu</Form.Label>
+                            <>
+                                <Button className='rounded-5 d-flex align-items-center gap-2' variant="success" onClick={() => setShowEventModal(true)}>
+                                    Tạo sự kiện <ion-icon name="add-circle" style={{ fontSize: '24px' }}></ion-icon>
+                                </Button>
+                                <FormModal
+                                    show={showEventModal}
+                                    handleClose={() => setShowEventModal(false)}
+                                    title="Tạo sự kiện"
+                                    saveButtonText="Tạo sự kiện"
+                                    handleSave={handleCreateEvent}
+                                    isSubmitting={isSubmitting}
+                                    isSubmitted={isSubmitted}
+                                >
+                                    <Form>
+                                        <Form.Group id="eventName" className="mb-3 mt-3">
+                                            <Form.Label className='fw-bold'>Tên sự kiện</Form.Label>
                                             <Form.Control
                                                 className='form-input'
-                                                required
-                                                type="datetime-local"
-                                                value={startAt}
-                                                onChange={(e) => setStartAt(e.target.value)}
+                                                type="text"
+                                                placeholder="Nhập tên sự kiện"
+                                                value={eventName}
+                                                onChange={(e) => setEventName(e.target.value)}
+                                                isInvalid={!!errors.eventName}
                                             />
+                                            <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
+                                                {errors.eventName}
+                                            </Form.Control.Feedback>
                                         </Form.Group>
 
-                                        <Form.Group id="endAt" className="mb-3 mt-3">
-                                            <Form.Label className='fw-bold'>Thời gian kết thúc</Form.Label>
-                                            <Form.Control
+                                        <Form.Group id="eventDescription" className="mb-3">
+                                            <Form.Label className='fw-bold'>Mô tả sự kiện</Form.Label>
+                                            <TextareaAutosize
+                                                minRows={3}
+                                                placeholder="Nhập mô tả sự kiện"
+                                                value={eventDescription}
+                                                onChange={(e) => setEventDescription(e.target.value)}
+                                                className={`form-control ${errors.eventDescription ? 'is-invalid' : ''}`}
+                                            />
+                                            <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
+                                                {errors.eventDescription}
+                                            </Form.Control.Feedback>
+                                        </Form.Group>
+
+                                        <div className='time-event d-flex align-items-center'>
+                                            <Form.Group id="startAt" className="mb-3 mt-3">
+                                                <Form.Label className='fw-bold'>Thời gian bắt đầu</Form.Label>
+                                                <Form.Control
+                                                    className='form-input'
+                                                    required
+                                                    type="datetime-local"
+                                                    value={startAt}
+                                                    onChange={(e) => setStartAt(e.target.value)}
+                                                />
+                                            </Form.Group>
+
+                                            <Form.Group id="endAt" className="mb-3 mt-3">
+                                                <Form.Label className='fw-bold'>Thời gian kết thúc</Form.Label>
+                                                <Form.Control
+                                                    className='form-input'
+                                                    required
+                                                    type="datetime-local"
+                                                    value={endAt}
+                                                    onChange={(e) => setEndAt(e.target.value)}
+                                                />
+                                            </Form.Group>
+                                        </div>
+
+                                        <Form.Group id="location" className="mb-3">
+                                            <Form.Label className='fw-bold'>Địa điểm</Form.Label>
+                                            <Form.Select
                                                 className='form-input'
-                                                required
-                                                type="datetime-local"
-                                                value={endAt}
-                                                onChange={(e) => setEndAt(e.target.value)}
-                                            />
+                                                value={eventLocation}
+                                                onChange={(e) => setEventLocation(e.target.value)}
+                                            >
+                                                <option>Chọn địa điểm</option>
+                                                {locations.map((location) => (
+                                                    <option key={location.code} value={location.name}>
+                                                        {location.name}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
                                         </Form.Group>
-                                    </div>
 
-                                    <Form.Group id="location" className="mb-3">
-                                        <Form.Label className='fw-bold'>Địa điểm</Form.Label>
-                                        <Form.Select
-                                            className='form-input'
-                                            value={eventLocation}
-                                            onChange={(e) => setEventLocation(e.target.value)}
-                                        >
-                                            <option>Chọn địa điểm</option>
-                                            {locations.map((location) => (
-                                                <option key={location.code} value={location.name}>
-                                                    {location.name}
-                                                </option>
-                                            ))}
-                                        </Form.Select>
-                                    </Form.Group>
+                                        <Form.Group id="eventImage" className="mb-3">
+                                            <Form.Label>Ảnh sự kiện</Form.Label>
+                                            <Button onClick={triggerFileInputEvent} className="w-100 mb-2 upload-img">
+                                                Nhấn vào đây để <sapn className="upload">upload</sapn>
+                                            </Button>
+                                            <Form.Control
+                                                type="file"
+                                                id="fileInputEvent"
+                                                onChange={handleFileSelectForEvent}
+                                                className="d-none"
+                                            />
+                                            {isUploading ? (
+                                                <Placeholder as="div" animation="glow" className="mt-3">
+                                                    <Placeholder xs={12} className="upload-placeholder" />
+                                                </Placeholder>
+                                            ) : (
+                                                uploadedEventUrl && (
+                                                    <div className="position-relative mt-3">
+                                                        <img
+                                                            src={uploadedEventUrl || eventImage}
+                                                            alt="Ảnh đại diện sự kiện"
+                                                            className="ms-3 mt-3 event-image"
+                                                        />
+                                                        <ion-icon
+                                                            name="eye-outline"
+                                                            className="view-icon"
+                                                            onClick={() => handleView(uploadedEventUrl || eventImage)}
+                                                        ></ion-icon>
 
-                                    <Form.Group id="eventImage" className="mb-3">
-                                        <Form.Label>Ảnh sự kiện</Form.Label>
-                                        <Button onClick={triggerFileInputEvent} className="w-100 mb-2 upload-img">
-                                            Nhấn vào đây để <sapn className="upload">upload</sapn>
-                                        </Button>
-                                        <Form.Control
-                                            type="file"
-                                            id="fileInputEvent"
-                                            onChange={handleFileSelectForEvent}
-                                            className="d-none"
-                                        />
-                                        {isUploading ? (
-                                            <Placeholder as="div" animation="glow" className="mt-3">
-                                                <Placeholder xs={12} className="upload-placeholder" />
-                                            </Placeholder>
-                                        ) : (
-                                            uploadedEventUrl && (
-                                                <div className="position-relative mt-3">
-                                                    <img
-                                                        src={uploadedEventUrl || eventImage}
-                                                        alt="Ảnh đại diện sự kiện"
-                                                        className="ms-3 mt-3 event-image"
-                                                    />
-                                                    <ion-icon
-                                                        name="eye-outline"
-                                                        className="view-icon"
-                                                        onClick={() => handleView(uploadedEventUrl || eventImage)}
-                                                    ></ion-icon>
-
-                                                    <ion-icon
-                                                        name="trash-outline"
-                                                        className="delete-icon"
-                                                        onClick={handleDeleteImage}
-                                                    ></ion-icon>
+                                                        <ion-icon
+                                                            name="trash-outline"
+                                                            className="delete-icon"
+                                                            onClick={handleDeleteImage}
+                                                        ></ion-icon>
+                                                    </div>
+                                                )
+                                            )}
+                                            {errors.uploadedEventUrl && (
+                                                <div style={{ color: 'red', marginTop: '5px' }}>
+                                                    {errors.uploadedEventUrl}
                                                 </div>
-                                            )
-                                        )}
-                                        {errors.uploadedEventUrl && (
-                                            <div style={{ color: 'red', marginTop: '5px' }}>
-                                                {errors.uploadedEventUrl}
-                                            </div>
-                                        )}
-                                    </Form.Group>
-                                </Form>
-                            </FormSubmit>
+                                            )}
+                                        </Form.Group>
+                                    </Form>
+                                </FormModal>
+                            </>
                         )}
                     </Container>
                     {children}

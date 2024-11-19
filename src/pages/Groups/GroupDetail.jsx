@@ -43,7 +43,6 @@ const GroupDetail = () => {
   const { mutate: sendJoinRequest, isLoading: isSending, isSuccess: isSent } = useSendJoinRequest(false);
   const token = useSelector(state => state.auth.token);
 
-  console.log(isSuccessUpdateGroup);
   
 
   // State for post images
@@ -69,7 +68,6 @@ const GroupDetail = () => {
         const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Groups/JoinedGroups/${group?.groupId}`, {
           headers: { Authorization: `${token}` }
         });
-        console.log(response.data.userJoinedStatus);
         if(response.data.userJoinedStatus == 'Joined' || response.data.userJoinedStatus == 'Owner') {
           dispatch(viewGroup(group, response.data.userJoinedStatus));
         }
@@ -137,7 +135,6 @@ const GroupDetail = () => {
   const dispatch = useDispatch();
 
   const handleUpdateGroup = async () => {
-    console.log('Update group');
     
     const groupName = document.getElementById('group_name').value;
     const description = document.getElementById('description').value;
@@ -149,7 +146,6 @@ const GroupDetail = () => {
       description: description,
       groupImageUrl: groupImageUrl,
     };
-    console.log(updatedGroup);
     
   
     updateGroup({ id: group?.groupId, updatedData: updatedGroup }, {

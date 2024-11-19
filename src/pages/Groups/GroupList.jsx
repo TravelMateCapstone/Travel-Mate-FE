@@ -15,9 +15,6 @@ function GroupList() {
     : `https://travelmateapp.azurewebsites.net/api/groups?pageNumber=${pageNumber}`;
   const { useFetch } = useApi(endpoint);
   const { data, isLoading, error } = useFetch();
-  console.log(data);
-  
-  
 
   if (isLoading) return  <div className="group-list">
   {[...Array(6)].map((_, index) => (

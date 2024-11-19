@@ -11,8 +11,6 @@ const SidebarList = React.memo(({ items }) => {
     const location = useLocation();
     const token = useSelector(state => state.auth.token);
     const userJoinedStatus = useSelector(state => state.group.userJoinedStatus);
-    console.log(userJoinedStatus);
-    
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
