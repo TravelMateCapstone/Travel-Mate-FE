@@ -4,63 +4,83 @@ import { useSelector } from 'react-redux'
 import '../../../assets/css/Profile/FormBuilder/FormBuilder.css'
 import { toast } from 'react-toastify'
 import FormModal from '../../Shared/FormModal';
+import axios from 'axios';
 
 function FormBuilder() {
   const [questions, setQuestions] = useState([])
   const [services, setServices] = useState([{ id: new Date().getTime(), serviceName: '', amount: 0 }])
   const [showModal, setShowModal] = useState(false)
   const user = useSelector(state => state.auth.user)
+  const token = useSelector(state => state.auth.token);
 
   const addQuestion = useCallback(() => {
     const newQuestion = {
-      id: new Date().getTime(),
       type: 'text',
       question: '',
       option: [],
-    }
-    setQuestions(prevQuestions => [...prevQuestions, newQuestion])
-  }, [])
+    };
+    setQuestions(prevQuestions => [...prevQuestions, newQuestion]);
+  }, []);
+
 
   const addService = useCallback(() => {
     const newService = {
-      id: new Date().getTime(),
       serviceName: '',
-      amount: 0
-    }
-    setServices(prevServices => [...prevServices, newService])
-  }, [])
+      amount: 0,
+    };
+    setServices(prevServices => [...prevServices, newService]);
+  }, []);
+
 
   const updateService = useCallback((id, updatedService) => {
     setServices(prevServices => prevServices.map(service => service.id === id ? updatedService : service))
   }, [])
 
-  const handleChangeService = useCallback((id, e) => {
-    const { name, value } = e.target
-    setServices(prevServices => prevServices.map(service => service.id === id ? { ...service, [name]: value } : service))
-  }, [])
+  const handleChangeService = useCallback((index, e) => {
+    const { name, value } = e.target;
+    setServices(prevServices => prevServices.map((service, i) => i === index ? { ...service, [name]: value } : service));
+  }, []);
 
-  const handleChangeQuestion = useCallback((id, e) => {
+
+  const handleChangeQuestion = useCallback((index, e) => {
     const { value } = e.target;
-    setQuestions(prevQuestions => prevQuestions.map(question => question.id === id ? { ...question, question: value } : question));
-  }, [])
+    setQuestions(prevQuestions => prevQuestions.map((question, i) => i === index ? { ...question, question: value } : question));
+  }, []);
 
-  const handleDeleteService = useCallback((id) => {
-    setServices(prevServices => prevServices.filter(service => service.id !== id))
-  }, [])
 
-  const handleSave = useCallback(() => {
+  const handleDeleteService = useCallback((index) => {
+    setServices(prevServices => prevServices.filter((_, i) => i !== index));
+  }, []);
+
+
+  const handleSave = useCallback(async () => {
     if (services.length === 0) {
       toast.error('Phải có ít nhất 1 dịch vụ')
       return;
     }
     const dataSave = {
-      questions: questions,
-      services: services,
-      createByUser: user.id
+      questions: questions.map(q => ({
+        type: q.type,
+        text: q.question,
+        options: q.option.map(opt => opt.text)
+      })),
+      services: services.map(s => ({
+        serviceName: s.serviceName,
+        amount: s.amount
+      }))
+    };
+  
+    try {
+      await axios.put('https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/LocalForm', dataSave, {
+        headers: {
+          Authorization: `${token}`
+        }
+      });
+      toast.success('Lưu thành công');
+    } catch (error) {
+      toast.error('Lưu thất bại');
     }
-    localStorage.setItem('form_data', JSON.stringify(dataSave))
-    toast.success('Lưu thành công')
-  }, [questions, services, user.id])
+  }, [questions, services, token]);
 
   const deleteQuestion = useCallback((id) => {
     setQuestions(prevQuestions => prevQuestions.filter(question => question.id !== id))
@@ -74,50 +94,96 @@ function FormBuilder() {
     setServices([{ id: new Date().getTime(), serviceName: '', amount: 0 }])
   }, [])
 
-  const addOption = useCallback((questionId) => {
-    setQuestions(prevQuestions => prevQuestions.map(question =>
-      question.id === questionId
-        ? { ...question, option: [...question.option, { id: new Date().getTime(), text: '' }] }
-        : question
-    ));
-  }, [])
+  const addOption = useCallback((index) => {
+    setQuestions(prevQuestions =>
+      prevQuestions.map((question, i) =>
+        i === index
+          ? { ...question, option: [...question.option, { id: new Date().getTime(), text: '' }] }
+          : question
+      )
+    );
+  }, []);
 
-  const handleOptionChange = useCallback((questionId, optionId, e) => {
+
+  const handleOptionChange = useCallback((questionIndex, optionIndex, e) => {
     const { value } = e.target;
-    setQuestions(prevQuestions => prevQuestions.map(question =>
-      question.id === questionId
-        ? { ...question, option: question.option.map(opt => opt.id === optionId ? { ...opt, text: value } : opt) }
-        : question
-    ));
-  }, [])
+    setQuestions(prevQuestions =>
+      prevQuestions.map((question, i) =>
+        i === questionIndex
+          ? {
+              ...question,
+              option: question.option.map((opt, j) =>
+                j === optionIndex ? { ...opt, text: value } : opt
+              ),
+            }
+          : question
+      )
+    );
+  }, []);
+  
 
-  const updateQuestionType = useCallback((id, type) => {
-    setQuestions(prevQuestions => prevQuestions.map(question =>
-      question.id === id
+  const updateQuestionType = useCallback((index, type) => {
+    setQuestions(prevQuestions => prevQuestions.map((question, i) =>
+      i === index
         ? { ...question, type, option: type === 'single' || type === 'multiple' ? [{ id: new Date().getTime(), text: '' }] : [] }
         : question
     ));
-  }, [])
+  }, []);
 
-  const handleDeleteQuestion = useCallback((id) => {
-    setQuestions(prevQuestions => prevQuestions.filter(question => question.id !== id));
-  }, [])
 
-  const handleDeleteOption = useCallback((questionId, optionId) => {
-    setQuestions(prevQuestions => prevQuestions.map(question =>
-      question.id === questionId
-        ? { ...question, option: question.option.filter(opt => opt.id !== optionId) }
-        : question
-    ));
-  }, [])
+  const handleDeleteQuestion = useCallback((index) => {
+    setQuestions(prevQuestions => prevQuestions.filter((_, i) => i !== index));
+  }, []);
 
-  const renderedServices = useMemo(() => services.map(service => (
-    <div key={service.id} className='w-100 d-flex align-items-center gap-2 mb-2'>
+  const handleDeleteOption = useCallback((questionIndex, optionIndex) => {
+    setQuestions(prevQuestions =>
+      prevQuestions.map((question, i) =>
+        i === questionIndex
+          ? {
+            ...question,
+            option: question.option.filter((_, j) => j !== optionIndex),
+          }
+          : question
+      )
+    );
+  }, []);
+
+  const fetchFormData = useCallback(async () => {
+    try {
+      const response = await axios.get('https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/LocalForm', {
+        headers: {
+          Authorization: `${token}`
+        }
+      });
+      const data = response.data;
+      setQuestions(data.questions.$values.map(q => ({
+        type: q.type,
+        question: q.text,
+        option: q.options.$values.map(opt => ({ id: new Date().getTime(), text: opt }))
+      })));
+      setServices(data.services.$values.map(s => ({
+        id: new Date().getTime(),
+        serviceName: s.serviceName,
+        amount: s.amount
+      })));
+    } catch (error) {
+      toast.error('Lấy dữ liệu thất bại');
+    }
+  }, [token]);
+  
+  useEffect(() => {
+    if (showModal) {
+      fetchFormData();
+    }
+  }, [showModal, fetchFormData]);
+
+  const renderedServices = useMemo(() => services.map((service, index) => (
+    <div key={index} className='w-100 d-flex align-items-center gap-2 mb-2'>
       <Form.Control
         type="text"
         name="serviceName"
         value={service.serviceName}
-        onChange={(e) => handleChangeService(service.id, e)}
+        onChange={(e) => handleChangeService(index, e)}
         placeholder="Tên dịch vụ"
         className='service-name'
       />
@@ -125,24 +191,31 @@ function FormBuilder() {
         type="number"
         name="amount"
         value={service.amount}
-        onChange={(e) => handleChangeService(service.id, e)}
+        onChange={(e) => handleChangeService(index, e)}
         placeholder="Giá"
         className='service-amount'
       />
-      <Button size='sm' className='bg-transparent text-danger border-0 shadow-none px-1 button-delete-service' variant="danger" onClick={() => handleDeleteService(service.id)}>
+      <Button
+        size='sm'
+        className='bg-transparent text-danger border-0 shadow-none px-1 button-delete-service'
+        variant="danger"
+        onClick={() => handleDeleteService(index)}
+      >
         <ion-icon name="trash-outline" style={{ fontSize: '20px' }}></ion-icon>
       </Button>
-    </div>
-  )), [services, handleChangeService, handleDeleteService])
 
-  const renderedQuestions = useMemo(() => questions.map(question => (
-    <div key={question.id} className='question mb-2'>
+    </div>
+  )), [services, handleChangeService, handleDeleteService]);
+
+
+  const renderedQuestions = useMemo(() => questions.map((question, index) => (
+    <div key={index} className='question mb-2'>
       <div className='d-flex justify-content-between align-items-center gap-2 mb-2'>
         <Form.Control
           type="text"
           placeholder="Nhập câu hỏi"
           value={question.question}
-          onChange={(e) => handleChangeQuestion(question.id, e)}
+          onChange={(e) => handleChangeQuestion(index, e)}
         />
         <div className='d-flex gap-2'>
           <Dropdown>
@@ -150,37 +223,49 @@ function FormBuilder() {
               <ion-icon name="funnel-outline"></ion-icon>
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item onClick={() => updateQuestionType(question.id, 'text')}>Câu hỏi mở</Dropdown.Item>
-              <Dropdown.Item onClick={() => updateQuestionType(question.id, 'yesno')}>Câu hỏi đóng (Có/Không)</Dropdown.Item>
-              <Dropdown.Item onClick={() => updateQuestionType(question.id, 'single')}>Câu hỏi trắc nghiệm đơn lựa chọn</Dropdown.Item>
-              <Dropdown.Item onClick={() => updateQuestionType(question.id, 'multiple')}>Câu hỏi trắc nghiệm nhiều lựa chọn</Dropdown.Item>
+              <Dropdown.Item onClick={() => updateQuestionType(index, 'text')}>Câu hỏi mở</Dropdown.Item>
+              <Dropdown.Item onClick={() => updateQuestionType(index, 'yesno')}>Câu hỏi đóng (Có/Không)</Dropdown.Item>
+              <Dropdown.Item onClick={() => updateQuestionType(index, 'single')}>Câu hỏi trắc nghiệm đơn lựa chọn</Dropdown.Item>
+              <Dropdown.Item onClick={() => updateQuestionType(index, 'multiple')}>Câu hỏi trắc nghiệm nhiều lựa chọn</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
-          <Button size='sm' variant='danger' className='' onClick={() => handleDeleteQuestion(question.id)}> <ion-icon name="trash-outline"></ion-icon></Button>
+          <Button
+            size='sm'
+            variant='danger'
+            className=''
+            onClick={() => handleDeleteQuestion(index)}
+          >
+            <ion-icon name="trash-outline"></ion-icon>
+          </Button>
+
         </div>
       </div>
       <div>
         {question.type === 'single' || question.type === 'multiple' ? (
           <div className='options'>
-            {question.option.map(opt => (
-              <div key={opt.id} className='d-flex align-items-center mb-2'>
+            {question.option.map((opt, optIndex) => (
+              <div key={optIndex} className='d-flex align-items-center mb-2'>
                 <Form.Control
                   type="text"
                   placeholder="Nhập lựa chọn"
                   value={opt.text}
-                  onChange={(e) => handleOptionChange(question.id, opt.id, e)}
+                  onChange={(e) => handleOptionChange(index, optIndex, e)}
                 />
-                <Button variant="danger" onClick={() => handleDeleteOption(question.id, opt.id)}>
+                <Button
+                  variant="danger"
+                  onClick={() => handleDeleteOption(index, optIndex)} // Truyền đúng questionIndex và optionIndex
+                >
                   <ion-icon name="trash-outline"></ion-icon>
                 </Button>
               </div>
             ))}
-            <Button onClick={() => addOption(question.id)}>Thêm lựa chọn</Button>
+            <Button onClick={() => addOption(index)}>Thêm lựa chọn</Button>
+
           </div>
         ) : null}
       </div>
     </div>
-  )), [questions, handleChangeQuestion, updateQuestionType, handleDeleteQuestion, handleOptionChange, handleDeleteOption, addOption])
+  )), [questions, handleChangeQuestion, updateQuestionType, handleDeleteQuestion, handleOptionChange, handleDeleteOption, addOption]);
 
   return (
     <div>

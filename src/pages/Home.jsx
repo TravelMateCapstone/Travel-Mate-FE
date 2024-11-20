@@ -4,6 +4,8 @@ import AutoSuggestInput from '../components/Shared/AutoSuggestInput';
 import AnswerQuestion from '../components/Profile/FormBuilder/AnswerQuestion';
 import CarouselComponent from '../components/Home/CarouselComponent';
 import LocalCarousel from '../components/Home/LocalCarousel';
+import ThreeDCarousel from '../components/Home/ThreeDCarousel';
+import ViewFormRequest from '../components/Profile/FormBuilder/ViewFormRequest';
 
 function Home() {
   const images = [
@@ -15,8 +17,10 @@ function Home() {
     <div className='mt-4'>
       <ToolBar />
       <CarouselComponent images={images} />
+      <ThreeDCarousel />
       <LocalCarousel />
       <AnswerQuestion />
+      <ViewFormRequest />
       <AutoSuggestInput />
     </div>
   );
