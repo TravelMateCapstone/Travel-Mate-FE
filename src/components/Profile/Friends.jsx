@@ -1,14 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ReactPaginate from 'react-paginate';
 import { useSelector } from 'react-redux';
-<<<<<<< HEAD
-import { useQuery } from 'react-query';
-import '../../assets/css/Shared/Pagination.css';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
-import { useLocation } from 'react-router-dom';
-=======
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../../assets/css/Shared/Pagination.css';
 import Skeleton from 'react-loading-skeleton';
@@ -16,25 +9,15 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { Dropdown } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import RoutePath from '../../routes/RoutePath';
->>>>>>> features/ViewNotification
 
 function Friends() {
+  const [friends, setFriends] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 4;
   const token = useSelector((state) => state.auth.token);
   const url = import.meta.env.VITE_BASE_API_URL;
   const location = useLocation();
-<<<<<<< HEAD
-
-  const fetchFriends = async () => {
-    const response = await axios.get(`${url}/api/Friendship/current-user/friends`, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    });
-    return response.data.$values;
-  };
-=======
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,11 +37,17 @@ function Friends() {
               Authorization: `${token}`,
             },
           });
->>>>>>> features/ViewNotification
 
-  const { data: friends = [], isLoading } = useQuery(['friends', location.pathname], fetchFriends, {
-    retry: false,
-  });
+          setFriends(response.data.$values);
+        } catch (error) {
+          console.error('Lỗi khi lấy dữ liệu bạn bè:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    fetchFriends();
+  }, [token, url, location.pathname]);
 
   const pagesVisited = currentPage * itemsPerPage;
   const displayedFriends = friends.slice(pagesVisited, pagesVisited + itemsPerPage);
@@ -126,7 +115,7 @@ function Friends() {
         gridTemplateColumns: 'repeat(2, 1fr)',
         gridGap: '20px 60px',
       }} className='px-5'>
-        {isLoading ? (
+        {loading ? (
           [...Array(itemsPerPage)].map((_, index) => (
             <div key={index} style={{
               border: '1px solid black',
@@ -143,29 +132,6 @@ function Friends() {
             </div>
           ))
         ) : (
-<<<<<<< HEAD
-          displayedFriends.length > 0 ? (
-            displayedFriends.map((friend, index) => (
-              <div key={index} style={{
-                border: '1px solid black',
-                padding: '20px',
-                borderRadius: '10px',
-                display: 'flex',
-                alignItems: 'center'
-              }}>
-                <img
-                  src={friend.profile?.imageUser}
-                  alt={friend.profile?.lastName}
-                  style={{ width: '60px', height: '60px', borderRadius: '50%', marginRight: '15px', objectFit: 'cover' }} // Điều chỉnh kích thước ảnh
-                />
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <h5 style={{ margin: 0, fontWeight: 'bold' }}>{friend.profile?.firstName} {friend.profile?.lastName}</h5>
-                    <p style={{ margin: 0 }}>{friend.profile?.city}</p>
-                  </div>
-                  <i className="bi bi-three-dots"></i>
-                </div>
-=======
           displayedFriends.map((friend, index) => (
             <div key={index} style={{
               border: '1px solid black',
@@ -195,41 +161,11 @@ function Friends() {
                     )}
                   </Dropdown.Menu>
                 </Dropdown>
->>>>>>> features/ViewNotification
               </div>
-            ))
-          ) : (
-            <p>Bạn chưa có bạn bè nào</p>
-          )
+            </div>
+          ))
         )}
       </div>
-<<<<<<< HEAD
-
-      {/* Center the button and remove background */}
-      {pageCount >= 2 && (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginTop: '20px'
-        }}>
-          <ReactPaginate
-            previousLabel={'<'}
-            nextLabel={'>'}
-            breakLabel={'...'}
-            breakClassName={'break-me'}
-            pageCount={pageCount}
-            marginPagesDisplayed={2}
-            pageRangeDisplayed={2}
-            onPageChange={handlePageChange}
-            containerClassName={'pagination'}
-            activeClassName={'active-pagination'}
-            previousClassName={'previous'}
-            nextClassName={'next'}
-          />
-        </div>
-      )}
-=======
       <div style={{
         display: 'flex',
         justifyContent: 'center',
@@ -251,7 +187,6 @@ function Friends() {
           nextClassName={'next'}
         />
       </div>
->>>>>>> features/ViewNotification
     </div>
   );
 }

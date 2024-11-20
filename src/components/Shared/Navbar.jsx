@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Navbar as BootstrapNavbar, Nav, Row, Col, Container, Dropdown, Button, Offcanvas } from 'react-bootstrap';
 import { Link, NavLink } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
@@ -30,62 +30,34 @@ const Navbar = React.memo(() => {
 
   const handelShowOffcanvas = useCallback(() => {
     setShowOffcanvas(true);
-  }
+  });
 
-  const notifications = [
-    {
-      "id": 1,
-      "isRequest": true,
-      "avatar": "https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj",
-      "content": "Bạn có một yêu cầu kết bạn",
-      "name": "Sơn Tùng MTP"
-    },
-    {
-      "id": 2,
-      "isRequest": false,
-      "avatar": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3xjGTAPhRSIQ9TpbJbBKruRQpaTepXiKL3Q&s",
-      "content": "Tin nhắn từ nhóm",
-      "name": "Đức Phúc"
-    },
-    {
-      "id": 3,
-      "isRequest": true,
-      "avatar": "https://cdn.tuoitre.vn/zoom/700_525/471584752817336320/2024/8/29/hieuthuhai-6-1724922106140134622997-0-0-994-1897-crop-17249221855301721383554.jpg",
-      "content": "Yêu cầu tham gia sự kiện",
-      "name": "HIEUTHUHAI"
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      axios.get('https://travelmateapp.azurewebsites.net/api/Notification/current-user/notifications', {
+        headers: {
+          Authorization: `${token}`
+        }
+      })
+        .then(response => {
+          if (response.data?.$values) {
+            const updatedNotifications = response.data.$values.map(notification => {
+              return {
+                ...notification,
+                isRequest: notification.message.includes("Bạn đã nhận được một lời mời kết bạn từ"),
+                senderId: notification.senderId ? notification.senderId : null
+              };
+            });
+            setNotifications(updatedNotifications);
+            console.log("Notifications data: ", updatedNotifications);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching notifications:', error);
+        });
     }
-  ];
+  }, [isAuthenticated, token]);
 
-  const messages = [
-    {
-      id: 1,
-      avatar: 'https://yt3.googleusercontent.com/oN0p3-PD3HUzn2KbMm4fVhvRrKtJhodGlwocI184BBSpybcQIphSeh3Z0i7WBgTq7e12yKxb=s900-c-k-c0x00ffffff-no-rj',
-      name: 'Sơn Tùng MTP',
-      message: 'Hello, how are you? ',
-      time: '10:30 AM',
-    },
-    {
-      id: 2,
-      avatar: 'https://cdn.tuoitre.vn/zoom/700_525/471584752817336320/2024/8/29/hieuthuhai-6-1724922106140134622997-0-0-994-1897-crop-17249221855301721383554.jpg',
-      name: 'HIEUTHUHAI',
-      message: 'Let’s meet up this weekend!',
-      time: '09:45 AM',
-    },
-    {
-      id: 3,
-      avatar: 'https://tq10.mediacdn.vn/thumb_w/1000/160588918557773824/2022/11/17/truong-giang-1668657634653863093929.jpg',
-      name: 'Trường Giang',
-      message: 'I’ve sent you the document.',
-      time: 'Yesterday',
-    },
-    {
-      id: 4,
-      avatar: 'https://tudienwiki.com/wp-content/uploads/2023/02/Soobin-Hoang-Son.jpg',
-      name: 'MCK',
-      message: 'I’ve sent you the document.',
-      time: 'Yesterday',
-    },
-  ];
 
   const handleLoginModal = useCallback(() => {
     if (isLoginModalOpen) {
@@ -114,8 +86,49 @@ const Navbar = React.memo(() => {
     console.log(`Selected item: ${eventKey}`);
   }, []);
 
-  const handleShow = () => setShowOffcanvas(true); // Mở Offcanvas
-  const handleClose = () => setShowOffcanvas(false); // Đóng Offcanvas
+  const handleShow = useCallback(() => setShowOffcanvas(true), []);
+  const handleClose = useCallback(() => setShowOffcanvas(false), []);
+
+  const handleAcceptFriendRequest = async (senderId) => {
+    try {
+      const response = await axios.post(
+        `https://travelmateapp.azurewebsites.net/api/Friendship/accept?fromUserId=${senderId}`,
+        {},
+        {
+          headers: {
+            Authorization: `${token}`
+          }
+        }
+      );
+      if (response.status === 200) {
+        toast.success("Chấp nhận kết bạn thành công!");
+      }
+    } catch (error) {
+      console.error('Error accepting friend request:', error);
+      toast.error("Lỗi khi chấp nhận kết bạn!");
+    }
+  };
+
+  const handleRejectFriendRequest = async (userIdRequest) => {
+    try {
+      const response = await axios.delete(
+        `https://travelmateapp.azurewebsites.net/api/Friendship/remove?friendUserId=${userIdRequest}`,
+        {
+          headers: {
+            Authorization: `${token}`, // Đảm bảo Bearer token được truyền vào đúng định dạng
+          },
+        }
+      );
+      if (response.status === 200) {
+        toast.success("Từ chối kết bạn thành công!");
+      }
+    } catch (error) {
+      console.error('Error rejecting friend request:', error);
+      toast.error("Lỗi khi từ chối kết bạn!");
+    }
+  };
+
+
 
   return (
     <BootstrapNavbar bg="white" expand="lg" className='my-navbar shadow fixed-top'>
