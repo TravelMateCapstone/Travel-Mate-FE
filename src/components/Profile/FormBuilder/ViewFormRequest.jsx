@@ -1,7 +1,6 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
-import { useQuery, useQueryClient } from 'react-query'
 import { Col, Form, Row } from 'react-bootstrap'
 
 const DateTimeInput = React.memo(({ placeholder, value, onChange }) => (
@@ -20,16 +19,26 @@ function formatDateTime(dateTime) {
 
 function ViewFormRequest() {
   const token = useSelector(state => state.auth.token)
-  const queryClient = useQueryClient()
+  const [formData, setFormData] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const { data: formData, isLoading } = useQuery('formData', async () => {
-    const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/TravelerForm?localId=8`, {
-      headers: {
-        Authorization: `${token}`
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/TravelerForm?localId=8`, {
+          headers: {
+            Authorization: `${token}`
+          }
+        })
+        setFormData(response.data)
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      } finally {
+        setIsLoading(false)
       }
-    })
-    return response.data
-  })
+    }
+    fetchData()
+  }, [token])
 
   if (isLoading) {
     return <div>Loading...</div>
