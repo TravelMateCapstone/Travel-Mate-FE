@@ -1,0 +1,116 @@
+
+.banner-container {
+    position: relative;
+}
+
+.carousel-caption-content {
+    position: absolute;
+    bottom: 20%;
+    left: -10%;
+    color: white;
+    text-align: left;
+    z-index: 10;
+}
+
+.carousel-title {
+    font-size: 4rem;
+    font-weight: bold;
+    margin-bottom: 18px;
+    text-transform: uppercase;
+    font-family: 'Poppins', sans-serif;
+    color: white;
+}
+
+.carousel-subtitle {
+    font-family: 'Poppins', sans-serif;
+    font-style: italic;
+    margin-bottom: 18px;
+}
+
+.carousel-button {
+    background-color: #ffffff;
+    border: none;
+    padding: 0.75rem 2rem;
+    color: #000;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: start;
+    width: 408px;
+    height: 108px;
+    border-radius: 20px;
+}
+
+.header-text-subtitle {
+    font-size: 25px;
+}
+
+.carousel-button:hover {
+    background-color: #f0f0f0;
+}
+
+/* Media query cho màn hình tablet */
+@media (max-width: 992px) {
+    .carousel-title {
+        font-size: 60px; /* Điều chỉnh kích thước tiêu đề */
+        margin-bottom: 5px;
+    }
+    .carousel-subtitle{
+        font-size: 10px;
+    }
+
+    .carousel-button {
+        width: 200px;
+        height: 55px;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .header-text-subtitle {
+        font-size: 10px;
+        margin: 0;
+    }
+
+    .carousel-caption-content {
+        bottom: 15%;
+        left: 0;
+    }
+    .small-text-subtitle{
+        font-size: 8px !important;
+        width: 100% !important;
+    }
+}
+
+/* Media query cho màn hình mobile */
+@media (max-width: 576px) {
+    .carousel-title {
+        font-size: 30px; /* Điều chỉnh kích thước tiêu đề */
+        margin-bottom: 10px;
+    }
+    .carousel-subtitle{
+        font-size: 6px;
+    }
+
+    .carousel-button {
+        width: 150px;
+        height: 45px;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .header-text-subtitle {
+        font-size: 8px;
+        margin: 0;
+    }
+
+    .carousel-caption-content {
+        bottom: 15%;
+        left: 0;
+    }
+    .small-text-subtitle{
+        font-size: 6px !important;
+        width: 100% !important;
+    }
+}

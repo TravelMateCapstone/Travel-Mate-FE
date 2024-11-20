@@ -1,0 +1,46 @@
+.local-carousel {
+    overflow-x: auto;
+    white-space: nowrap;
+    cursor: grab;
+}
+
+.local-carousel:active {
+    cursor: grabbing;
+}
+
+.local-carousel::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for better UX */
+}
+
+.local-carousel .d-flex {
+    display: inline-flex;
+}
+
+.carousel-card {
+    width: 330px;
+    height: 500px !important;
+    flex: 0 0 auto;
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.carousel-card-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+}
+
+.carousel-card-body {
+    position: relative;
+    z-index: 2;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 0 0 20px 20px;
+    margin-top: auto;
+    padding-top: 10px;
+}
