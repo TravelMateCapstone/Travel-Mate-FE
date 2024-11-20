@@ -1,33 +1,36 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { Navbar as BootstrapNavbar, Nav, Row, Col, Container, Dropdown, Button, Offcanvas } from 'react-bootstrap';
 import { Link, NavLink } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
 import '../../assets/css/Shared/NavBar.css';
 import logo from '../../assets/images/logo.png';
-import logoMobile from '../../assets/images/logo.svg'
+import logoMobile from '../../assets/images/logo.svg';
 import { useDispatch, useSelector } from "react-redux";
 import Login from './Login';
-import Register from './Register'
+import Register from './Register';
 import { openLoginModal, closeLoginModal, openRegisterModal, closeRegisterModal } from "../../redux/actions/modalActions";
-import chatbubble from '../../assets/images/chatbubbles.svg'
-import notify from '../../assets/images/notify.svg'
+import axios from 'axios';
 import NotifyItem from "../Shared/NotifyItem";
 import MessengerItem from "../Shared/MessengerItem";
 import { logout } from "../../redux/actions/authActions";
+import { toast } from 'react-toastify';
 
 const Navbar = React.memo(() => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const [selectedItem, setSelectedItem] = useState('Địa điểm du lịch');
-  const [showOffcanvas, setShowOffcanvas] = useState(false); 
+  const [showOffcanvas, setShowOffcanvas] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [messages, setMessages] = useState([]); // Added messages state
   const dispatch = useDispatch();
 
   const isLoginModalOpen = useSelector((state) => state.modal.isLoginModalOpen);
   const isRegisterModalOpen = useSelector((state) => state.modal.isRegisterModalOpen);
   const user = useSelector((state) => state.auth.user);
+  const token = useSelector((state) => state.auth.token);
 
   const handelShowOffcanvas = useCallback(() => {
     setShowOffcanvas(true);
-  }, []);
+  }
 
   const notifications = [
     {
@@ -111,8 +114,8 @@ const Navbar = React.memo(() => {
     console.log(`Selected item: ${eventKey}`);
   }, []);
 
-  const handleShow = useCallback(() => setShowOffcanvas(true), []); 
-  const handleClose = useCallback(() => setShowOffcanvas(false), []); 
+  const handleShow = () => setShowOffcanvas(true); // Mở Offcanvas
+  const handleClose = () => setShowOffcanvas(false); // Đóng Offcanvas
 
   return (
     <BootstrapNavbar bg="white" expand="lg" className='my-navbar shadow fixed-top'>
@@ -184,7 +187,6 @@ const Navbar = React.memo(() => {
             </div>
           </Col>
           <Col xs={4} className="d-flex justify-content-end gap-2 align-items-center pe-0">
-
             {isAuthenticated ? (
               <>
                 <Dropdown align="end">
@@ -227,17 +229,24 @@ const Navbar = React.memo(() => {
 
                   <Dropdown.Menu className="py-3 dropdown-menu-notify">
                     {notifications.map((notification) => (
-                      <Dropdown.Item key={notification.id} href={`#notification${notification.id}`}>
-                        <NotifyItem avatar={notification.avatar} content={notification.content} isRequest={notification.isRequest} name={notification.name} />
+                      <Dropdown.Item key={notification.notificationId} href={`#notification${notification.notificationId}`}>
+                        <NotifyItem
+                          avatar={user?.avatarUrl || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'}
+                          content={notification.message}
+                          isRequest={notification.isRequest}
+                          name={user?.username || 'User'}
+                          onAccept={() => handleAcceptFriendRequest(notification.senderId)}
+                          onDecline={() => handleRejectFriendRequest(notification.senderId)}
+                        />
                       </Dropdown.Item>
                     ))}
                     <div className="d-flex align-items-center justify-content-center mt-2 gap-1">
                       <p className="m-0 messege-more">Xem thêm thông báo</p>
-                      <ion-icon name="chevron-down-circle-outline" style={{
-                        fontSize: '20px'
-                      }}></ion-icon>
+                      <ion-icon name="chevron-down-circle-outline" style={{ fontSize: '20px' }}></ion-icon>
                     </div>
                   </Dropdown.Menu>
+
+
                 </Dropdown>
 
                 <Dropdown align="end">
@@ -252,7 +261,7 @@ const Navbar = React.memo(() => {
                     <ion-icon name="menu-outline"></ion-icon>
                   </Dropdown.Toggle>
 
-                  <Dropdown.Menu className="p-1 avatar-dropdown" >
+                  <Dropdown.Menu className="p-1 avatar-dropdown">
                     <Dropdown.Item as={Link} to={RoutePath.PROFILE} className="avatar-dropdown-item">
                       Hồ sơ
                     </Dropdown.Item>
@@ -294,8 +303,6 @@ const Navbar = React.memo(() => {
                 {/* Nút để mở Offcanvas */}
                 <Button variant='outline-secondary' className='d-lg-none' onClick={handleShow}><ion-icon name="menu-outline"></ion-icon></Button></>
             )}
-
-
           </Col>
         </Row>
       </Container>
@@ -314,9 +321,15 @@ const Navbar = React.memo(() => {
               <input type="text" placeholder="Tìm kiếm..." style={{ border: 'none', outline: 'none', flex: 1 }} />
             </div>
             <Dropdown onSelect={handleSelect} align="end">
-              <Dropdown.Toggle variant="success" id="" style={
-                { borderTopLeftRadius: '0', borderBottomLeftRadius: '0', borderTopRightRadius: '20px', borderBottomRightRadius: '20px', width: '120px', fontSize: '10px', height: '38px' }
-              }>
+              <Dropdown.Toggle variant="success" id="" style={{
+                borderTopLeftRadius: '0',
+                borderBottomLeftRadius: '0',
+                borderTopRightRadius: '20px',
+                borderBottomRightRadius: '20px',
+                width: '120px',
+                fontSize: '10px',
+                height: '38px'
+              }}>
                 {selectedItem}
               </Dropdown.Toggle>
               <Dropdown.Menu>

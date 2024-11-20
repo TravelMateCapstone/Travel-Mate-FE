@@ -48,10 +48,31 @@ function ProfileCard() {
         const storageRef = ref(storage, `profile-images/${file.name}`);
         await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(storageRef);
+<<<<<<< HEAD
         await axios.put(`${url}/api/Profile/current-user/update-image`, downloadURL, {
           headers: { Authorization: token, "Content-Type": "application/json" }
         });
         toast.success('Cập nhật ảnh đại diện thành công !');
+=======
+
+        await axios.put(
+          `${url}/api/Profile/current-user/update-image`,
+          downloadURL,
+          {
+            headers: {
+              Authorization: `${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        setProfile((prevProfile) => ({
+          ...prevProfile,
+          imageUser: downloadURL,
+        }));
+        toast.success('Cập nhật ảnh đại diệnn  thành công !');
+        // Dispatch action để cập nhật avatar trong Redux
+>>>>>>> features/ViewNotification
         dispatch(updateUserAvatar(downloadURL));
       } catch (error) {
         console.error("Lỗi khi cập nhật ảnh:", error);
@@ -170,18 +191,38 @@ function ProfileCard() {
               </>
             ) : (
               <>
-                <Button as={Link} to="/send-request" variant="success" className="profile-button profile-button-success">
-                  Gửi yêu cầu
+                <Button as={Link} to="/chat" variant="success" className="profile-button profile-button-success">
+                  <span className="send-request">Gửi yêu cầu</span>
                 </Button>
                 <DropdownButton
                   id="dropdown-options"
-                  title="Tùy chọn"
-                  variant="secondary"
+                  variant="custom"
                   className="profile-button-options"
+                  title={
+                    <span style={{ color: 'white' }}>
+                      Tùy chọn <ion-icon name="chevron-down-outline" style={{ color: 'white' }}></ion-icon>
+                    </span>
+                  }
                 >
+<<<<<<< HEAD
                   <Dropdown.Item onClick={handleSendFriendRequest}>Kết bạn</Dropdown.Item>
                   <Dropdown.Item onClick={() => toast.success('Bạn đã báo cáo người dùng này!')}>Báo cáo</Dropdown.Item>
+=======
+                  <Dropdown.Item onClick={handleSendFriendRequest}>
+                    <span className="icon-option">
+                      <ion-icon name="person-add-outline"></ion-icon>
+                    </span>
+                    Kết bạn
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => alert('Bạn đã báo cáo người dùng này!')}>
+                    <span className="icon-option">
+                      <ion-icon name="warning-outline"></ion-icon>
+                    </span>
+                    Báo cáo
+                  </Dropdown.Item>
+>>>>>>> features/ViewNotification
                 </DropdownButton>
+
               </>
             )}
           </div>

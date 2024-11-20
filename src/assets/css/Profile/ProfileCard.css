@@ -1,5 +1,6 @@
 /* ProfileCard.css */
 
+/* Các thuộc tính hiện có của ProfileCard đã được giữ nguyên */
 .profile-card {
   padding: 0 24px 33px 24px;
   width: 332px;
@@ -40,7 +41,6 @@
   gap: 1rem;
   font-size: 16px;
   align-items: center;
-
 }
 
 .profile-completion {
@@ -50,26 +50,97 @@
 .profile-buttons {
   display: flex;
   justify-content: space-around;
+  margin-top: 24px;
+  margin-bottom: 24px;
 }
 
+
+/* Profile button chung */
 .profile-button {
-  width: 106px !important;
+  width: 115px !important;
   height: 35px;
   display: flex !important;
   align-items: center;
   justify-content: center;
-  font-size: 15px !important;
+  font-size: 16px !important;
   border-radius: 25px !important;
+  border: none;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  white-space: nowrap;
+  outline: none;
 }
 
+/* Gửi yêu cầu - nút thành công */
 .profile-button-success {
   background-color: #28a745;
   color: white;
 }
 
-.profile-button-secondary {
-  background-color: #6c757d;
+.profile-button-success:hover {
+  background-color: #218838;
   color: white;
+}
+
+/* Nút "Tùy chọn" */
+.profile-button-options {
+  width: 115px !important;
+  height: 35px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 25px !important;
+  padding: 0;
+  font-size: 16px !important;
+  font-weight: bold;
+  background-color: #E65C00;
+  color: white !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  /* Loại bỏ bóng */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.profile-button-options:hover,
+.profile-button-options:focus,
+.profile-button-options:active {
+  background-color: #cc5200 !important;
+  color: white !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Điều chỉnh cho icon trong nút "Tùy chọn" */
+.profile-button-options ion-icon {
+  font-size: 16px;
+  vertical-align: middle;
+  color: white !important;
+}
+
+/* Điều chỉnh cho các mục trong dropdown */
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: black;
+  font-size: 14px;
+}
+
+.dropdown-item .icon-option ion-icon {
+  margin-right: 10px;
+  margin-bottom: 4px;
+  color: black !important;
+  font-size: 15px;
+}
+
+.dropdown-item:hover {
+  background-color: #f2f2f2;
+  color: #28a745 !important;
+}
+
+.dropdown-item:hover .icon-option ion-icon {
+  color: #28a745 !important;
 }
 
 .border-line {

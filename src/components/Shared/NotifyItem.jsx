@@ -1,7 +1,7 @@
 import React from 'react';
 import '../../assets/css/Shared/NotifyItem.css';
 
-function NotifyItem({ isRequest, avatar, content, name }) {
+function NotifyItem({ isRequest, avatar, content, name, onAccept, onDecline }) {
     return (
         <>
             {isRequest ? (
@@ -12,15 +12,15 @@ function NotifyItem({ isRequest, avatar, content, name }) {
                         className='rounded-circle img-notify'
                         style={{ width: '40px', height: '40px', objectFit: 'cover' }}
                     />
-                    <div className='d-flex align-items-center'>
+                    <div className='d-flex flex-column align-items-start ms-2'>
                         <div className='mess-inf'>
                             <p className='mb-0 text-wrap' style={{ fontSize: '12px' }}>
                                 {name && <strong>{name} </strong>} {/* Display name if it exists */}
                                 {content}
                             </p>
-                            <div className='d-flex justify-content-center align-items-center gap-2'>
-                                <button className='btn btn-outline-success btn-accept'>Chấp nhận</button>
-                                <button className='btn btn-outline-danger btn-decline'>Từ chối</button>
+                            <div className='d-flex justify-content-start align-items-center gap-2 mt-1'>
+                                <button className='btn btn-outline-success btn-accept' onClick={onAccept}>Chấp nhận</button>
+                                <button className='btn btn-outline-danger btn-decline' onClick={onDecline}>Từ chối</button>
                             </div>
                         </div>
                     </div>
@@ -33,7 +33,7 @@ function NotifyItem({ isRequest, avatar, content, name }) {
                         className='rounded-circle img-notify'
                         style={{ width: '40px', height: '40px', objectFit: 'cover' }}
                     />
-                    <div className='d-flex align-items-center'>
+                    <div className='d-flex align-items-center ms-2'>
                         <div className='mess-inf'>
                             <p className='mb-0 text-wrap' style={{ fontSize: '12px' }}>
                                 {name && <strong>{name} </strong>} {/* Display name if it exists */}

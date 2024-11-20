@@ -10,7 +10,7 @@ import axios from 'axios';
 import { viewEvent } from '../../redux/actions/eventActions';
 import { toast } from 'react-toastify';
 
-const EventCard = ({ id, img, startTime, endTime, title, location, text }) => {
+const EventCard = ({ id, img, startTime, endTime, title, location, text, isProposeEvent }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const locationPath = useLocation();
@@ -18,6 +18,7 @@ const EventCard = ({ id, img, startTime, endTime, title, location, text }) => {
 
     const [loading, setLoading] = useState(false); // State loading
     const [participantCount, setParticipantCount] = useState(null); // State participant count
+    const [isUserJoined, setIsUserJoined] = useState(false);
 
     const isJoinedPath = locationPath.pathname.includes('/event/joined');
     const isCreatedPath = locationPath.pathname.includes('/event/created');
@@ -37,7 +38,21 @@ const EventCard = ({ id, img, startTime, endTime, title, location, text }) => {
             }
         };
 
+        const checkUserJoined = async () => {
+            try {
+                const response = await axios.get(
+                    `https://travelmateapp.azurewebsites.net/api/EventParticipants/check-current-user-joined/${id}`,
+                    { headers: { Authorization: token } }
+                );
+                if (response.status === 200) {
+                    setIsUserJoined(response.data.isJoined);
+                }
+            } catch (error) {
+                console.error("Error checking if user joined event:", error);
+            }
+        };
         fetchParticipantCount();
+        checkUserJoined();
     }, [id]);
 
     const handleViewOrJoinEvent = async () => {
