@@ -30,7 +30,7 @@ const Navbar = React.memo(() => {
 
   const handelShowOffcanvas = useCallback(() => {
     setShowOffcanvas(true);
-  };
+  });
 
   useEffect(() => {
     if (isAuthenticated && token) {
@@ -86,8 +86,8 @@ const Navbar = React.memo(() => {
     console.log(`Selected item: ${eventKey}`);
   }, []);
 
-  const handleShow = useCallback(() => setShowOffcanvas(true), []); 
-  const handleClose = useCallback(() => setShowOffcanvas(false), []); 
+  const handleShow = useCallback(() => setShowOffcanvas(true), []);
+  const handleClose = useCallback(() => setShowOffcanvas(false), []);
 
   const handleAcceptFriendRequest = async (senderId) => {
     try {
