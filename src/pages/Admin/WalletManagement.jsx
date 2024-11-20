@@ -1,191 +1,233 @@
-import React, { useState } from 'react';
-import { Table, InputGroup, FormControl, Button } from 'react-bootstrap';
-import ReactPaginate from 'react-paginate';
-import '../../assets/css/Admin/AdminTransactionList.css'; // Assuming you have a CSS file for styling
+import React, { useCallback, useMemo, useRef, useState } from "react";
+import { AgGridReact } from "@ag-grid-community/react";
+import { ModuleRegistry } from "@ag-grid-community/core";
+import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
+import { ColumnsToolPanelModule } from "@ag-grid-enterprise/column-tool-panel";
+import { FiltersToolPanelModule } from "@ag-grid-enterprise/filter-tool-panel";
+import { MenuModule } from "@ag-grid-enterprise/menu";
+import { SetFilterModule } from "@ag-grid-enterprise/set-filter";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
+import { Button, Modal, Form } from "react-bootstrap";
+import ConfirmModal from "../../components/Shared/ConfirmModal";
 
-const transactionData = [
-  {
-    id: 1,
-    from: 'Tesco Market',
-    to: 'ElectroMen Market',
-    status: 'Success',
-    date: '13 Dec 2020',
-    amount: '$75.67',
-  },
-  {
-    id: 2,
-    from: 'ElectroMen Market',
-    to: 'Tesco Market',
-    status: 'Pending',
-    date: '14 Dec 2020',
-    amount: '$250.00',
-  },
-  {
-    id: 3,
-    from: 'Fiorgio Restaurant',
-    to: 'Tesco Market',
-    status: 'Fail',
-    date: '07 Dec 2020',
-    amount: '$19.50',
-  },
-  {
-    id: 4,
-    from: 'John Mathew Kyme',
-    to: 'Tesco Market',
-    status: 'Success',
-    date: '06 Dec 2020',
-    amount: '$350',
-  },
-  {
-    id: 5,
-    from: 'Ann Marlin',
-    to: 'Tesco Market',
-    status: 'Success',
-    date: '31 Nov 2020',
-    amount: '$430',
-  },
-  {
-    id: 6,
-    from: 'Tesco Market',
-    to: 'ElectroMen Market',
-    status: 'Success',
-    date: '13 Dec 2020',
-    amount: '$75.67',
-  },
-  {
-    id: 7,
-    from: 'ElectroMen Market',
-    to: 'Tesco Market',
-    status: 'Pending',
-    date: '14 Dec 2020',
-    amount: '$250.00',
-  },
-  {
-    id: 8,
-    from: 'Fiorgio Restaurant',
-    to: 'Tesco Market',
-    status: 'Fail',
-    date: '07 Dec 2020',
-    amount: '$19.50',
-  },
-  {
-    id: 9,
-    from: 'John Mathew Kyme',
-    to: 'Tesco Market',
-    status: 'Success',
-    date: '06 Dec 2020',
-    amount: '$350',
-  },
-  
-];
+// Register the modules
+ModuleRegistry.registerModules([
+  ClientSideRowModelModule,
+  ColumnsToolPanelModule,
+  FiltersToolPanelModule,
+  MenuModule,
+  SetFilterModule,
+]);
 
-function WalletManagement() {
-  const [currentPage, setCurrentPage] = useState(0);
-  const transactionsPerPage = 5; // Number of transactions per page
+const WalletManagement = () => {
+  const gridRef = useRef();
 
-  // Calculate the current displayed transactions based on the current page
-  const indexOfLastTransaction = (currentPage + 1) * transactionsPerPage;
-  const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
-  const currentTransactions = transactionData.slice(indexOfFirstTransaction, indexOfLastTransaction);
+  const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
+  const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
 
-  // Handle page change
-  const handlePageClick = (data) => {
-    setCurrentPage(data.selected);
+  const [rowData, setRowData] = useState([
+    { id: 1, name: "John Doe", email: "john@example.com" },
+    { id: 2, name: "Jane Smith", email: "jane@example.com" },
+    { id: 3, name: "Alice Johnson", email: "alice@example.com" },
+    { id: 4, name: "Robert Brown", email: "robert@example.com" },
+    { id: 5, name: "Michael Miller", email: "michael@example.com" },
+  ]);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [rowToDelete, setRowToDelete] = useState(null);
+  const [editedRow, setEditedRow] = useState(null);
+  const [showConfirmUpdateModal, setShowConfirmUpdateModal] = useState(false);
+  const [updateRow, setUpdateRow] = useState(null);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+
+  const columnDefs = [
+    { headerName: "ID", field: "id", editable: false },
+    { headerName: "Name", field: "name", editable: true },
+    { headerName: "Email", field: "email", editable: true },
+    {
+      headerName: "Actions",
+      field: "actions",
+      cellRenderer: (params) => (
+        <div>
+          <Button variant="info" size="sm" onClick={() => handleView(params.data)}>
+            View
+          </Button>{" "}
+          <Button variant="warning" size="sm" onClick={() => handleUpdate(params.data)}>
+            Update
+          </Button>{" "}
+          <Button variant="danger" size="sm" onClick={() => handleDelete(params.data)}>
+            Delete
+          </Button>
+        </div>
+      ),
+      editable: false,
+      filter: false,
+      sortable: false,
+      width: 200,
+    },
+  ];
+
+  const resetFilters = useCallback(() => {
+    gridRef.current.api.setFilterModel(null);
+  }, []);
+
+  const onExportClick = () => {
+    gridRef.current.api.exportDataAsCsv();
+  };
+
+  const handleView = (row) => {
+    console.log("Viewing row:", row);
+  };
+
+  const handleDelete = (row) => {
+    setRowToDelete(row);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    setRowData((prevData) => prevData.filter((item) => item.id !== rowToDelete.id));
+    console.log("Deleted row:", rowToDelete);
+    setRowToDelete(null);
+    setShowDeleteModal(false);
+  };
+
+  const handleUpdate = (row) => {
+    setUpdateRow(row);
+    setShowUpdateModal(true);
+  };
+
+  const confirmUpdate = () => {
+    setRowData((prevData) =>
+      prevData.map((row) => (row.id === updateRow.id ? updateRow : row))
+    );
+    console.log("Updated row:", updateRow);
+    setShowUpdateModal(false);
+  };
+
+  const handleUpdateChange = (e) => {
+    const { name, value } = e.target;
+    setUpdateRow((prevRow) => ({ ...prevRow, [name]: value }));
+  };
+
+  const handleCellEditingStopped = (event) => {
+    const updatedRow = event.data;
+    setEditedRow(updatedRow);
+    setShowConfirmUpdateModal(true);
+  };
+
+  const handleConfirmUpdate = () => {
+    setRowData((prevData) =>
+      prevData.map((row) => (row.id === editedRow.id ? editedRow : row))
+    );
+    console.log("Updated row:", editedRow);
+    setEditedRow(null);
+    setShowConfirmUpdateModal(false);
   };
 
   return (
-    <div className="admin-transaction-list">
-      <h2>Lịch sử giao dịch</h2>
-
-      {/* Section Title */}
-      <h3 className="transaction-list-title">Danh sách</h3>
-
-    
-
-      {/* Transactions Table */}
-      <div className="table-container">
-
-      <div className='d-flex flex-row-reverse'>
-          <InputGroup className="mb-3" style={{ width: '400px' }}>
-            <FormControl
-              placeholder="Tìm kiếm"
-              aria-label="Search"
-              aria-describedby="basic-addon2"
-              id='search-input'
-              className='rounded-5'
-            />
-            <Button variant="" id="button-addon2">
-              <i className="bi bi-funnel fs-3"></i> {/* Bootstrap icon for filter */}
+    <div style={containerStyle}>
+      <div className="example-wrapper">
+        <div className="d-flex justify-content-between">
+          <div>
+            <Button variant="primary">Thêm mới +</Button>
+          </div>
+          <div className="d-flex gap-3">
+            <Button
+              variant="success"
+              onClick={onExportClick}
+              style={{ marginBottom: "10px", padding: "5px" }}
+            >
+              Export to CSV
             </Button>
-          </InputGroup>
+            <Button
+              variant="warning"
+              onClick={resetFilters}
+              style={{ marginBottom: "10px", padding: "5px" }}
+            >
+              Reset Filters
+            </Button>
+          </div>
         </div>
-
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>From</th>
-              <th>To</th>
-              <th>Status</th>
-              <th>Date</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentTransactions.length > 0 ? (
-              currentTransactions.map((transaction) => (
-                <tr key={transaction.id}>
-                  <td className="from">
-                    <img src="https://via.placeholder.com/40" alt="avatar" className="avatar" />
-                    <span>{transaction.from}</span>
-                  </td>
-                  <td className="to">
-                    <img src="https://via.placeholder.com/40" alt="avatar" className="avatar" />
-                    <span>{transaction.to}</span>
-                  </td>
-                  <td>
-                    <span className={`status ${transaction.status.toLowerCase()}`}>
-                      {transaction.status}
-                    </span>
-                  </td>
-                  <td>{transaction.date}</td>
-                  <td>{transaction.amount}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" className="text-center">
-                  Không tìm thấy kết quả nào
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </Table>
+        <div style={gridStyle} className={"ag-theme-alpine"}>
+          <AgGridReact
+            ref={gridRef}
+            rowData={rowData}
+            columnDefs={columnDefs}
+            defaultColDef={{
+              sortable: true,
+              filter: true,
+              resizable: true,
+            }}
+            pagination={true}
+            paginationPageSize={10}
+            rowSelection="multiple"
+            suppressRowClickSelection={true}
+            domLayout="autoHeight"
+            groupDisplayType="singleColumn"
+            animateRows={true}
+            enableRangeSelection={true}
+            enableRowGroup={true}
+            sideBar={"filters"}
+            onCellEditingStopped={handleCellEditingStopped}
+          />
+        </div>
       </div>
 
-      {/* React Paginate Component */}
-      <div className="pagination-container">
-        <ReactPaginate
-          previousLabel={'‹'}
-          nextLabel={'›'}
-          breakLabel={'...'}
-          pageCount={Math.ceil(transactionData.length / transactionsPerPage)}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={3}
-          onPageChange={handlePageClick}
-          containerClassName={'pagination'}
-          activeClassName={'active'}
-          pageClassName={'page-item'}
-          pageLinkClassName={'page-link'}
-          previousClassName={'page-item'}
-          previousLinkClassName={'page-link'}
-          nextClassName={'page-item'}
-          nextLinkClassName={'page-link'}
-          breakClassName={'page-item'}
-          breakLinkClassName={'page-link'}
-        />
-      </div>
+      {/* Modal cập nhật */}
+      <Modal show={showUpdateModal} onHide={() => setShowUpdateModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Cập nhật dữ liệu</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formName">
+              <Form.Label>Name</Form.Label>
+              <Form.Control
+                type="text"
+                name="name"
+                value={updateRow?.name || ""}
+                onChange={handleUpdateChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formEmail" className="mt-2">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                name="email"
+                value={updateRow?.email || ""}
+                onChange={handleUpdateChange}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowUpdateModal(false)}>
+            Hủy
+          </Button>
+          <Button variant="primary" onClick={confirmUpdate}>
+            Cập nhật
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <ConfirmModal
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        title="Xác nhận xóa"
+        message="Bạn có chắc chắn muốn xóa hàng này không?"
+      />
+
+      <ConfirmModal
+        show={showConfirmUpdateModal}
+        onHide={() => setShowConfirmUpdateModal(false)}
+        onConfirm={confirmUpdate}
+        title="Xác nhận cập nhật"
+        message="Bạn có muốn cập nhật hàng này không?"
+      />
     </div>
   );
-}
+};
 
 export default WalletManagement;

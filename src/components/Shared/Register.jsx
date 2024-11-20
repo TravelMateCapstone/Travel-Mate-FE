@@ -7,6 +7,7 @@ import { loginSuccess } from '../../redux/actions/authActions'; // Import loginS
 import '../../assets/css/Shared/Register.css';
 import google from '../../assets/images/google.png';
 import facebook from '../../assets/images/facebook.png';
+import axios from 'axios'; // Import axios
 
 const Register = ({ show, handleClose }) => {
   const [email, setEmail] = useState('');
@@ -14,6 +15,7 @@ const Register = ({ show, handleClose }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState(null);
+  const [fullName, setFullName] = useState('');
 
   const dispatch = useDispatch(); // Sử dụng dispatch để gọi action
 
@@ -26,27 +28,24 @@ const Register = ({ show, handleClose }) => {
     }
 
     try {
-      const response = await fetch('https://travelmateapp.azurewebsites.net/api/Auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: username,
-          email: email,
-          password: password,
-          fullName: username,
-        }),
+      const response = await axios.post(`${import.meta.env.VITE_BASE_API_URL}/api/Auth/register`, {
+        username: username,
+        email: email,
+        password: password,
+        confirmPassword: confirmPassword,
+        fullName: fullName,
       });
 
-      const data = await response.json();
+      const data = response.data;
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Có lỗi xảy ra, vui lòng thử lại.');
-      }
+      console.log(data);
+      
 
-      // Nếu đăng ký thành công, hiển thị thông báo và tự động đăng nhập
+      // Nếu Đăng ký thành công, hiển thị thông báo và tự động đăng nhập
       toast.success('Đăng ký thành công!');
+
+      // Store token in localStorage
+      localStorage.setItem('token', data.token);
 
       // Dispatch loginSuccess để đăng nhập người dùng ngay lập tức
       dispatch(loginSuccess({
@@ -58,16 +57,16 @@ const Register = ({ show, handleClose }) => {
         token: data.token, // Giả sử phản hồi trả về token
       }));
 
-      handleClose(); // Đóng modal sau khi đăng ký và đăng nhập thành công
+      handleClose(); // Đóng modal sau khi Đăng ký và đăng nhập thành công
     } catch (error) {
-      setErrorMessage(error.message);
+      setErrorMessage(error.response?.data?.error || 'Có lỗi xảy ra, vui lòng thử lại.');
     }
   };
 
   return (
     <Modal show={show} onHide={handleClose} centered dialogClassName="register-modal">
       <Modal.Header className="modal-header-custom">
-        <Modal.Title className="modal-title-centered fw-semibold">Đăng kí</Modal.Title>
+        <Modal.Title className="modal-title-centered fw-semibold">Đăng ký</Modal.Title>
         <Button className="modal-close-btn" onClick={handleClose}>x</Button>
       </Modal.Header>
       <Modal.Body>
@@ -75,12 +74,12 @@ const Register = ({ show, handleClose }) => {
         {errorMessage && <small className="text-danger fw-normal small-text">{errorMessage}</small>}
 
         <Form onSubmit={handleSubmit}>
-          <Form.Group controlId="formUsername" className="mt-3">
+        <Form.Group controlId="formFullName" className="mt-3">
             <Form.Control
               type="text"
-              placeholder="Têm tài khoản"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Họ và tên"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               className="form-control-custom"
               required
             />
@@ -91,6 +90,16 @@ const Register = ({ show, handleClose }) => {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="form-control-custom"
+              required
+            />
+          </Form.Group>
+          <Form.Group controlId="formUsername" className="mt-3">
+            <Form.Control
+              type="text"
+              placeholder="Têm tài khoản"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="form-control-custom"
               required
             />
@@ -126,11 +135,11 @@ const Register = ({ show, handleClose }) => {
           <div className="text-center">
             <Button variant="outline-dark" className="social-btn">
               <img src={google} alt="google icon" />
-              <span>Đăng kí bằng Google</span>
+              <span>Đăng ký bằng Google</span>
             </Button>
             <Button variant="outline-dark" className="social-btn">
               <img src={facebook} alt="facebook icon" />
-              <span>Đăng kí bằng Facebook</span>
+              <span>Đăng ký bằng Facebook</span>
             </Button>
           </div>
         </Form>

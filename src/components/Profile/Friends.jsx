@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import ReactPaginate from 'react-paginate';
 import { useSelector } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useQuery, useNavigate } from 'react-query';
 import '../../assets/css/Shared/Pagination.css';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -11,8 +11,6 @@ import { toast } from 'react-toastify';
 import RoutePath from '../../routes/RoutePath';
 
 function Friends() {
-  const [friends, setFriends] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 4;
   const token = useSelector((state) => state.auth.token);
@@ -115,7 +113,7 @@ function Friends() {
         gridTemplateColumns: 'repeat(2, 1fr)',
         gridGap: '20px 60px',
       }} className='px-5'>
-        {loading ? (
+        {isLoading ? (
           [...Array(itemsPerPage)].map((_, index) => (
             <div key={index} style={{
               border: '1px solid black',

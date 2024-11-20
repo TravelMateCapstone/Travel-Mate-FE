@@ -1,0 +1,65 @@
+.confirm-modal .modal-content {
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+  height: 100% !important;
+}
+
+.confirm-modal .modal-header {
+  border-bottom: none;
+}
+
+.confirm-modal .modal-title {
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.confirm-modal .modal-body {
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.confirm-modal .modal-footer {
+  border-top: none;
+  display: flex;
+  justify-content: center;
+}
+
+.confirm-modal .modal-footer .btn {
+  width: 120px;
+  margin: 0 10px;
+  font-weight: bold;
+}
+.confirm-modal .btn {
+  border-radius: 20px;
+}
+@media (min-width: 576px) {
+  .confirm-modal .modal-dialog {
+    max-width: 500px; /* Kích thước cố định cho modal */
+  }
+}
+
+.custom-modal_deletPostGroup .custom-modal-body {
+  text-align: center;
+  padding: 20px;
+}
+
+.custom-modal_deletPostGroup .icon-large {
+  font-size: 3rem;
+}
+
+.custom-modal_deletPostGroup .btn {
+  border-radius: 20px;
+  padding: 10px 20px;
+}
+
+.custom-modal_deletPostGroup .btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.custom-modal_deletPostGroup .btn-danger:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}

@@ -1,5 +1,6 @@
 import React from 'react'
-
+import ChartComponent from '../../components/Admin/ChartComponent'
+import PieChartComponent from '../../components/Admin/PieChartComponent'
 function IncomeStatistic() {
     return (
         <div id="wrapper">
@@ -114,9 +115,7 @@ function IncomeStatistic() {
                                         </div>
                                     </div>
                                     <div className="card-body">
-                                        <div className="chart-area">
-                                            <canvas id="myAreaChart" />
-                                        </div>
+                                        <ChartComponent />
                                     </div>
                                 </div>
                             </div>
@@ -139,46 +138,7 @@ function IncomeStatistic() {
                                         </div>
                                     </div>
                                     <div className="card-body">
-                                        <div className="mb-3">
-                                            <div className="small text-gray-500">Oblong T-Shirt
-                                                <div className="small float-right"><b>600 of 800 Items</b></div>
-                                            </div>
-                                            <div className="progress" style={{ height: 12 }}>
-                                                <div className="progress-bar bg-warning" role="progressbar" style={{ width: '80%' }} aria-valuenow={80} aria-valuemin={0} aria-valuemax={100} />
-                                            </div>
-                                        </div>
-                                        <div className="mb-3">
-                                            <div className="small text-gray-500">Gundam 90'Editions
-                                                <div className="small float-right"><b>500 of 800 Items</b></div>
-                                            </div>
-                                            <div className="progress" style={{ height: 12 }}>
-                                                <div className="progress-bar bg-success" role="progressbar" style={{ width: '70%' }} aria-valuenow={70} aria-valuemin={0} aria-valuemax={100} />
-                                            </div>
-                                        </div>
-                                        <div className="mb-3">
-                                            <div className="small text-gray-500">Rounded Hat
-                                                <div className="small float-right"><b>455 of 800 Items</b></div>
-                                            </div>
-                                            <div className="progress" style={{ height: 12 }}>
-                                                <div className="progress-bar bg-danger" role="progressbar" style={{ width: '55%' }} aria-valuenow={55} aria-valuemin={0} aria-valuemax={100} />
-                                            </div>
-                                        </div>
-                                        <div className="mb-3">
-                                            <div className="small text-gray-500">Indomie Goreng
-                                                <div className="small float-right"><b>400 of 800 Items</b></div>
-                                            </div>
-                                            <div className="progress" style={{ height: 12 }}>
-                                                <div className="progress-bar bg-info" role="progressbar" style={{ width: '50%' }} aria-valuenow={50} aria-valuemin={0} aria-valuemax={100} />
-                                            </div>
-                                        </div>
-                                        <div className="mb-3">
-                                            <div className="small text-gray-500">Remote Control Car Racing
-                                                <div className="small float-right"><b>200 of 800 Items</b></div>
-                                            </div>
-                                            <div className="progress" style={{ height: 12 }}>
-                                                <div className="progress-bar bg-success" role="progressbar" style={{ width: '30%' }} aria-valuenow={30} aria-valuemin={0} aria-valuemax={100} />
-                                            </div>
-                                        </div>
+                                        <PieChartComponent />
                                     </div>
                                     <div className="card-footer text-center">
                                         <a className="m-0 small text-primary card-link" >View More <i className="fas fa-chevron-right" /></a>
@@ -292,26 +252,6 @@ function IncomeStatistic() {
                         <div className="row">
                             <div className="col-lg-12 text-center">
                                 <p>Do you like this template ? you can download from <a href="https://github.com/indrijunanda/RuangAdmin" className="btn btn-primary btn-sm" target="_blank"><i className="fab fa-fw fa-github" />&nbsp;GitHub</a></p>
-                            </div>
-                        </div>
-                        {/* Modal Logout */}
-                        <div className="modal fade" id="logoutModal" tabIndex={-1} role="dialog" aria-labelledby="exampleModalLabelLogout" aria-hidden="true">
-                            <div className="modal-dialog" role="document">
-                                <div className="modal-content">
-                                    <div className="modal-header">
-                                        <h5 className="modal-title" id="exampleModalLabelLogout">Ohh No!</h5>
-                                        <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">×</span>
-                                        </button>
-                                    </div>
-                                    <div className="modal-body">
-                                        <p>Are you sure you want to logout?</p>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button type="button" className="btn btn-outline-primary" data-dismiss="modal">Cancel</button>
-                                        <a href="login.html" className="btn btn-primary">Logout</a>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>

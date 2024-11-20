@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import '../../assets/css/Chat/RequestDetails.css';
 
 function RequestDetails({ request }) {
@@ -28,4 +28,4 @@ function RequestDetails({ request }) {
   );
 }
 
-export default RequestDetails;
+export default memo(RequestDetails);

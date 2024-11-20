@@ -47,6 +47,20 @@
     height: 35px !important;
 }
 
+.box-shadow {
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
+}
+
+.rounded-button {
+    border-radius: 20px;
+}
+
+.cancel-button {
+    border: 1px solid;
+    background-color: white;
+    color: black;
+}
+
 /* Styles for tablets (width between 768px and 1024px) */
 @media (max-width: 1024px) and (min-width: 768px) {
     .edit-pro-container {

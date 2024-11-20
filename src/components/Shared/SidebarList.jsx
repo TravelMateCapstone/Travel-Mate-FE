@@ -1,84 +1,108 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import '../../assets/css/Shared/SidebarList.css'; // Đường dẫn đến CSS nếu cần
+import React, { useCallback } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import '../../assets/css/Shared/SidebarList.css';
 import RoutePath from '../../routes/RoutePath';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import Spinner from 'react-bootstrap/Spinner';
-function SidebarList({ items }) {
+import { useQuery } from 'react-query';
+import { viewGroup } from '../../redux/actions/groupActions';
+
+const SidebarList = React.memo(({ items }) => {
     const location = useLocation();
     const token = useSelector(state => state.auth.token);
-    const user = useSelector(state => state.auth.user);
-    const [joinedGroups, setJoinedGroups] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const userJoinedStatus = useSelector(state => state.group.userJoinedStatus);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
-    useEffect(() => {
-        // Gọi API để lấy danh sách nhóm đã tham gia
-        const fetchJoinedGroups = async () => {
-            try {
-                setIsLoading(true);
-                const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Groups/JoinedGroups?pageNumber=1', {
-                    headers: { Authorization: `${token}` },
-                });
-                if (response.data.message === "No joined groups found.") {
-                    setJoinedGroups([]); // Đặt joinedGroups thành mảng rỗng nếu không có nhóm nào
-                } else {
-                    setJoinedGroups(response.data.groups.$values);
-                }
-                setIsLoading(false);
-            } catch (error) {
-                console.error('Lỗi khi lấy danh sách nhóm đã tham gia:', error);
-                setIsLoading(false);
-            }
-        };
-        fetchJoinedGroups();
+    const fetchJoinedGroups = useCallback(async () => {
+        const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Groups/JoinedGroups?pageNumber=1`, {
+            headers: { Authorization: `${token}` },
+        });
+        return response.data.message === "No joined groups found." ? [] : response.data.groups.$values;
     }, [token]);
+
+    const fetchCreatedGroups = useCallback(async () => {
+        const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Groups/CreatedGroups?pageNumber=1`, {
+            headers: { Authorization: `${token}` },
+        });
+        return response.data.message === "No joined groups found." ? [] : response.data.groups.$values;
+    }, [token]);
+
+    const { data: joinedGroups = [], isLoading } = useQuery('joinedGroup', fetchJoinedGroups);
+    const { data: createdGroup = [], isLoadingCreated } = useQuery('createdGroups', fetchCreatedGroups);
+
+    const handleViewGroup = (group) => {
+        if(userJoinedStatus == 'Owner') {
+            dispatch(viewGroup(group, 'Owner'));
+        } else if(userJoinedStatus == 'Joined') {
+            dispatch(viewGroup(group, 'Joined'));
+        }
+        navigate(RoutePath.GROUP_DETAILS);
+    };
+
     return (
-        <div style={{
-            marginBottom: '30px',
-        }}>
+        <div className="sidebar-list">
             {items.map((item, index) => (
-                <Link to={item.route} key={index} style={{ color: 'inherit', textDecoration: 'none' }}>
-                    <div
-                        className={`sidebar-item d-flex align-items-center rounded-5 ${item.isActive ? 'active' : ''}`}
-                        style={{
-                            padding: '7px 45px',
-                            transition: 'background-color 0.3s',
-                            backgroundColor: item.isActive ? 'transparent' : 'transparent',
-                            color: item.isActive ? '#409034ff' : 'black', // Màu chữ khi đang active
-                            marginBottom: '15px',
-                        }}
-                    >
+                <Link to={item.route} key={index} className="sidebar-link">
+                    <div className={`sidebar-item ${item.isActive ? 'active' : ''}`}>
                         <ion-icon name={item.iconName} style={{ fontSize: '30px', marginRight: '10px' }}></ion-icon>
-                        <span style={{ fontSize: '16px' }} className='fw-medium'>{item.title}</span>
+                        <span className='sidebar-title'>{item.title}</span>
                     </div>
                 </Link>
             ))}
-            {(location.pathname === RoutePath.GROUP_DETAILS || location.pathname === RoutePath.GROUP_MY_DETAILS) && (
-                <>
-                    {/* Danh sách nhóm đã tham gia */}
+            {(location.pathname === RoutePath.GROUP_DETAILS && userJoinedStatus == 'Joined') && (
+                <div className="joined-groups mt-4">
                     {isLoading ? (
-                        <Spinner animation="border" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                        </Spinner>
-                    ) : (
-                        <div className="joined-groups mt-4">
-                            {joinedGroups.slice(0, 5).map((group) => (
-                                <div key={group.groupId} className="group-card p-3 mb-3 gap-2 w-100 d-flex rounded-3">
-                                    <img src={group.groupImageUrl} alt={group.groupName} className="group-image object-fit-cover" />
-                                    <div className="group-info">
-                                        <p className='fw-medium mb-1'>{group.groupName}</p>
-                                        <p className='m-0 fw-light'>{group.location}</p>
-                                    </div>
+                        [...Array(5)].map((_, index) => (
+                            <div key={index} className="group-card placeholder-glow">
+                                <div className="placeholder col-3"></div>
+                                <div className="group-info">
+                                    <p className='fw-medium mb-1 placeholder col-7'></p>
+                                    <p className='m-0 fw-light placeholder col-4'></p>
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        ))
+                    ) : (
+                        joinedGroups.slice(0, 5).map((group) => (
+                            <div key={group.groupId} className="group-card p-2" onClick={() => handleViewGroup(group, 'Joined')}>
+                                <img src={group.groupImageUrl} alt={group.groupName} className="group-image object-fit-cover" />
+                                <div className="group-info">
+                                    <p className='fw-medium mb-1 text-truncate' style={{ maxWidth: '150px' }}>{group.groupName}</p>
+                                    <p className='m-0 fw-light'>{group.location}</p>
+                                </div>
+                            </div>
+                        ))
                     )}
-                </>
+                </div>
+            )}
+            {(location.pathname === RoutePath.GROUP_DETAILS && userJoinedStatus == 'Owner') && (
+                <div className="created-groups mt-4">
+                    {isLoadingCreated ? (
+                        [...Array(5)].map((_, index) => (
+                            <div key={index} className="group-card placeholder-glow">
+                                <div className="placeholder col-3"></div>
+                                <div className="group-info">
+                                    <p className='fw-medium mb-1 placeholder col-7'></p>
+                                    <p className='m-0 fw-light placeholder col-4'></p>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        createdGroup.slice(0, 5).map((group) => (
+                            <div key={group.groupId} className="group-card p-2" onClick={() => handleViewGroup(group)}>
+                                <img src={group.groupImageUrl} alt={group.groupName} className="group-image object-fit-cover" />
+                                <div className="group-info">
+                                    <p className='fw-medium mb-1 text-truncate' style={{ maxWidth: '150px' }}>{group.groupName}</p>
+                                    <p className='m-0 fw-light'>{group.location}</p>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
             )}
 
         </div>
     );
-}
+});
 
 export default SidebarList;

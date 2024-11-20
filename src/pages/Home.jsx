@@ -1,29 +1,23 @@
 import React from 'react';
-import { Container, Row, Col, Card, ProgressBar } from 'react-bootstrap';
 import ToolBar from '../components/Shared/ToolBar';
+import AutoSuggestInput from '../components/Shared/AutoSuggestInput';
+import AnswerQuestion from '../components/Profile/FormBuilder/AnswerQuestion';
+import CarouselComponent from '../components/Home/CarouselComponent';
+import LocalCarousel from '../components/Home/LocalCarousel';
 
 function Home() {
+  const images = [
+    'https://cdn.tcdulichtphcm.vn/upload/2-2021/images/2021-06-03/1622716610-thumbnail-width1200height628-watermark.jpg',
+    'https://baobariavungtau.com.vn/dataimages/202312/original/images1909456_Ch_o_thuy_n_kayak_l__ho_t___ng__a_th_ch_c_a_du_kh_ch_khi___n_V_nh_H__Long..jpg',
+    'https://cdn.oneesports.vn/cdn-data/sites/4/2024/01/Zed_38.jpg'
+  ]
   return (
-    <div>
+    <div className='mt-4'>
       <ToolBar />
-      <Container fluid className='mt-4' style={{
-        padding: '0 85px'
-      }}>
-        <Row>
-          {/* Left Sidebar */}
-          <Col md={2} className="">
-            sidebar
-          </Col>
-          {/* Main Content */}
-          <Col md={8}>
-            body
-          </Col>
-          {/* Right Sidebar */}
-          <Col md={2}>
-            right
-          </Col>
-        </Row>
-      </Container>
+      <CarouselComponent images={images} />
+      <LocalCarousel />
+      <AnswerQuestion />
+      <AutoSuggestInput />
     </div>
   );
 }

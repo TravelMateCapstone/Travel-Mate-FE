@@ -8,16 +8,16 @@
   height: 36px;
 }
 
-/* Tùy chỉnh modal đăng kí */
+/* Tùy chỉnh modal Đăng ký */
 .register-modal .modal-dialog {
-  max-width: 468px;  /* Chiều rộng */
-  max-height: 606px; /* Chiều cao */
+  max-width: 500px;  /* Adjusted width */
+  max-height: 650px; /* Adjusted height */
   margin: auto;
 }
 
 .register-modal .modal-content {
-  width: 468px !important;  /* Chiều rộng */
-  height: 581px !important; /* Chiều cao */
+  width: 500px !important;  /* Adjusted width */
+  height: 675px !important; /* Adjusted height */
   border-radius: 20px;
   
 }
@@ -111,8 +111,8 @@
 }
 @media (max-width: 767px){
   .register-modal .modal-content {
-    width: 468px !important;  /* Chiều rộng */
-    height: auto !important; /* Chiều cao */
+    width: 100% !important;  /* Adjusted width for mobile */
+    height: auto !important; /* Adjusted height for mobile */
     border-radius: 20px;
   }
 }

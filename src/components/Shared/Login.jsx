@@ -9,6 +9,8 @@ import { decodeToken } from "react-jwt";
 import google from "../../assets/images/google.png";
 import facebook from "../../assets/images/facebook.png";
 import "../../assets/css/Shared/Login.css";
+import { useNavigate } from "react-router-dom";
+import RoutePath from "../../routes/RoutePath";
 
 const Login = ({ show, handleClose }) => {
   const [username, setUsername] = useState("");
@@ -16,6 +18,7 @@ const Login = ({ show, handleClose }) => {
   const [errorMessage, setErrorMessage] = useState(null);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,10 +40,19 @@ const Login = ({ show, handleClose }) => {
       }
       console.log(user);
       
+      // Store token in localStorage
+      localStorage.setItem('token', token);
+
       dispatch(loginSuccess({ user, token }));
       toast.success('Đăng nhập thành công!', {
         position: "bottom-right",
       });
+      // Kiểm tra role và chuyển hướng nếu là admin
+      if (user.role === 'admin') {
+        navigate(RoutePath.ADMIN); // Chuyển hướng đến trang admin
+      } else {
+        handleClose();
+      }
       handleClose();
     } catch (error) {
       setErrorMessage(error.response?.data?.error || "Sai tài khoản hoặc mật khẩu.");

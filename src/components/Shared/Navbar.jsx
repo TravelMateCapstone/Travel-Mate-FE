@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Navbar as BootstrapNavbar, Nav, Row, Col, Container, Dropdown, Button, Offcanvas } from 'react-bootstrap';
 import { Link, NavLink } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
@@ -15,7 +15,7 @@ import MessengerItem from "../Shared/MessengerItem";
 import { logout } from "../../redux/actions/authActions";
 import { toast } from 'react-toastify';
 
-function Navbar() {
+const Navbar = React.memo(() => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const [selectedItem, setSelectedItem] = useState('Địa điểm du lịch');
   const [showOffcanvas, setShowOffcanvas] = useState(false);
@@ -28,7 +28,7 @@ function Navbar() {
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
 
-  const handelShowOffcanvas = () => {
+  const handelShowOffcanvas = useCallback(() => {
     setShowOffcanvas(true);
   };
 
@@ -59,33 +59,35 @@ function Navbar() {
   }, [isAuthenticated, token]);
 
 
-  const handleLoginModal = () => {
+  const handleLoginModal = useCallback(() => {
     if (isLoginModalOpen) {
       dispatch(closeLoginModal());
     } else {
       dispatch(openLoginModal());
     }
-  };
+  }, [dispatch, isLoginModalOpen]);
 
-  const handleRegisterModal = () => {
+  const handleRegisterModal = useCallback(() => {
     if (isRegisterModalOpen) {
       dispatch(closeRegisterModal());
     } else {
       dispatch(openRegisterModal());
     }
-  };
+  }, [dispatch, isRegisterModalOpen]);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     dispatch(logout());
-  };
+    // Clear token from state
+    dispatch({ type: 'CLEAR_TOKEN' });
+  }, [dispatch]);
 
-  const handleSelect = (eventKey) => {
+  const handleSelect = useCallback((eventKey) => {
     setSelectedItem(eventKey);
     console.log(`Selected item: ${eventKey}`);
-  };
+  }, []);
 
-  const handleShow = () => setShowOffcanvas(true); // Mở Offcanvas
-  const handleClose = () => setShowOffcanvas(false); // Đóng Offcanvas
+  const handleShow = useCallback(() => setShowOffcanvas(true), []); 
+  const handleClose = useCallback(() => setShowOffcanvas(false), []); 
 
   const handleAcceptFriendRequest = async (senderId) => {
     try {
@@ -150,7 +152,7 @@ function Navbar() {
 
               <div className='d-flex'>
                 <Dropdown onSelect={handleSelect} align="end">
-                  <Dropdown.Toggle variant="success" id="dropdown-basic" style={{
+                  <Dropdown.Toggle variant="success" id="dropdown-basic-Navbar" style={{
                     fontSize: '12px'
                   }} className='rounded-start-0 rounded-end-5 border-start-0 d-flex align-items-center gap-2'>
                     <p className='m-0 fw-semibold'>{selectedItem}</p>
@@ -279,13 +281,13 @@ function Navbar() {
                     <Dropdown.Item as={Link} to={RoutePath.CONTRACT} className="avatar-dropdown-item">
                       Hợp đồng
                     </Dropdown.Item>
-                    <Dropdown.Item as={Link} to={RoutePath.SETTING} className="avatar-dropdown-item">
+                    <Dropdown.Item as={Link} to={RoutePath.LOCAL_STATICTIS} className="avatar-dropdown-item">
                       Trang quản lý
                     </Dropdown.Item>
                     <Dropdown.Divider style={{
                       marginBottom: '24px'
                     }} />
-                    <Dropdown.Item onClick={handleLogout} className="avatar-dropdown-item">
+                    <Dropdown.Item as={Link} to={RoutePath.SETTING} className="avatar-dropdown-item">
                       Cài đặt
                     </Dropdown.Item>
                     <Dropdown.Item onClick={handleLogout} className="avatar-dropdown-item mb-0">
@@ -304,7 +306,7 @@ function Navbar() {
               </>
             ) : (
               <>
-                <Button variant='' className='text-nowrap btn-action rounded-5 fw-normal' onClick={handleRegisterModal}>Đăng kí</Button>
+                <Button variant='' className='text-nowrap btn-action rounded-5 fw-normal' onClick={handleRegisterModal}>Đăng ký</Button>
                 <Button variant='' className='text-nowrap btn-action rounded-5 fw-normal'
                   onClick={handleLoginModal}
                   style={{
@@ -362,6 +364,6 @@ function Navbar() {
 
     </BootstrapNavbar>
   );
-}
+});
 
 export default Navbar;

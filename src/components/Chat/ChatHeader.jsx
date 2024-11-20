@@ -1,6 +1,6 @@
 import React from 'react';
 
-function ChatHeader({ chatName }) {
+const ChatHeader = React.memo(({ chatName }) => {
   return (
     <div className="chat-header rounded-top-3 d-flex justify-content-between flex-grow-1">
       <div className="chat-header-info d-flex">
@@ -14,6 +14,6 @@ function ChatHeader({ chatName }) {
       <i className='bi bi-info-circle-fill'></i>
     </div>
   );
-}
+});
 
 export default ChatHeader;

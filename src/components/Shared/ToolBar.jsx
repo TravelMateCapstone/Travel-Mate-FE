@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import '../../assets/css/Shared/ToolBar.css';
 
-function ToolBar() {
-    const renderTooltip = (props, text) => (
+const ToolBar = React.memo(() => {
+    const renderTooltip = useCallback((props, text) => (
         <Tooltip id="button-tooltip" {...props}>
             {text}
         </Tooltip>
-    );
+    ), []);
 
     return (
         <div className="toolbar shadow rounded-5 d-flex justify-content-around align-items-center" style={{ padding: '10px' }}>
@@ -17,7 +17,7 @@ function ToolBar() {
                     <ion-icon name="add-circle"></ion-icon>
                 </Link>
             </OverlayTrigger>
-            <OverlayTrigger placement="top" overlay={renderTooltip(null, 'Quản lí nhóm')}>
+            <OverlayTrigger placement="top" overlay={renderTooltip(null, 'Quản lý nhóm')}>
                 <Link to="/people" style={{ color: 'inherit', textDecoration: 'none' }}>
                     <ion-icon name="people"></ion-icon>
                 </Link>
@@ -39,6 +39,6 @@ function ToolBar() {
             </OverlayTrigger>
         </div>
     );
-}
+});
 
 export default ToolBar;
