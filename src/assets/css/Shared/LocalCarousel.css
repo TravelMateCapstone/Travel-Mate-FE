@@ -21,7 +21,7 @@
     height: 500px !important;
     flex: 0 0 auto;
     position: relative;
-    border-radius: 20px;
+    border-radius: 20px !important;
     overflow: hidden;
 }
 

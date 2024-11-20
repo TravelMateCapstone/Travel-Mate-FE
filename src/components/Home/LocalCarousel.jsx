@@ -37,7 +37,7 @@ function LocalCarousel() {
     ];
 
     return (
-        <div className='local-carousel my-3' ref={carouselRef}
+        <div className='local-carousel my-5' ref={carouselRef}
             onMouseDown={handleMouseDown}
             onMouseLeave={handleMouseLeaveOrUp}
             onMouseUp={handleMouseLeaveOrUp}
