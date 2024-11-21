@@ -6,6 +6,7 @@ import ChatHeader from '../components/Chat/ChatHeader';
 import ChatInput from '../components/Chat/ChatInput';
 import '../assets/css/Chat/Chat.css';
 import RequestDetails from '../components/Chat/RequestDetails';
+import createContractLogo from '../assets/images/createContractLogo.png'
 
 function Chat() {
   const [activeChat, setActiveChat] = useState(() => {
@@ -77,25 +78,25 @@ function Chat() {
   ];
 
   const requests = [
-    { 
-      id: 0, 
-      name: 'Alice', 
-      avatar: 'https://via.placeholder.com/50', 
+    {
+      id: 0,
+      name: 'Alice',
+      avatar: 'https://via.placeholder.com/50',
       location: 'Quang Nam, Vietnam',
-      job: 'Engineer', 
-      bio: 'Loves traveling', 
-      hobbies: ['Reading', 'Hiking', 'Swimming'], 
-      timestamp: '24/9/2024' 
+      job: 'Engineer',
+      bio: 'Loves traveling',
+      hobbies: ['Reading', 'Hiking', 'Swimming'],
+      timestamp: '24/9/2024'
     },
-    { 
-      id: 1, 
-      name: 'Tran Duy Nhon', 
-      avatar: 'https://via.placeholder.com/50', 
+    {
+      id: 1,
+      name: 'Tran Duy Nhon',
+      avatar: 'https://via.placeholder.com/50',
       location: 'Quang Nam, Vietnam',
-      job: 'Engineer', 
-      bio: 'Loves traveling', 
-      hobbies: ['Reading', 'Hiking', 'Swimming'], 
-      timestamp: '24/9/2024' 
+      job: 'Engineer',
+      bio: 'Loves traveling',
+      hobbies: ['Reading', 'Hiking', 'Swimming'],
+      timestamp: '24/9/2024'
     },
   ];
 
@@ -185,11 +186,20 @@ function Chat() {
     activeTab === 'chat'
       ? selectedChat?.name
       : selectedRequest
-      ? selectedRequest.name
-      : '';
+        ? selectedRequest.name
+        : '';
 
   return (
     <div className="chat-container mx-lg-2 gap-lg-4">
+
+      <div className='create-contract d-flex flex-column align-items-center'>
+        <h5>Hợp đồng</h5>
+        <img src={createContractLogo} alt="" width={180}/>
+        <p>Hiện tại chưa có hợp đồng nào</p>
+        <p>Hãy tạo hợp đồng để bắt đầu chuyến đi</p>
+        <Button variant='success' className='rounded-5'>Tạo hợp đồng</Button>
+      </div>
+
       <div className="chat-main">
         {/* Chat Header có thêm nút Offcanvas */}
         <div className="chat-header">
@@ -218,7 +228,7 @@ function Chat() {
             <ChatInput onSendMessage={handleSendMessage} />
           </>
         ) : selectedRequest ? (
-          <RequestDetails request={selectedRequest} />
+          <div className='p-3'><RequestDetails request={selectedRequest} /></div>
         ) : (
           <div className="no-request-selected">Select a request to view details</div>
         )}
@@ -307,6 +317,7 @@ function Chat() {
           />
         )}
       </div>
+
     </div>
   );
 }
