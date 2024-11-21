@@ -12,12 +12,12 @@ import { storage } from "../../../firebaseConfig";
 import { updateUserAvatar } from "../../redux/actions/authActions";
 import { toast } from "react-toastify";
 
-
 function ProfileCard() {
   const [profile, setProfile] = useState(null);
   const [languages, setLanguages] = useState(null);
   const [education, setEducation] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [friendshipStatus, setFriendshipStatus] = useState(null); // Trạng thái kết bạn
   const token = useSelector((state) => state.auth.token);
   const url = import.meta.env.VITE_BASE_API_URL;
   const user = useSelector((state) => state.auth.user);
@@ -27,12 +27,14 @@ function ProfileCard() {
   useEffect(() => {
     if (location.pathname === "/others-profile") {
       // Lấy dữ liệu từ localStorage khi ở đường dẫn /others-profile
-      const othersProfile = JSON.parse(localStorage.getItem('othersProfile'));
-      const othersLanguages = JSON.parse(localStorage.getItem('othersLanguages'))?.$values || [];
-      const othersEducation = JSON.parse(localStorage.getItem('othersEducation'))?.$values || [];
+      const othersProfile = JSON.parse(localStorage.getItem("othersProfile"));
+      const othersLanguages = JSON.parse(localStorage.getItem("othersLanguages"))?.$values || [];
+      const othersEducation = JSON.parse(localStorage.getItem("othersEducation"))?.$values || [];
 
       if (othersProfile) {
         setProfile(othersProfile);
+        // Gọi API kiểm tra trạng thái kết bạn
+        checkFriendshipStatus(othersProfile.userId);
       }
       if (othersLanguages) {
         setLanguages(othersLanguages);
@@ -45,17 +47,17 @@ function ProfileCard() {
       const fetchProfileData = async () => {
         try {
           const profileResponse = await axios.get(`${url}/api/Profile/current-profile`, {
-            headers: { Authorization: token },
+            headers: { Authorization: `${token}` },
           });
           setProfile(profileResponse.data);
 
           const languagesResponse = await axios.get(`${url}/api/SpokenLanguages/current-user`, {
-            headers: { Authorization: token },
+            headers: { Authorization: `${token}` },
           });
           setLanguages(languagesResponse.data.$values);
 
           const educationResponse = await axios.get(`${url}/api/UserEducation/current-user`, {
-            headers: { Authorization: token },
+            headers: { Authorization: `${token}` },
           });
           setEducation(educationResponse.data.$values);
         } catch (error) {
@@ -66,6 +68,7 @@ function ProfileCard() {
       fetchProfileData();
     }
   }, [token, url, location.pathname]);
+
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
@@ -92,7 +95,7 @@ function ProfileCard() {
           ...prevProfile,
           imageUser: downloadURL,
         }));
-        toast.success('Cập nhật ảnh đại diệnn  thành công !');
+        toast.success("Cập nhật ảnh đại diện thành công!");
         // Dispatch action để cập nhật avatar trong Redux
         dispatch(updateUserAvatar(downloadURL));
       } catch (error) {
@@ -102,6 +105,163 @@ function ProfileCard() {
       }
     }
   };
+
+  const handleSendFriendRequest = async () => {
+    try {
+      const userId = profile.userId;
+      const response = await axios.post(
+        `${url}/api/Friendship/send?toUserId=${userId}`,
+        {},
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success("Bạn đã gửi yêu cầu kết bạn thành công!");
+        setFriendshipStatus(3);
+      }
+    } catch (error) {
+      console.error("Lỗi khi gửi yêu cầu kết bạn:", error);
+      toast.error("Lỗi khi gửi yêu cầu kết bạn. Vui lòng thử lại sau.");
+    }
+  };
+
+  const checkFriendshipStatus = async (userId) => {
+    try {
+      const response = await axios.get(`${url}/api/Friendship/check-friendship-status?otherUserId=${userId}`, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      setFriendshipStatus(response.data);
+    } catch (error) {
+      console.error("Lỗi khi kiểm tra trạng thái kết bạn:", error);
+    }
+  };
+
+  const handleUnfriend = async (userIdRequest) => {
+    try {
+      const response = await axios.delete(
+        `${url}/api/Friendship/remove?friendUserId=${userIdRequest}`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        toast.success("Hủy kết bạn thành công!");
+        setFriendshipStatus(2); // Cập nhật lại trạng thái kết bạn thành "Kết bạn"
+      }
+    } catch (error) {
+      console.error("Lỗi khi hủy kết bạn:", error);
+      toast.error("Lỗi khi hủy kết bạn!");
+    }
+  };
+
+  const handleAcceptFriendRequest = async (senderId) => {
+    try {
+      const response = await axios.post(
+        `https://travelmateapp.azurewebsites.net/api/Friendship/accept?fromUserId=${senderId}`,
+        {},
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        toast.success("Chấp nhận kết bạn thành công!");
+        setFriendshipStatus(1); // Cập nhật lại trạng thái kết bạn thành "Bạn bè"
+      }
+    } catch (error) {
+      console.error("Error accepting friend request:", error);
+      toast.error("Lỗi khi chấp nhận kết bạn!");
+    }
+  };
+
+  const handleRejectFriendRequest = async (userIdRequest) => {
+    try {
+      const response = await axios.delete(
+        `https://travelmateapp.azurewebsites.net/api/Friendship/remove?friendUserId=${userIdRequest}`,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+      if (response.status === 200) {
+        toast.success("Từ chối kết bạn thành công!");
+        setFriendshipStatus(2); // Cập nhật lại trạng thái kết bạn thành "Kết bạn"
+      }
+    } catch (error) {
+      console.error("Error rejecting friend request:", error);
+      toast.error("Lỗi khi từ chối kết bạn!");
+    }
+  };
+
+  const renderFriendshipActions = () => {
+    switch (friendshipStatus) {
+      case 1:
+        return (
+          <Dropdown.Item onClick={() => handleUnfriend(profile.userId)}>
+            <span className="icon-option">
+              <ion-icon name="person-remove-outline"></ion-icon>
+            </span>
+            Xóa bạn bè
+          </Dropdown.Item>
+        );
+      case 2:
+        return (
+          <Dropdown.Item onClick={handleSendFriendRequest}>
+            <span className="icon-option">
+              <ion-icon name="person-add-outline"></ion-icon>
+            </span>
+            Kết bạn
+          </Dropdown.Item>
+        );
+      case 3:
+        return (
+          <Dropdown.Item onClick={() => handleRejectFriendRequest(profile.userId)}>
+            <span className="icon-option">
+              <ion-icon name="arrow-undo-outline"></ion-icon>
+            </span>
+            Thu hồi lời mời
+          </Dropdown.Item>
+        );
+      case 4:
+        return (
+          <>
+            <Dropdown.Item onClick={() => handleAcceptFriendRequest(profile.userId)}>
+              <span className="icon-option">
+                <ion-icon name="checkmark-outline"></ion-icon>
+              </span>
+              Chấp nhận
+            </Dropdown.Item>
+            <Dropdown.Item onClick={() => handleRejectFriendRequest(profile.userId)}>
+              <span className="icon-option">
+                <ion-icon name="close-outline"></ion-icon>
+              </span>
+              Từ chối
+            </Dropdown.Item>
+          </>
+        );
+      default:
+        return (
+          <Dropdown.Item onClick={handleSendFriendRequest}>
+            <span className="icon-option">
+              <ion-icon name="person-add-outline"></ion-icon>
+            </span>
+            Kết bạn
+          </Dropdown.Item>
+        );
+    }
+  };
+
+
   if (!profile || !languages || !education) {
     return (
       <div className="d-flex justify-content-center profile-card">
@@ -126,41 +286,11 @@ function ProfileCard() {
     );
   }
 
-  const registrationYear = profile?.user?.registrationTime
-    ? new Date(profile.user.registrationTime).getFullYear()
-    : "Không xác định";
-
-  const handleSendFriendRequest = async () => {
-    try {
-      // Lấy userId từ othersProfile
-      const userId = profile.userId;
-
-      console.log("check id", userId);
-      // Gửi yêu cầu kết bạn đến API
-      const response = await axios.post(
-        `${url}/api/Friendship/send?toUserId=${userId}`,
-        {},
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        toast.success('Bạn đã gửi yêu cầu kết bạn thành công!');
-      }
-    } catch (error) {
-      console.error('Lỗi khi gửi yêu cầu kết bạn:', error);
-      toast.error('Lỗi khi gửi yêu cầu kết bạn. Vui lòng thử lại sau.');
-    }
-  };
-
   return (
     <div className="d-flex justify-content-center profile-card">
       <div className="profile-card-container position-relative">
         <div className="d-flex justify-content-center profile-image-wrapper position-absolute">
-          <div style={{ position: "relative", top: '-30px' }}>
+          <div style={{ position: "relative", top: "-30px" }}>
             <img
               className="rounded-circle object-fit-cover"
               src={profile.imageUser || "default-image-url"}
@@ -168,7 +298,7 @@ function ProfileCard() {
               width={192}
               height={192}
               style={{
-                border: '2px solid #d9d9d9'
+                border: "2px solid #d9d9d9",
               }}
             />
             <label htmlFor="upload-image" className="upload-icon position-absolute top-0 text-white">
@@ -185,17 +315,14 @@ function ProfileCard() {
         </div>
         <div className="profile-info">
           <p className="text-center fw-medium profile-name">
-            {location.pathname === "/profile"
-              ? user?.FullName
-              : `${profile.firstName} ${profile.lastName}`}
+            {location.pathname === "/profile" ? user?.FullName : `${profile.firstName} ${profile.lastName}`}
           </p>
 
           <p className="fw-medium text-center" style={{ fontSize: "20px", color: "#007931" }}>
             {profile.hostingAvailability || "Chưa xác định"}
           </p>
 
-
-          <div className="profile-buttons" style={{ marginTop: '24px', marginBottom: '24px' }}>
+          <div className="profile-buttons" style={{ marginTop: "24px", marginBottom: "24px" }}>
             {location.pathname === "/profile" || location.pathname === "/profile-edit" || location.pathname === "/profile-edit-my-home" ? (
               <>
                 {location.pathname === "/profile-edit" || location.pathname === "/profile-edit-my-home" ? (
@@ -221,35 +348,31 @@ function ProfileCard() {
                   variant="custom"
                   className="profile-button-options"
                   title={
-                    <span style={{ color: 'white' }}>
-                      Tùy chọn <ion-icon name="chevron-down-outline" style={{ color: 'white' }}></ion-icon>
+                    <span style={{ color: "white" }}>
+                      Tùy chọn <ion-icon name="chevron-down-outline" style={{ color: "white" }}></ion-icon>
                     </span>
                   }
                 >
-                  <Dropdown.Item onClick={handleSendFriendRequest}>
-                    <span className="icon-option">
-                      <ion-icon name="person-add-outline"></ion-icon>
-                    </span>
-                    Kết bạn
-                  </Dropdown.Item>
-                  <Dropdown.Item onClick={() => alert('Bạn đã báo cáo người dùng này!')}>
+                  {renderFriendshipActions()}
+                  <Dropdown.Item onClick={() => alert("Bạn đã báo cáo người dùng này!")}>
                     <span className="icon-option">
                       <ion-icon name="warning-outline"></ion-icon>
                     </span>
                     Báo cáo
                   </Dropdown.Item>
                 </DropdownButton>
-
               </>
             )}
           </div>
 
-
           <hr className="border-line" />
 
-          <div className="d-flex flex-column justify-content-between" style={{
-            gap: '20px'
-          }}>
+          <div
+            className="d-flex flex-column justify-content-between"
+            style={{
+              gap: "20px",
+            }}
+          >
             <div className="profile-location">
               <ion-icon name="location-outline"></ion-icon>
               <span className="m-0">{profile.address}</span>
@@ -262,7 +385,9 @@ function ProfileCard() {
 
             <div className="profile-language">
               <ion-icon name="language-outline"></ion-icon>
-              <span className="m-0">{languages ? languages.map(lang => lang.languages.languagesName).join(", ") : "Không có thông tin"}</span>
+              <span className="m-0">
+                {languages ? languages.map((lang) => lang.languages.languagesName).join(", ") : "Không có thông tin"}
+              </span>
             </div>
 
             <div className="profile-joined">
@@ -274,7 +399,6 @@ function ProfileCard() {
               <ion-icon name="shield-checkmark-outline"></ion-icon>
               <span className="m-0">65% hoàn thành hồ sơ</span>
             </div>
-
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Navbar as BootstrapNavbar, Nav, Row, Col, Container, Dropdown, Button, Offcanvas } from 'react-bootstrap';
+import { Navbar as BootstrapNavbar, Nav, Row, Col, Container, Dropdown, Button, Offcanvas, Badge } from 'react-bootstrap';
 import { Link, NavLink } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
 import '../../assets/css/Shared/NavBar.css';
@@ -21,6 +21,7 @@ const Navbar = React.memo(() => {
   const [showOffcanvas, setShowOffcanvas] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [messages, setMessages] = useState([]); // Added messages state
+  const [showMoreNotifications, setShowMoreNotifications] = useState(false);
   const dispatch = useDispatch();
 
   const isLoginModalOpen = useSelector((state) => state.modal.isLoginModalOpen);
@@ -31,6 +32,8 @@ const Navbar = React.memo(() => {
   const handelShowOffcanvas = useCallback(() => {
     setShowOffcanvas(true);
   });
+
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0); // State mới để đếm số lượng thông báo chưa đọc
 
   useEffect(() => {
     if (isAuthenticated && token) {
@@ -49,6 +52,11 @@ const Navbar = React.memo(() => {
               };
             });
             setNotifications(updatedNotifications);
+
+            // Đếm số lượng thông báo chưa đọc
+            const unreadCount = updatedNotifications.filter(notification => !notification.isRead).length;
+            setUnreadNotificationsCount(unreadCount); // Cập nhật số lượng thông báo chưa đọc
+
             console.log("Notifications data: ", updatedNotifications);
           }
         })
@@ -57,7 +65,6 @@ const Navbar = React.memo(() => {
         });
     }
   }, [isAuthenticated, token]);
-
 
   const handleLoginModal = useCallback(() => {
     if (isLoginModalOpen) {
@@ -128,7 +135,11 @@ const Navbar = React.memo(() => {
     }
   };
 
+  const handleShowMoreNotifications = () => {
+    setShowMoreNotifications(!showMoreNotifications);
+  };
 
+  const displayedNotifications = showMoreNotifications ? notifications : notifications.slice(0, 5);
 
   return (
     <BootstrapNavbar bg="white" expand="lg" className='my-navbar shadow fixed-top'>
@@ -233,33 +244,37 @@ const Navbar = React.memo(() => {
                 </Dropdown>
 
                 <Dropdown align="end">
-                  <Dropdown.Toggle className="notify_action bg-white rounded-5 border-0 d-flex justify-content-center align-items-center">
-                    <ion-icon name="notifications-outline" style={{
-                      color: 'black',
-                      fontSize: '20px'
-                    }}></ion-icon>
+                  <Dropdown.Toggle className="notify_action bg-white rounded-5 border-0 d-flex justify-content-center align-items-center position-relative">
+                    <ion-icon name="notifications-outline" style={{ color: 'black', fontSize: '20px' }}></ion-icon>
+                    {unreadNotificationsCount > 0 && (
+                      <Badge bg="danger" pill className="position-absolute top-0 start-100 translate-middle">
+                        {unreadNotificationsCount}
+                      </Badge>
+                    )}
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu className="py-3 dropdown-menu-notify">
-                    {notifications.map((notification) => (
+                    {displayedNotifications.map((notification) => (
                       <Dropdown.Item key={notification.notificationId} href={`#notification${notification.notificationId}`}>
                         <NotifyItem
+                          notificationId={notification.notificationId}
+                          typeNotification={notification.typeNotification}
+                          senderId={notification.senderId}
                           avatar={user?.avatarUrl || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'}
                           content={notification.message}
                           isRequest={notification.isRequest}
                           name={user?.username || 'User'}
+                          isRead={notification.isRead} // Truyền thêm trạng thái đã đọc/chưa đọc cho NotifyItem
                           onAccept={() => handleAcceptFriendRequest(notification.senderId)}
                           onDecline={() => handleRejectFriendRequest(notification.senderId)}
                         />
                       </Dropdown.Item>
                     ))}
-                    <div className="d-flex align-items-center justify-content-center mt-2 gap-1">
-                      <p className="m-0 messege-more">Xem thêm thông báo</p>
-                      <ion-icon name="chevron-down-circle-outline" style={{ fontSize: '20px' }}></ion-icon>
+                    <div className="d-flex align-items-center justify-content-center mt-2 gap-1" onClick={handleShowMoreNotifications}>
+                      <p className="m-0 messege-more">{showMoreNotifications ? "Hiển thị ít hơn" : "Xem thêm thông báo"}</p>
+                      <ion-icon name={showMoreNotifications ? "chevron-up-circle-outline" : "chevron-down-circle-outline"} style={{ fontSize: '20px' }}></ion-icon>
                     </div>
                   </Dropdown.Menu>
-
-
                 </Dropdown>
 
                 <Dropdown align="end">
