@@ -6,13 +6,16 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import "../../assets/css/Profile/ProfileCard.css";
 import { Link, useLocation } from "react-router-dom";
-import RoutePath from "../../routes/RoutePath";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../../../firebaseConfig";
 import { updateUserAvatar } from "../../redux/actions/authActions";
 import { toast } from "react-toastify";
+import RoutePath from "../../routes/RoutePath";
 
 function ProfileCard() {
+  const [profile, setProfile] = useState(null);
+  const [languages, setLanguages] = useState(null);
+  const [education, setEducation] = useState(null);
   const [profile, setProfile] = useState(null);
   const [languages, setLanguages] = useState(null);
   const [education, setEducation] = useState(null);
@@ -71,9 +74,11 @@ function ProfileCard() {
 
 
   const handleImageUpload = async (event) => {
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
       setIsUploading(true);
+
 
       try {
         const storageRef = ref(storage, `profile-images/${file.name}`);
@@ -96,6 +101,24 @@ function ProfileCard() {
           imageUser: downloadURL,
         }));
         toast.success("Cập nhật ảnh đại diện thành công!");
+        // Dispatch action để cập nhật avatar trong Redux
+
+        await axios.put(
+          `${url}/api/Profile/current-user/update-image`,
+          downloadURL,
+          {
+            headers: {
+              Authorization: `${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        setProfile((prevProfile) => ({
+          ...prevProfile,
+          imageUser: downloadURL,
+        }));
+        toast.success('Cập nhật ảnh đại diệnn  thành công !');
         // Dispatch action để cập nhật avatar trong Redux
         dispatch(updateUserAvatar(downloadURL));
       } catch (error) {
@@ -268,8 +291,21 @@ function ProfileCard() {
         <div className="profile-card-container">
           <div className="d-flex justify-content-center profile-image-wrapper">
             <Skeleton circle={true} width={192} height={192} />
+        <div className="profile-card-container">
+          <div className="d-flex justify-content-center profile-image-wrapper">
+            <Skeleton circle={true} width={192} height={192} />
           </div>
           <div className="profile-info">
+            <Skeleton width={120} height={20} />
+            <Skeleton width={100} height={20} />
+            <Skeleton width={150} height={20} />
+            <Skeleton width={100} height={40} style={{ marginRight: "10px" }} />
+            <Skeleton width={100} height={40} />
+            <Skeleton width={200} height={20} />
+            <Skeleton width={180} height={20} />
+            <Skeleton width={150} height={20} />
+            <Skeleton width={160} height={20} />
+            <Skeleton width={140} height={20} />
             <Skeleton width={120} height={20} />
             <Skeleton width={100} height={20} />
             <Skeleton width={150} height={20} />
@@ -286,6 +322,36 @@ function ProfileCard() {
     );
   }
 
+  const registrationYear = profile?.user?.registrationTime
+    ? new Date(profile.user.registrationTime).getFullYear()
+    : "Không xác định";
+
+  const handleSendFriendRequest = async () => {
+    try {
+      // Lấy userId từ othersProfile
+      const userId = profile.userId;
+
+      console.log("check id", userId);
+      // Gửi yêu cầu kết bạn đến API
+      const response = await axios.post(
+        `${url}/api/Friendship/send?toUserId=${userId}`,
+        {},
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success('Bạn đã gửi yêu cầu kết bạn thành công!');
+      }
+    } catch (error) {
+      console.error('Lỗi khi gửi yêu cầu kết bạn:', error);
+      toast.error('Lỗi khi gửi yêu cầu kết bạn. Vui lòng thử lại sau.');
+    }
+  };
+
   return (
     <div className="d-flex justify-content-center profile-card">
       <div className="profile-card-container position-relative">
@@ -293,6 +359,7 @@ function ProfileCard() {
           <div style={{ position: "relative", top: "-30px" }}>
             <img
               className="rounded-circle object-fit-cover"
+              src={profile.imageUser || "default-image-url"}
               src={profile.imageUser || "default-image-url"}
               alt="User profile"
               width={192}
@@ -315,18 +382,21 @@ function ProfileCard() {
         </div>
         <div className="profile-info">
           <p className="text-center fw-medium profile-name">
-            {location.pathname === "/profile" ? user?.FullName : `${profile.firstName} ${profile.lastName}`}
+            {location.pathname === RoutePath.PROFILE
+              ? user?.FullName
+              : `${profile.firstName} ${profile.lastName}`}
           </p>
 
           <p className="fw-medium text-center" style={{ fontSize: "20px", color: "#007931" }}>
             {profile.hostingAvailability || "Chưa xác định"}
           </p>
 
-          <div className="profile-buttons" style={{ marginTop: "24px", marginBottom: "24px" }}>
-            {location.pathname === "/profile" || location.pathname === "/profile-edit" || location.pathname === "/profile-edit-my-home" ? (
+
+          <div className="profile-buttons" style={{ marginTop: '24px', marginBottom: '24px' }}>
+            {location.pathname === RoutePath.PROFILE || location.pathname === RoutePath.PROFILE_EDIT || location.pathname === RoutePath.PROFILE_MY_HOME ? (
               <>
-                {location.pathname === "/profile-edit" || location.pathname === "/profile-edit-my-home" ? (
-                  <Button as={Link} to="/profile" variant="success" className="profile-button profile-button-success">
+                {location.pathname ===RoutePath.PROFILE_EDIT || location.pathname === RoutePath.PROFILE_MY_HOME ? (
+                  <Button as={Link} to={RoutePath.PROFILE} variant="success" className="profile-button profile-button-success">
                     Hồ sơ
                   </Button>
                 ) : (
@@ -340,7 +410,7 @@ function ProfileCard() {
               </>
             ) : (
               <>
-                <Button as={Link} to="/chat" variant="success" className="profile-button profile-button-success">
+                <Button as={Link} to={RoutePath.CHAT} variant="success" className="profile-button profile-button-success">
                   <span className="send-request">Gửi yêu cầu</span>
                 </Button>
                 <DropdownButton
@@ -361,6 +431,7 @@ function ProfileCard() {
                     Báo cáo
                   </Dropdown.Item>
                 </DropdownButton>
+
               </>
             )}
           </div>
@@ -399,6 +470,7 @@ function ProfileCard() {
               <ion-icon name="shield-checkmark-outline"></ion-icon>
               <span className="m-0">65% hoàn thành hồ sơ</span>
             </div>
+
           </div>
         </div>
       </div>

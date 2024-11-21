@@ -135,3 +135,4 @@ function NotifyItem({ notificationId, typeNotification, senderId, isRequest, ava
 }
 
 export default NotifyItem;
+
