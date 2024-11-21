@@ -22,7 +22,7 @@ function Friends() {
 
   useEffect(() => {
     const fetchFriends = async () => {
-      if (location.pathname === '/others-profile') {
+      if (location.pathname === `${RoutePath.OTHERS_PROFILE}`) {
         const othersListFriend = JSON.parse(localStorage.getItem('othersListFriend'));
         if (othersListFriend) {
           setFriends(othersListFriend.$values || []);
@@ -30,7 +30,7 @@ function Friends() {
           console.error('Lỗi khi lấy dữ liệu bạn bè từ localStorage');
         }
         setLoading(false);
-      } else if (location.pathname === '/profile') {
+      } else if (location.pathname === `${RoutePath.PROFILE}`) {
         try {
           const response = await axios.get(`${url}/api/Friendship/current-user/friends`, {
             headers: {
@@ -59,25 +59,25 @@ function Friends() {
 
   const handleViewProfile = async (friendId) => {
     try {
-      const othersUserProfile = await axios.get(`https://travelmateapp.azurewebsites.net/api/Profile/${friendId}`);
+      const othersUserProfile = await axios.get(`${url}/api/Profile/${friendId}`);
       localStorage.setItem('othersProfile', JSON.stringify(othersUserProfile.data));
 
-      const userProfileResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserHome/user/${friendId}`);
+      const userProfileResponse = await axios.get(`${url}/api/UserHome/user/${friendId}`);
       localStorage.setItem('othersHome', JSON.stringify(userProfileResponse.data));
 
-      const userActivitiesResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserActivitiesWOO/user/${friendId}`);
+      const userActivitiesResponse = await axios.get(`${url}/api/UserActivitiesWOO/user/${friendId}`);
       localStorage.setItem('othersActivity', JSON.stringify(userActivitiesResponse.data));
 
-      const userFriendsResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/Friendship/List-friends/${friendId}`);
+      const userFriendsResponse = await axios.get(`${url}/api/Friendship/List-friends/${friendId}`);
       localStorage.setItem('othersListFriend', JSON.stringify(userFriendsResponse.data));
 
-      const othersLocation = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserLocationsWOO/user/${friendId}`);
+      const othersLocation = await axios.get(`${url}/api/UserLocationsWOO/user/${friendId}`);
       localStorage.setItem('othersLocation', JSON.stringify(othersLocation.data));
 
-      const othersUserEducation = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserEducation/user/${friendId}`);
+      const othersUserEducation = await axios.get(`${url}/api/UserEducation/user/${friendId}`);
       localStorage.setItem('othersEducation', JSON.stringify(othersUserEducation.data));
 
-      const othersUserLanguages = await axios.get(`https://travelmateapp.azurewebsites.net/api/SpokenLanguages/user/${friendId}`);
+      const othersUserLanguages = await axios.get(`${url}/api/SpokenLanguages/user/${friendId}`);
       localStorage.setItem('othersLanguages', JSON.stringify(othersUserLanguages.data));
 
       navigate(RoutePath.OTHERS_PROFILE);
@@ -156,7 +156,7 @@ function Friends() {
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
                     <Dropdown.Item onClick={() => handleViewProfile(friend.friendId)}>Xem hồ sơ</Dropdown.Item>
-                    {location.pathname !== '/others-profile' && (
+                    {location.pathname !== `${RoutePath.OTHERS_PROFILE}` && (
                       <Dropdown.Item onClick={() => handleUnfriend(friend.friendId)}>Hủy kết bạn</Dropdown.Item>
                     )}
                   </Dropdown.Menu>

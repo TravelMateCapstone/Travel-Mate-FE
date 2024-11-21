@@ -165,7 +165,7 @@ function ProfileCard() {
   const handleAcceptFriendRequest = async (senderId) => {
     try {
       const response = await axios.post(
-        `https://travelmateapp.azurewebsites.net/api/Friendship/accept?fromUserId=${senderId}`,
+        `${url}/api/Friendship/accept?fromUserId=${senderId}`,
         {},
         {
           headers: {
@@ -186,7 +186,7 @@ function ProfileCard() {
   const handleRejectFriendRequest = async (userIdRequest) => {
     try {
       const response = await axios.delete(
-        `https://travelmateapp.azurewebsites.net/api/Friendship/remove?friendUserId=${userIdRequest}`,
+        `${url}/api/Friendship/remove?friendUserId=${userIdRequest}`,
         {
           headers: {
             Authorization: `${token}`,
@@ -315,7 +315,7 @@ function ProfileCard() {
         </div>
         <div className="profile-info">
           <p className="text-center fw-medium profile-name">
-            {location.pathname === "/profile" ? user?.FullName : `${profile.firstName} ${profile.lastName}`}
+            {location.pathname === `${RoutePath.PROFILE_EDIT}` ? user?.FullName : `${profile.firstName} ${profile.lastName}`}
           </p>
 
           <p className="fw-medium text-center" style={{ fontSize: "20px", color: "#007931" }}>
@@ -323,24 +323,24 @@ function ProfileCard() {
           </p>
 
           <div className="profile-buttons" style={{ marginTop: "24px", marginBottom: "24px" }}>
-            {location.pathname === "/profile" || location.pathname === "/profile-edit" || location.pathname === "/profile-edit-my-home" ? (
+            {location.pathname === `${RoutePath.PROFILE}` || location.pathname === `${RoutePath.PROFILE_EDIT}` || location.pathname === `${RoutePath.PROFILE_EDIT_MY_HOME}` ? (
               <>
-                {location.pathname === "/profile-edit" || location.pathname === "/profile-edit-my-home" ? (
-                  <Button as={Link} to="/profile" variant="success" className="profile-button profile-button-success">
+                {location.pathname === `${RoutePath.PROFILE_EDIT}` || location.pathname === `${RoutePath.PROFILE_EDIT_MY_HOME}` ? (
+                  <Button as={Link} to={RoutePath.PROFILE} variant="success" className="profile-button profile-button-success">
                     Hồ sơ
                   </Button>
                 ) : (
-                  <Button as={Link} to="/profile-edit" variant="success" className="profile-button profile-button-success">
+                  <Button as={Link} to={RoutePath.PROFILE_EDIT} variant="success" className="profile-button profile-button-success">
                     Chỉnh sửa
                   </Button>
                 )}
-                <Button as={Link} to="/setting" variant="secondary" className="profile-button profile-button-secondary">
+                <Button as={Link} to={RoutePath.SETTING} variant="secondary" className="profile-button profile-button-secondary">
                   Cài đặt
                 </Button>
               </>
             ) : (
               <>
-                <Button as={Link} to="/chat" variant="success" className="profile-button profile-button-success">
+                <Button as={Link} to={RoutePath.CHAT} variant="success" className="profile-button profile-button-success">
                   <span className="send-request">Gửi yêu cầu</span>
                 </Button>
                 <DropdownButton
