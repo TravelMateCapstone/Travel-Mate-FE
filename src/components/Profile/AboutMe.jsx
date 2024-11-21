@@ -11,31 +11,31 @@ import FormBuilder from './FormBuilder/FormBuilder';
 
 function AboutMe() {
   const token = useSelector((state) => state.auth.token);
-  const baseUrl = import.meta.env.VITE_BASE_API_URL;
+  const url = import.meta.env.VITE_BASE_API_URL;
   const location = useLocation();
 
   const fetchProfile = useCallback(async () => {
-    const response = await axios.get(`${baseUrl}/api/Profile/current-profile`, {
+    const response = await axios.get(`${url}/api/Profile/current-profile`, {
       headers: { Authorization: `${token}` },
     });
     return response.data?.$values || response.data;
-  }, [token, baseUrl]);
+  }, [token, url]);
 
   const fetchActivities = useCallback(async () => {
-    const response = await axios.get(`${baseUrl}/api/UserActivitiesWOO/current-user`, {
+    const response = await axios.get(`${url}/api/UserActivitiesWOO/current-user`, {
       headers: { Authorization: `${token}` },
     });
     return response.data?.$values || response.data;
-  }, [token, baseUrl]);
+  }, [token, url]);
 
   const { data: profile, isLoading: isProfileLoading } = useQuery(
-    ['profile', token, baseUrl],
+    ['profile', token, url],
     fetchProfile,
     { enabled: !!token }
   );
 
   const { data: activities, isLoading: isActivitiesLoading } = useQuery(
-    ['activities', token, baseUrl],
+    ['activities', token, url],
     fetchActivities,
     { enabled: !!token }
   );
@@ -74,7 +74,7 @@ function AboutMe() {
         <Col md={12}>
           <div className='d-flex align-items-center justify-content-between'>
             <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">GIỚI THIỆU</h2>
-            <FormBuilder/>
+            <FormBuilder />
           </div>
           <ul className="cbp_tmtimeline">
             <li>

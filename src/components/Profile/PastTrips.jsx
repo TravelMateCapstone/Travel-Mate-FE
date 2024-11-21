@@ -9,9 +9,10 @@ const PostProfileMemo = React.memo(PostProfile);
 function PastTrips() {
   const [posts, setPosts] = useState([]);
   const token = useSelector(state => state.auth.token);
+  const url = import.meta.env.VITE_BASE_API_URL; s
 
   useEffect(() => {
-    axios.get('https://travelmateapp.azurewebsites.net/api/PastTripPosts/UserTrips', {
+    axios.get(`${url}/api/PastTripPosts/UserTrips`, {
       headers: {
         Authorization: `${token}`
       }
