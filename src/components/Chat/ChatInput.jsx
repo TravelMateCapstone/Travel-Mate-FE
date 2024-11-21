@@ -1,66 +1,23 @@
-import React, { useState, useCallback } from 'react';
-import mention from '../../assets/images/mention.png';
-import Picker from 'emoji-picker-react';
+import React, { memo } from 'react'
+import { Button, Form } from 'react-bootstrap'
 
-const ChatInput = React.memo(({ onSendMessage }) => {
-  const [message, setMessage] = useState('');
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-
-  // Handle input change
-  const handleInputChange = useCallback((e) => {
-    setMessage(e.target.value);
-  }, []);
-
-  // Handle sending the message
-  const handleSend = useCallback(() => {
-    if (message.trim()) {
-      onSendMessage(message); // Send the message to the parent component
-      setMessage(''); // Clear the input after sending
-    }
-  }, [message, onSendMessage]);
-
-  // Handle pressing the Enter key
-  const handleKeyPress = useCallback((e) => {
-    if (e.key === 'Enter') {
-      handleSend();
-    }
-  }, [handleSend]);
-
-  // Handle emoji click
-  const onEmojiClick = useCallback((emojiData, event) => {
-    setMessage(prevMessage => prevMessage + emojiData.emoji); // Thêm emoji vào tin nhắn
-    setShowEmojiPicker(false); // Đóng Emoji Picker sau khi chọn
-  }, []);
-
+const ChatInput = () => {
   return (
-    <div className="chat-input-container">
-    
-      <ion-icon name="happy-outline" style={{
-          fontSize: '1.5rem',
-      }} className="input-icon-left"  onClick={() => setShowEmojiPicker(!showEmojiPicker)}></ion-icon>
-
-      {/* Emoji Picker ở vị trí nổi, không nằm trong ChatInput */}
-      {showEmojiPicker && (
-        <div className="emoji-picker-container">
-          <Picker onEmojiClick={onEmojiClick} />
-        </div>
-      )}
-
-      <input
-        type="text"
-        placeholder="Start typing..."
-        value={message}
-        onChange={handleInputChange}
-        onKeyPress={handleKeyPress}
-        className="chat-input-field"
-      />
-
-      <img src={mention} alt="" className='input-icon-right'/>
-      <button onClick={handleSend} className="send-btn">
-        <i className="bi bi-send"></i>
-      </button>
+    <div className='input-chat'>
+      <Button variant='' className='d-flex justify-content-center align-items-center'>
+        <ion-icon name="image-outline" style={{ fontSize: '1.5rem' }}></ion-icon>
+      </Button>
+      <Button variant='' className='d-flex justify-content-center align-items-center'>
+        <ion-icon name="happy-outline" style={{ fontSize: '1.5rem' }}></ion-icon>
+      </Button>
+      <div className='d-flex'>
+        <Form.Control type="text" className='rounded-start-5 border-end-0 rounded-end-0' placeholder='Nhập tin nhắn...' />
+        <Button variant='outline-secondary' className='send-button border-start-0 shadow-none rounded-end-5 rounded-start-0 d-flex justify-content-center align-items-center px-4'>
+          <ion-icon name="send-outline" style={{ fontSize: '1.5rem' }}></ion-icon>
+        </Button>
+      </div>
     </div>
-  );
-});
+  )
+}
 
-export default ChatInput;
+export default memo(ChatInput)
