@@ -4,39 +4,23 @@ import '../../assets/css/Shared/NotifyItem.css';
 import { toast } from 'react-toastify';
 import RoutePath from '../../routes/RoutePath';
 import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { viewProfile } from '../../redux/actions/profileActions';
 
 function NotifyItem({ notificationId, typeNotification, senderId, isRequest, avatar, content, name, isRead, onAccept, onDecline }) {
 
+    const dispatch = useDispatch();
     const navigate = useNavigate();
+    const user = useSelector((state) => state.auth.user);
 
     const handleNotificationClick = useCallback(async () => {
         if (typeNotification === 2) {
-            try {
-                const othersUserProfile = await axios.get(`https://travelmateapp.azurewebsites.net/api/Profile/${senderId}`);
-                localStorage.setItem('othersProfile', JSON.stringify(othersUserProfile.data));
-
-                const userProfileResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserHome/user/${senderId}`);
-                localStorage.setItem('othersHome', JSON.stringify(userProfileResponse.data));
-
-                const userActivitiesResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserActivitiesWOO/user/${senderId}`);
-                localStorage.setItem('othersActivity', JSON.stringify(userActivitiesResponse.data));
-
-                const userFriendsResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/Friendship/List-friends/${senderId}`);
-                localStorage.setItem('othersListFriend', JSON.stringify(userFriendsResponse.data));
-
-                const othersLocation = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserLocationsWOO/user/${senderId}`);
-                localStorage.setItem('othersLocation', JSON.stringify(othersLocation.data));
-
-                const othersUserEducation = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserEducation/user/${senderId}`);
-                localStorage.setItem('othersEducation', JSON.stringify(othersUserEducation.data));
-
-                const othersUserLanguages = await axios.get(`https://travelmateapp.azurewebsites.net/api/SpokenLanguages/user/${senderId}`);
-                localStorage.setItem('othersLanguages', JSON.stringify(othersUserLanguages.data));
-
+            if (parseInt(senderId) === parseInt(user.id)) {
+                dispatch(viewProfile(senderId)); s
+                navigate(RoutePath.PROFILE);
+            } else {
+                dispatch(viewProfile(senderId));
                 navigate(RoutePath.OTHERS_PROFILE);
-            } catch (error) {
-                toast.error("Lỗi khi lấy thông tin hồ sơ!");
-                console.error("Error fetching user profile:", error);
             }
         } else if (typeNotification === 3) {
             try {

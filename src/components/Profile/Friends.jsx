@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ReactPaginate from 'react-paginate';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../../assets/css/Shared/Pagination.css';
 import Skeleton from 'react-loading-skeleton';
@@ -9,46 +9,35 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { Dropdown } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import RoutePath from '../../routes/RoutePath';
+import { viewProfile } from '../../redux/actions/profileActions';
+import "../../assets/css/Profile/Friends.css";
 
 function Friends() {
-  const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = 4;
-  const token = useSelector((state) => state.auth.token);
+  const itemsPerPage = 8;
+
+
   const url = import.meta.env.VITE_BASE_API_URL;
-  const location = useLocation();
+
+  const token = useSelector((state) => state.auth.token);
+  const user = useSelector((state) => state.auth.user);
+
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const dataProfile = useSelector(state => state.profile);
+
+  // Lấy danh sách bạn bè từ dataProfile
+  const friends = dataProfile.friends && dataProfile.friends.$values ? dataProfile.friends.$values : [];
 
   useEffect(() => {
-    const fetchFriends = async () => {
-      if (location.pathname === `${RoutePath.OTHERS_PROFILE}`) {
-        const othersListFriend = JSON.parse(localStorage.getItem('othersListFriend'));
-        if (othersListFriend) {
-          setFriends(othersListFriend.$values || []);
-        } else {
-          console.error('Lỗi khi lấy dữ liệu bạn bè từ localStorage');
-        }
-        setLoading(false);
-      } else if (location.pathname === `${RoutePath.PROFILE}`) {
-        try {
-          const response = await axios.get(`${url}/api/Friendship/current-user/friends`, {
-            headers: {
-              Authorization: `${token}`,
-            },
-          });
+    if (dataProfile && dataProfile.friends) {
+      setLoading(false);
+    }
+  }, [dataProfile]);
 
-          setFriends(response.data.$values);
-        } catch (error) {
-          console.error('Lỗi khi lấy dữ liệu bạn bè:', error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-    fetchFriends();
-  }, [token, url, location.pathname]);
-
+  // Phân trang
   const pagesVisited = currentPage * itemsPerPage;
   const displayedFriends = friends.slice(pagesVisited, pagesVisited + itemsPerPage);
   const pageCount = Math.ceil(friends.length / itemsPerPage);
@@ -57,36 +46,7 @@ function Friends() {
     setCurrentPage(selected);
   };
 
-  const handleViewProfile = async (friendId) => {
-    try {
-      const othersUserProfile = await axios.get(`${url}/api/Profile/${friendId}`);
-      localStorage.setItem('othersProfile', JSON.stringify(othersUserProfile.data));
-
-      const userProfileResponse = await axios.get(`${url}/api/UserHome/user/${friendId}`);
-      localStorage.setItem('othersHome', JSON.stringify(userProfileResponse.data));
-
-      const userActivitiesResponse = await axios.get(`${url}/api/UserActivitiesWOO/user/${friendId}`);
-      localStorage.setItem('othersActivity', JSON.stringify(userActivitiesResponse.data));
-
-      const userFriendsResponse = await axios.get(`${url}/api/Friendship/List-friends/${friendId}`);
-      localStorage.setItem('othersListFriend', JSON.stringify(userFriendsResponse.data));
-
-      const othersLocation = await axios.get(`${url}/api/UserLocationsWOO/user/${friendId}`);
-      localStorage.setItem('othersLocation', JSON.stringify(othersLocation.data));
-
-      const othersUserEducation = await axios.get(`${url}/api/UserEducation/user/${friendId}`);
-      localStorage.setItem('othersEducation', JSON.stringify(othersUserEducation.data));
-
-      const othersUserLanguages = await axios.get(`${url}/api/SpokenLanguages/user/${friendId}`);
-      localStorage.setItem('othersLanguages', JSON.stringify(othersUserLanguages.data));
-
-      navigate(RoutePath.OTHERS_PROFILE);
-    } catch (error) {
-      toast.error("Lỗi khi lấy thông tin hồ sơ!");
-      console.error("Error fetching user profile, activities, or friends:", error);
-    }
-  };
-
+  // Hàm xử lý khi nhấn nút "Hủy kết bạn"
   const handleUnfriend = async (userIdRequest) => {
     try {
       const response = await axios.delete(
@@ -98,8 +58,9 @@ function Friends() {
         }
       );
       if (response.status === 200) {
+        dispatch(viewProfile(user.id));
         toast.success('Hủy kết bạn thành công!');
-        setFriends((prevFriends) => prevFriends.filter(friend => friend.friendId !== userIdRequest));
+        // Xóa bạn bè khỏi danh sách trực tiếp từ Redux hoặc cần yêu cầu lại API
       }
     } catch (error) {
       console.error('Lỗi khi hủy kết bạn:', error);
@@ -107,8 +68,20 @@ function Friends() {
     }
   };
 
+  // Hàm xử lý khi nhấn "Xem hồ sơ"
+  const handleViewProfile = (friendId) => {
+    if (parseInt(friendId) === parseInt(user.id)) {
+      dispatch(viewProfile(friendId));
+      navigate(RoutePath.PROFILE);
+    } else {
+      dispatch(viewProfile(friendId));
+      navigate(RoutePath.OTHERS_PROFILE);
+    }
+
+  };
+
   return (
-    <div style={{ background: '#f9f9f9', }} className='rounded-5 py-3 px-0'>
+    <div style={{ background: '#f9f9f9', }} className='rounded-5 py-3 px-0 item-container'>
       <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">BẠN BÈ</h2>
       <div style={{
         display: 'grid',
@@ -132,61 +105,72 @@ function Friends() {
             </div>
           ))
         ) : (
-          displayedFriends.map((friend, index) => (
-            <div key={index} style={{
-              border: '1px solid black',
-              padding: '20px',
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center'
-            }}>
-              <img
-                src={friend.profile?.imageUser}
-                alt={friend.profile?.lastName}
-                style={{ width: '60px', height: '60px', borderRadius: '50%', marginRight: '15px', objectFit: 'cover' }}
-              />
-              <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h5 style={{ margin: 0, fontWeight: 'bold' }}>{friend.profile?.firstName} {friend.profile?.lastName}</h5>
-                  <p style={{ margin: 0 }}>{friend.profile?.city}</p>
-                </div>
-                <Dropdown>
-                  <Dropdown.Toggle variant="link" id="dropdown-basic" style={{ padding: 0, margin: 0 }}>
-                    <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu>
-                    <Dropdown.Item onClick={() => handleViewProfile(friend.friendId)}>Xem hồ sơ</Dropdown.Item>
-                    {location.pathname !== `${RoutePath.OTHERS_PROFILE}` && (
-                      <Dropdown.Item onClick={() => handleUnfriend(friend.friendId)}>Hủy kết bạn</Dropdown.Item>
-                    )}
-                  </Dropdown.Menu>
-                </Dropdown>
-              </div>
+          friends.length === 0 ? (
+            <div className="text-center" style={{ fontStyle: 'italic', color: '#6c757d' }}>
+              Bạn chưa có bạn bè
             </div>
-          ))
+          ) : (
+            displayedFriends.map((friend, index) => (
+              <div key={index} style={{
+                border: '1px solid black',
+                padding: '20px',
+                borderRadius: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                background: 'white'
+              }}>
+                <img
+                  src={friend.profile?.imageUser || 'https://via.placeholder.com/60'}
+                  alt={friend.profile?.lastName || 'Avatar'}
+                  style={{ width: '60px', height: '60px', borderRadius: '50%', marginRight: '15px', objectFit: 'cover' }}
+                />
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h5 style={{ margin: 0, fontWeight: 'bold' }}>{friend.profile?.firstName} {friend.profile?.lastName}</h5>
+                    <p style={{ margin: 0 }}>{friend.profile?.city}</p>
+                  </div>
+                  <Dropdown>
+                    <Dropdown.Toggle variant="link" id="dropdown-basic" style={{ padding: 0, margin: 0 }}>
+                      <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item onClick={() => handleViewProfile(friend.friendId)}>
+                        Xem hồ sơ
+                      </Dropdown.Item>
+                      {location.pathname !== `${RoutePath.OTHERS_PROFILE}` && (
+                        <Dropdown.Item onClick={() => handleUnfriend(friend.friendId)}>Hủy kết bạn</Dropdown.Item>
+                      )}
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </div>
+              </div>
+            ))
+          )
         )}
       </div>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: '20px'
-      }}>
-        <ReactPaginate
-          previousLabel={'<'}
-          nextLabel={'>'}
-          breakLabel={'...'}
-          breakClassName={'break-me'}
-          pageCount={pageCount}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={2}
-          onPageChange={handlePageChange}
-          containerClassName={'pagination'}
-          activeClassName={'active-pagination'}
-          previousClassName={'previous'}
-          nextClassName={'next'}
-        />
-      </div>
+      {pageCount > 1 && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginTop: '20px'
+        }}>
+          <ReactPaginate
+            previousLabel={'<'}
+            nextLabel={'>'}
+            breakLabel={'...'}
+            breakClassName={'break-me'}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={2}
+            onPageChange={handlePageChange}
+            containerClassName={'pagination'}
+            activeClassName={'active-pagination'}
+            previousClassName={'previous'}
+            nextClassName={'next'}
+          />
+        </div>
+      )}
     </div>
   );
 }

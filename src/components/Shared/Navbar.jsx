@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Navbar as BootstrapNavbar, Nav, Row, Col, Container, Dropdown, Button, Offcanvas, Badge } from 'react-bootstrap';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
 import '../../assets/css/Shared/NavBar.css';
 import logo from '../../assets/images/logo.png';
@@ -14,6 +14,7 @@ import NotifyItem from "../Shared/NotifyItem";
 import MessengerItem from "../Shared/MessengerItem";
 import { logout } from "../../redux/actions/authActions";
 import { toast } from 'react-toastify';
+import { viewProfile } from '../../redux/actions/profileActions';
 
 const Navbar = React.memo(() => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -23,6 +24,7 @@ const Navbar = React.memo(() => {
   const [messages, setMessages] = useState([]); // Added messages state
   const [showMoreNotifications, setShowMoreNotifications] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const isLoginModalOpen = useSelector((state) => state.modal.isLoginModalOpen);
   const isRegisterModalOpen = useSelector((state) => state.modal.isRegisterModalOpen);
@@ -57,7 +59,7 @@ const Navbar = React.memo(() => {
             const unreadCount = updatedNotifications.filter(notification => !notification.isRead).length;
             setUnreadNotificationsCount(unreadCount); // Cập nhật số lượng thông báo chưa đọc
 
-            console.log("Notifications data: ", updatedNotifications);
+            // console.log("Notifications data: ", updatedNotifications);
           }
         })
         .catch(error => {
@@ -292,7 +294,12 @@ const Navbar = React.memo(() => {
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu className="p-1 avatar-dropdown">
-                    <Dropdown.Item as={Link} to={RoutePath.PROFILE} className="avatar-dropdown-item">
+                    <Dropdown.Item onClick={
+                      () => {
+                        dispatch(viewProfile(user.id));
+                        navigate(RoutePath.PROFILE);
+                      }
+                    } className="avatar-dropdown-item">
                       Hồ sơ
                     </Dropdown.Item>
                     <Dropdown.Item as={Link} to={RoutePath.CONTRACT} className="avatar-dropdown-item">

@@ -23,7 +23,6 @@ const RoutePath = {
 
     // Settings and Profile
     SETTING: '/setting',
-    PROFILE: '/profile',
     PROFILE_EDIT: '/profile/edit',
     DESTINATION: '/destination',
     HOME_EDIT: '/home/edit',
@@ -64,7 +63,7 @@ const RoutePath = {
     FINISH_CONTRACT: '/contract/finish',
     ONGOING_CONTRACT: '/contract/ongoing',
     PAYMENT_CONTRACT: '/contract/payment',
-    
+
 
     //others Profile
     OTHERS_PROFILE: '/others-profile',

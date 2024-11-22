@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Button, Modal, Dropdown } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import '../../assets/css/Events/JoinedEventDetail.css';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
+import { viewProfile } from '../../redux/actions/profileActions';
 
 function EventJoined() {
     const [members, setMembers] = useState([]);
@@ -14,7 +15,10 @@ function EventJoined() {
     const [isJoined, setIsJoined] = useState(false);
     const selectedEvent = useSelector(state => state.event.selectedEvent) || JSON.parse(localStorage.getItem('selectedEvent'));
     const token = useSelector((state) => state.auth.token);
+    const user = useSelector((state) => state.auth.user);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
 
     useEffect(() => {
         if (selectedEvent) {
@@ -82,42 +86,17 @@ function EventJoined() {
         }
     };
 
-    const handleViewProfile = async (userId) => {
-        try {
-            console.log("check id", userId);
-            // Gọi API để lấy thông tin hồ sơ người dùng
-            const othersUserProfile = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Profile/${userId}`);
-            localStorage.setItem('othersProfile', JSON.stringify(othersUserProfile.data));
-
-            // Gọi API để lấy thông tin nhà người dùng
-            const userProfileResponse = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/UserHome/user/${userId}`);
-            localStorage.setItem('othersHome', JSON.stringify(userProfileResponse.data));
-
-            // Gọi API để lấy thông tin hoạt động của người dùng
-            const userActivitiesResponse = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/UserActivitiesWOO/user/${userId}`);
-            localStorage.setItem('othersActivity', JSON.stringify(userActivitiesResponse.data));
-
-            // Gọi API để lấy danh sách bạn bè của người dùng
-            const userFriendsResponse = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Friendship/List-friends/${userId}`);
-            localStorage.setItem('othersListFriend', JSON.stringify(userFriendsResponse.data));
-
-            // Gọi API để lấy danh sách địa điểm của người dùng
-            const othersLocation = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/UserLocationsWOO/user/${userId}`);
-            localStorage.setItem('othersLocation', JSON.stringify(othersLocation.data));
-
-            // Gọi API để lấy trường học của người dùng
-            const othersUserEducation = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/UserEducation/user/${userId}`);
-            localStorage.setItem('othersEducation', JSON.stringify(othersUserEducation.data));
-
-            // Gọi API để lấy danh sách ngôn ngữ của người dùng
-            const othersUserLanguages = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/SpokenLanguages/user/${userId}`);
-            localStorage.setItem('othersLanguages', JSON.stringify(othersUserLanguages.data));
-
-            // Chuyển hướng đến trang hồ sơ của người khác
+    const handleViewProfile = (memberId) => {
+        console.log("id", memberId);
+        console.log("id", user.id);
+        if (parseInt(memberId) === parseInt(user.id)) {
+            console.log("idp");
+            dispatch(viewProfile(memberId));
+            navigate(RoutePath.PROFILE);
+        } else {
+            console.log("ido");
+            dispatch(viewProfile(memberId));
             navigate(RoutePath.OTHERS_PROFILE);
-        } catch (error) {
-            toast.error("Lỗi khi lấy thông tin hồ sơ!");
-            console.error("Error fetching user profile, activities, or friends:", error);
         }
     };
 
