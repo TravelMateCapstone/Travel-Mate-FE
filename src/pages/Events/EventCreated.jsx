@@ -29,7 +29,7 @@ function EventCreated() {
 
   const [showModal, setShowModal] = useState(false);
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -55,19 +55,28 @@ function EventCreated() {
       setEventLocation(storedEvent.location);
       setEventImage(storedEvent.img);
       setStartAt(storedEvent.startTime);
-      setEndAt(storedEvent.startTime);
+      setEndAt(storedEvent.endTime);
     }
 
     if (storedEvent) {
       const fetchMembers = async () => {
         try {
-          const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/EventControllerWOO/${storedEvent.id}/Event-With-Profiles-join`);
-          setMembers(response.data.$values.map(item => item.profile));
+          const response = await axios.get(
+            `${import.meta.env.VITE_BASE_API_URL}/api/EventControllerWOO/${storedEvent.id}/Event-With-Profiles-join`
+          );
+          console.log("mb", response);
+          setMembers(
+            response.data.$values.map(item => ({
+              ...item.profile,
+              fullName: item.profile.user.fullName, // Thêm fullName từ user vào profile
+            }))
+          );
         } catch (error) {
           console.error('Lỗi khi lấy danh sách người tham gia:', error);
         }
       };
       fetchMembers();
+
     }
   }, []);
 
@@ -360,18 +369,19 @@ function EventCreated() {
                   alt={`member-${index}`}
                 />
                 <div className='member-info'>
-                  <p className='member-name'>{member.firstName} {member.lastName}</p>
+                  <p className='member-name'>{member.fullName}</p> {/* Sử dụng fullName */}
                   <p className='member-location'>{member.city || 'Địa điểm không xác định'}</p>
                 </div>
               </div>
             ))}
           </div>
+
         </div>
       </div>
 
       {/* Modal hiển thị danh sách người tham gia */}
       <Modal show={showModal} onHide={handleCloseModal} centered className="custom-modal">
-        <Modal.Header closeButton className="modal-header">
+        <Modal.Header closeButton classNam e="modal-header">
           <Modal.Title className="modal-title">Danh sách người tham gia</Modal.Title>
         </Modal.Header>
         <Modal.Body className="modal-body">
@@ -384,7 +394,7 @@ function EventCreated() {
                   alt={`member-${index}`}
                 />
                 <div className='member-info'>
-                  <p className='member-name'>{member.firstName} {member.lastName}</p>
+                  <p className='member-name'>{member.fullName}</p>
                   <p className='member-location'>{member.city || 'Địa điểm không xác định'}</p>
                 </div>
               </div>

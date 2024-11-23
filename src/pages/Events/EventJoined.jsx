@@ -24,12 +24,22 @@ function EventJoined() {
         if (selectedEvent) {
             const fetchMembers = async () => {
                 try {
-                    const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/EventControllerWOO/${selectedEvent.id}/Event-With-Profiles-join`);
-                    setMembers(response.data.$values.map(item => item.profile));
+                    const response = await axios.get(
+                        `${import.meta.env.VITE_BASE_API_URL}/api/EventControllerWOO/${selectedEvent.id}/Event-With-Profiles-join`
+                    );
+                    console.log("mbj", response);
+                    setMembers(
+                        response.data.$values.map(item => ({
+                            ...item.profile,
+                            fullName: item.profile?.user.fullName,
+                        }))
+                    );
                 } catch (error) {
                     console.error('Lỗi khi lấy danh sách người tham gia:', error);
                 }
+                console.log("me", members.length);
             };
+
 
             const checkIfJoined = async () => {
                 try {
@@ -158,20 +168,21 @@ function EventJoined() {
                         <a href="#" className='view-all-link m-3' onClick={handleShowModal}>Xem tất cả</a>
                     </div>
                     <div className='members-list m-3'>
-                        {members.slice(0, 5).map((member, index) => (
+                        {members.map((member, index) => (
                             <div key={index} className='member-item d-flex align-items-center'>
                                 <img
-                                    src={member?.imageUser || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'}
+                                    src={member.imageUser}
                                     className='members-img'
                                     alt={`member-${index}`}
                                 />
                                 <div className='member-info'>
-                                    <p className='member-name'>{member.firstName} {member.lastName}</p>
+                                    <p className='member-name'>{member.fullName}</p> {/* Sử dụng fullName */}
                                     <p className='member-location'>{member.city || 'Địa điểm không xác định'}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
+
                 </div>
             </div>
 
@@ -190,7 +201,7 @@ function EventJoined() {
                                     alt={`member-${index}`}
                                 />
                                 <div className='member-info'>
-                                    <p className='member-name'>{member.firstName} {member.lastName}</p>
+                                    <p className='member-name'>{member.fullName}</p>
                                     <p className='member-location'>{member.city || 'Địa điểm không xác định'}</p>
                                 </div>
                             </div>

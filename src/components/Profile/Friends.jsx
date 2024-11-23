@@ -126,7 +126,7 @@ function Friends() {
                 />
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <h5 style={{ margin: 0, fontWeight: 'bold' }}>{friend.profile?.firstName} {friend.profile?.lastName}</h5>
+                    <h5 style={{ margin: 0, fontWeight: 'bold' }}>{friend.profile?.user.fullName}</h5>
                     <p style={{ margin: 0 }}>{friend.profile?.city}</p>
                   </div>
                   <Dropdown>
