@@ -296,7 +296,7 @@ const Navbar = React.memo(() => {
                   <Dropdown.Menu className="p-1 avatar-dropdown">
                     <Dropdown.Item onClick={
                       () => {
-                        dispatch(viewProfile(user.id));
+                        dispatch(viewProfile(user.id, token));
                         navigate(RoutePath.PROFILE);
                       }
                     } className="avatar-dropdown-item">

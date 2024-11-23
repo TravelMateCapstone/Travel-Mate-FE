@@ -176,7 +176,7 @@ function EventJoined() {
                                     alt={`member-${index}`}
                                 />
                                 <div className='member-info'>
-                                    <p className='member-name'>{member.fullName}</p> {/* Sử dụng fullName */}
+                                    <p className='member-name'>{member.fullName}</p>
                                     <p className='member-location'>{member.city || 'Địa điểm không xác định'}</p>
                                 </div>
                             </div>

@@ -23,7 +23,6 @@ function ProfileCard() {
 
   const dispatch = useDispatch();
   const dataProfile = useSelector(state => state.profile);
-  console.log("", dataProfile);
 
   // Kiểm tra trạng thái kết bạn
   useEffect(() => {

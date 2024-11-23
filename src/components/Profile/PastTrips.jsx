@@ -1,25 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { Container } from 'react-bootstrap';
 import PostProfile from '../../components/Profile/PostProfile';
-import axios from 'axios';
 import { useSelector } from 'react-redux';
 
 const PostProfileMemo = React.memo(PostProfile);
 
 function PastTrips() {
   const [posts, setPosts] = useState([]);
-  const token = useSelector(state => state.auth.token);
-  const url = import.meta.env.VITE_BASE_API_URL; s
 
+  const dataProfile = useSelector(state => state.profile);
+
+  // Chỉ setPosts khi dataProfile.trip có dữ liệu hợp lệ
   useEffect(() => {
-    axios.get(`${url}/api/PastTripPosts/UserTrips`, {
-      headers: {
-        Authorization: `${token}`
-      }
-    })
-      .then(response => setPosts(response.data.$values))
-      .catch(error => console.error('Error fetching posts:', error));
-  }, []);
+    if (dataProfile?.trip?.$values && Array.isArray(dataProfile.trip.$values)) {
+      setPosts(dataProfile.trip.$values);
+    }
+  }, [dataProfile]);  // Chạy lại khi dataProfile thay đổi
 
   return (
     <Container className='border-0 rounded-5' style={{

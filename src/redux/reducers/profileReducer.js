@@ -8,6 +8,7 @@ const initialState = {
   location: null,
   education: null,
   languages: null,
+  trip: null,
   loading: {
     profile: false,
     home: false,
@@ -16,6 +17,7 @@ const initialState = {
     location: false,
     education: false,
     languages: false,
+    trip: false
   },
   error: {
     profile: null,
@@ -25,6 +27,7 @@ const initialState = {
     location: null,
     education: null,
     languages: null,
+    trip: null
   }
 };
 

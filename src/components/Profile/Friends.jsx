@@ -71,10 +71,11 @@ function Friends() {
   // Hàm xử lý khi nhấn "Xem hồ sơ"
   const handleViewProfile = (friendId) => {
     if (parseInt(friendId) === parseInt(user.id)) {
-      dispatch(viewProfile(friendId));
+      dispatch(viewProfile(friendId, token));
       navigate(RoutePath.PROFILE);
     } else {
-      dispatch(viewProfile(friendId));
+      console.log("id", friendId);
+      dispatch(viewProfile(friendId, token));
       navigate(RoutePath.OTHERS_PROFILE);
     }
 
