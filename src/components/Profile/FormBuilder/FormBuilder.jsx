@@ -55,29 +55,33 @@ function FormBuilder() {
 
   const handleSave = useCallback(async () => {
     if (services.length === 0) {
-      toast.error('Phải có ít nhất 1 dịch vụ')
+      toast.error('Phải có ít nhất 1 dịch vụ');
       return;
     }
+  
+    // Chuẩn bị dữ liệu theo định dạng API yêu cầu
     const dataSave = {
       questions: questions.map(q => ({
-        type: q.type,
+        type: q.type, 
         text: q.question,
-        options: q.option.map(opt => opt.text)
+        options: q.option.map(opt => opt.text),
       })),
       services: services.map(s => ({
         serviceName: s.serviceName,
-        amount: s.amount
-      }))
+        amount: parseFloat(s.amount) || 0,
+      })),
     };
   
     try {
+      // Gửi dữ liệu lên API
       await axios.put('https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/LocalForm', dataSave, {
         headers: {
-          Authorization: `${token}`
+          Authorization: `${token}` // Đảm bảo token được gửi đúng định dạng
         }
       });
       toast.success('Lưu thành công');
     } catch (error) {
+      console.error('Error saving data:', error);
       toast.error('Lưu thất bại');
     }
   }, [questions, services, token]);
@@ -155,6 +159,8 @@ function FormBuilder() {
           Authorization: `${token}`
         }
       });
+      console.log(response.data);
+      
       const data = response.data;
       setQuestions(data.questions.$values.map(q => ({
         type: q.type,
@@ -166,7 +172,10 @@ function FormBuilder() {
         serviceName: s.serviceName,
         amount: s.amount
       })));
+      toast.success('Lấy dữ liệu thành công');
     } catch (error) {
+      console.log('Error fetching data:', error);
+      
       toast.error('Lấy dữ liệu thất bại');
     }
   }, [token]);

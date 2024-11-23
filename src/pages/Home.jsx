@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ToolBar from '../components/Shared/ToolBar';
-import AutoSuggestInput from '../components/Shared/AutoSuggestInput';
 import AnswerQuestion from '../components/Profile/FormBuilder/AnswerQuestion';
 import CarouselComponent from '../components/Home/CarouselComponent';
 import LocalCarousel from '../components/Home/LocalCarousel';
 import ThreeDCarousel from '../components/Home/ThreeDCarousel';
+import ViewFormRequest from '../components/Profile/FormBuilder/ViewFormRequest'
 import { useDispatch, useSelector } from 'react-redux';
 import { viewProfile } from '../redux/actions/profileActions';
 
@@ -22,7 +22,6 @@ function Home() {
   }, [dispatch]); // Add dispatch to the dependency array to ensure it runs only once
 
   const data = useSelector(state => state.profile);
-  console.log(data.home);
 
   return (
     <div className='mt-4'>
@@ -31,7 +30,7 @@ function Home() {
       <ThreeDCarousel />
       <LocalCarousel />
       <AnswerQuestion />
-      <AutoSuggestInput />
+      <ViewFormRequest />
     </div>
   );
 }

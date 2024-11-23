@@ -43,7 +43,7 @@ const GroupDetail = () => {
   const { mutate: sendJoinRequest, isLoading: isSending, isSuccess: isSent } = useSendJoinRequest(false);
   const token = useSelector(state => state.auth.token);
 
-  
+
 
   // State for post images
   const [selectedPostImages, setSelectedPostImages] = useState([]);
@@ -68,7 +68,7 @@ const GroupDetail = () => {
         const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Groups/JoinedGroups/${group?.groupId}`, {
           headers: { Authorization: `${token}` }
         });
-        if(response.data.userJoinedStatus == 'Joined' || response.data.userJoinedStatus == 'Owner') {
+        if (response.data.userJoinedStatus == 'Joined' || response.data.userJoinedStatus == 'Owner') {
           dispatch(viewGroup(group, response.data.userJoinedStatus));
         }
       } catch (error) {
@@ -135,19 +135,19 @@ const GroupDetail = () => {
   const dispatch = useDispatch();
 
   const handleUpdateGroup = async () => {
-    
+
     const groupName = document.getElementById('group_name').value;
     const description = document.getElementById('description').value;
     const groupImageUrl = selectedBannerImage ? await uploadBannerImage(selectedBannerImage) : group?.groupImageUrl;
-  
+
     const updatedGroup = {
       groupName: groupName,
       location: selectedProvince,
       description: description,
       groupImageUrl: groupImageUrl,
     };
-    
-  
+
+
     updateGroup({ id: group?.groupId, updatedData: updatedGroup }, {
       onSuccess: () => {
         dispatch(updateGroupAction(updatedGroup));
@@ -158,7 +158,7 @@ const GroupDetail = () => {
       }
     });
   };
-  
+
   const uploadBannerImage = async (file) => {
     const storageRef = ref(storage, `groupBanners/${group?.groupId}/${file.name}`);
     await uploadBytes(storageRef, file);
@@ -253,41 +253,45 @@ const GroupDetail = () => {
         )}
       </p>
       <hr className='mt-4 mb-5 line_spit' />
-      <div className='write_post_container mb-5'>
-        <div className='d-flex align-items-center gap-3'>
-          <img src='https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw' alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
-          <h5 className='m-0'></h5>
+      {(userJoinedStatus === 'Joined' || userJoinedStatus === 'Owner') && (
+        <div className='write_post_container mb-5'>
+          <div className='d-flex align-items-center gap-3'>
+            <img src='https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw' alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
+            <h5 className='m-0'></h5>
+          </div>
+          <TextareaAutosize name="" id="post_title" placeholder='Bạn đang nghĩ gì... ?'></TextareaAutosize>
+          <input type="file" id="image_post" multiple style={{ display: 'none' }} onChange={handleSelectImagePost} />
+          <div className='uploaded_img_container'>
+            {selectedPostImages.map((file, index) => (
+              <div key={index} className='position-relative image-container'>
+                <img src={URL.createObjectURL(file)} alt={`selected ${index}`} width={100} height={100} className='selected-image' />
+                <Button variant='danger' className='position-absolute top-0 end-0 m-1 p-1 delete-button' onClick={() => handleRemoveSelectedImage(index)}>
+                  <ion-icon name="close-outline"></ion-icon>
+                </Button>
+              </div>
+            ))}
+            <Button variant='outline-dark' className='button_add_upload' onClick={() => document.getElementById('image_post').click()}>
+              <ion-icon name="add-outline"></ion-icon>
+            </Button>
+          </div>
+          <div className='w-100 d-flex justify-content-end'>
+            <Button variant='outline-success' className='rounded-5' onClick={handleSubmitPost} disabled={isSubmitting}>
+              {isSubmitting ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 'Đăng bài'}
+            </Button>
+          </div>
         </div>
-        <TextareaAutosize name="" id="post_title" placeholder='Bạn đang nghĩ gì... ?'></TextareaAutosize>
-        <input type="file" id="image_post" multiple style={{ display: 'none' }} onChange={handleSelectImagePost} />
-        <div className='uploaded_img_container'>
-          {selectedPostImages.map((file, index) => (
-            <div key={index} className='position-relative image-container'>
-              <img src={URL.createObjectURL(file)} alt={`selected ${index}`} width={100} height={100} className='selected-image' />
-              <Button variant='danger' className='position-absolute top-0 end-0 m-1 p-1 delete-button' onClick={() => handleRemoveSelectedImage(index)}>
-                <ion-icon name="close-outline"></ion-icon>
-              </Button>
-            </div>
-          ))}
-          <Button variant='outline-dark' className='button_add_upload' onClick={() => document.getElementById('image_post').click()}>
-            <ion-icon name="add-outline"></ion-icon>
-          </Button>
+      )}
+      {(userJoinedStatus === 'Joined' || userJoinedStatus === 'Owner') && (
+        <div>
+          {groupPosts.length > 0 ? (
+            groupPosts.map(post => (
+              <PostGroupDetail key={post.groupPostId} post={post} />
+            ))
+          ) : (
+            <p>Chưa có bài viết nào</p>
+          )}
         </div>
-        <div className='w-100 d-flex justify-content-end'>
-          <Button variant='outline-success' className='rounded-5' onClick={handleSubmitPost} disabled={isSubmitting}>
-            {isSubmitting ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : 'Đăng bài'}
-          </Button>
-        </div>
-      </div>
-      <div>
-        {groupPosts.length > 0 ? (
-          groupPosts.map(post => (
-            <PostGroupDetail key={post.groupPostId} post={post} />
-          ))
-        ) : (
-          <p>Chưa có bài viết nào</p>
-        )}
-      </div>
+      )}
       <ConfirmModal show={false} onHide={() => { }} onConfirm={() => { }} title="Bạn có muốn xóa không?" message="Nhóm sẽ bị xóa vĩnh viễn" />
       <FormModal
         show={showFormModal}
