@@ -1,8 +1,10 @@
-import { VIEW_PROFILE, VIEW_PROFILE_LOADING, VIEW_PROFILE_ERROR } from "../actionTypes";
+import { VIEW_PROFILE, VIEW_PROFILE_LOADING, VIEW_PROFILE_ERROR, CLEAR_TRIP } from "../actionTypes";
 import axios from 'axios';
 
 // Action creator for viewing profile
 export const viewProfile = (userId, token) => async (dispatch) => {
+  dispatch({ type: CLEAR_TRIP });
+
   const requests = {
     profile: () => axios.get(`https://travelmateapp.azurewebsites.net/api/Profile/${userId}`),
     home: () => axios.get(`https://travelmateapp.azurewebsites.net/api/UserHome/user/${userId}`),

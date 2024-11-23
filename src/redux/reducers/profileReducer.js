@@ -1,4 +1,4 @@
-import { VIEW_PROFILE, VIEW_PROFILE_LOADING, VIEW_PROFILE_ERROR } from "../actionTypes";
+import { VIEW_PROFILE, VIEW_PROFILE_LOADING, VIEW_PROFILE_ERROR, CLEAR_TRIP } from "../actionTypes";
 
 const initialState = {
   profile: null,
@@ -64,6 +64,19 @@ const profileReducer = (state = initialState, action) => {
         error: {
           ...state.error,
           [action.payload.property]: action.payload.error,
+        }
+      };
+    case CLEAR_TRIP:
+      return {
+        ...state,
+        trip: null,
+        loading: {
+          ...state.loading,
+          trip: false,
+        },
+        error: {
+          ...state.error,
+          trip: null,
         }
       };
     default:
