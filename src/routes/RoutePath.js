@@ -67,6 +67,9 @@ const RoutePath = {
 
     //others Profile
     OTHERS_PROFILE: '/others-profile',
+
+    //Destination
+    DESTINATION: '/destination',
 }
 
 export default RoutePath;

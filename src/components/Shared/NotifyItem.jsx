@@ -6,12 +6,16 @@ import RoutePath from '../../routes/RoutePath';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { viewProfile } from '../../redux/actions/profileActions';
+import { viewGroup } from '../../redux/actions/groupActions';
 
 function NotifyItem({ notificationId, typeNotification, senderId, isRequest, avatar, content, name, isRead, onAccept, onDecline }) {
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const user = useSelector((state) => state.auth.user);
+    const group = useSelector((state) => state.group);
+    const userJoinedStatus = useSelector(state => state.group.userJoinedStatus);
+
 
     const handleNotificationClick = useCallback(async () => {
         if (typeNotification === 2) {
@@ -70,9 +74,9 @@ function NotifyItem({ notificationId, typeNotification, senderId, isRequest, ava
                     toast.error("Lỗi khi lấy thông tin sự kiện!");
                     console.error("Error fetching event details:", error);
                 }
-                toast.success("Thông báo này từ hệ thống!");
             }
-
+        } else if (typeNotification === 4) {
+            navigate(RoutePath.GROUP_CREATED);
         }
 
         if (!isRead) {

@@ -18,7 +18,7 @@ function Home() {
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    dispatch(viewProfile(9));
+    // dispatch(viewProfile(9));
   }, [dispatch]); // Add dispatch to the dependency array to ensure it runs only once
 
   const data = useSelector(state => state.profile);

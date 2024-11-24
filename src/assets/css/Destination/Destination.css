@@ -1,0 +1,147 @@
+.destination-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+/* Banner Section */
+.banner {
+    background-image: url('https://havatravel.vn/upload/hinhthem/dulichdanang-840.jpeg');
+    height: 471px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.banner-content h1 {
+    font-size: 48px;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.banner-content p {
+    font-size: 18px;
+    margin-top: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* Main Content */
+.main-content {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.suggested-locations,
+.favorites {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.suggested-locations {
+    flex: 1;
+}
+
+.favorites {
+    flex: 3;
+}
+
+/* Suggested Locations */
+.location-list .location-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.location-item img {
+    width: 100px;
+    /* Cố định chiều rộng ảnh địa điểm */
+    height: 100px;
+    /* Cố định chiều cao ảnh địa điểm */
+    object-fit: cover;
+    /* Đảm bảo giữ tỉ lệ hình ảnh */
+    border-radius: 8px;
+}
+
+.avatar-list img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+/* Google Map */
+.map-container iframe {
+    border: none;
+    border-radius: 8px;
+    width: 100%;
+    height: 400px;
+    /* Đặt chiều cao cố định */
+}
+
+/* Bottom Section */
+.bottom-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.local-people,
+.recent-users,
+.event-banner,
+.faqs {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* Local People and Recent Users */
+.people-list .user-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.user-item img {
+    width: 50px;
+    /* Cố định kích thước avatar */
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Event Banner */
+.event-carousel {
+    overflow-y: auto;
+    max-height: 300px;
+    /* Giới hạn chiều cao cho sự kiện */
+}
+
+.event-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.event-item img {
+    width: 120px;
+    /* Cố định chiều rộng banner sự kiện */
+    height: 80px;
+    /* Cố định chiều cao banner sự kiện */
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.faqs ul {
+    padding-left: 20px;
+}
+
+.faqs li {
+    margin-bottom: 10px;
+}

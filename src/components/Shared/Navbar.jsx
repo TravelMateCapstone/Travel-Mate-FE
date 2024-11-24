@@ -35,7 +35,7 @@ const Navbar = React.memo(() => {
     setShowOffcanvas(true);
   });
 
-  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0); // State mới để đếm số lượng thông báo chưa đọc
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
   useEffect(() => {
     if (isAuthenticated && token) {
@@ -124,7 +124,7 @@ const Navbar = React.memo(() => {
         `https://travelmateapp.azurewebsites.net/api/Friendship/remove?friendUserId=${userIdRequest}`,
         {
           headers: {
-            Authorization: `${token}`, // Đảm bảo Bearer token được truyền vào đúng định dạng
+            Authorization: `${token}`,
           },
         }
       );
@@ -307,6 +307,9 @@ const Navbar = React.memo(() => {
                     </Dropdown.Item>
                     <Dropdown.Item as={Link} to={RoutePath.LOCAL_STATICTIS} className="avatar-dropdown-item">
                       Trang quản lý
+                    </Dropdown.Item>
+                    <Dropdown.Item as={Link} to={RoutePath.DESTINATION} className="avatar-dropdown-item">
+                      Địa điểm
                     </Dropdown.Item>
                     <Dropdown.Divider style={{
                       marginBottom: '24px'
