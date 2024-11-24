@@ -28,13 +28,16 @@ const Register = ({ show, handleClose }) => {
     }
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BASE_API_URL}/api/Auth/register`, {
+      const response = await axios.post(`https://travelmateapp.azurewebsites.net/api/Auth/register`, {
         username: username,
         email: email,
         password: password,
-        confirmPassword: confirmPassword,
+        confirmPassword: confirmPassword, // Add confirmPassword to the payload
         fullName: fullName,
       });
+
+      console.log(username, email, password, confirmPassword, fullName);
+      
 
       const data = response.data;
 

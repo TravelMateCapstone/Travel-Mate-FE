@@ -1,9 +1,41 @@
 import React from 'react'
-import { Card, Row, Col, Form, ListGroup } from 'react-bootstrap'
+import { Card, Row, Col, Form, ListGroup, Button } from 'react-bootstrap'
+import axios from 'axios'
+import { useSelector } from 'react-redux'
 
 function RequestCard({ request }) {
+  const token = useSelector(state => state.auth.token);
+
+  const handleAccept = async () => {
+    try {
+      await axios.post(
+        `https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/AcceptRequest?travelerId=${request.travelerId}`,
+        {},
+        { headers: { Authorization: `${token}` } }
+      );
+      alert('Request accepted successfully');
+    } catch (error) {
+      console.error('Error accepting request:', error);
+      alert('Failed to accept request');
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      await axios.post(
+        `https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/RejectRequest?travelerId=${request.travelerId}`,
+        {},
+        { headers: { Authorization: `${token}` } }
+      );
+      alert('Request rejected successfully');
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+      alert('Failed to reject request');
+    }
+  };
+
   return (
-    <Card className='mb-4'>
+    <Card className='mb-4' style={{ width: '500px' }}>
       <Card.Header className='text-center'>Yêu cầu kết nối</Card.Header>
       <Card.Body>
         <h6>Thời gian</h6>
@@ -89,6 +121,10 @@ function RequestCard({ request }) {
             </Card>
           );
         })}
+        <div className='d-flex justify-content-between mt-3'>
+          <Button variant='success' onClick={handleAccept}>Chấp nhận</Button>
+          <Button variant='danger' onClick={handleReject}>Từ chối</Button>
+        </div>
       </Card.Body>
     </Card>
   )

@@ -29,7 +29,7 @@ function ProfileCard() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const profileViewId = useSelector((state) => state.profile.profile.userId);
+  const profileViewId = useSelector((state) => state.profile.profile?.userId);
 
   
 

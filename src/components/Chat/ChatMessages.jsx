@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux';
 const ChatMessages = ({ isSender, isRequest, selectedRequest }) => {
   const requestData = selectedRequest || useSelector(state => state.request.currentRequest);
 
+  const chatData = useSelector(state => state.message.currentMessage);
+
   return (
     <>
       {isRequest ? (

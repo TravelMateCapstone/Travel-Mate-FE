@@ -87,7 +87,7 @@ const Navbar = React.memo(() => {
   const handleLogout = useCallback(() => {
     dispatch(logout());
     // Clear token from state
-    dispatch({ type: 'CLEAR_TOKEN' });
+    dispatch(logout());
   }, [dispatch]);
 
   const handleSelect = useCallback((eventKey) => {

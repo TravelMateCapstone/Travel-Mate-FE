@@ -6,6 +6,7 @@ import groupReducer from './groupReducer';
 import eventReducer from './eventReducer';
 import profileReducer from './profileReducer';
 import requestReducer from './requestReducer';
+import messageReducer from './messageReducer';
 
 const rootReducer = combineReducers({
     couter: couterReducer,
@@ -15,6 +16,8 @@ const rootReducer = combineReducers({
     event: eventReducer,
     profile: profileReducer,
     request: requestReducer,
+    message: messageReducer,
+    
 });
 
 export default rootReducer;
