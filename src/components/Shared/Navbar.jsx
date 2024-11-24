@@ -59,7 +59,7 @@ const Navbar = React.memo(() => {
             const unreadCount = updatedNotifications.filter(notification => !notification.isRead).length;
             setUnreadNotificationsCount(unreadCount); // Cập nhật số lượng thông báo chưa đọc
 
-            // console.log("Notifications data: ", updatedNotifications);
+            console.log("Notifications data: ", updatedNotifications);
           }
         })
         .catch(error => {

@@ -16,13 +16,15 @@ function NotifyItem({ notificationId, typeNotification, senderId, isRequest, ava
     const handleNotificationClick = useCallback(async () => {
         if (typeNotification === 2) {
             if (parseInt(senderId) === parseInt(user.id)) {
-                dispatch(viewProfile(senderId)); s
+                dispatch(viewProfile(senderId));
                 navigate(RoutePath.PROFILE);
             } else {
                 dispatch(viewProfile(senderId));
                 navigate(RoutePath.OTHERS_PROFILE);
             }
         } else if (typeNotification === 3) {
+            console.log("content", content);
+            console.log("id", senderId);
             try {
                 const eventResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/EventControllerWOO/${senderId}`);
                 const eventData = eventResponse.data;
@@ -38,14 +40,39 @@ function NotifyItem({ notificationId, typeNotification, senderId, isRequest, ava
                 };
 
                 localStorage.setItem('selectedEvent', JSON.stringify(selectedEvent));
-
                 navigate(RoutePath.EVENT_MANAGEMENT);
             } catch (error) {
                 toast.error("Lỗi khi lấy thông tin sự kiện!");
                 console.error("Error fetching event details:", error);
             }
         } else if (typeNotification === 1) {
-            toast.success("Thông báo này từ hệ thống!");
+            console.log("content", content);
+            console.log("id", senderId);
+            if (content.includes("Sự kiện")) {
+                try {
+                    const eventResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/EventControllerWOO/${senderId}`);
+
+                    const eventData = eventResponse.data;
+                    const selectedEvent = {
+                        id: eventData.eventId,
+                        img: eventData.eventImageUrl,
+                        startTime: eventData.startAt,
+                        endTime: eventData.endAt,
+                        title: eventData.eventName,
+                        location: eventData.eventLocation,
+                        participantCount: eventData.eventParticipants?.$values?.length || 0,
+                        text: eventData.description
+                    };
+
+                    localStorage.setItem('selectedEvent', JSON.stringify(selectedEvent));
+                    navigate(RoutePath.EVENT_DETAILS);
+                } catch (error) {
+                    toast.error("Lỗi khi lấy thông tin sự kiện!");
+                    console.error("Error fetching event details:", error);
+                }
+                toast.success("Thông báo này từ hệ thống!");
+            }
+
         }
 
         if (!isRead) {
@@ -76,7 +103,7 @@ function NotifyItem({ notificationId, typeNotification, senderId, isRequest, ava
                     <div className='d-flex flex-column align-items-start ms-2'>
                         <div className='mess-inf'>
                             <p className='mb-0 text-wrap' style={{ fontSize: '12px' }}>
-                                {name && <strong>{name} </strong>} {/* Display name if it exists */}
+                                {name && <strong>{name} </strong>}
                                 {content}
                             </p>
                             <div className='d-flex justify-content-start align-items-center gap-2 mt-1'>
