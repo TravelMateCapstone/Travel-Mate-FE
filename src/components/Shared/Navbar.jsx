@@ -35,6 +35,21 @@ const Navbar = React.memo(() => {
     setShowOffcanvas(true);
   });
 
+
+  const handleSearchDestination = useCallback(() => {
+    navigate(RoutePath.DESTINATION); // Điều hướng đến trang "Khách du lịch"
+  }, [navigate]);
+
+  const handleSearchLocal = useCallback(() => {
+    navigate(RoutePath.SEARCH_LIST_LOCAL); // Điều hướng đến trang "Người địa phương"
+  }, [navigate]);
+
+  const handleSearchTraveller = useCallback(() => {
+    navigate(RoutePath.SEARCH_LIST_TRAVELLER); // Điều hướng đến trang "Khách du lịch"
+  }, [navigate]);
+
+
+
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
   useEffect(() => {
@@ -198,18 +213,32 @@ const Navbar = React.memo(() => {
                       width: '313px',
                     }}
                   >
-                    <Dropdown.Item eventKey="Địa điểm du lịch" className="custom-dropdown-item px-0 d-flex flex-column">
+                    <Dropdown.Item
+                      eventKey="Địa điểm du lịch"
+                      className="custom-dropdown-item px-0 d-flex flex-column"
+                      onClick={handleSearchDestination}
+                    >
                       <p className="m-0 fw-medium">Địa điểm du lịch</p>
                       <p className="m-0 fw-light">Khám phá điểm đến thú vị</p>
                     </Dropdown.Item>
-                    <Dropdown.Item eventKey="Người địa phương" className="custom-dropdown-item px-0 d-flex flex-column">
+
+                    <Dropdown.Item
+                      eventKey="Người địa phương"
+                      className="custom-dropdown-item px-0 d-flex flex-column"
+                      onClick={handleSearchLocal} // Gọi hàm điều hướng
+                    >
                       <p className="m-0">Người địa phương</p>
                       <p className="m-0 fw-light">Tìm bạn cùng khám phá thành phố</p>
                     </Dropdown.Item>
-                    <Dropdown.Item eventKey="Khách du lịch" className="custom-dropdown-item px-0 d-flex flex-column">
+                    <Dropdown.Item
+                      eventKey="Khách du lịch"
+                      className="custom-dropdown-item px-0 d-flex flex-column"
+                      onClick={handleSearchTraveller} // Gọi hàm điều hướng
+                    >
                       <p className="m-0">Khách du lịch</p>
                       <p className="m-0 fw-light">Kết nối với bạn bè để trải nghiệm</p>
                     </Dropdown.Item>
+
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
@@ -323,9 +352,6 @@ const Navbar = React.memo(() => {
                     </Dropdown.Item>
                     <Dropdown.Item as={Link} to={RoutePath.LOCAL_STATICTIS} className="avatar-dropdown-item">
                       Trang quản lý
-                    </Dropdown.Item>
-                    <Dropdown.Item as={Link} to={RoutePath.DESTINATION} className="avatar-dropdown-item">
-                      Địa điểm
                     </Dropdown.Item>
                     <Dropdown.Divider style={{
                       marginBottom: '24px'
