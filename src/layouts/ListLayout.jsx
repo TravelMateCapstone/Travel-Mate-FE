@@ -52,6 +52,11 @@ function ListLayout({ children }) {
         { iconName: 'calendar-number', title: 'Sự kiện tham gia', route: RoutePath.EVENT_JOINED },
     ];
 
+    const searchitems = [
+        { iconName: 'list-circle', title: 'Người địa phương', route: RoutePath.SEARCH_LIST_LOCAL },
+        { iconName: 'list-circle', title: 'Khách du lịch', route: RoutePath.SEARCH_LIST_TRAVELLER },
+    ];
+
     const location = useLocation();
 
     useEffect(() => {
@@ -78,10 +83,12 @@ function ListLayout({ children }) {
         currentPath.startsWith(RoutePath.EVENT_JOINED) ||
         currentPath.startsWith(RoutePath.EVENT_CREATED);
 
+    const isSearchRoute = currentPath === RoutePath.SEARCH_LIST_LOCAL || currentPath === RoutePath.SEARCH_LIST_TRAVELLER;
+
     const isGroupRoutebtn = currentPath === RoutePath.GROUP || currentPath === RoutePath.GROUP_CREATED || currentPath === RoutePath.GROUP_JOINED;
     const isEventRouteBtn = currentPath === RoutePath.EVENT;
 
-    const sidebarData = isEventRoute ? sidebarItemsEvent : sidebarItems;
+    const sidebarData = isEventRoute ? sidebarItemsEvent : isSearchRoute ? searchitems : sidebarItems;
 
     const sidebarItemsWithActiveState = sidebarData.map(item => ({
         ...item,

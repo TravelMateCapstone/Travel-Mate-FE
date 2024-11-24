@@ -37,6 +37,8 @@ import CalendarManagement from "../pages/Local/CalendarManagement"
 import LocalTripHistory from "../pages/Local/LocalTripHistory"
 import LocalWalletManagement from "../pages/Local/LocalWalletManagement"
 import PlanManagemnet from "../pages/Local/PlanManagemnet"
+import SearchListLocal from "../pages/Search/SearchListLocal"
+import SearchListTraveller from "../pages/Search/SearchListTraveller"
 
 const publishRoutes = [
     { path: RoutePath.HOMEPAGE, component: Home, layout: HomeFeedLayout },
@@ -59,6 +61,8 @@ const privateRoutes = [
 
     { path: RoutePath.EVENT_CREATED, component: EventList, layout: ListLayout },
     { path: RoutePath.EVENT_JOINED, component: EventList, layout: ListLayout },
+    { path: RoutePath.SEARCH_LIST_LOCAL, component: SearchListLocal, layout: ListLayout },
+    { path: RoutePath.SEARCH_LIST_TRAVELLER, component: SearchListTraveller, layout: ListLayout },
     { path: RoutePath.EVENT_DETAILS, component: EventJoined, layout: DetailLayout },
     { path: RoutePath.EVENT_MANAGEMENT, component: EventCreated, layout: DetailLayout },
 
@@ -82,6 +86,7 @@ const privateRoutes = [
     { path: RoutePath.LOCAL_TRIP_HISTORY, component: LocalTripHistory, layout: AdminLayout },
     { path: RoutePath.LOCAL_WALLET_MANAGEMENT, component: LocalWalletManagement, layout: AdminLayout },
     { path: RoutePath.LOCAL_PLAN_MANAGEMENT, component: PlanManagemnet, layout: AdminLayout },
+    
 ]
 
 export { publishRoutes, privateRoutes }
