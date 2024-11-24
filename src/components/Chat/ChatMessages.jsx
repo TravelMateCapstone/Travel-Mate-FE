@@ -1,18 +1,20 @@
-import React, { memo } from 'react'
-import ViewFormRequest from '../Profile/FormBuilder/ViewFormRequest'
+import React, { memo } from 'react';
+import RequestCard from '../Profile/FormBuilder/RequestCard';
+import { useSelector } from 'react-redux';
 
-const ChatMessages = ({ isSender, isRequest }) => {
+const ChatMessages = ({ isSender, isRequest, selectedRequest }) => {
+  const requestData = selectedRequest || useSelector(state => state.request.currentRequest);
+
   return (
     <>
       {isRequest ? (
-        <>
-          <div className='chat-sender d-flex gap-2'>
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRez3lFozeHy6f4R0eoyEaIlM5lunDXiEbICA&s" alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
-            <div>
-              <ViewFormRequest />
-            </div>
+        <div className='chat-sender d-flex gap-2'>
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRez3lFozeHy6f4R0eoyEaIlM5lunDXiEbICA&s" alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
+          <div>
+            <RequestCard request={requestData} />
           </div>
-        </>) : (
+        </div>
+      ) : (
         <>
           {isSender ? (
             <div className='chat-sender d-flex gap-2'>
@@ -30,10 +32,11 @@ const ChatMessages = ({ isSender, isRequest }) => {
               </div>
               <img src="https://avatarfiles.alphacoders.com/264/264762.jpg" alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
             </div>
-          )}</>
+          )}
+        </>
       )}
     </>
-  )
-}
+  );
+};
 
-export default memo(ChatMessages)
+export default memo(ChatMessages);

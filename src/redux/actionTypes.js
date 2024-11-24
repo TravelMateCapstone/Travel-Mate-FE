@@ -1,4 +1,3 @@
-
 export const INCREASE = 'INCREASE'
 export const DECREASE = 'DECREASE'
 
@@ -29,5 +28,6 @@ export const VIEW_PROFILE_ERROR = 'VIEW_PROFILE_ERROR';
 
 export const CLEAR_TRIP = 'CLEAR_TRIP';
 
-
 export const CREATE_CONTRACT = 'CREATE_CONTRACT';
+
+export const VIEW_REQUEST = 'VIEW_REQUEST';
