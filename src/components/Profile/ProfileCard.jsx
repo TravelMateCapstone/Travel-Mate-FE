@@ -31,11 +31,11 @@ function ProfileCard() {
 
   const profileViewId = useSelector((state) => state.profile.profile?.userId);
 
-  
+
 
 
   useEffect(() => {
-    
+
     axios.get(`https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/TravelerForm?localId=${profileViewId}`, {
       headers: {
         Authorization: `${token}`
@@ -66,7 +66,7 @@ function ProfileCard() {
       startDate,
       endDate,
       answeredQuestions,
-      answeredServices: [] 
+      answeredServices: []
     };
     console.log('Submitting form data:', payload);
     axios.put(`https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/TravelerForm?localId=${profileViewId}`, payload, {
@@ -250,7 +250,7 @@ function ProfileCard() {
     switch (friendshipStatus) {
       case 1:
         return (
-          <Dropdown.Item onClick={() => handleUnfriend(dataProfile.profile.userId)}>
+          <Dropdown.Item onClick={() => handleRejectFriendRequest(dataProfile.profile.userId)}>
             <span className="icon-option">
               <ion-icon name="person-remove-outline"></ion-icon>
             </span>
@@ -458,7 +458,7 @@ function ProfileCard() {
       </div>
       <FormModal show={isShowFormRequest} saveButtonText={'Lưu thay đổi'} title={'Nhập thông tin'} handleClose={handelCloseFormRequest} handleSave={handleSubmit}>
         {!formData ? (<>
-           <Spinner animation="border" />
+          <Spinner animation="border" />
         </>) : (<>
           <Container>
             <Form>
