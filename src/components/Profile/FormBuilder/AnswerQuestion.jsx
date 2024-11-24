@@ -2,10 +2,13 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import { Container, Form, Button, Spinner } from 'react-bootstrap';
 
 function AnswerQuestion() {
   const [formData, setFormData] = useState(null);
   const [answers, setAnswers] = useState({});
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const token = useSelector(state => state.auth.token);
 
   useEffect(() => {
@@ -36,8 +39,8 @@ function AnswerQuestion() {
     }));
 
     const payload = {
-      startDate: "2024-11-23T07:30:00Z",
-      endDate: "2024-11-30T07:30:00Z",
+      startDate,
+      endDate,
       answeredQuestions,
       answeredServices: [] // Add services if needed
     };
@@ -57,55 +60,70 @@ function AnswerQuestion() {
   };
 
   if (!formData) {
-    return <div>Loading...</div>;
+    return <Spinner animation="border" />;
   }
 
   return (
-    <div>
-      {formData.questions.$values.map(question => (
-        <div key={question.id}>
-          <p>{question.text}</p>
-          {question.type === 'multiple-choice' && (
-            <div>
-              {question.options.$values.map(option => (
-                <label key={option}>
-                  <input
+    <Container>
+      <Form>
+        <Form.Group>
+          <Form.Label>Start Date</Form.Label>
+          <Form.Control
+            type="datetime-local"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>End Date</Form.Label>
+          <Form.Control
+            type="datetime-local"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+        </Form.Group>
+        {formData.questions.$values.map(question => (
+          <Form.Group key={question.id}>
+            <Form.Label>{question.text}</Form.Label>
+            {question.type === 'multiple-choice' && (
+              <div>
+                {question.options.$values.map(option => (
+                  <Form.Check
                     type="radio"
                     name={question.id}
                     value={option}
+                    label={option}
                     onChange={() => handleChange(question.id, option)}
-                  /> {option}
-                </label>
-              ))}
-            </div>
-          )}
-          {question.type === 'yesno' && (
-            <div>
-              <label>
-                <input
+                    key={option}
+                  />
+                ))}
+              </div>
+            )}
+            {question.type === 'yesno' && (
+              <div>
+                <Form.Check
                   type="radio"
                   name={question.id}
                   value="yes"
+                  label="Yes"
                   onChange={() => handleChange(question.id, 'yes')}
-                /> Yes
-              </label>
-              <label>
-                <input
+                />
+                <Form.Check
                   type="radio"
                   name={question.id}
                   value="no"
+                  label="No"
                   onChange={() => handleChange(question.id, 'no')}
-                /> No
-              </label>
-            </div>
-          )}
-          {question.type === 'multiple' && (
-            <div>
-              {question.options.$values.map(option => (
-                <label key={option}>
-                  <input
+                />
+              </div>
+            )}
+            {question.type === 'multiple' && (
+              <div>
+                {question.options.$values.map(option => (
+                  <Form.Check
                     type="checkbox"
                     value={option}
+                    label={option}
                     onChange={(e) => {
                       const newAnswers = answers[question.id] || [];
                       if (e.target.checked) {
@@ -118,38 +136,37 @@ function AnswerQuestion() {
                       }
                       handleChange(question.id, newAnswers);
                     }}
-                  /> {option}
-                </label>
-              ))}
-            </div>
-          )}
-          {question.type === 'text' && (
-            <div>
-              <input
+                    key={option}
+                  />
+                ))}
+              </div>
+            )}
+            {question.type === 'text' && (
+              <Form.Control
                 type="text"
                 name={question.id}
                 onChange={(e) => handleChange(question.id, e.target.value)}
               />
-            </div>
-          )}
-          {question.type === 'single' && (
-            <div>
-              {question.options.$values.map(option => (
-                <label key={option}>
-                  <input
+            )}
+            {question.type === 'single' && (
+              <div>
+                {question.options.$values.map(option => (
+                  <Form.Check
                     type="radio"
                     name={question.id}
                     value={option}
+                    label={option}
                     onChange={() => handleChange(question.id, option)}
-                  /> {option}
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
-      ))}
-      <button onClick={handleSubmit}>Save</button>
-    </div>
+                    key={option}
+                  />
+                ))}
+              </div>
+            )}
+          </Form.Group>
+        ))}
+        <Button variant="primary" onClick={handleSubmit}>Lưu thay đổi</Button>
+      </Form>
+    </Container>
   );
 }
 

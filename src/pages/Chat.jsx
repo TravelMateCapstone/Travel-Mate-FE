@@ -21,9 +21,10 @@ function Chat() {
         <MemoizedChatSidebar />
         <Col lg={8} className='chat-column'>
           <MemoizedChatHeader />
-          <div className='chatmessage-container'>
-            <MemoizedChatMessages isSender={true} />
-            <MemoizedChatMessages isSender={false} />
+          <div className='chatmessage-container overflow-y-auto'>
+            {/* <MemoizedChatMessages isSender={true} />
+            <MemoizedChatMessages isSender={false} /> */}
+            <MemoizedChatMessages isRequest={true} />
           </div>
           <MemoizedChatInput />
         </Col>

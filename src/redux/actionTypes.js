@@ -1,4 +1,3 @@
-
 export const INCREASE = 'INCREASE'
 export const DECREASE = 'DECREASE'
 
@@ -29,5 +28,12 @@ export const VIEW_PROFILE_ERROR = 'VIEW_PROFILE_ERROR';
 
 export const CLEAR_TRIP = 'CLEAR_TRIP';
 
-
 export const CREATE_CONTRACT = 'CREATE_CONTRACT';
+
+export const VIEW_REQUEST = 'VIEW_REQUEST';
+export const VIEW_CHAT = 'VIEW_CHAT';
+export const FETCH_MESSAGES_SUCCESS = 'FETCH_MESSAGES_SUCCESS';
+export const FETCH_MESSAGES_ERROR = 'FETCH_MESSAGES_ERROR';
+export const VIEW_MESSAGE = 'VIEW_MESSAGE';
+
+export const SELECTED_REQUEST = 'SELECTED_REQUEST';
