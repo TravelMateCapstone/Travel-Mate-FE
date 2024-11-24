@@ -62,7 +62,11 @@ const Register = ({ show, handleClose }) => {
 
       handleClose(); // Đóng modal sau khi Đăng ký và đăng nhập thành công
     } catch (error) {
-      setErrorMessage(error.response?.data?.error || 'Có lỗi xảy ra, vui lòng thử lại.');
+      if (error.response && error.response.status === 400) {
+        setErrorMessage('Thông tin đăng ký không hợp lệ. Vui lòng kiểm tra lại.');
+      } else {
+        setErrorMessage(error.response?.data?.error || 'Có lỗi xảy ra, vui lòng thử lại.');
+      }
     }
   };
 

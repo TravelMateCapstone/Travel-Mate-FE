@@ -10,9 +10,12 @@ function AnswerQuestion() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const token = useSelector(state => state.auth.token);
+  const profile = useSelector(state => state.profile.user);
+  console.log('profile', profile);
+  
 
   useEffect(() => {
-    axios.get('https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/TravelerForm?localId=9', {
+    axios.get(`https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/TravelerForm?localId=${9}`, {
       headers: {
         Authorization: `${token}`
       }

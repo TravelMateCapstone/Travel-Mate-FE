@@ -28,6 +28,7 @@ function ProfileCard() {
   const [answers, setAnswers] = useState({});
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [services, setServices] = useState([]);
 
   const profileViewId = useSelector((state) => state.profile.profile?.userId);
 
@@ -43,6 +44,7 @@ function ProfileCard() {
     })
       .then(response => {
         setFormData(response.data);
+        setServices(response.data.services.$values);
       })
       .catch(error => {
         console.error('Error fetching form data:', error);
@@ -56,17 +58,30 @@ function ProfileCard() {
     }));
   };
 
+  const handleServiceChange = (serviceId, checked) => {
+    setServices(prevServices => prevServices.map(service => 
+      service.id === serviceId ? { ...service, total: checked ? 1 : 0 } : service
+    ));
+  };
+
   const handleSubmit = () => {
     const answeredQuestions = Object.keys(answers).map(questionId => ({
       questionId,
       answer: Array.isArray(answers[questionId]) ? answers[questionId] : [answers[questionId]]
     }));
 
+    const answeredServices = services
+      .filter(service => service.total > 0)
+      .map(service => ({
+        serviceId: service.id,
+        total: service.total
+      }));
+
     const payload = {
       startDate,
       endDate,
       answeredQuestions,
-      answeredServices: [] 
+      answeredServices
     };
     console.log('Submitting form data:', payload);
     axios.put(`https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/TravelerForm?localId=${profileViewId}`, payload, {
@@ -462,8 +477,9 @@ function ProfileCard() {
         </>) : (<>
           <Container>
             <Form>
+            
               <Form.Group>
-                <Form.Label>Start Date</Form.Label>
+                <Form.Label>Ngày bắt đầu</Form.Label>
                 <Form.Control
                   type="datetime-local"
                   value={startDate}
@@ -471,13 +487,25 @@ function ProfileCard() {
                 />
               </Form.Group>
               <Form.Group>
-                <Form.Label>End Date</Form.Label>
+                <Form.Label>ngày kết thúc</Form.Label>
                 <Form.Control
                   type="datetime-local"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                 />
               </Form.Group>
+              <h6>Dịch vụ</h6>
+              {services.map(service => (
+                <Form.Group key={service.id}>
+                  <Form.Check
+                    type="checkbox"
+                    label={service.serviceName}
+                    checked={service.total > 0}
+                    onChange={(e) => handleServiceChange(service.id, e.target.checked)}
+                  />
+                </Form.Group>
+              ))}
+              <h6>Câu hỏi</h6>
               {formData.questions.$values.map(question => (
                 <Form.Group key={question.id}>
                   <Form.Label>{question.text}</Form.Label>
@@ -560,7 +588,7 @@ function ProfileCard() {
                   )}
                 </Form.Group>
               ))}
-
+              
             </Form>
           </Container>
         </>)}

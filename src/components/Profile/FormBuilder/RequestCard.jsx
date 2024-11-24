@@ -2,12 +2,11 @@ import React from 'react'
 import { Card, Row, Col, Form, ListGroup, Button } from 'react-bootstrap'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
+import { useQueryClient } from 'react-query';
 
 function RequestCard({ request }) {
   const token = useSelector(state => state.auth.token);
-
-  console.log(request);
-
+  const queryClient = useQueryClient();
 
   const handleAccept = async () => {
     try {
@@ -17,6 +16,7 @@ function RequestCard({ request }) {
         { headers: { Authorization: `${token}` } }
       );
       alert('Request accepted successfully');
+      queryClient.invalidateQueries('chatAndRequestLists');
     } catch (error) {
       console.error('Error accepting request:', error);
       alert('Failed to accept request');
@@ -31,6 +31,7 @@ function RequestCard({ request }) {
         { headers: { Authorization: `${token}` } }
       );
       alert('Request rejected successfully');
+      queryClient.invalidateQueries('chatAndRequestLists');
     } catch (error) {
       console.error('Error rejecting request:', error);
       alert('Failed to reject request');
@@ -78,10 +79,10 @@ function RequestCard({ request }) {
             <Card key={question.id} className='mb-2'>
               <Card.Body>
                 <Card.Title>{question.text}</Card.Title>
-                {question.type == 'text' && (
-                  <Form.Control as="textarea" value={answer?.[0]} readOnly />
+                {question.type === 'text' && (
+                  <Form.Control as="textarea" value={answer?.[0] || ''} readOnly />
                 )}
-                {question.type == 'single' && (
+                {question.type === 'single' && (
                   <div>
                     {question.options.$values.map(option => (
                       <Form.Check
@@ -94,7 +95,7 @@ function RequestCard({ request }) {
                     ))}
                   </div>
                 )}
-                {question.type == 'multiple' && (
+                {question.type === 'multiple' && (
                   <div>
                     {question.options.$values.map(option => (
                       <Form.Check
@@ -107,7 +108,7 @@ function RequestCard({ request }) {
                     ))}
                   </div>
                 )}
-                {question.type == 'yesno' && (
+                {question.type === 'yesno' && (
                   <div>
                     {['yes', 'no'].map(option => (
                       <Form.Check

@@ -18,6 +18,16 @@ const chatReducer = (state = initialState, action) => {
                 ...state,
                 chatHeader: action.payload
             };
+        case 'UPDATE_CHAT_LIST':
+            return {
+                ...state,
+                chatList: action.payload
+            };
+        case 'UPDATE_REQUEST_LIST':
+            return {
+                ...state,
+                requestList: action.payload
+            };
         // ...existing cases...
         default:
             return state;
