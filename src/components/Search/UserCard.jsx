@@ -7,12 +7,20 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { viewEvent } from '../../redux/actions/eventActions';
+import { viewProfile } from '../../redux/actions/profileActions';
 import { toast } from 'react-toastify';
 
 const UserCard = ({ id, img, name, address, numberOfConnect, descriptions }) => {
 
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const data = useSelector(state => state.profile);
+
     const handleCardClick = () => {
+        console.log("card")
+        dispatch(viewProfile(id));
+        navigate(RoutePath.OTHERS_PROFILE);
     };
 
     return (

@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import UserCard from '../../components/Search/UserCard';
 
 function SearchListLocal() {
-  // Khai báo state
-  const [id, setId] = useState(1); // ID là số hoặc chuỗi
-  const [img, setImg] = useState('https://i.pinimg.com/564x/24/21/85/242185eaef43192fc3f9646932fe3b46.jpg'); // Đường dẫn URL hình ảnh
-  const [name, setName] = useState('User Name'); // Tên người dùng
+  const [id, setId] = useState(27);
+  const [img, setImg] = useState('https://tiki.vn/blog/wp-content/uploads/2023/10/lf3fjFd24AXYeYu6KfWwVgh-xVek2LdWY_xA3X6vL-E6-ZpqB9_X6PVpxt0l_chpvl4gD3aU1S1yt1EoBJnPovFRQ_yHSYUDDuKLQdELwdV09iuPbuBbdFzIV-8jhO_XiUm-SHtwRgTTaqUO-Zope1Y.png'); // Đường dẫn URL hình ảnh
+  const [name, setName] = useState('Trần Đăng Lên');
   const [address, setAddress] = useState('Quảng Nam, Việt Nam');
-  const [numberOfConnect, setNumberOfConnect] = useState(10); // Số lượng kết nối
-  const [descriptions, setDescriptions] = useState('This is a sample description.'); // Mô tả
+  const [numberOfConnect, setNumberOfConnect] = useState("10 Kết nối");
+  const [descriptions, setDescriptions] = useState('Lên mô tả');
 
   return (
     <div>
