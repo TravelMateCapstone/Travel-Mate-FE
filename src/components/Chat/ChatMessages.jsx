@@ -3,9 +3,11 @@ import RequestCard from '../Profile/FormBuilder/RequestCard';
 import { useSelector } from 'react-redux';
 
 const ChatMessages = ({ isSender, isRequest, selectedRequest }) => {
-  const requestData = selectedRequest || useSelector(state => state.request.currentRequest);
+  const requestData = useSelector(state => state.message.currentMessage) || useSelector(state => state.request.currentRequest);
 
   const chatData = useSelector(state => state.message.currentMessage);
+  console.log('ChatData', chatData);
+  
 
   return (
     <>

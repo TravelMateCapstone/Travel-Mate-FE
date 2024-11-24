@@ -2,9 +2,9 @@ import React, { memo, useEffect, useState } from 'react';
 import { Col, Form, Tabs, Tab } from 'react-bootstrap';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
-import { viewRequest } from '../../redux/actions/requestActions';
+import { selectRequest, viewRequest } from '../../redux/actions/requestActions';
 import { viewMessage } from '../../redux/actions/messageActions';
-
+import { parseISO, format } from 'date-fns';
 const ChatSidebar = () => {
   const dispatch = useDispatch();
   const token = useSelector(state => state.auth.token);
@@ -32,15 +32,10 @@ const ChatSidebar = () => {
           Authorization: `${token}`
         }
       });
-      setChats(response.data.$values);
+      setChats(response.data?.$values);
     } catch (error) {
       console.error('Error fetching chats:', error);
     }
-  };
-
-  const formatDate = (dateTime) => {
-    const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-    return new Date(dateTime).toLocaleDateString('vi-VN', options);
   };
 
   useEffect(() => {
@@ -49,16 +44,18 @@ const ChatSidebar = () => {
     console.log(requests);
   }, [token]);
 
-  const handleRequestClick = async (requestId) => {
+  const handleRequestClick = async (request) => {
     try {
-      dispatch(viewRequest(requestId, token));
+      dispatch(viewRequest(request.formId, token));
+      dispatch(selectRequest(request));
     } catch (error) {
       console.error('Error fetching request by ID:', error);
     }
   };
-  const handleMessageClick = async (formId) => {
+  const handleMessageClick = async (message) => {
     try {
-      dispatch(viewMessage(formId, token));
+      dispatch(viewMessage(message.formId, token));
+      
     } catch (error) {
       console.error('Error fetching request by ID:', error);
     }
@@ -71,16 +68,16 @@ const ChatSidebar = () => {
         <Tab eventKey="tin-nhan" title="Tin nhắn">
           <div className='mt-2'>
             {chats.map(chat => (
-              <div className='message d-flex gap-2 mb-2' key={chat.id} onClick={() => handleMessageClick(chat.id)}>
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRez3lFozeHy6f4R0eoyEaIlM5lunDXiEbICA&s" alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
+              <div className='message d-flex gap-2 mb-2' key={chat.id} onClick={() => handleMessageClick(chat)}>
+                <img src={chat.userAvatarUrl} alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
                 <div className='d-flex flex-column'>
-                  <p className='m-0'>Người dùng {chat.travelerId}</p>
+                  <p className='m-0'>{chat.userName}</p>
                   <small className='chat-text'>
-                    {chat.questions.$values[0]?.text.length > 32
-                      ? `${chat.questions.$values[0]?.text.substring(0, 32)}...`
-                      : chat.questions.$values[0]?.text}
+                    {chat.questions?.$values[0]?.text.length > 32
+                      ? `${chat.questions?.$values[0]?.text.substring(0, 32)}...`
+                      : chat.questions?.$values[0]?.text}
                   </small>
-                  <small>{formatDate(chat.startDate)} - {formatDate(chat.endDate)}</small>
+                  <small>{chat.address}</small>
                 </div>
               </div>
             ))}
@@ -88,19 +85,18 @@ const ChatSidebar = () => {
         </Tab>
         <Tab eventKey="yeu-cau" title="Yêu cầu">
           {requests.map(request => (
-            <div className='mt-2' key={request.id} onClick={() => handleRequestClick(request.id)}>
+            <div className='mt-2' key={request.id} onClick={() => handleRequestClick(request)}>
               <div className='message d-flex gap-2 mb-2'>
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRez3lFozeHy6f4R0eoyEaIlM5lunDXiEbICA&s" alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
+                <img src={request.userAvatarUrl} alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
                 <div className='d-flex flex-column'>
                   <p className='m-0'>
                     {request.travelerId == user.id ? (<>
                       Yêu cầu của bạn
                     </>) : (<>
-                      Người dùng {request.travelerId}
+                    {request.userName}
                     </>)}
                   </p>
                   <small className='chat-text'>Đã gửi cho bạn 1 yêu cầu</small>
-                  <small>{formatDate(request.startDate)} - {formatDate(request.endDate)}</small>
                 </div>
               </div>
             </div>

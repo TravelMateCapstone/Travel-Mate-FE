@@ -1,7 +1,8 @@
-import { VIEW_REQUEST } from '../actionTypes';
+import { SELECTED_REQUEST, VIEW_REQUEST } from '../actionTypes';
 
 const initialState = {
   currentRequest: null,
+  selectedRequest: null,
 };
 
 const requestReducer = (state = initialState, action) => {
@@ -10,6 +11,11 @@ const requestReducer = (state = initialState, action) => {
       return {
         ...state,
         currentRequest: action.payload,
+      };
+    case SELECTED_REQUEST:
+      return {
+        ...state,
+        selectedRequest: action.payload,
       };
     default:
       return state;

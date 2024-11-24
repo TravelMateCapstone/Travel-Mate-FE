@@ -16,8 +16,8 @@ const ChatHeader = () => {
       <div className='d-flex gap-2'>
         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRez3lFozeHy6f4R0eoyEaIlM5lunDXiEbICA&s" alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
         <div className='d-flex flex-column'>
-          <p className='m-0'>Người dùng {selectedItem.travelerId}</p>
-          <small>Gửi lúc {selectedItem.sendAt}</small>
+          <p className='m-0'>{selectedItem?.userName}</p>
+          <small>Gửi lúc {selectedItem?.sendAt}</small>
         </div>
       </div>
       <Dropdown align={'end'}>
@@ -26,7 +26,7 @@ const ChatHeader = () => {
         </Dropdown.Toggle>
         <Dropdown.Menu>
           <Dropdown.Item onClick={() => {
-            dispatch(viewProfile(selectedItem.travelerId, token));
+            dispatch(viewProfile(selectedItem?.travelerId, token));
             navigation(RoutePath.PROFILE);
           }}>Xem hồ sơ</Dropdown.Item>
           <Dropdown.Item >Báo cáo</Dropdown.Item>

@@ -66,7 +66,7 @@ function ProfileCard() {
       startDate,
       endDate,
       answeredQuestions,
-      answeredServices: [] // Add services if needed
+      answeredServices: [] 
     };
     console.log('Submitting form data:', payload);
     axios.put(`https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/TravelerForm?localId=${profileViewId}`, payload, {
