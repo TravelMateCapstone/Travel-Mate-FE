@@ -37,7 +37,6 @@ export const viewMessage = (formId, token) => async (dispatch) => {
         Authorization: `${token}`,
       },
     });
-    console.log('Messages:', response.data);
     dispatch({
       type: VIEW_MESSAGE,
       payload: response.data,

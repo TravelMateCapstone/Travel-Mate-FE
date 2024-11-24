@@ -3,10 +3,11 @@ import { Col, Container, Row, Tabs, Tab, Dropdown, Button, Form } from 'react-bo
 import createContractLogo from '../assets/images/createContractLogo.png'
 import '../assets/css/Chat/Chat.css'
 import ChatSidebar from '../components/Chat/ChatSidebar'
-import ChatHeader from '../components/Chat/ChatHeader'
 import ChatMessages from '../components/Chat/ChatMessages'
 import ChatInput from '../components/Chat/ChatInput'
 import ChatContract from '../components/Chat/ChatContract'
+import ChatHeader from '../components/Chat/ChatHeader'
+import { useSelector } from 'react-redux'
 
 const MemoizedChatSidebar = memo(ChatSidebar);
 const MemoizedChatHeader = memo(ChatHeader);
