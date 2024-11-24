@@ -29,7 +29,7 @@ function RequestCard({ request }) {
             <span>Dịch vụ cung cấp</span>
             <span>Thành tiền</span>
           </ListGroup.Item>
-          {request.services.$values.map(service => (
+          {request?.services?.$values?.map(service => (
             <ListGroup.Item key={service.id} className='d-flex justify-content-between'>
               <span>{service.serviceName}</span>
               <span>{service.amount} VNĐ</span>
@@ -37,8 +37,8 @@ function RequestCard({ request }) {
           ))}
         </ListGroup>
         <h6>Câu hỏi</h6>
-        {request.questions.$values.map(question => {
-          const answer = request.answeredQuestions.$values.find(aq => aq.questionId === question.id)?.answer.$values;
+        {request?.questions?.$values?.map(question => {
+          const answer = request?.answeredQuestions?.$values?.find(aq => aq.questionId === question.id)?.answer.$values;
           return (
             <Card key={question.id} className='mb-2'>
               <Card.Body>
