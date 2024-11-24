@@ -68,6 +68,22 @@ const Navbar = React.memo(() => {
     }
   }, [isAuthenticated, token]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const navbar = document.querySelector('.my-navbar');
+      if (window.scrollY > 0) {
+        navbar.classList.add('shadow-navbar');
+      } else {
+        navbar.classList.remove('shadow-navbar');
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   const handleLoginModal = useCallback(() => {
     if (isLoginModalOpen) {
       dispatch(closeLoginModal());
@@ -144,7 +160,7 @@ const Navbar = React.memo(() => {
   const displayedNotifications = showMoreNotifications ? notifications : notifications.slice(0, 5);
 
   return (
-    <BootstrapNavbar bg="white" expand="lg" className='my-navbar shadow fixed-top'>
+    <BootstrapNavbar bg="white" expand="lg" className='my-navbar fixed-top'>
       <Container fluid >
         <Row className="w-100">
           <Col xs={4} className='d-flex align-items-center'>
@@ -216,7 +232,7 @@ const Navbar = React.memo(() => {
             {isAuthenticated ? (
               <>
                 <Dropdown align="end">
-                  <Dropdown.Toggle className="messages_action bg-white rounded-5 border-0 d-flex justify-content-center align-items-center">
+                  <Dropdown.Toggle className="messages_action bg-white rounded-5 border-0 d-flex justify-content-center align-items-center shadow-none">
                     <ion-icon name="chatbubbles-outline" style={{
                       color: 'black',
                       fontSize: '20px'
@@ -246,7 +262,7 @@ const Navbar = React.memo(() => {
                 </Dropdown>
 
                 <Dropdown align="end">
-                  <Dropdown.Toggle className="notify_action bg-white rounded-5 border-0 d-flex justify-content-center align-items-center position-relative">
+                  <Dropdown.Toggle className="notify_action shadow-none bg-white rounded-5 border-0 d-flex justify-content-center align-items-center position-relative">
                     <ion-icon name="notifications-outline" style={{ color: 'black', fontSize: '20px' }}></ion-icon>
                     {unreadNotificationsCount > 0 && (
                       <Badge bg="danger" pill className="position-absolute top-0 start-100 translate-middle">
@@ -378,7 +394,7 @@ const Navbar = React.memo(() => {
               }}>
                 {selectedItem}
               </Dropdown.Toggle>
-              <Dropdown.Menu>
+              <Dropdown.Menu className='text-start'>
                 <Dropdown.Item eventKey="Địa điểm du lịch">Địa điểm du lịch</Dropdown.Item>
                 <Dropdown.Item eventKey="Người địa phương">Người địa phương</Dropdown.Item>
                 <Dropdown.Item eventKey="Khách du lịch">Khách du lịch</Dropdown.Item>
