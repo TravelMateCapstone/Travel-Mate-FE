@@ -10,10 +10,10 @@ function RequestCard({ request }) {
         <h6>Thời gian</h6>
         <Row className='mb-2'>
           <Col>
-            <Form.Control type="datetime-local" value={new Date(request.startDate).toISOString().slice(0, 16)} readOnly />
+            <Form.Control type="datetime-local" value={new Date(request?.startDate).toISOString().slice(0, 16)} readOnly />
           </Col>
           <Col>
-            <Form.Control type="datetime-local" value={new Date(request.endDate).toISOString().slice(0, 16)} readOnly />
+            <Form.Control type="datetime-local" value={new Date(request?.endDate).toISOString().slice(0, 16)} readOnly />
           </Col>
         </Row>
         <h6>Dịch vụ</h6>
