@@ -6,6 +6,9 @@ import { useSelector } from 'react-redux'
 function RequestCard({ request }) {
   const token = useSelector(state => state.auth.token);
 
+  console.log(request);
+
+
   const handleAccept = async () => {
     try {
       await axios.post(
@@ -41,17 +44,17 @@ function RequestCard({ request }) {
         <h6>Thời gian</h6>
         <Row className='mb-2'>
           <Col>
-            <Form.Control 
-              type="datetime-local" 
-              value={request?.startDate ? new Date(request.startDate).toISOString().slice(0, 16) : ''} 
-              readOnly 
+            <Form.Control
+              type="datetime-local"
+              value={request?.startDate ? new Date(request.startDate).toISOString().slice(0, 16) : ''}
+              readOnly
             />
           </Col>
           <Col>
-            <Form.Control 
-              type="datetime-local" 
-              value={request?.endDate ? new Date(request.endDate).toISOString().slice(0, 16) : ''} 
-              readOnly 
+            <Form.Control
+              type="datetime-local"
+              value={request?.endDate ? new Date(request.endDate).toISOString().slice(0, 16) : ''}
+              readOnly
             />
           </Col>
         </Row>
@@ -121,6 +124,7 @@ function RequestCard({ request }) {
             </Card>
           );
         })}
+
         <div className='d-flex justify-content-between mt-3'>
           <Button variant='success' onClick={handleAccept}>Chấp nhận</Button>
           <Button variant='danger' onClick={handleReject}>Từ chối</Button>

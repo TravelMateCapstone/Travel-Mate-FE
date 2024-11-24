@@ -7,6 +7,7 @@ import eventReducer from './eventReducer';
 import profileReducer from './profileReducer';
 import requestReducer from './requestReducer';
 import messageReducer from './messageReducer';
+import chatReducer from './chatReducer';
 
 const rootReducer = combineReducers({
     couter: couterReducer,
@@ -17,7 +18,7 @@ const rootReducer = combineReducers({
     profile: profileReducer,
     request: requestReducer,
     message: messageReducer,
-    
+    chat: chatReducer,
 });
 
 export default rootReducer;
