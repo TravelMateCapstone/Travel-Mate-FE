@@ -49,6 +49,11 @@
 .messege-more{
   font-size: 12px;
 }
+
+.shadow-navbar {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
 @media (min-width: 768px) and (max-width: 991.98px) {
   .my-navbar {
     padding: 0px !important;

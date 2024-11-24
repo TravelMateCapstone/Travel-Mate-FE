@@ -169,7 +169,7 @@ function ListLayout({ children }) {
             Object.values(newErrors).forEach(error => toast.error(error));
             setIsSubmitting(false);
             return;
-        }      
+        }
 
         const newGroup = {
             groupName,
@@ -178,7 +178,7 @@ function ListLayout({ children }) {
             groupImageUrl: uploadedUrl ?? 'https://images.unsplash.com/photo-1725500221821-c4c770db5290?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
         };
         console.log(newGroup);
-        
+
         createGroup(newGroup, {
             onSuccess: (data) => {
                 dispatch(viewGroup(data, 'Owner'));
@@ -338,10 +338,12 @@ function ListLayout({ children }) {
                                 className="searchBar-list rounded-start-0 rounded-end-5 border-start-0"
                             />
                         </InputGroup>
-                        <Button variant='' className='d-flex align-items-center gap-2 rounded-5 btn-filter'>
-                            <ion-icon name="filter-outline" style={{ fontSize: '24px' }}></ion-icon>
-                            Lọc
-                        </Button>
+                        {(location.pathname === RoutePath.SEARCH_LIST_LOCAL || location.pathname === RoutePath.SEARCH_LIST_TRAVELLER) && (
+                            <Button variant='' className='d-flex align-items-center gap-2 rounded-5 btn-filter'>
+                                <ion-icon name="filter-outline" style={{ fontSize: '24px' }}></ion-icon>
+                                Lọc
+                            </Button>
+                        )}
                         {isGroupRoutebtn ? (
                             <>
                                 <Button className='rounded-5 d-flex align-items-center gap-2' variant="success" onClick={() => setShowGroupModal(true)}>
@@ -381,9 +383,9 @@ function ListLayout({ children }) {
                                                 onChange={(e) => setGroupDescription(e.target.value)}
                                                 className={`form-control ${errors.groupDescription ? 'is-invalid' : ''}`}
                                             />
-                                            <Button 
-                                                variant="secondary" 
-                                                onClick={handleGenerateDescription} 
+                                            <Button
+                                                variant="secondary"
+                                                onClick={handleGenerateDescription}
                                                 className="mt-2"
                                                 disabled={isGeneratingDescription}
                                             >
