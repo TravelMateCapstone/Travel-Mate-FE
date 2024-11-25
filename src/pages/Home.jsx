@@ -31,6 +31,9 @@ function Home() {
       <LocalCarousel />
       <AnswerQuestion />
       <ViewFormRequest />
+
+
+      <div className='text-custom'>Hello</div>
     </div>
   );
 }

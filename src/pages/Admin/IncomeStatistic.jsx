@@ -22,7 +22,7 @@ function IncomeStatistic() {
                                     <div className="card-body">
                                         <div className="row align-items-center">
                                             <div className="col mr-2">
-                                                <div className="text-xs font-weight-bold text-uppercase mb-1">Earnings (Monthly)</div>
+                                                <div className="text-xs font-weight-bold text-uppercase mb-1">Doanh thu (Tháng)</div>
                                                 <div className="h5 mb-0 font-weight-bold text-gray-800">$40,000</div>
                                                 <div className="mt-2 mb-0 text-muted text-xs">
                                                     <span className="text-success mr-2"><i className="fa fa-arrow-up" /> 3.48%</span>
@@ -42,7 +42,7 @@ function IncomeStatistic() {
                                     <div className="card-body">
                                         <div className="row no-gutters align-items-center">
                                             <div className="col mr-2">
-                                                <div className="text-xs font-weight-bold text-uppercase mb-1">Sales</div>
+                                                <div className="text-xs font-weight-bold text-uppercase mb-1">Số lượng chuyến đi</div>
                                                 <div className="h5 mb-0 font-weight-bold text-gray-800">650</div>
                                                 <div className="mt-2 mb-0 text-muted text-xs">
                                                     <span className="text-success mr-2"><i className="fas fa-arrow-up" /> 12%</span>
@@ -62,7 +62,7 @@ function IncomeStatistic() {
                                     <div className="card-body">
                                         <div className="row no-gutters align-items-center">
                                             <div className="col mr-2">
-                                                <div className="text-xs font-weight-bold text-uppercase mb-1">New User</div>
+                                                <div className="text-xs font-weight-bold text-uppercase mb-1">Người dùng</div>
                                                 <div className="h5 mb-0 mr-3 font-weight-bold text-gray-800">366</div>
                                                 <div className="mt-2 mb-0 text-muted text-xs">
                                                     <span className="text-success mr-2"><i className="fas fa-arrow-up" /> 20.4%</span>
@@ -82,7 +82,7 @@ function IncomeStatistic() {
                                     <div className="card-body">
                                         <div className="row no-gutters align-items-center">
                                             <div className="col mr-2">
-                                                <div className="text-xs font-weight-bold text-uppercase mb-1">Pending Requests</div>
+                                                <div className="text-xs font-weight-bold text-uppercase mb-1">Số lượng yêu câu</div>
                                                 <div className="h5 mb-0 font-weight-bold text-gray-800">18</div>
                                                 <div className="mt-2 mb-0 text-muted text-xs">
                                                     <span className="text-danger mr-2"><i className="fas fa-arrow-down" /> 1.10%</span>
@@ -100,7 +100,7 @@ function IncomeStatistic() {
                             <div className="col-xl-8 col-lg-7">
                                 <div className="card mb-4">
                                     <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                        <h6 className="m-0 font-weight-bold text-primary">Monthly Recap Report</h6>
+                                        <h6 className="m-0 font-weight-bold text-primary">Doanh thu hằng tháng</h6>
                                         <div className="dropdown no-arrow">
                                             <a className="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                 <i className="fas fa-ellipsis-v fa-sm fa-fw text-gray-400" />
@@ -123,7 +123,7 @@ function IncomeStatistic() {
                             <div className="col-xl-4 col-lg-5">
                                 <div className="card mb-4">
                                     <div className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                        <h6 className="m-0 font-weight-bold text-primary">Products Sold</h6>
+                                        <h6 className="m-0 font-weight-bold text-primary">Doanh thu</h6>
                                         <div className="dropdown no-arrow">
                                             <a className="dropdown-toggle btn btn-primary btn-sm" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                 Month <i className="fas fa-chevron-down" />

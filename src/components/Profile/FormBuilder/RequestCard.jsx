@@ -17,6 +17,9 @@ function RequestCard({ request }) {
       );
       alert('Request accepted successfully');
       queryClient.invalidateQueries('chatAndRequestLists');
+      
+      
+
     } catch (error) {
       console.error('Error accepting request:', error);
       alert('Failed to accept request');
