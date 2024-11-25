@@ -67,3 +67,16 @@
     width: 100%;
     text-align: center; /* Center the text */
 }
+.detail_data .form-label{
+    width: 300px;
+}
+.btn_upload_image_home{
+    width: 105px;
+    height: 105px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px dashed #ced4da;
+    border-radius: 5px;
+    cursor: pointer;
+}
