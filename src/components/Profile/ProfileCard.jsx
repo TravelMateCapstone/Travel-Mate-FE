@@ -380,11 +380,11 @@ function ProfileCard() {
         </div>
         <div className="profile-info">
           <p className="text-center fw-medium profile-name">
-            {dataProfile.profile.user.fullName}
+            {dataProfile.profile.user.fullName || "Không có thông tin"}
           </p>
 
           <p className="fw-medium text-center" style={{ fontSize: "20px", color: "#007931" }}>
-            {dataProfile.profile.hostingAvailability || "Chưa xác định"}
+            {dataProfile.profile.hostingAvailability}
           </p>
 
           <div className="profile-buttons" style={{ marginTop: "24px", marginBottom: "24px" }}>
@@ -440,7 +440,7 @@ function ProfileCard() {
           >
             <div className="profile-location">
               <ion-icon name="location-outline"></ion-icon>
-              <span className="m-0">{dataProfile.profile.address}</span>
+              <span className="m-0">{dataProfile.profile.address || "Không có thông tin"}</span>
             </div>
 
             <div className="profile-education">
