@@ -23,6 +23,9 @@ const Navbar = React.memo(() => {
   const [notifications, setNotifications] = useState([]);
   const [messages, setMessages] = useState([]); // Added messages state
   const [showMoreNotifications, setShowMoreNotifications] = useState(false);
+  const [displayedNotifications, setDisplayedNotifications] = useState([]);
+
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -83,22 +86,6 @@ const Navbar = React.memo(() => {
     }
   }, [isAuthenticated, token]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const navbar = document.querySelector('.my-navbar');
-      if (window.scrollY > 0) {
-        navbar.classList.add('shadow-navbar');
-      } else {
-        navbar.classList.remove('shadow-navbar');
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
   const handleLoginModal = useCallback(() => {
     if (isLoginModalOpen) {
       dispatch(closeLoginModal());
@@ -141,6 +128,7 @@ const Navbar = React.memo(() => {
         }
       );
       if (response.status === 200) {
+        
         toast.success("Chấp nhận kết bạn thành công!");
       }
     } catch (error) {
@@ -169,10 +157,22 @@ const Navbar = React.memo(() => {
   };
 
   const handleShowMoreNotifications = () => {
-    setShowMoreNotifications(!showMoreNotifications);
+    if (showMoreNotifications) {
+      const initialNotifications = notifications.slice(0, 5);
+      setDisplayedNotifications(initialNotifications);
+      setShowMoreNotifications(false);
+    } else {
+      const moreNotifications = notifications.slice(0, 100);
+      setDisplayedNotifications(moreNotifications);
+      setShowMoreNotifications(true);
+    }
   };
 
-  const displayedNotifications = showMoreNotifications ? notifications : notifications.slice(0, 5);
+
+  useEffect(() => {
+    const initialNotifications = notifications.slice(0, 5);
+    setDisplayedNotifications(initialNotifications);
+  }, [notifications]);
 
   return (
     <BootstrapNavbar bg="white" expand="lg" className='my-navbar fixed-top'>
@@ -301,27 +301,38 @@ const Navbar = React.memo(() => {
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu className="py-3 dropdown-menu-notify">
-                    {displayedNotifications.map((notification) => (
-                      <Dropdown.Item key={notification.notificationId} href={`#notification${notification.notificationId}`}>
-                        <NotifyItem
-                          notificationId={notification.notificationId}
-                          typeNotification={notification.typeNotification}
-                          senderId={notification.senderId}
-                          avatar={user?.avatarUrl || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'}
-                          content={notification.message}
-                          isRequest={notification.isRequest}
-                          name={user?.username || 'User'}
-                          isRead={notification.isRead} // Truyền thêm trạng thái đã đọc/chưa đọc cho NotifyItem
-                          onAccept={() => handleAcceptFriendRequest(notification.senderId)}
-                          onDecline={() => handleRejectFriendRequest(notification.senderId)}
-                        />
-                      </Dropdown.Item>
-                    ))}
-                    <div className="d-flex align-items-center justify-content-center mt-2 gap-1" onClick={handleShowMoreNotifications}>
-                      <p className="m-0 messege-more">{showMoreNotifications ? "Hiển thị ít hơn" : "Xem thêm thông báo"}</p>
-                      <ion-icon name={showMoreNotifications ? "chevron-up-circle-outline" : "chevron-down-circle-outline"} style={{ fontSize: '20px' }}></ion-icon>
+                    <div className="notification-scroll">
+                      {displayedNotifications.map((notification) => (
+                        <Dropdown.Item key={notification.notificationId} href={`#notification${notification.notificationId}`}>
+                          <NotifyItem
+                            notificationId={notification.notificationId}
+                            typeNotification={notification.typeNotification}
+                            senderId={notification.senderId}
+                            avatar={user?.avatarUrl || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'}
+                            content={notification.message}
+                            isRequest={notification.isRequest}
+                            name={user?.username || 'User'}
+                            isRead={notification.isRead}
+                            onAccept={() => handleAcceptFriendRequest(notification.senderId)}
+                            onDecline={() => handleRejectFriendRequest(notification.senderId)}
+                          />
+                        </Dropdown.Item>
+                      ))}
+                    </div>
+                    <div
+                      className="d-flex align-items-center justify-content-center mt-2 gap-1"
+                      onClick={handleShowMoreNotifications}
+                    >
+                      <p className="m-0 messege-more">
+                        {showMoreNotifications ? "Hiển thị ít hơn" : "Xem thêm thông báo"}
+                      </p>
+                      <ion-icon
+                        name={showMoreNotifications ? "chevron-up-circle-outline" : "chevron-down-circle-outline"}
+                        style={{ fontSize: '20px' }}
+                      ></ion-icon>
                     </div>
                   </Dropdown.Menu>
+
 
 
                 </Dropdown>

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import axios from 'axios';
 import '../../assets/css/Shared/NotifyItem.css';
 import { toast } from 'react-toastify';
@@ -7,6 +7,11 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { viewProfile } from '../../redux/actions/profileActions';
 import { viewGroup } from '../../redux/actions/groupActions';
+import adminIcon from '../../assets/icon/admin_icon.png';
+import eventIcon from '../../assets/icon/event_icon.png';
+import groupIcon from '../../assets/icon/group.png';
+import friendIcon from '../../assets/icon/friend.png';
+import notifyIcon from '../../assets/icon/notify.png';
 
 function NotifyItem({ notificationId, typeNotification, senderId, isRequest, avatar, content, name, isRead, onAccept, onDecline }) {
 
@@ -15,6 +20,22 @@ function NotifyItem({ notificationId, typeNotification, senderId, isRequest, ava
     const user = useSelector((state) => state.auth.user);
     const group = useSelector((state) => state.group);
     const userJoinedStatus = useSelector(state => state.group.userJoinedStatus);
+
+    const iconUrl = useMemo(() => {
+        switch (typeNotification) {
+            case 1:
+                return notifyIcon;
+            case 2:
+                return friendIcon;
+            case 3:
+                return eventIcon;
+            case 4:
+                return groupIcon;
+            default:
+                return adminIcon;
+        }
+    }, [typeNotification]);
+
 
 
     const handleNotificationClick = useCallback(async () => {
@@ -27,8 +48,6 @@ function NotifyItem({ notificationId, typeNotification, senderId, isRequest, ava
                 navigate(RoutePath.OTHERS_PROFILE);
             }
         } else if (typeNotification === 3) {
-            console.log("content", content);
-            console.log("id", senderId);
             try {
                 const eventResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/EventControllerWOO/${senderId}`);
                 const eventData = eventResponse.data;
@@ -50,8 +69,6 @@ function NotifyItem({ notificationId, typeNotification, senderId, isRequest, ava
                 console.error("Error fetching event details:", error);
             }
         } else if (typeNotification === 1) {
-            console.log("content", content);
-            console.log("id", senderId);
             if (content.includes("Sự kiện")) {
                 try {
                     const eventResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/EventControllerWOO/${senderId}`);
@@ -96,18 +113,16 @@ function NotifyItem({ notificationId, typeNotification, senderId, isRequest, ava
                 <div className='d-flex align-items-start message-container' onClick={handleNotificationClick} style={{ cursor: 'pointer' }}>
                     <div className='position-relative'>
                         <img
-                            src={avatar}
+                            src={iconUrl}
                             alt='avatar'
                             className='rounded-circle img-notify'
                             style={{ width: '40px', height: '40px', objectFit: 'cover' }}
                         />
-                        {/* Hiển thị chấm đỏ nếu chưa đọc */}
                         {!isRead && <div className='unread-indicator'></div>}
                     </div>
                     <div className='d-flex flex-column align-items-start ms-2'>
                         <div className='mess-inf'>
                             <p className='mb-0 text-wrap' style={{ fontSize: '12px' }}>
-                                {name && <strong>{name} </strong>}
                                 {content}
                             </p>
                             <div className='d-flex justify-content-start align-items-center gap-2 mt-1'>
@@ -127,18 +142,16 @@ function NotifyItem({ notificationId, typeNotification, senderId, isRequest, ava
                 <div className='d-flex message-container' onClick={handleNotificationClick} style={{ cursor: 'pointer' }}>
                     <div className='position-relative'>
                         <img
-                            src={avatar}
+                            src={iconUrl}
                             alt='avatar'
                             className='rounded-circle img-notify'
                             style={{ width: '40px', height: '40px', objectFit: 'cover' }}
                         />
-                        {/* Hiển thị chấm đỏ nếu chưa đọc */}
                         {!isRead && <div className='unread-indicator'></div>}
                     </div>
                     <div className='d-flex align-items-center ms-2'>
                         <div className='mess-inf'>
                             <p className='mb-0 text-wrap' style={{ fontSize: '12px' }}>
-                                {name && <strong>{name} </strong>} {/* Display name if it exists */}
                                 {content}
                             </p>
                         </div>
@@ -150,4 +163,3 @@ function NotifyItem({ notificationId, typeNotification, senderId, isRequest, ava
 }
 
 export default NotifyItem;
-

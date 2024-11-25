@@ -10,43 +10,58 @@
   height: 38px;
   border: 1px solid #d9d9d9 !important;
 }
+
 .search-input {
   width: 200px !important;
 }
+
 .dropdown-toggle::after {
   display: none !important;
 }
+
 .btn-action {
   width: 120px;
 }
 
 .custom-dropdown-item {
-  height: 60px; /* Đặt chiều cao cố định cho mỗi mục */
-  width: 100%; /* Đặt chiều rộng cố định cho mỗi mục (nếu cần) */
-  overflow: hidden; /* Ngăn chặn việc thay đổi kích thước */
-  display: flex; /* Sử dụng flexbox để căn chỉnh nội dung */
+  height: 60px;
+  /* Đặt chiều cao cố định cho mỗi mục */
+  width: 100%;
+  /* Đặt chiều rộng cố định cho mỗi mục (nếu cần) */
+  overflow: hidden;
+  /* Ngăn chặn việc thay đổi kích thước */
+  display: flex;
+  /* Sử dụng flexbox để căn chỉnh nội dung */
   background: white !important;
 }
 
 .custom-dropdown-item p {
-  transition: font-size 0.9s ease; /* Thêm hiệu ứng mượt cho thay đổi kích thước chữ */
-  margin: 0; /* Đặt margin bằng 0 để kiểm soát khoảng cách chính xác */
+  transition: font-size 0.9s ease;
+  /* Thêm hiệu ứng mượt cho thay đổi kích thước chữ */
+  margin: 0;
+  /* Đặt margin bằng 0 để kiểm soát khoảng cách chính xác */
 }
 
 .custom-dropdown-item:hover p {
-  font-size: 1.1em; /* Tăng kích thước chữ khi hover */
+  font-size: 1.1em;
+  /* Tăng kích thước chữ khi hover */
   background: white !important;
   box-shadow: none;
 }
-.messenger-dropdown-menu, .dropdown-menu-notify, .avatar-dropdown{
+
+.messenger-dropdown-menu,
+.dropdown-menu-notify,
+.avatar-dropdown {
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
   border: 0px !important;
   border-radius: 16px !important;
 }
-.avatar{
+
+.avatar {
   border: 1px solid #ccc !important;
 }
-.messege-more{
+
+.messege-more {
   font-size: 12px;
 }
 
@@ -54,14 +69,54 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
+.dropdown-menu-notify {
+  max-height: 500px;
+  /* Giới hạn chiều cao tổng quát */
+  overflow-y: hidden;
+  /* Ban đầu ẩn thanh scroll */
+  padding: 0;
+  /* Xóa padding mặc định */
+}
+
+.notification-scroll {
+  max-height: 400px;
+  /* Giới hạn chiều cao */
+  overflow-y: auto;
+  /* Hiển thị thanh scroll nếu nội dung vượt quá */
+  padding: 0 15px;
+  /* Đặt khoảng cách padding nội dung */
+  scrollbar-width: thin;
+  /* Tùy chỉnh thanh cuộn (Firefox) */
+}
+
+.notification-scroll::-webkit-scrollbar {
+  width: 6px;
+  /* Độ rộng thanh cuộn (Chrome, Edge) */
+}
+
+.notification-scroll::-webkit-scrollbar-thumb {
+  background: #ccc;
+  /* Màu thanh cuộn */
+  border-radius: 3px;
+  /* Độ bo góc */
+}
+
+.notification-scroll::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+  /* Màu thanh cuộn khi hover */
+}
+
+
 @media (min-width: 768px) and (max-width: 991.98px) {
   .my-navbar {
     padding: 0px !important;
   }
 }
+
 @media (max-width: 575.98px) {
   .my-navbar {
-    height: 60px; /* Điều chỉnh chiều cao cho màn hình mobile */
+    height: 60px;
+    /* Điều chỉnh chiều cao cho màn hình mobile */
     padding: 0px !important;
   }
 }
