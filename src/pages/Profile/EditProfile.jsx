@@ -4,9 +4,10 @@ import '../../assets/css/Profile/EditProfile.css';
 import { Link } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useQuery } from 'react-query';
 import { toast } from 'react-toastify';
+import { viewProfile } from '../../redux/actions/profileActions';
 
 const fetchProfile = async (token) => {
   const response = await axios.get(`${import.meta.env.VITE_BASE_API_URL}/api/Profile/current-profile`, {
@@ -47,6 +48,7 @@ const fetchUniversities = async (token) => {
 const EditProfile = () => {
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     fullName: '',
     guestStatus: '',
@@ -117,7 +119,7 @@ const EditProfile = () => {
       musicMoviesBooks: formData.musicFilmPhotos,
       imageUser: user.avatarUrl || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw',
     };
-
+    
     try {
       const response = await axios.put(`${import.meta.env.VITE_BASE_API_URL}/api/Profile/edit-by-current-user`, payload, {
         headers: {
@@ -126,7 +128,9 @@ const EditProfile = () => {
         },
       });
       if (response.status === 200) {
+        dispatch(viewProfile(user.id, token));
         toast.success('Câp nhật thông tin thành công');
+        
       }
     } catch (error) {
       console.error("Error updating profile data:", error);

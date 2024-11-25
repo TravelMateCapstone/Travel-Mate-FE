@@ -5,12 +5,15 @@ import { useQuery, useMutation, useQueryClient } from 'react-query';
 import axios from 'axios';
 import RoutePath from '../../routes/RoutePath';
 import '../../assets/css/Profile/EditMyHome.css';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { storage } from '../../../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { LazyLoadImage } from 'react-lazy-load-image-component'; 
+import { viewProfile } from '../../redux/actions/profileActions';
 const EditMyHome = () => {
+  const user = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     maxGuests: 0,
     guestPreferences: '',
@@ -79,6 +82,7 @@ const EditMyHome = () => {
           Authorization: `${token}`,
         },
       });
+      dispatch(viewProfile(user.id, token));
       toast.success("Ảnh đã được cập nhật thành công trên server!");
     } catch (error) {
       console.error("Error updating photos:", error);
@@ -110,6 +114,7 @@ const EditMyHome = () => {
 
       // Chỉ truyền các URL ảnh mới được tải lên vào hàm updateHomePhotos
       await updateHomePhotos(uploadedUrls);
+      
       toast.success('Ảnh đã được tải lên thành công');
       setIsUploading(false);
 

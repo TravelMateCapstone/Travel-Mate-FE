@@ -4,7 +4,7 @@ const generateText = async (input) => {
   if (!input) return '';
 
   try {
-    const genAI = new GoogleGenerativeAI('AIzaSyCzk1Tbx4lW3F4IIZrDvusRj7g3uvNeG-w');
+    const genAI = new GoogleGenerativeAI('AIzaSyAIOvxOaXgZDntnkNVTuIIpyew3bpfE4qE');
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const prompt = input;
     const result = await model.generateContent(prompt);
