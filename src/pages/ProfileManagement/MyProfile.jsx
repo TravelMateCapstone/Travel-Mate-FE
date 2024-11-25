@@ -6,9 +6,9 @@ import Form from 'react-bootstrap/Form';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Modal from 'react-bootstrap/Modal';
 import '../../assets/css/ProfileManagement/MyProfile.css'
-import UploadImage from '../../components/Shared/uploadImage';
 import PostProfile from '../../components/Profile/PostProfile';
 import { useSelector } from 'react-redux';
+import UploadImageComponent from '../../components/Shared/UploadImageComponent';
 
 function MyProfile() {
     const [key, setKey] = useState('introduce');
@@ -194,7 +194,7 @@ function MyProfile() {
                         <div className='w-100'>
                             <div className='d-flex justify-content-between'>
                                 <h5>HÌNH ẢNH NHÀ CỦA BẠN</h5>
-                                <UploadImage onUpload={handleUploadImages} />
+                                <UploadImageComponent onUpload={handleUploadImages} />
                             </div>
                             <div className='d-flex flex-wrap'>
                                 <div className='container_uploaded_img'>
