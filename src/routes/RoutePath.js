@@ -56,6 +56,7 @@ const RoutePath = {
     PROFILE_FAVOURITE_LOCATION: '/profile/favourite-location',
     PROFILE_FRIEND_LIST: '/profile/friend-list',
     PROFILE_MY_HOME: '/profile/my-home',
+    PROFILE_MY_PROFILE: '/profile/my-profile',
 
     CONTRACT: '/contract',
     CREATE_CONTRACT: '/contract/create',

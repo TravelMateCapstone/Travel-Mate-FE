@@ -40,6 +40,7 @@ import PlanManagemnet from "../pages/Local/PlanManagemnet"
 import Destination from "../pages/Destination/Destination"
 import SearchListLocal from "../pages/Search/SearchListLocal"
 import SearchListTraveller from "../pages/Search/SearchListTraveller"
+import MyProfile from "../pages/ProfileManagement/MyProfile"
 
 const publishRoutes = [
     { path: RoutePath.HOMEPAGE, component: Home, layout: HomeFeedLayout },
@@ -72,6 +73,7 @@ const privateRoutes = [
     { path: RoutePath.PROFILE_EDIT_MY_HOME, component: EditMyHome, layout: ProfileLayout },
     { path: RoutePath.SETTING, component: Setting, layout: NavBarLayout },
     { path: RoutePath.CHAT, component: Chat, layout: NavBarLayout },
+    { path: RoutePath.PROFILE_MY_PROFILE, component: MyProfile, layout: NavBarLayout },
 
     { path: RoutePath.OTHERS_PROFILE, component: Profile, layout: ProfileLayout },
 
