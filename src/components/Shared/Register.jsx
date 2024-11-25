@@ -41,8 +41,6 @@ const Register = ({ show, handleClose }) => {
 
       const data = response.data;
 
-      console.log(data);
-      
 
       // Nếu Đăng ký thành công, hiển thị thông báo và tự động đăng nhập
       toast.success('Đăng ký thành công!');
