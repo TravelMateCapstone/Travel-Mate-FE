@@ -4,11 +4,14 @@
 .profile-card {
   padding: 0 24px 33px 24px;
   width: 332px;
-  height: 488px;
   margin-top: 30%;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 10px;
   background: #f9f9f9;
+}
+
+.profile_image{
+  top: -100px;
 }
 
 .profile-card-container {
@@ -17,19 +20,13 @@
 }
 
 .profile-image-wrapper {
-  position: absolute;
-  top: -20%;
-  left: 45px;
+  margin-top: -96px; /* Adjust margin to position the image correctly */
   z-index: 1;
 }
 
 .profile-name {
   font-size: 24px;
-}
-
-.profile-info {
-  position: relative;
-  top: 80px;
+  margin-top: 90px;
 }
 
 .profile-location,

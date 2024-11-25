@@ -22,7 +22,7 @@ function ProfileCard() {
   const user = useSelector((state) => state.auth.user);
   const location = useLocation();
   const [isShowFormRequest, setIsShowFormRequest] = useState(false);
-
+  const [isLoadingFormData, setIsLoadingFormData] = useState(true);
 
   const [formData, setFormData] = useState(null);
   const [answers, setAnswers] = useState({});
@@ -36,7 +36,7 @@ function ProfileCard() {
 
 
   useEffect(() => {
-
+    setIsLoadingFormData(true);
     axios.get(`https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/TravelerForm?localId=${profileViewId}`, {
       headers: {
         Authorization: `${token}`
@@ -47,9 +47,13 @@ function ProfileCard() {
         setServices(response.data.services.$values);
       })
       .catch(error => {
+        setFormData(null);
         console.error('Error fetching form data:', error);
+      })
+      .finally(() => {
+        setIsLoadingFormData(false);
       });
-  }, [token]);
+  }, [profileViewId]);
 
   const handleChange = (questionId, value) => {
     setAnswers(prevAnswers => ({
@@ -59,7 +63,7 @@ function ProfileCard() {
   };
 
   const handleServiceChange = (serviceId, checked) => {
-    setServices(prevServices => prevServices.map(service => 
+    setServices(prevServices => prevServices.map(service =>
       service.id === serviceId ? { ...service, total: checked ? 1 : 0 } : service
     ));
   };
@@ -345,36 +349,34 @@ function ProfileCard() {
   }
 
   return (
-    <div className="d-flex justify-content-center profile-card">
-      <div className="profile-card-container position-relative">
-        <div className="d-flex justify-content-center profile-image-wrapper position-absolute">
-          <div style={{ position: "relative", top: "-30px" }}>
-            <img
-              className="rounded-circle object-fit-cover"
-              src={dataProfile.profile.imageUser || "default-image-url"}
-              alt="User profile"
-              width={192}
-              height={192}
-              style={{
-                border: "2px solid #d9d9d9",
-              }}
-            />
-            {/* Chỉ hiển thị phần upload ảnh nếu ở RoutePath.PROFILE */}
-            {location.pathname === RoutePath.PROFILE && (
-              <>
-                <label htmlFor="upload-image" className="upload-icon position-absolute top-0 text-white">
-                  <ion-icon name="camera-outline"></ion-icon>
-                </label>
-                <input
-                  type="file"
-                  id="upload-image"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  style={{ display: "none" }}
-                />
-              </>
-            )}
-          </div>
+    <div className="d-flex justify-content-center profile-card position-relative">
+      <img
+        className="rounded-circle object-fit-cover position-absolute profile_image"
+        src={dataProfile.profile.imageUser || "default-image-url"}
+        alt="User profile"
+        width={192}
+        height={192}
+        style={{
+          border: "2px solid #d9d9d9",
+        }}
+      />
+      <div className="profile-card-container">
+        <div className="d-flex justify-content-center">
+          {/* Chỉ hiển thị phần upload ảnh nếu ở RoutePath.PROFILE */}
+          {location.pathname === RoutePath.PROFILE && (
+            <>
+              <label htmlFor="upload-image" className="upload-icon text-white">
+                <ion-icon name="camera-outline"></ion-icon>
+              </label>
+              <input
+                type="file"
+                id="upload-image"
+                accept="image/*"
+                onChange={handleImageUpload}
+                style={{ display: "none" }}
+              />
+            </>
+          )}
         </div>
         <div className="profile-info">
           <p className="text-center fw-medium profile-name">
@@ -472,126 +474,135 @@ function ProfileCard() {
         </div>
       </div>
       <FormModal show={isShowFormRequest} saveButtonText={'Lưu thay đổi'} title={'Nhập thông tin'} handleClose={handelCloseFormRequest} handleSave={handleSubmit}>
-        {!formData ? (<>
-          <Spinner animation="border" />
-        </>) : (<>
-          <Container>
-            <Form>
-            
-              <Form.Group>
-                <Form.Label>Ngày bắt đầu</Form.Label>
-                <Form.Control
-                  type="datetime-local"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                />
-              </Form.Group>
-              <Form.Group>
-                <Form.Label>ngày kết thúc</Form.Label>
-                <Form.Control
-                  type="datetime-local"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                />
-              </Form.Group>
-              <h6>Dịch vụ</h6>
-              {services.map(service => (
-                <Form.Group key={service.id}>
-                  <Form.Check
-                    type="checkbox"
-                    label={service.serviceName}
-                    checked={service.total > 0}
-                    onChange={(e) => handleServiceChange(service.id, e.target.checked)}
+        {isLoadingFormData ? (
+          <div className="d-flex justify-content-center">
+            <Spinner animation="border" />
+          </div>
+        ) : !formData ? (
+          <p>Người dùng chưa tạo form.</p>
+        ) : (
+          <>
+            <Container>
+              <Form>
+                <Form.Group>
+                  <Form.Label>Ngày bắt đầu</Form.Label>
+                  <Form.Control
+                    type="datetime-local"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
                   />
                 </Form.Group>
-              ))}
-              <h6>Câu hỏi</h6>
-              {formData.questions.$values.map(question => (
-                <Form.Group key={question.id}>
-                  <Form.Label>{question.text}</Form.Label>
-                  {question.type === 'multiple-choice' && (
-                    <div>
-                      {question.options.$values.map(option => (
-                        <Form.Check
-                          type="radio"
-                          name={question.id}
-                          value={option}
-                          label={option}
-                          onChange={() => handleChange(question.id, option)}
-                          key={option}
-                        />
-                      ))}
-                    </div>
-                  )}
-                  {question.type === 'yesno' && (
-                    <div>
-                      <Form.Check
-                        type="radio"
-                        name={question.id}
-                        value="yes"
-                        label="Yes"
-                        onChange={() => handleChange(question.id, 'yes')}
-                      />
-                      <Form.Check
-                        type="radio"
-                        name={question.id}
-                        value="no"
-                        label="No"
-                        onChange={() => handleChange(question.id, 'no')}
-                      />
-                    </div>
-                  )}
-                  {question.type === 'multiple' && (
-                    <div>
-                      {question.options.$values.map(option => (
-                        <Form.Check
-                          type="checkbox"
-                          value={option}
-                          label={option}
-                          onChange={(e) => {
-                            const newAnswers = answers[question.id] || [];
-                            if (e.target.checked) {
-                              newAnswers.push(option);
-                            } else {
-                              const index = newAnswers.indexOf(option);
-                              if (index > -1) {
-                                newAnswers.splice(index, 1);
-                              }
-                            }
-                            handleChange(question.id, newAnswers);
-                          }}
-                          key={option}
-                        />
-                      ))}
-                    </div>
-                  )}
-                  {question.type === 'text' && (
-                    <Form.Control
-                      type="text"
-                      name={question.id}
-                      onChange={(e) => handleChange(question.id, e.target.value)}
-                    />
-                  )}
-                  {question.type === 'single' && (
-                    <div>
-                      {question.options.$values.map(option => (
-                        <Form.Check
-                          type="radio"
-                          name={question.id}
-                          value={option}
-                          label={option}
-                          onChange={() => handleChange(question.id, option)}
-                          key={option}
-                        />
-                      ))}
-                    </div>
-                  )}
+                <Form.Group className="mb-2">
+                  <Form.Label>ngày kết thúc</Form.Label>
+                  <Form.Control
+                    type="datetime-local"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
                 </Form.Group>
-              ))}
-              
-            </Form>
-          </Container>
-        </>)}
+                <Form.Label>Dịch vụ</Form.Label>
+                <div className="d-flex justify-content-between">
+                  <p className="text">Tên dịch vụ</p>
+                  <p>Giá</p>
+                </div>
+                {services.map(service => (
+                  <Form.Group key={service.id} className="d-flex justify-content-between">
+                    <Form.Check
+                      type="checkbox"
+                      label={service.serviceName}
+                      checked={service.total > 0}
+                      onChange={(e) => handleServiceChange(service.id, e.target.checked)}
+                    />
+                    <p>{service.amount}</p>
+                  </Form.Group>
+                ))}
+                <h6>Câu hỏi</h6>
+                {formData.questions.$values.map(question => (
+                  <Form.Group key={question.id}>
+                    <Form.Label>{question.text}</Form.Label>
+                    {question.type === 'multiple-choice' && (
+                      <div>
+                        {question.options.$values.map(option => (
+                          <Form.Check
+                            type="radio"
+                            name={question.id}
+                            value={option}
+                            label={option}
+                            onChange={() => handleChange(question.id, option)}
+                            key={option}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    {question.type === 'yesno' && (
+                      <div>
+                        <Form.Check
+                          type="radio"
+                          name={question.id}
+                          value="yes"
+                          label="Yes"
+                          onChange={() => handleChange(question.id, 'yes')}
+                        />
+                        <Form.Check
+                          type="radio"
+                          name={question.id}
+                          value="no"
+                          label="No"
+                          onChange={() => handleChange(question.id, 'no')}
+                        />
+                      </div>
+                    )}
+                    {question.type === 'multiple' && (
+                      <div>
+                        {question.options.$values.map(option => (
+                          <Form.Check
+                            type="checkbox"
+                            value={option}
+                            label={option}
+                            onChange={(e) => {
+                              const newAnswers = answers[question.id] || [];
+                              if (e.target.checked) {
+                                newAnswers.push(option);
+                              } else {
+                                const index = newAnswers.indexOf(option);
+                                if (index > -1) {
+                                  newAnswers.splice(index, 1);
+                                }
+                              }
+                              handleChange(question.id, newAnswers);
+                            }}
+                            key={option}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    {question.type === 'text' && (
+                      <Form.Control
+                        type="text"
+                        name={question.id}
+                        onChange={(e) => handleChange(question.id, e.target.value)}
+                      />
+                    )}
+                    {question.type === 'single' && (
+                      <div>
+                        {question.options.$values.map(option => (
+                          <Form.Check
+                            type="radio"
+                            name={question.id}
+                            value={option}
+                            label={option}
+                            onChange={() => handleChange(question.id, option)}
+                            key={option}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </Form.Group>
+                ))}
+              </Form>
+            </Container>
+          </>
+        )}
       </FormModal>
     </div>
   );
