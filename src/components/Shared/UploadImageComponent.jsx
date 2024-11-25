@@ -3,7 +3,7 @@ import { Modal, Button, Form, Image } from 'react-bootstrap'
 import { storage } from '../../../firebaseConfig'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 
-function UploadImage({ onUpload }) {
+function UploadImageComponent({ onUpload }) {
   const [show, setShow] = useState(false);
   const [files, setFiles] = useState([]);
   const [progress, setProgress] = useState({});
@@ -103,4 +103,4 @@ function UploadImage({ onUpload }) {
   )
 }
 
-export default UploadImage
+export default UploadImageComponent
