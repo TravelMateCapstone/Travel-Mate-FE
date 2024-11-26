@@ -1,0 +1,34 @@
+.modal_extraDetailForm .modal-dialog {
+    width: 250% !important;
+}
+.modal_extraDetailForm .modal-content {
+    width: 250% !important;
+    height: 95vh !important;
+    overflow: hidden;
+    left: -70%;
+}
+
+.modal_extraDetailForm .modal-body {
+    height: calc(100% - 120px); /* Adjust based on header and footer height */
+    overflow-y: auto;
+    text-align: left; /* Align text to the left */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align items to the start (left) */
+    padding: 30px; /* Add padding for better spacing */
+}
+
+.modal_extraDetailForm .modal-body .modal-title {
+    width: 100%;
+    text-align: center; /* Center the text */
+}
+.upload_image_create_trip{
+    min-height: 300px;
+    max-height: 500px;
+    border: 1px dashed #ced4da;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.container_create_trip{
+    height: 100%;
+}

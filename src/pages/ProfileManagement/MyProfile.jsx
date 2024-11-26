@@ -9,6 +9,7 @@ import '../../assets/css/ProfileManagement/MyProfile.css'
 import PostProfile from '../../components/Profile/PostProfile';
 import { useSelector } from 'react-redux';
 import UploadImageComponent from '../../components/Shared/UploadImageComponent';
+import CreateTour from '../../components/ProfileManagement/CreateTour';
 
 function MyProfile() {
     const [key, setKey] = useState('introduce');
@@ -40,7 +41,7 @@ function MyProfile() {
                         <p className='text-success fw-medium  d-flex align-items-center gap-2'><ion-icon name="shield-checkmark-outline"></ion-icon> 65% hoàn thành hồ sơ</p>
                     </div>
                 </div>
-                <Button variant='success' className='rounded-5' onClick={handleShowModalForm}>Tạo mẫu thông tin</Button>
+                <CreateTour/>
             </div>
 
             <div className='edit_section'>
@@ -194,7 +195,7 @@ function MyProfile() {
                         <div className='w-100'>
                             <div className='d-flex justify-content-between'>
                                 <h5>HÌNH ẢNH NHÀ CỦA BẠN</h5>
-                                <UploadImageComponent onUpload={handleUploadImages} />
+                                <UploadImageComponent onUpload={handleUploadImages} multiple={false}/>
                             </div>
                             <div className='d-flex flex-wrap'>
                                 <div className='container_uploaded_img'>
@@ -225,23 +226,6 @@ function MyProfile() {
                     </Tab>
                 </Tabs>
             </div>
-            <Modal show={showModalForm} onHide={handleCloseModalForm} className="modal_extraDetailForm">
-                <Modal.Body>
-                    <div className='modal-title'>
-                        <h4>Mẫu khảo sát thông tin</h4>
-                    </div>
-                    <h5>Dịch vụ</h5>
-                    <h5>Câu hỏi</h5>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseModalForm}>
-                        Đóng
-                    </Button>
-                    <Button variant="primary" onClick={handleCloseModalForm}>
-                        Lưu thay đổi
-                    </Button>
-                </Modal.Footer>
-            </Modal>
 
         </Container>
     )
