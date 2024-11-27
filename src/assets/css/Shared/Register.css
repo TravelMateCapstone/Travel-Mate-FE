@@ -44,12 +44,14 @@
   position: absolute;
   right: 15px;
   top: 15px;
-  background: transparent;
+  background: transparent !important;
   border: none;
   font-size: 18px;
   font-weight: bold;
-  color: #000;
+  color: #000 !important;
   cursor: pointer;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .modal-body-title {

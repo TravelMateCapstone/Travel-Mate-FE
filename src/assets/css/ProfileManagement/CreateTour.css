@@ -22,13 +22,28 @@
     width: 100%;
     text-align: center; /* Center the text */
 }
-.upload_image_create_trip{
-    min-height: 300px;
-    max-height: 500px;
+.upload_image_create_trip {
+    min-height: 100px;
+    max-height: 300px;
     border: 1px dashed #ced4da;
     border-radius: 5px;
     cursor: pointer;
 }
-.container_create_trip{
+.upload_image_create_trip img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+.container_create_trip {
     height: 100%;
+}
+.ql-container {
+    height: 400px !important; /* Adjust the height as needed */
+}
+
+.form_create_tour .form-label{
+    width: 30%;
+}
+.form_create_tour .form-control{
+    height: 38px !important;
 }

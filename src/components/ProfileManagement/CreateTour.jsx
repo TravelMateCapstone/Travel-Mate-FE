@@ -1,11 +1,32 @@
 import React, { useState } from 'react'
-import { Button, Form, Modal, Tab, Tabs } from 'react-bootstrap'
+import { Button, Col, Form, Modal, Row, Tab, Tabs } from 'react-bootstrap'
 import '../../assets/css/ProfileManagement/CreateTour.css'
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 function CreateTour() {
     const [show, setShow] = useState(false);
     const [image, setImage] = useState(null);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+    const [valueSchedule, setValueSchedule] = useState('');
+    const [valueCost, setValueCost] = useState('');
+    const [valueRegulations, setValueRegulations] = useState('');
+    const modules = {
+        toolbar: [
+          [{ 'header': [1, 2, false] }],
+          ['bold', 'italic', 'underline','strike', 'blockquote'],
+          [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+          ['link', 'image'],
+          ['clean']
+        ],
+      }
+    
+    const formats = [
+        'header',
+        'bold', 'italic', 'underline', 'strike', 'blockquote',
+        'list', 'bullet', 'indent',
+        'link', 'image'
+      ]
     const handleImageChange = (e) => {
         if (e.target.files && e.target.files[0]) {
             setImage(URL.createObjectURL(e.target.files[0]));
@@ -77,27 +98,55 @@ function CreateTour() {
 
     return (
         <div>
-            <Button variant="primary" onClick={handleShow} >
-                Tạo tua du lịch
+            <Button variant="success" onClick={handleShow}  className='rounded-5'>
+                Tạo tour du lịch
             </Button>
             <Modal show={show} onHide={handleClose} className='modal_extraDetailForm'>
 
-                <div className='p-3 overflow-y-scroll d-flex flex-column gap-3 container_create_trip'>
-                    <h5 className='text-center'>Tạo chuyến đi của bạn</h5>
-                    <Form.Group>
-                        <Form.Control type="text" placeholder="Nhập tên tua du lịch" />
-                    </Form.Group>
+                <div style={{
+                    padding: '1.5rem 2rem'
+                }} className='overflow-y-scroll d-flex flex-column gap-3 container_create_trip'>
+                    <Row>
+                    <h5 className='fw-bold mb-3'>Tạo tour du lịch</h5>
+                        <Col lg={8} className='form_create_tour border-1 p-3 rounded-4'>
+                            <Form.Group className='d-flex align-items-center mb-3'>
+                                <Form.Label className='text-nowrap'>Chọn địa điểm</Form.Label>
+                                <Form.Control type="text" placeholder="Nhập tên tour du lịch" />
+                            </Form.Group>
 
-                    <div className='upload_image_create_trip d-flex align-items-center justify-content-center' onClick={() => {
-                        document.getElementById('upload_trip_img_detail').click()
-                    }}>
-                        {image ? <img src={image} alt="Uploaded" className='h-100 w-100 object-fit-cover' /> : (
-                            <>
-                                <ion-icon name="image-outline"></ion-icon>
-                                <p className='m-0'>Tải lên ảnh du lịch</p>
-                            </>
-                        )}
-                    </div>
+                            <Form.Group className='d-flex align-items-center mb-3'>
+                                <Form.Label className='text-nowrap'>Thời gian diễn ra</Form.Label>
+                                <Form.Control type="datetime-local" placeholder="Chọn thời gian diễn ra" />
+                            </Form.Group>
+
+                            <Form.Group className='d-flex align-items-center mb-3'>
+                                <Form.Label className='text-nowrap'>Địa điểm</Form.Label>
+                                <Form.Control type="text" placeholder="Nhập tên địa điểm du lịch" />
+                            </Form.Group>
+                            
+                            <Form.Group className='d-flex align-items-center mb-3'>
+                                <Form.Label className='text-nowrap'>Số lượng khách</Form.Label>
+                                <Form.Control type="number" placeholder="Nhập tên tour du lịch" />
+                            </Form.Group>
+                            
+                        </Col>
+    
+                        <Col lg={4}>
+                            <div className='upload_image_create_trip d-flex align-items-center justify-content-center' onClick={() => {
+                                document.getElementById('upload_trip_img_detail').click()
+                            }}>
+                                {image ? <img src={image} alt="Uploaded" className='w-100 object-fit-cover'  style={{
+                                    maxHeight: '300px',
+                                    borderRadius: '10px'
+                                }}/> : (
+                                    <>
+                                        <ion-icon name="image-outline"></ion-icon>
+                                        <p className='m-0'>Tải lên ảnh du lịch</p>
+                                    </>
+                                )}
+                            </div>
+                        </Col>
+                    </Row>
                     <Tabs
                         id="controlled-tab-example"
                         activeKey={key}
@@ -105,75 +154,26 @@ function CreateTour() {
                         className="my-3 no-border-radius"
                     >
                         {/* Tab Lịch trình */}
-                        <Tab eventKey="home" title="Lịch trình">
-                            {tripData.itinerary.map((day, index) => (
-                                <div key={index}>
-                                    <h4>{day.day}</h4>
-                                    {day.schedule.map((item, i) => (
-                                        <p key={i}>
-                                            <strong>{item.time}:</strong> {item.content}
-                                        </p>
-                                    ))}
-                                    {day.activities.length > 0 && (
-                                        <div>
-                                            <h5>Hoạt động:</h5>
-                                            {day.activities.map((activity, i) => (
-                                                <div key={i} className="d-flex gap-2 align-items-center mb-2">
-                                                    <img
-                                                        src={activity.image}
-                                                        alt="Activity"
-                                                        style={{ width: "50px", height: "50px", borderRadius: "8px" }}
-                                                    />
-                                                    <p className="m-0">{activity.content}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                        <Tab eventKey="home" title="LỊCH TRÌNH">
+                            <ReactQuill className='ql-container' modules={modules}  formats={formats} theme="snow" value={valueSchedule} onChange={setValueSchedule} />
+
                         </Tab>
 
                         {/* Tab Chi phí */}
-                        <Tab eventKey="profile" title="Chi phí">
-                            <h4>Quy định chi phí chuyến đi</h4>
-                            <h5>1. Lưu ý</h5>
-                            <ul>
-                                {tripData.cost.notes.map((note, index) => (
-                                    <li key={index}>{note}</li>
-                                ))}
-                            </ul>
-                            <h5>2. Chi phí bao gồm</h5>
-                            <ul>
-                                {tripData.cost.includes.map((include, index) => (
-                                    <li key={index}>{include}</li>
-                                ))}
-                            </ul>
-                            <h5>3. Chi phí không bao gồm</h5>
-                            <ul>
-                                {tripData.cost.excludes.map((exclude, index) => (
-                                    <li key={index}>{exclude}</li>
-                                ))}
-                            </ul>
+                        <Tab eventKey="profile" title="CHI PHÍ">
+                            <ReactQuill className='ql-container' modules={modules}  formats={formats} theme="snow" value={valueCost} onChange={setValueCost} />
                         </Tab>
 
                         {/* Tab Quy định */}
-                        <Tab eventKey="contact" title="Quy định">
-                            <h4>Quy định khi tham gia chuyến đi</h4>
-                            <ul>
-                                {tripData.regulations.map((rule, index) => (
-                                    <li key={index}>{rule}</li>
-                                ))}
-                            </ul>
+                        <Tab eventKey="contact" title="QUY ĐỊNH">
+                            <ReactQuill className='ql-container' modules={modules}  formats={formats} theme="snow" value={valueRegulations} onChange={setValueRegulations} />
                         </Tab>
 
                     </Tabs>
                 </div>
-
-
-
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose} className='rounded-5'>
-                        Đóng
+                    <Button variant="outline-secondary" onClick={handleClose} className='rounded-5'>
+                        Hủy
                     </Button>
                     <Button variant="success" onClick={handleClose} className='rounded-5'>
                         Lưu thay đổi

@@ -91,7 +91,7 @@ const privateRoutes = [
     { path: RoutePath.LOCAL_WALLET_MANAGEMENT, component: LocalWalletManagement, layout: AdminLayout },
     { path: RoutePath.LOCAL_PLAN_MANAGEMENT, component: PlanManagemnet, layout: AdminLayout },
 
-    { path: RoutePath.DESTINATION, component: Destination, layout: NavBarLayout },
+    { path: RoutePath.DESTINATION, component: Destination,  },
     { path: RoutePath.TOUR_DETAIL, component: TourDetail, layout: NavBarLayout }
 ]
 
