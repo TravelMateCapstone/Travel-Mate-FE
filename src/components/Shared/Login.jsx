@@ -30,10 +30,14 @@ const Login = ({ show, handleClose }) => {
       const googleToken = response.credential;
 
       // Gửi yêu cầu POST đến API externallogin để lưu dữ liệu người dùng
-      const userResponse = await axios.get(
-        `https://travelmateapp.azurewebsites.net/api/auth/externallogin?provider=Google`,
-        { token: googleToken }
+      const userResponse = await axios.post(
+        `https://travelmateapp.azurewebsites.net/api/Auth/google-login`,
+        JSON.stringify(googleToken), // Gửi token như chuỗi JSON
+        {
+          headers: { "Content-Type": "application/json" },
+        }
       );
+      
 
       // Kiểm tra xem API trả về dữ liệu người dùng hay không
       if (userResponse.data) {
