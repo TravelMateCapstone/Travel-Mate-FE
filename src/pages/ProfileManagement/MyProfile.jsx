@@ -1,111 +1,71 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Button, Col, Container, Row } from 'react-bootstrap'
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
-import Form from 'react-bootstrap/Form';
-import Dropdown from 'react-bootstrap/Dropdown';
-import Modal from 'react-bootstrap/Modal';
-import '../../assets/css/ProfileManagement/MyProfile.css'
-import PostProfile from '../../components/Profile/PostProfile';
-import { useSelector } from 'react-redux';
-import UploadImageComponent from '../../components/Shared/UploadImageComponent';
-
-import MyFavorites from '../../components/Profile//MyProfile/MyFavorists';
-import MyFriends from '../../components/Profile/MyProfile/MyFriends';
+import React, { useState } from 'react';
+import { Container, Tab, Tabs } from 'react-bootstrap';
+import '../../assets/css/ProfileManagement/MyProfile.css';
+import { useSelector, useDispatch } from 'react-redux';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '../../../firebaseConfig';
+import { toast } from 'react-toastify';
+import { updateUserAvatar } from '../../redux/actions/authActions';
+import CreateTour from '../../components/ProfileManagement/CreateTour';
+import AboutMe from '../../components/Profile/MyProfile/AboutMe';
 import MyHome from '../../components/Profile/MyProfile/MyHome';
 import MyPastTrip from '../../components/Profile/MyProfile/MyPastTrip';
-import AboutMe from '../../components/Profile/MyProfile/AboutMe';
+import MyFriends from '../../components/Profile/MyProfile/MyFriends';
+import MyFavorites from '../../components/Profile/MyProfile/MyFavorists';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { viewProfile } from '../../redux/actions/profileActions';
 
-import CreateTour from '../../components/ProfileManagement/CreateTour';
+import axios from "axios";
 
 function MyProfile() {
     const [key, setKey] = useState('introduce');
-    const [showModalForm, setShowModalForm] = useState(false);
-    const handleShowModalForm = () => setShowModalForm(true);
-    const handleCloseModalForm = () => setShowModalForm(false);
-    const [uploadedImages, setUploadedImages] = useState([]);
-    const [posts, setPosts] = useState([]);
+    const dispatch = useDispatch();
+    const location = useLocation();
 
-    const [languages, setLanguages] = useState([]); // danh sách ngôn ngữ trong hệ thống
-    const [language, setLanguage] = useState();
+    const [profile, setProfile] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
+    const token = useSelector((state) => state.auth.token);
+    const user = useSelector((state) => state.auth.user);
+    const dataProfile = useSelector((state) => state.profile);
 
-    const [hobbies, setHobbies] = useState([]); // danh sách sở thích trong hệ thống
-    const [hobbie, setHobbie] = useState();
-
-    const [educations, setEducations] = useState([]); // danh sách giáo dục trong hệ thống
-    const [education, setEducation] = useState();
-
-    const [locations, setLocations] = useState([]);
-    const [city, setCity] = useState();
-
-    const dataProfile = useSelector(state => state.profile);
-
-    const handleUploadImages = (urls) => {
-        setUploadedImages(urls);
-    };
-    console.log("profile", dataProfile);
-    useEffect(() => {
-        // Lấy ra trip
-        if (dataProfile?.trip?.$values && Array.isArray(dataProfile.trip.$values)) {
-            setPosts(dataProfile.trip.$values);
-        }
-        fetchLocations();
+    const url = import.meta.env.VITE_BASE_API_URL;
 
 
-        fetchLanguages();
-        fetchHobbies();
-        fetchEducation();
-    }, [dataProfile]);
+    const handleImageUpload = async (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setIsUploading(true);
 
-    // Lấy ra 64 tỉnh thành
-    const fetchLocations = async () => {
-        try {
-            const response = await axios.get('https://provinces.open-api.vn/api/p/');
-            const locationData = response.data.map((location) => ({
-                ...location,
-                name: location.name.replace(/^Tỉnh |^Thành phố /, ''),
-            }));
-            setLocations(locationData);
-        } catch (error) {
-            console.error("Error fetching locations:", error);
+            try {
+                const storageRef = ref(storage, `profile-images/${file.name}`);
+                await uploadBytes(storageRef, file);
+                const downloadURL = await getDownloadURL(storageRef);
+
+                await axios.put(
+                    `${url}/api/Profile/current-user/update-image`,
+                    downloadURL,
+                    {
+                        headers: {
+                            Authorization: `${token}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
+
+                setProfile((prevProfile) => ({
+                    ...prevProfile,
+                    imageUser: downloadURL,
+                }));
+                dispatch(viewProfile(user.id));
+                toast.success("Cập nhật ảnh đại diện thành công!");
+                dispatch(updateUserAvatar(downloadURL));
+            } catch (error) {
+                console.error("Lỗi khi cập nhật ảnh:", error);
+            } finally {
+                setIsUploading(false);
+            }
         }
     };
-
-    // Lấy ra danh sách sở thích
-    const fetchHobbies = async () => {
-        try {
-            const response = await fetch("https://travelmateapp.azurewebsites.net/api/Activity");
-            const data = await response.json();
-            setHobbies(data.$values || []);
-        } catch (error) {
-            console.error("Lỗi khi lấy danh sách sở thích:", error);
-        }
-    };
-
-    //Lấy danh sách Education
-    const fetchEducation = async () => {
-        try {
-            const response = await fetch("https://travelmateapp.azurewebsites.net/api/University");
-            const data = await response.json();
-            setEducations(data.$values || []);
-        } catch (error) {
-            console.error("Lỗi khi lấy danh sách giáo dục:", error);
-        }
-    };
-
-    // API get All ngôn ngữ 
-    const fetchLanguages = async () => {
-        try {
-            const response = await fetch("https://travelmateapp.azurewebsites.net/api/Languages");
-            const data = await response.json();
-            setLanguages(data.$values || []);
-        } catch (error) {
-            console.error("Lỗi khi lấy danh sách ngôn ngữ:", error);
-        }
-    };
-
-    // Thời gian tham gia
     const registrationDate = dataProfile?.profile?.user?.registrationTime
         ? new Date(dataProfile.profile.user.registrationTime).toLocaleDateString('vi-VN', {
             year: 'numeric',
@@ -114,25 +74,23 @@ function MyProfile() {
         })
         : "Không rõ";
 
-    // Chỉnh sửa Profile
-    const handleEditProfile = async () => {
-
-    }
-
     return (
         <Container>
 
             <div className='info_section'>
                 <div className='info_user_profile'>
-                    <img
-                        src={dataProfile.profile.imageUser}
-                        alt="avatar"
-                        width={150}
-                        height={150}
-                        className='rounded-circle object-fit-cover'
-                        style={{
-                            border: "2px solid #d9d9d9",
-                        }} />
+                    <div className="profile-image-wrapper">
+                        <img src={dataProfile.profile.imageUser} alt="avatar" />
+                        <label htmlFor="upload-image" className="upload-icon">
+                            <ion-icon name="camera-outline"></ion-icon>
+                        </label>
+                        <input
+                            type="file"
+                            id="upload-image"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                        />
+                    </div>
 
                     <div className='info_user_profile_content'>
                         <h4>{dataProfile.profile.user.fullName}</h4>
@@ -141,44 +99,36 @@ function MyProfile() {
                         <p className='text-success fw-medium  d-flex align-items-center gap-2'><ion-icon name="shield-checkmark-outline"></ion-icon> 65% hoàn thành hồ sơ</p>
                     </div>
                 </div>
+
                 <CreateTour />
             </div>
 
-            <div className='edit_section'>
-
-                {/* <Button variant='warning' className='rounded-5' onClick={handleEditProfile}>Chỉnh sửa hồ sơ</Button> */}
+            <div className="edit_section">
                 <Tabs
                     id="controlled-tab-example"
                     activeKey={key}
                     onSelect={(k) => setKey(k)}
                     className="mb-3 no-border-radius"
                 >
-                    {/* Tab giới thiệu */}
                     <Tab eventKey="introduce" title="GIỚI THIỆU">
                         <AboutMe />
                     </Tab>
-
-                    {/* Tab nhà của tôi */}
                     <Tab eventKey="myHome" title="NHÀ CỦA TÔI">
                         <MyHome />
                     </Tab>
-                    {/* Tab Chuyến đi */}
                     <Tab eventKey="trip" title="CHUYẾN ĐI">
                         <MyPastTrip />
                     </Tab>
-
-                    {/* Tab bạn bè  */}
                     <Tab eventKey="friend" title="BẠN BÈ">
                         <MyFriends />
                     </Tab>
-                    <Tab eventKey="destination" title="ĐỊA ĐIỂM">
+                    <Tab eventKey="destination" title="TOURS">
                         <MyFavorites />
                     </Tab>
                 </Tabs>
             </div>
-
         </Container>
-    )
+    );
 }
 
-export default MyProfile
+export default MyProfile;
