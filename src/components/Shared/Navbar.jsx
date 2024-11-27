@@ -77,7 +77,7 @@ const Navbar = React.memo(() => {
             const unreadCount = updatedNotifications.filter(notification => !notification.isRead).length;
             setUnreadNotificationsCount(unreadCount); // Cập nhật số lượng thông báo chưa đọc
 
-            console.log("Notifications data: ", updatedNotifications);
+            // console.log("Notifications data: ", updatedNotifications);
           }
         })
         .catch(error => {
@@ -128,7 +128,7 @@ const Navbar = React.memo(() => {
         }
       );
       if (response.status === 200) {
-        
+
         toast.success("Chấp nhận kết bạn thành công!");
       }
     } catch (error) {
@@ -353,7 +353,7 @@ const Navbar = React.memo(() => {
                     <Dropdown.Item onClick={
                       () => {
                         dispatch(viewProfile(user.id, token));
-                        navigate(RoutePath.PROFILE);
+                        navigate(RoutePath.PROFILE_MY_PROFILE);
                       }
                     } className="avatar-dropdown-item">
                       Hồ sơ
