@@ -65,6 +65,9 @@ const RoutePath = {
     ONGOING_CONTRACT: '/contract/ongoing',
     PAYMENT_CONTRACT: '/contract/payment',
 
+    TOUR_DETAIL: '/tour-detail',
+    TOUR_DETAIL_EDIT: '/tour-detail/edit',
+
 
     //others Profile
     OTHERS_PROFILE: '/others-profile',

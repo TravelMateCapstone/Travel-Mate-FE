@@ -1,147 +1,105 @@
-.destination-container {
-    padding: 20px;
-    font-family: Arial, sans-serif;
+:root {
+    --slider-color: black; /* Green color */
 }
 
-/* Banner Section */
-.banner {
-    background-image: url('https://havatravel.vn/upload/hinhthem/dulichdanang-840.jpeg');
-    height: 471px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    color: white;
-    background-size: cover;
-    background-position: center;
-    position: relative;
-}
-
-.banner-content h1 {
-    font-size: 48px;
-    margin: 0;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-}
-
-.banner-content p {
-    font-size: 18px;
-    margin-top: 10px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-}
-
-/* Main Content */
-.main-content {
-    display: flex;
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.suggested-locations,
-.favorites {
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 8px;
-}
-
-.suggested-locations {
-    flex: 1;
-}
-
-.favorites {
-    flex: 3;
-}
-
-/* Suggested Locations */
-.location-list .location-item {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.location-item img {
-    width: 100px;
-    /* Cố định chiều rộng ảnh địa điểm */
-    height: 100px;
-    /* Cố định chiều cao ảnh địa điểm */
-    object-fit: cover;
-    /* Đảm bảo giữ tỉ lệ hình ảnh */
-    border-radius: 8px;
-}
-
-.avatar-list img {
+.circle-icon {
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    margin-right: 5px;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
 }
 
-/* Google Map */
-.map-container iframe {
-    border: none;
-    border-radius: 8px;
+.range-container {
+    position: relative;
+    height: 40px;
+}
+
+.custom-range {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: 400px;
-    /* Đặt chiều cao cố định */
+    pointer-events: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
 }
 
-/* Bottom Section */
-.bottom-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.local-people,
-.recent-users,
-.event-banner,
-.faqs {
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 8px;
-}
-
-/* Local People and Recent Users */
-.people-list .user-item {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.user-item img {
-    width: 50px;
-    /* Cố định kích thước avatar */
-    height: 50px;
+.custom-range::-webkit-slider-thumb {
+    pointer-events: all;
+    width: 20px;
+    height: 20px;
+    background: var(--slider-color);
     border-radius: 50%;
-    object-fit: cover;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
-/* Event Banner */
-.event-carousel {
-    overflow-y: auto;
-    max-height: 300px;
-    /* Giới hạn chiều cao cho sự kiện */
+.custom-range::-moz-range-thumb {
+    pointer-events: all;
+    width: 20px;
+    height: 20px;
+    background: var(--slider-color);
+    border-radius: 50%;
+    cursor: pointer;
 }
 
-.event-item {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
+.custom-range::-ms-thumb {
+    pointer-events: all;
+    width: 20px;
+    height: 20px;
+    background: var(--slider-color);
+    border-radius: 50%;
+    cursor: pointer;
 }
 
-.event-item img {
-    width: 120px;
-    /* Cố định chiều rộng banner sự kiện */
-    height: 80px;
-    /* Cố định chiều cao banner sự kiện */
-    object-fit: cover;
-    border-radius: 8px;
+.custom-range::-webkit-slider-runnable-track {
+    height: 8px;
+    background: var(--slider-color) !important;
 }
 
-.faqs ul {
-    padding-left: 20px;
+.custom-range::-moz-range-track {
+    height: 8px;
+    background: var(--slider-color) !important;
 }
 
-.faqs li {
-    margin-bottom: 10px;
+.custom-range::-ms-track {
+    height: 8px;
+    background: var(--slider-color) !important;
+    border-color: transparent;
+    color: transparent;
+}
+
+.custom-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: var(--slider-color) !important;
+    cursor: pointer;
+}
+
+.star-range::-webkit-slider-runnable-track {
+    height: 8px;
+    background: var(--slider-color) !important;
+}
+
+.star-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: var(--slider-color) !important;
+    cursor: pointer;
+}
+
+.form-check-input {
+    width: 20px !important;
+    height: 20px !important;
+    margin-right: 10px !important;
 }

@@ -43,30 +43,6 @@
     height: 100vh !important;
     margin: 0;
 }
-.modal_extraDetailForm .modal-dialog {
-    width: 200% !important;
-}
-.modal_extraDetailForm .modal-content {
-    width: 200% !important;
-    height: 100%;
-    overflow: hidden;
-    right: 50%;
-}
-
-.modal_extraDetailForm .modal-body {
-    height: calc(100% - 120px); /* Adjust based on header and footer height */
-    overflow-y: auto;
-    text-align: left; /* Align text to the left */
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; /* Align items to the start (left) */
-    padding: 30px; /* Add padding for better spacing */
-}
-
-.modal_extraDetailForm .modal-body .modal-title {
-    width: 100%;
-    text-align: center; /* Center the text */
-}
 .detail_data .form-label{
     width: 300px;
 }

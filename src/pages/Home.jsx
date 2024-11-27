@@ -7,6 +7,7 @@ import ThreeDCarousel from '../components/Home/ThreeDCarousel';
 import ViewFormRequest from '../components/Profile/FormBuilder/ViewFormRequest'
 import { useDispatch, useSelector } from 'react-redux';
 import { viewProfile } from '../redux/actions/profileActions';
+import MapComponent from '../components/Shared/MapComponent';
 
 function Home() {
   const images = [
@@ -31,6 +32,7 @@ function Home() {
       <LocalCarousel />
       <AnswerQuestion />
       <ViewFormRequest />
+      <MapComponent />
 
 
       <div className='text-custom'>Hello</div>

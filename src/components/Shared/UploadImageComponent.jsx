@@ -3,7 +3,7 @@ import { Modal, Button, Form, Image } from 'react-bootstrap'
 import { storage } from '../../../firebaseConfig'
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 
-function UploadImageComponent({ onUpload }) {
+function UploadImageComponent({ onUpload, multiple = true }) {
   const [show, setShow] = useState(false);
   const [files, setFiles] = useState([]);
   const [progress, setProgress] = useState({});
@@ -76,7 +76,7 @@ function UploadImageComponent({ onUpload }) {
               <Form.Control
                 type="file"
                 id="fileInput"
-                multiple
+                multiple={multiple}
                 onChange={handleFileChange}
                 style={{ display: 'none' }}
               />

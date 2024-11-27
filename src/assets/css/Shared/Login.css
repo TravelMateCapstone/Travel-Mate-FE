@@ -1,3 +1,6 @@
+.custom-modal .modal-content{
+  width: 468px !important;
+}
 .modal-header {
   color: black;
   height: 77px;
@@ -56,7 +59,7 @@
   font-size: 12px !important;
   border-radius: 10px !important;
   height: 36px !important;
-  background-color: #4763c8 !important;
+  background: #34A853 !important;
 }
 
 .text-center-divider {
@@ -88,7 +91,7 @@
   align-items: center;
   justify-content: start;
   border-radius: 10px;
-  margin-bottom: 8px;
+  margin-bottom: 0px !important;
 }
 
 .social-btn img {
@@ -105,6 +108,25 @@
 
 .modal-content {
   border-radius: 20px !important;
+}
+.form-username .form-label {
+  font-size: 12px !important;
+  border-radius: 10px !important;
+  font-weight: bold;
+}
+.form-password .form-label {
+  font-size: 12px !important;
+  border-radius: 10px !important;
+  font-weight: bold;
+}
+
+.btn-continues{
+  font-size: 12px !important;
+  border-radius: 10px !important;
+  height: 36px !important;
+  background: #34A853 !important;
+  color: white !important;
+  border: none !important;
 }
 
 @media screen and (min-width: 1024px) and (max-width: 1920px) {
