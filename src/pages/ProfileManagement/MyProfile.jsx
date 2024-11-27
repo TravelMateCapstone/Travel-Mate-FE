@@ -141,7 +141,7 @@ function MyProfile() {
                         <p className='text-success fw-medium  d-flex align-items-center gap-2'><ion-icon name="shield-checkmark-outline"></ion-icon> 65% hoàn thành hồ sơ</p>
                     </div>
                 </div>
-                <CreateTour/>
+                <CreateTour />
             </div>
 
             <div className='edit_section'>
@@ -161,79 +161,6 @@ function MyProfile() {
                     {/* Tab nhà của tôi */}
                     <Tab eventKey="myHome" title="NHÀ CỦA TÔI">
                         <MyHome />
-                        <Row className='basic_info'>
-                            <Col lg={6}>
-                                <Form.Group className="mb-3 d-flex align-items-center gap-2">
-                                    <Form.Label className='text-nowrap'>Số lượng tối đa</Form.Label>
-                                    <Form.Control type='number' />
-                                </Form.Group>
-                                <Form.Group className="mb-3 d-flex align-items-center gap-2">
-                                    <Form.Label className='text-nowrap'>Giới tính ưu tiên</Form.Label>
-                                    <Form.Select aria-label="Default select example" className=''>
-                                        <option>Tất cả</option>
-                                        <option value="1">Nam</option>
-                                        <option value="1">Nữ</option>
-                                        <option value="1">Khác</option>
-                                    </Form.Select>
-                                </Form.Group>
-                                <Form.Group className="mb-3 d-flex align-items-center gap-2">
-                                    <Form.Label className='text-nowrap'>Cấm hút thuốc</Form.Label>
-                                    <Form.Select aria-label="Default select example" className=''>
-                                        <option>Có</option>
-                                        <option value="1">Không</option>
-                                    </Form.Select>
-                                </Form.Group>
-                            </Col>
-                            <Col lg={6}>
-                                <Form.Group className="mb-3 d-flex align-items-center gap-2">
-                                    <Form.Label className='text-nowrap'>Giới thiệu</Form.Label>
-                                    <Form.Control type='text' />
-                                </Form.Group>
-                                <Form.Group className="mb-3 d-flex align-items-center gap-2">
-                                    <Form.Label className='text-nowrap'>Địa chỉ cư trú</Form.Label>
-                                    <Form.Control type='text' />
-                                </Form.Group>
-                                <Form.Group className="mb-3 d-flex align-items-center gap-2">
-                                    <Form.Label className='text-nowrap'>Giáo dục</Form.Label>
-                                    <Form.Control type='text' />
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <hr className='my-5' />
-                        <h5>CHI TIẾT</h5>
-                        <div className='detail_data'>
-                            <Form.Group className="mb-3 d-flex align-items-center gap-2">
-                                <Form.Label className='text-nowrap'>Bạn cùng phòng</Form.Label>
-                                <Form.Control type='text' />
-                            </Form.Group>
-                            <Form.Group className="mb-3 d-flex align-items-center gap-2">
-                                <Form.Label className='text-nowrap'>Tiện nghi</Form.Label>
-                                <Form.Control as="textarea" rows={3} />
-                            </Form.Group>
-                            <Form.Group className="mb-3 d-flex align-items-center gap-2">
-                                <Form.Label className='text-nowrap'>Phương tiện di chuyến</Form.Label>
-                                <Form.Control type='text' />
-                            </Form.Group>
-                            <Form.Group className="mb-3 d-flex align-items-center gap-2">
-                                <Form.Label className='text-nowrap'>Mô tả chung</Form.Label>
-                                <Form.Control as="textarea" rows={3} />
-                            </Form.Group>
-                        </div>
-
-                        <div className='w-100'>
-                            <div className='d-flex justify-content-between'>
-                                <h5>HÌNH ẢNH NHÀ CỦA BẠN</h5>
-                                <UploadImageComponent onUpload={handleUploadImages} multiple={false}/>
-                            </div>
-                            <div className='d-flex flex-wrap'>
-                                <div className='container_uploaded_img'>
-                                    {uploadedImages.map((url, index) => (
-                                        <img key={index} src={url} alt={`Uploaded ${index}`} width={105} height={105} className='img-thumbnail m-0' />
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                        <div className='d-flex justify-content-end'><Button variant='success' className='rounded-5'>Lưu thay đổi</Button></div>
                     </Tab>
                     {/* Tab Chuyến đi */}
                     <Tab eventKey="trip" title="CHUYẾN ĐI">
