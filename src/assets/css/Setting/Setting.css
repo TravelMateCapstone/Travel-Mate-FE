@@ -1,0 +1,8 @@
+.setting_container{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.setting_container .form_label_setting {
+    width: 220px !important;
+}

@@ -15,7 +15,6 @@ import GroupList from "../pages/Groups/GroupList"
 import Home from "../pages/Home"
 import RoutePath from "./RoutePath"
 import EditProfile from "../pages/Profile/EditProfile"
-import Setting from "../pages/Setting"
 import NavBarLayout from "../layouts/NavBarLayout"
 import Profile from "../pages/Profile/Profile"
 import EditMyHome from "../pages/Profile/EditMyHome"
@@ -42,6 +41,7 @@ import SearchListLocal from "../pages/Search/SearchListLocal"
 import SearchListTraveller from "../pages/Search/SearchListTraveller"
 import MyProfile from "../pages/ProfileManagement/MyProfile"
 import TourDetail from "../pages/Tour/TourDetail"
+import Setting from "../pages/Setting/Setting"
 
 const publishRoutes = [
     { path: RoutePath.HOMEPAGE, component: Home, layout: HomeFeedLayout },
