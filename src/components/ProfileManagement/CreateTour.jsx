@@ -3,6 +3,7 @@ import { Button, Col, Form, Modal, Row, Tab, Tabs } from 'react-bootstrap'
 import '../../assets/css/ProfileManagement/CreateTour.css'
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import Collapse from 'react-bootstrap/Collapse';
 function CreateTour() {
     const [show, setShow] = useState(false);
     const [image, setImage] = useState(null);
@@ -11,22 +12,24 @@ function CreateTour() {
     const [valueSchedule, setValueSchedule] = useState('');
     const [valueCost, setValueCost] = useState('');
     const [valueRegulations, setValueRegulations] = useState('');
+    const [openDays, setOpenDays] = useState([]); // Change to an array to track multiple open days
+
     const modules = {
         toolbar: [
-          [{ 'header': [1, 2, false] }],
-          ['bold', 'italic', 'underline','strike', 'blockquote'],
-          [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
-          ['link', 'image'],
-          ['clean']
+            [{ 'header': [1, 2, false] }],
+            ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
+            ['link', 'image'],
+            ['clean']
         ],
-      }
-    
+    }
+
     const formats = [
         'header',
         'bold', 'italic', 'underline', 'strike', 'blockquote',
         'list', 'bullet', 'indent',
         'link', 'image'
-      ]
+    ]
     const handleImageChange = (e) => {
         if (e.target.files && e.target.files[0]) {
             setImage(URL.createObjectURL(e.target.files[0]));
@@ -96,9 +99,17 @@ function CreateTour() {
         ]
     };
 
+    const toggleDay = (day) => {
+        setOpenDays((prevOpenDays) =>
+            prevOpenDays.includes(day)
+                ? prevOpenDays.filter((d) => d !== day)
+                : [...prevOpenDays, day]
+        );
+    };
+
     return (
         <div>
-            <Button variant="success" onClick={handleShow}  className='rounded-5'>
+            <Button variant="success" onClick={handleShow} className='rounded-5'>
                 Tạo tour du lịch
             </Button>
             <Modal show={show} onHide={handleClose} className='modal_extraDetailForm'>
@@ -107,7 +118,7 @@ function CreateTour() {
                     padding: '1.5rem 2rem'
                 }} className='overflow-y-scroll d-flex flex-column gap-3 container_create_trip'>
                     <Row>
-                    <h5 className='fw-bold mb-3'>Tạo tour du lịch</h5>
+                        <h5 className='fw-bold mb-3'>Tạo tour du lịch</h5>
                         <Col lg={8} className='form_create_tour border-1 p-3 rounded-4'>
                             <Form.Group className='d-flex align-items-center mb-3'>
                                 <Form.Label className='text-nowrap'>Chọn địa điểm</Form.Label>
@@ -123,22 +134,22 @@ function CreateTour() {
                                 <Form.Label className='text-nowrap'>Địa điểm</Form.Label>
                                 <Form.Control type="text" placeholder="Nhập tên địa điểm du lịch" />
                             </Form.Group>
-                            
+
                             <Form.Group className='d-flex align-items-center mb-3'>
                                 <Form.Label className='text-nowrap'>Số lượng khách</Form.Label>
                                 <Form.Control type="number" placeholder="Nhập tên tour du lịch" />
                             </Form.Group>
-                            
+
                         </Col>
-    
+
                         <Col lg={4}>
                             <div className='upload_image_create_trip d-flex align-items-center justify-content-center' onClick={() => {
                                 document.getElementById('upload_trip_img_detail').click()
                             }}>
-                                {image ? <img src={image} alt="Uploaded" className='w-100 object-fit-cover'  style={{
+                                {image ? <img src={image} alt="Uploaded" className='w-100 object-fit-cover' style={{
                                     maxHeight: '300px',
                                     borderRadius: '10px'
-                                }}/> : (
+                                }} /> : (
                                     <>
                                         <ion-icon name="image-outline"></ion-icon>
                                         <p className='m-0'>Tải lên ảnh du lịch</p>
@@ -155,23 +166,122 @@ function CreateTour() {
                     >
                         {/* Tab Lịch trình */}
                         <Tab eventKey="home" title="LỊCH TRÌNH">
-                            <ReactQuill className='ql-container' modules={modules}  formats={formats} theme="snow" value={valueSchedule} onChange={setValueSchedule} />
-
+                            <div className='day_plan'>
+                                <Button
+                                    variant='' // Add a default variant
+                                    className='d-flex justify-content-between align-items-center gap-3'
+                                    onClick={() => toggleDay(1)}
+                                    aria-controls="open_plan_day_1"
+                                    aria-expanded={openDays.includes(1)}
+                                >
+                                    <p className='m-0 d-flex justify-content-center align-items-center'>{openDays.includes(1) ? <ion-icon name="chevron-down-outline"></ion-icon> : <ion-icon name="chevron-forward-outline"></ion-icon>}</p>
+                                    <h6 className='m-0 fw-bold'>Ngày 1</h6>
+                                </Button>
+                                <Collapse in={openDays.includes(1)}>
+                                    <div id="open_plan_day_1">
+                                        <div>
+                                            <sub>20-11-2024</sub>
+                                        </div>
+                                        <div className='timeline_day_container'>
+                                            <div className='w-100 d-flex gap-3 border-1 rounded-3 p-2 mb-2'>
+                                                <div>00:20-1:20</div>
+                                                <div className='d-flex gap-3 align-items-center'>
+                                                    <img className='rounded-circle object-fit-cover' src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRiWF6CBGjG8QKH94YY1heXH3X-XrzTUEqohZZDJdHP0xhZOwdcRt8b2zu4HLyPH-Pk00HuYMk589GqzYQzx6OkCA" alt="" width={40} height={40} />
+                                                    <p className='m-0'>Khởi hành từ Hà Nội</p>
+                                                </div>
+                                            </div>
+    
+                                            <div className='w-100 d-flex gap-3 border-1 rounded-3 p-2 mb-2'>
+                                                <div>00:20-1:20</div>
+                                                <div className='d-flex gap-3 align-items-center'>
+                                                    <img className='rounded-circle object-fit-cover' src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRiWF6CBGjG8QKH94YY1heXH3X-XrzTUEqohZZDJdHP0xhZOwdcRt8b2zu4HLyPH-Pk00HuYMk589GqzYQzx6OkCA" alt="" width={40} height={40} />
+                                                    <p className='m-0'>
+                                                        Ăn tr��a tại nhà hàng địa phương
+                                                    </p>
+                                                </div>
+                                            </div>
+    
+                                            <div className='w-100 d-flex gap-3 border-1 rounded-3 p-2 mb-2'>
+                                                <div>00:20-1:20</div>
+                                                <div className='d-flex gap-3 align-items-center'>
+                                                    <img className='rounded-circle object-fit-cover' src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRiWF6CBGjG8QKH94YY1heXH3X-XrzTUEqohZZDJdHP0xhZOwdcRt8b2zu4HLyPH-Pk00HuYMk589GqzYQzx6OkCA" alt="" width={40} height={40} />
+                                                    <p className='m-0'>
+                                                        Tham quan làng Lô Lô Chải
+                                                    </p>
+                                                </div>
+                                            </div>
+    
+                                        </div>
+                                        <div id=''><ion-icon name="add-circle-outline"></ion-icon> Thêm hoạt động mới</div>
+                                    </div>
+                                </Collapse>
+                            </div>
+                            <hr />
+                            <div className='day_plan'>
+                                <Button
+                                    variant='' // Add a default variant
+                                    className='d-flex justify-content-between align-items-center gap-3'
+                                    onClick={() => toggleDay(2)}
+                                    aria-controls="open_plan_day_2"
+                                    aria-expanded={openDays.includes(2)}
+                                >
+                                    <p className='m-0 d-flex justify-content-center align-items-center'>{openDays.includes(2) ? <ion-icon name="chevron-down-outline"></ion-icon> : <ion-icon name="chevron-forward-outline"></ion-icon>}</p>
+                                    <h6 className='m-0 fw-bold'>Ngày 2</h6>
+                                </Button>
+                                <Collapse in={openDays.includes(2)}>
+                                    <div id="open_plan_day_2">
+                                        <div>
+                                            <sub>20-11-2024</sub>
+                                        </div>
+                                        <div className='timeline_day_container'>
+                                            <div className='w-100 d-flex gap-3 border-1 rounded-3 p-2 mb-2'>
+                                                <div>00:20-1:20</div>
+                                                <div className='d-flex gap-3 align-items-center'>
+                                                    <img className='rounded-circle object-fit-cover' src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRiWF6CBGjG8QKH94YY1heXH3X-XrzTUEqohZZDJdHP0xhZOwdcRt8b2zu4HLyPH-Pk00HuYMk589GqzYQzx6OkCA" alt="" width={40} height={40} />
+                                                    <p className='m-0'>Khởi hành từ Hà Nội</p>
+                                                </div>
+                                            </div>
+    
+                                            <div className='w-100 d-flex gap-3 border-1 rounded-3 p-2 mb-2'>
+                                                <div>00:20-1:20</div>
+                                                <div className='d-flex gap-3 align-items-center'>
+                                                    <img className='rounded-circle object-fit-cover' src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRiWF6CBGjG8QKH94YY1heXH3X-XrzTUEqohZZDJdHP0xhZOwdcRt8b2zu4HLyPH-Pk00HuYMk589GqzYQzx6OkCA" alt="" width={40} height={40} />
+                                                    <p className='m-0'>
+                                                        Ăn trưa tại nhà hàng địa phương
+                                                    </p>
+                                                </div>
+                                            </div>
+    
+                                            <div className='w-100 d-flex gap-3 border-1 rounded-3 p-2 mb-2'>
+                                                <div>00:20-1:20</div>
+                                                <div className='d-flex gap-3 align-items-center'>
+                                                    <img className='rounded-circle object-fit-cover' src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRiWF6CBGjG8QKH94YY1heXH3X-XrzTUEqohZZDJdHP0xhZOwdcRt8b2zu4HLyPH-Pk00HuYMk589GqzYQzx6OkCA" alt="" width={40} height={40} />
+                                                    <p className='m-0'>
+                                                        Tham quan làng Lô Lô Chải
+                                                    </p>
+                                                </div>
+                                            </div>
+    
+                                        </div>
+                                        <div id=''><ion-icon name="add-circle-outline"></ion-icon> Thêm hoạt động mới</div>
+                                    </div>
+                                </Collapse>
+                            </div>
                         </Tab>
 
                         {/* Tab Chi phí */}
                         <Tab eventKey="profile" title="CHI PHÍ">
-                            <ReactQuill className='ql-container' modules={modules}  formats={formats} theme="snow" value={valueCost} onChange={setValueCost} />
+                            <ReactQuill className='ql-container' modules={modules} formats={formats} theme="snow" value={valueCost} onChange={setValueCost} />
                         </Tab>
 
                         {/* Tab Quy định */}
                         <Tab eventKey="contact" title="QUY ĐỊNH">
-                            <ReactQuill className='ql-container' modules={modules}  formats={formats} theme="snow" value={valueRegulations} onChange={setValueRegulations} />
+                            <ReactQuill className='ql-container' modules={modules} formats={formats} theme="snow" value={valueRegulations} onChange={setValueRegulations} />
                         </Tab>
 
                     </Tabs>
                 </div>
-                <Modal.Footer>
+                <Modal.Footer className='border-top-0'>
                     <Button variant="outline-secondary" onClick={handleClose} className='rounded-5'>
                         Hủy
                     </Button>
