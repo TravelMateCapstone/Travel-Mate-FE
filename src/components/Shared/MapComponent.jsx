@@ -52,7 +52,9 @@ const MapComponent = () => {
   }, [tooltip]);
 
   return (
-    <>
+    <div style={{
+      marginTop: "-130px",
+    }}>
       {tooltip.visible && (
         <p style={{
           position: "absolute",
@@ -77,7 +79,7 @@ const MapComponent = () => {
         stroke-width=".3"
         version="1.2"
         viewbox="0"
-        width="1300"
+        width="1000"
         xmlns="http://www.w3.org/2000/svg"
         transform="scale(0.8)"
         style={{
@@ -835,7 +837,7 @@ const MapComponent = () => {
           <circle class="Can Tho" cx="487.9" cy="854.9" id="VNCT"></circle>
         </g>
       </svg>
-    </>
+    </div>
   );
 };
 

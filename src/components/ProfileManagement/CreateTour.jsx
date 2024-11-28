@@ -1,9 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Button, Col, Form, Modal, Row, Tab, Tabs } from 'react-bootstrap'
 import '../../assets/css/ProfileManagement/CreateTour.css'
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import Collapse from 'react-bootstrap/Collapse';
+import ProvinceSelector from '../../components/Shared/ProvinceSelector'
+import TextareaAutosize from 'react-textarea-autosize';
+import { Link } from 'react-router-dom';
+import RoutePath from '../../routes/RoutePath';
 function CreateTour() {
     const [show, setShow] = useState(false);
     const [image, setImage] = useState(null);
@@ -13,6 +17,30 @@ function CreateTour() {
     const [valueCost, setValueCost] = useState('');
     const [valueRegulations, setValueRegulations] = useState('');
     const [openDays, setOpenDays] = useState([]); // Change to an array to track multiple open days
+    const quillRef = useRef(null);
+    const [showUpdateMoney, setShowUpdateMoney] = useState(false);
+
+    const handleCloseUpdateMoney = () => setShowUpdateMoney(false);
+    const handleShowUpdateMoney = () => setShowUpdateMoney(true);
+
+    useEffect(() => {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList') {
+                    // Handle the mutation
+                }
+            });
+        });
+
+        if (quillRef.current) {
+            observer.observe(quillRef.current, { childList: true, subtree: true });
+        }
+
+        return () => {
+            observer.disconnect();
+        };
+    }, []);
+
 
     const modules = {
         toolbar: [
@@ -107,6 +135,7 @@ function CreateTour() {
         );
     };
 
+
     return (
         <div>
             <Button variant="success" onClick={handleShow} className='rounded-5'>
@@ -121,19 +150,21 @@ function CreateTour() {
                         <h5 className='fw-bold mb-3'>Tạo tour du lịch</h5>
                         <Col lg={8} className='form_create_tour border-1 p-3 rounded-4'>
                             <Form.Group className='d-flex align-items-center mb-3'>
-                                <Form.Label className='text-nowrap'>Chọn địa điểm</Form.Label>
+                                <Form.Label className='text-nowrap'>Tên tour du lịch</Form.Label>
                                 <Form.Control type="text" placeholder="Nhập tên tour du lịch" />
                             </Form.Group>
 
                             <Form.Group className='d-flex align-items-center mb-3'>
-                                <Form.Label className='text-nowrap'>Thời gian diễn ra</Form.Label>
+                                <Form.Label className='text-nowrap'>Ngày bắt đầu</Form.Label>
                                 <Form.Control type="datetime-local" placeholder="Chọn thời gian diễn ra" />
                             </Form.Group>
 
                             <Form.Group className='d-flex align-items-center mb-3'>
-                                <Form.Label className='text-nowrap'>Địa điểm</Form.Label>
-                                <Form.Control type="text" placeholder="Nhập tên địa điểm du lịch" />
+                                <Form.Label className='text-nowrap'>Ngày kêt thúc</Form.Label>
+                                <Form.Control type="datetime-local" placeholder="Chọn thời gian diễn ra" />
                             </Form.Group>
+
+                            <div className='location_createtour'><ProvinceSelector /></div>
 
                             <Form.Group className='d-flex align-items-center mb-3'>
                                 <Form.Label className='text-nowrap'>Số lượng khách</Form.Label>
@@ -190,17 +221,17 @@ function CreateTour() {
                                                     <p className='m-0'>Khởi hành từ Hà Nội</p>
                                                 </div>
                                             </div>
-    
+
                                             <div className='w-100 d-flex gap-3 border-1 rounded-3 p-2 mb-2'>
                                                 <div>00:20-1:20</div>
                                                 <div className='d-flex gap-3 align-items-center'>
                                                     <img className='rounded-circle object-fit-cover' src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRiWF6CBGjG8QKH94YY1heXH3X-XrzTUEqohZZDJdHP0xhZOwdcRt8b2zu4HLyPH-Pk00HuYMk589GqzYQzx6OkCA" alt="" width={40} height={40} />
                                                     <p className='m-0'>
-                                                        Ăn tr��a tại nhà hàng địa phương
+                                                        Ăn trưa tại nhà hàng địa phương
                                                     </p>
                                                 </div>
                                             </div>
-    
+
                                             <div className='w-100 d-flex gap-3 border-1 rounded-3 p-2 mb-2'>
                                                 <div>00:20-1:20</div>
                                                 <div className='d-flex gap-3 align-items-center'>
@@ -210,7 +241,7 @@ function CreateTour() {
                                                     </p>
                                                 </div>
                                             </div>
-    
+
                                         </div>
                                         <div id=''><ion-icon name="add-circle-outline"></ion-icon> Thêm hoạt động mới</div>
                                     </div>
@@ -241,7 +272,7 @@ function CreateTour() {
                                                     <p className='m-0'>Khởi hành từ Hà Nội</p>
                                                 </div>
                                             </div>
-    
+
                                             <div className='w-100 d-flex gap-3 border-1 rounded-3 p-2 mb-2'>
                                                 <div>00:20-1:20</div>
                                                 <div className='d-flex gap-3 align-items-center'>
@@ -251,7 +282,7 @@ function CreateTour() {
                                                     </p>
                                                 </div>
                                             </div>
-    
+
                                             <div className='w-100 d-flex gap-3 border-1 rounded-3 p-2 mb-2'>
                                                 <div>00:20-1:20</div>
                                                 <div className='d-flex gap-3 align-items-center'>
@@ -261,7 +292,7 @@ function CreateTour() {
                                                     </p>
                                                 </div>
                                             </div>
-    
+
                                         </div>
                                         <div id=''><ion-icon name="add-circle-outline"></ion-icon> Thêm hoạt động mới</div>
                                     </div>
@@ -271,14 +302,94 @@ function CreateTour() {
 
                         {/* Tab Chi phí */}
                         <Tab eventKey="profile" title="CHI PHÍ">
-                            <ReactQuill className='ql-container' modules={modules} formats={formats} theme="snow" value={valueCost} onChange={setValueCost} />
+                            <Row>
+                                <Col lg={6}>
+                                    <Form.Group className=''>
+                                        <Form.Label>Tên chi phí</Form.Label>
+                                        <Form.Control type="text" placeholder="Nhập tên chi phí" />
+                                    </Form.Group>
+                                    <Form.Group className=''>
+                                        <Form.Label>Tên chi phí</Form.Label>
+                                        <Form.Control type="text" placeholder="Nhập tên chi phí" />
+                                    </Form.Group>
+                                </Col>
+                                <Col lg={5}>
+                                    <Form.Group className='d-flex flex-column'>
+                                        <Form.Label>Ghi chú</Form.Label>
+                                        <TextareaAutosize minRows={5} className='rounded-3 p-2 fw-normal' style={{
+                                            borderColor: '#ced4da'
+                                        }} />
+                                    </Form.Group>
+                                </Col>
+                                <Col lg={1} className='d-flex align-items-center'>
+                                    <Button variant='' className=''>
+                                        <ion-icon name="add-circle-outline" style={{
+                                            fontSize: '40px',
+                                            color: '#198754'
+                                        }}></ion-icon>
+                                    </Button>
+                                </Col>
+                            </Row>
+                            <Row className='mt-2'>
+                                <Col lg={12}>
+                                    <div className='money_item p-2 w-100'>
+                                        <div className='d-flex justify-content-between align-content-center'>
+                                            <div className='d-flex gap-3 align-items-center'>
+                                                <div onClick={setShowUpdateMoney}><ion-icon name="ellipsis-vertical-outline"></ion-icon></div>
+                                                <p className='m-0'>Xe đưa đón toàn bộ hành trình</p>
+                                            </div>
+                                            <p className='m-0 text-success'>
+                                                300.000 VND
+                                            </p>
+                                        </div>
+                                        <p className='w-50' style={{
+                                            fontSize: '12px'
+                                        }}>
+                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat porttitor aptent eget imperdiet eleifend porta proin potenti etiam et et nulla litora. Est parturient dolor conubia porttitor nunc pulvinar mi tempus malesuada phasellus lacinia ac aenean.
+                                        </p>
+                                    </div>
+                                </Col>
+
+                                <Col lg={12} >
+                                    <div className='money_item p-2 w-100'>
+                                        <div className='d-flex justify-content-between align-content-center'>
+                                            <div className='d-flex gap-3 align-items-center'>
+                                                <div onClick={setShowUpdateMoney}><ion-icon name="ellipsis-vertical-outline"></ion-icon></div>
+                                                <p className='m-0'>Bảo hiểm du lịch</p>
+                                            </div>
+                                            <p className='m-0 text-success'>
+                                                100.000 VND
+                                            </p>
+                                        </div>
+                                        <p className='w-50' style={{
+                                            fontSize: '12px'
+                                        }}>
+                                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Volutpat porttitor aptent eget imperdiet eleifend porta proin potenti etiam et et nulla litora. Est parturient dolor conubia porttitor nunc pulvinar mi tempus malesuada phasellus lacinia ac aenean.
+                                        </p>
+                                    </div>
+                                </Col>
+                            </Row>
                         </Tab>
 
                         {/* Tab Quy định */}
                         <Tab eventKey="contact" title="QUY ĐỊNH">
-                            <ReactQuill className='ql-container' modules={modules} formats={formats} theme="snow" value={valueRegulations} onChange={setValueRegulations} />
+                            <div>
+                            <ReactQuill
+                                    ref={quillRef}
+                                    className=''
+                                    modules={modules}
+                                    formats={formats}
+                                    theme="snow"
+                                    value={valueRegulations}
+                                    onChange={setValueRegulations}
+                                />
+    
+                            </div>
+                            <div className='d-flex gap-2 mt-3'>
+                                <input type="checkbox" />
+                                <div className='m-0'>Bằng cách tạo tour này, bạn xác nhận rằng đã đọc, hiểu và đồng ý với các <Link to={RoutePath.HOMEPAGE} className='m-0 text-decoration-underline'>Điều khoản và Quy định</Link> của chúng tôi</div>
+                            </div>
                         </Tab>
-
                     </Tabs>
                 </div>
                 <Modal.Footer className='border-top-0'>
@@ -291,6 +402,33 @@ function CreateTour() {
                 </Modal.Footer>
             </Modal>
             <input type="file" id='upload_trip_img_detail' className='d-none' onChange={handleImageChange} />
+            <Modal show={showUpdateMoney} centered onHide={handleCloseUpdateMoney}>
+                <Modal.Body className='d-flex flex-column overflow-y-scroll'>
+                    <h5 className='text-center'>Cập nhật chi phí </h5>
+                    <Form.Group className='w-100'>
+                        <Form.Label>Tên chi phí</Form.Label>
+                        <Form.Control type="text" placeholder="Nhập tên chi phí" />
+                    </Form.Group>
+                    <Form.Group className='w-100'>
+                        <Form.Label>Tên chi phí</Form.Label>
+                        <Form.Control type="text" placeholder="Nhập tên chi phí" />
+                    </Form.Group>
+                    <Form.Group className='d-flex flex-column w-100'>
+                        <Form.Label>Ghi chú</Form.Label>
+                        <TextareaAutosize minRows={5} className='rounded-3 p-2 fw-normal' style={{
+                            borderColor: '#ced4da'
+                        }} />
+                    </Form.Group>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" className='rounded-5' onClick={handleCloseUpdateMoney}>
+                        Đóng
+                    </Button>
+                    <Button variant="success" className='rounded-5' onClick={handleCloseUpdateMoney}>
+                        Lưu thay đổi
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     )
 }

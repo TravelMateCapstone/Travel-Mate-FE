@@ -15,8 +15,8 @@ function ProvinceSelector({ onSelect }) {
   }, []);
 
   return (
-    <Form.Group controlId="provinceSelector">
-      <Form.Label>Select Province</Form.Label>
+    <Form.Group controlId="provinceSelector" className='select_location_component'>
+      <Form.Label>Địa điểm</Form.Label>
       <Form.Control as="select" onChange={(e) => onSelect(e.target.value)}>
         {provinces.map(province => (
           <option key={province.code} value={province.name}>
