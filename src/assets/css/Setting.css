@@ -1,0 +1,82 @@
+/* Cài đặt chung */
+.container h2 {
+    margin-bottom: 20px;
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.bg-white {
+    background-color: #ffffff !important;
+}
+
+/* Tiêu đề */
+h5 {
+    color: #E65C00 !important;
+}
+
+/* Menu Navigation */
+.nav-link-custom {
+    color: #000 !important;
+}
+
+.nav-link-custom:hover,
+.nav-link-custom:focus,
+.nav-link-custom.active {
+    color: #34A853 !important;
+}
+
+/* Form */
+.form-group .form-label {
+    margin-right: 8px;
+}
+
+.form-group.d-flex.align-items-center .form-label {
+    width: 12.3%;
+}
+
+#account-info .form-label {
+    width: 30%;
+}
+
+#account-details .form-label,
+#contact-info .form-label,
+#emergency-contact .form-label {
+    width: 15%;
+}
+
+textarea {
+    height: auto;
+    resize: none;
+}
+
+/* Phần Ghi chú */
+textarea[placeholder="Ghi chú"] {
+    min-height: 120px;
+}
+
+/* Nút lưu */
+button.mt-3 {
+    background-color: #28a745;
+    border: none;
+}
+
+button.mt-3:hover {
+    background-color: #218838;
+}
+
+.setting-menu,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+label,
+button,
+input,
+textarea,
+select {
+    font-weight: 700;
+}
