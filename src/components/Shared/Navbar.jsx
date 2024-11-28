@@ -15,6 +15,7 @@ import MessengerItem from "../Shared/MessengerItem";
 import { logout } from "../../redux/actions/authActions";
 import { toast } from 'react-toastify';
 import { viewProfile } from '../../redux/actions/profileActions';
+import * as signalR from '@microsoft/signalr';
 
 const Navbar = React.memo(() => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -34,10 +35,12 @@ const Navbar = React.memo(() => {
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
 
+
+  const SIGNALR_HUB_URL = 'https://travelmateapp.azurewebsites.net/serviceHub';
+
   const handelShowOffcanvas = useCallback(() => {
     setShowOffcanvas(true);
   });
-
 
   const handleSearchDestination = useCallback(() => {
     navigate(RoutePath.DESTINATION); // Điều hướng đến trang "Khách du lịch"
@@ -51,11 +54,10 @@ const Navbar = React.memo(() => {
     navigate(RoutePath.SEARCH_LIST_TRAVELLER); // Điều hướng đến trang "Khách du lịch"
   }, [navigate]);
 
-
-
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
-  useEffect(() => {
+  // Fetch thông báo từ API
+  const fetchNotifications = async () => {
     if (isAuthenticated && token) {
       axios.get('https://travelmateapp.azurewebsites.net/api/Notification/current-user/notifications', {
         headers: {
@@ -77,13 +79,48 @@ const Navbar = React.memo(() => {
             const unreadCount = updatedNotifications.filter(notification => !notification.isRead).length;
             setUnreadNotificationsCount(unreadCount); // Cập nhật số lượng thông báo chưa đọc
 
-            // console.log("Notifications data: ", updatedNotifications);
+            console.log("Notifications data: ", updatedNotifications);
           }
         })
         .catch(error => {
           console.error('Error fetching notifications:', error);
         });
     }
+  };
+
+  const setupSignalRConnection = () => {
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(SIGNALR_HUB_URL, { withCredentials: true })
+      .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information)
+      .build();
+
+
+    connection
+      .start()
+      .then(() => {
+        console.log('SignalR connected successfully.');
+
+        // Lắng nghe sự kiện "NotificationReceived"
+        connection.on('NotificationCreated', (newNotification) => {
+          console.log('Tạo thong báo');
+
+          setNotifications((prevNotifications) => [
+            newNotification,
+            ...prevNotifications,
+          ]);
+        });
+      })
+      .catch((error) => {
+        console.error('Error connecting to SignalR hub:', error);
+        console.error(error.response || error.message || error);
+      });
+  };
+
+
+  useEffect(() => {
+    fetchNotifications();
+    setupSignalRConnection();
   }, [isAuthenticated, token]);
 
   const handleLoginModal = useCallback(() => {
