@@ -25,7 +25,7 @@ function Setting() {
           <h4>Chi Tiết Tài Khoản</h4>
 
           <section id="account-info" className="mb-4">
-            <h5>Thông Tin Người Dùng</h5>
+            <h5 style={{ color: '#E65C00' }}>Thông Tin Người Dùng</h5>
             <Row>
               <Col md={12}>
                 <Form.Group className="d-flex align-items-center">
@@ -77,7 +77,7 @@ function Setting() {
           </section>
 
           <section id="account-details" className="mb-4">
-            <h5>Thông Tin Tài Khoản</h5>
+            <h5 style={{ color: '#E65C00' }}>Thông Tin Tài Khoản</h5>
             <Form.Group className="d-flex align-items-center">
               <Form.Label>Email</Form.Label>
               <Form.Control type="email" placeholder="Email" />
@@ -89,7 +89,7 @@ function Setting() {
           </section>
 
           <section id="contact-info" className="mb-4">
-            <h5>Thông Tin Liên Lạc</h5>
+            <h5 style={{ color: '#E65C00' }}>Thông Tin Liên Lạc</h5>
             <Form.Group className="d-flex align-items-center">
               <Form.Label>Số điện thoại</Form.Label>
               <Form.Control type="text" placeholder="Số điện thoại" />
@@ -101,7 +101,7 @@ function Setting() {
           </section>
 
           <section id="emergency-contact" className="mb-4">
-            <h5>Liên Hệ Khẩn Cấp</h5>
+            <h5 style={{ color: '#E65C00' }}>Liên Hệ Khẩn Cấp</h5>
             <p className="text-muted">
               Bạn cho phép chúng tôi thông báo cho người này nếu chúng tôi cho rằng bạn đang gặp tình huống khẩn cấp và chia sẻ thông tin về hoạt động cũng như vị trí của bạn với họ nếu có yêu cầu.
             </p>
