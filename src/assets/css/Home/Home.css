@@ -1,0 +1,66 @@
+/* Cài đặt cho phần hình nền */
+.home-background {
+  background-image: url("https://images.unsplash.com/photo-1709064159097-91b634741c96?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+  background-size: cover; /* Làm ảnh phủ kín phần tử */
+  background-position: center; /* Đảm bảo ảnh được căn giữa */
+  filter: brightness(130%) contrast(70%);
+  height: 115vh;
+  position: relative;
+}
+
+/* Cài đặt cho phần text nằm trên hình nền */
+.home-header {
+  position: absolute;
+  top: 70px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  text-align: center;
+}
+
+.home-header h1 {
+  font-family: "Playfair Display", serif;
+  margin: 0;
+  color: white;
+}
+
+.home-map-container {
+  margin-top: -125px;
+  margin-right: -300px;
+}
+
+.home-statistics {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  color: white;
+  margin-top: -100px;
+  margin-left: -300px;
+}
+
+.home-statistics .stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.home-statistics .stat-item h3 {
+  font-weight: bold;
+}
+
+.text-custom {
+  font-size: 20px;
+  color: #333;
+}
+
+.container_content_home {
+  padding: 0 122px;
+}
+.button_explore {
+  background-color: #34a853 !important;
+  color: #333;
+  padding: 5px 30px;
+  border-radius: 5px;
+  color: white;
+  border: none !important;
+}

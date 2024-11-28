@@ -8,6 +8,8 @@ import '../../assets/css/Shared/Register.css';
 import google from '../../assets/images/google.png';
 import facebook from '../../assets/images/facebook.png';
 import axios from 'axios'; // Import axios
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
+import { decodeToken } from "react-jwt";
 
 const Register = ({ show, handleClose }) => {
   const [email, setEmail] = useState('');
@@ -37,7 +39,7 @@ const Register = ({ show, handleClose }) => {
       });
 
       console.log(username, email, password, confirmPassword, fullName);
-      
+
 
       const data = response.data;
 
@@ -68,6 +70,50 @@ const Register = ({ show, handleClose }) => {
     }
   };
 
+  const handleLoginSuccess = async (response) => {
+    try {
+      console.log('Google Login Success:', response);
+      const googleToken = response.credential;
+      const userResponse = await axios.post(
+        `https://travelmateapp.azurewebsites.net/api/Auth/google-login`,
+        JSON.stringify(googleToken), // Gửi token như chuỗi JSON
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      if (userResponse.data) {
+        const { token } = userResponse.data;
+        const claim = decodeToken(token);
+        const user = {
+          id: claim["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
+          username: claim["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
+          role: claim["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
+          avatarUrl: claim.ImageUser || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw',
+          FullName: claim.FullName,
+        }
+        dispatch(loginSuccess({ user, token }));
+        toast.success('Đăng nhập thành công!', {
+          position: "bottom-right",
+        });
+        if (user.role === 'admin') {
+          navigate(RoutePath.ADMIN); 
+        } else {
+          handleClose();
+        }
+        handleClose();
+      } else {
+        toast.error('Đăng nhập thất bại. Vui lòng thử lại!');
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+      toast.error('Đăng nhập thất bại. Vui lòng thử lại!');
+    }
+  };
+
+  const handleLoginFailure = (error) => {
+    console.error('Login Failed:', error);
+    toast.error('Đăng nhập thất bại. Vui lòng thử lại!');
+  };
   return (
     <Modal show={show} onHide={handleClose} centered dialogClassName="register-modal">
       <Modal.Header className="modal-header-custom">
@@ -79,7 +125,7 @@ const Register = ({ show, handleClose }) => {
         {errorMessage && <small className="text-danger fw-normal small-text">{errorMessage}</small>}
 
         <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="formFullName" className="mt-3">
+          <Form.Group controlId="formFullName" className="mt-3">
             <Form.Control
               type="text"
               placeholder="Họ và tên"
@@ -130,7 +176,7 @@ const Register = ({ show, handleClose }) => {
             />
           </Form.Group>
           <small className="fw-normal" style={{ fontSize: "12px" }}>
-          Vui lòng kiểm tra email và làm theo hướng dẫn để xác minh địa chỉ của bạn
+            Vui lòng kiểm tra email và làm theo hướng dẫn để xác minh địa chỉ của bạn
           </small>
 
           <Button variant="primary" type="submit" className="btn-continue mt-2 w-100 fw-bold">
@@ -138,10 +184,12 @@ const Register = ({ show, handleClose }) => {
           </Button>
           <div className="text-center-divider mt-2 mb-2"><span>hoặc</span></div>
           <div className="text-center">
-            <Button variant="outline-dark" className="social-btn">
-              <img src={google} alt="google icon" />
-              <span>Đăng ký bằng Google</span>
-            </Button>
+            <GoogleOAuthProvider clientId="641114959725-q7732vhl0ssi5ip4il9uard2qv92aigf.apps.googleusercontent.com">
+              <GoogleLogin
+                onSuccess={handleLoginSuccess}
+                onError={handleLoginFailure}
+              />
+            </GoogleOAuthProvider>
             <Button variant="outline-dark" className="social-btn">
               <img src={facebook} alt="facebook icon" />
               <span>Đăng ký bằng Facebook</span>
