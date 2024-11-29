@@ -44,6 +44,13 @@
 .form_create_tour .form-label{
     width: 30%;
 }
+.location_createtour .form-label{
+    width: 30%;
+}
+.form_create_tour .select_location_component{
+    display: flex;
+    margin-bottom: 15px;
+}
 .form_create_tour .form-control{
     height: 38px !important;
 }

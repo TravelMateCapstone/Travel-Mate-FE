@@ -92,9 +92,7 @@ const Register = ({ show, handleClose }) => {
           FullName: claim.FullName,
         }
         dispatch(loginSuccess({ user, token }));
-        toast.success('Đăng nhập thành công!', {
-          position: "bottom-right",
-        });
+       
         if (user.role === 'admin') {
           navigate(RoutePath.ADMIN); 
         } else {
@@ -190,9 +188,9 @@ const Register = ({ show, handleClose }) => {
                 onError={handleLoginFailure}
               />
             </GoogleOAuthProvider>
-            <Button variant="outline-dark" className="social-btn">
+            <Button variant="outline-dark" className="mt-3 social-btn">
               <img src={facebook} alt="facebook icon" />
-              <span>Đăng ký bằng Facebook</span>
+              <span>Đăng nhập bằng Facebook</span>
             </Button>
           </div>
         </Form>

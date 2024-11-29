@@ -56,6 +56,19 @@ const Navbar = React.memo(() => {
 
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
+  const fetchChats = async () => {
+    try {
+      const response = await axios.get('https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/Chats', {
+        headers: {
+          Authorization: `${token}`
+        }
+      });
+      setChats(response.data?.$values);
+    } catch (error) {
+      console.error('Error fetching chats:', error);
+    }
+  };
+
   // Fetch thông báo từ API
   const fetchNotifications = async () => {
     if (isAuthenticated && token) {
@@ -121,6 +134,7 @@ const Navbar = React.memo(() => {
   useEffect(() => {
     fetchNotifications();
     setupSignalRConnection();
+    fetchChats();
   }, [isAuthenticated, token]);
 
   const handleLoginModal = useCallback(() => {
