@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react'
-import React, { useState, useEffect, useRef } from 'react'
 import { Button, Col, Form, Modal, Row, Tab, Tabs } from 'react-bootstrap'
 import '../../assets/css/ProfileManagement/CreateTour.css'
 import ReactQuill from 'react-quill';
