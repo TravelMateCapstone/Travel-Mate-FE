@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Form } from 'react-bootstrap';
 
-function ProvinceSelector({ onSelect }) {
+function ProvinceSelector({ onSelect, initialValue }) {
   const [provinces, setProvinces] = useState([]);
+  const [selectedProvince, setSelectedProvince] = useState(initialValue || '');
 
   useEffect(() => {
     fetch('https://provinces.open-api.vn/api/')
@@ -14,10 +15,20 @@ function ProvinceSelector({ onSelect }) {
       .catch(error => console.error('Error fetching provinces:', error));
   }, []);
 
+  useEffect(() => {
+    setSelectedProvince(initialValue || '');
+  }, [initialValue]);
+
+  const handleChange = (e) => {
+    setSelectedProvince(e.target.value);
+    onSelect(e.target.value);
+  };
+
   return (
     <Form.Group controlId="provinceSelector" className='select_location_component'>
       <Form.Label>Địa điểm</Form.Label>
-      <Form.Control as="select" onChange={(e) => onSelect(e.target.value)}>
+      <Form.Control as="select" value={selectedProvince} onChange={handleChange}>
+        <option value="">Chọn tỉnh/thành phố</option>
         {provinces.map(province => (
           <option key={province.code} value={province.name}>
             {province.name}
