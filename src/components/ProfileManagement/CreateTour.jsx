@@ -11,6 +11,10 @@ import RoutePath from '../../routes/RoutePath';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
+import { storage } from '../../../firebaseConfig';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useMutation } from 'react-query';
+
 function CreateTour() {
     const [show, setShow] = useState(false);
     const [image, setImage] = useState(null);
@@ -23,11 +27,11 @@ function CreateTour() {
     const [openDays, setOpenDays] = useState([]); // Change to an array to track multiple open days
     const quillRef = useRef(null);
     const [showUpdateMoney, setShowUpdateMoney] = useState(false);
-    const [duration, setDuration] = useState(2);
+    const [duration, setDuration] = useState(1);
     const handleCloseUpdateMoney = () => setShowUpdateMoney(false);
     const handleShowUpdateMoney = () => setShowUpdateMoney(true);
     const [tourName, setTourName] = useState('');
-    const [startDate, setStartDate] = useState('');
+    const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 16)); // Set default to current date
     const [endDate, setEndDate] = useState('');
     const [location, setLocation] = useState('');
     const [maxGuests, setMaxGuests] = useState('');
@@ -53,12 +57,24 @@ function CreateTour() {
             observer.disconnect();
         };
     }, []);
+    useEffect(() => {
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            setDuration(diffDays);
+        }
+    }, [startDate, endDate]);
     const generateItinerary = () => {
         const days = [];
-        for (let i = 1; i <= duration; i++) {
+        const start = new Date(startDate);
+        for (let i = 0; i < duration; i++) {
+            const currentDate = new Date(start);
+            currentDate.setDate(start.getDate() + i);
             days.push({
-                day: i,
-                date: new Date().toISOString(),
+                day: i + 1,
+                date: currentDate.toISOString(),
                 activities: []
             });
         }
@@ -82,6 +98,14 @@ function CreateTour() {
         setCostAmount('');
         setCostNotes('');
     };
+
+    const mutation = useMutation(formData => {
+        return axios.post('https://travelmateapp.azurewebsites.net/api/Tour', formData, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+    });
 
     const handleScheduleChange = async () => {
         const errors = [];
@@ -109,12 +133,6 @@ function CreateTour() {
         if (itinerary.some(day => day.activities.some(activity => parseFloat(activity.activityAmount) < 0))) {
             errors.push("Giá hoạt động không được âm!");
         }
-        if (!costTitle) {
-            errors.push("Vui lòng nhập tên chi phí!");
-        }
-        if (!costAmount) {
-            errors.push("Vui lòng nhập số tiền!");
-        }
         if (parseFloat(costAmount) < 0) {
             errors.push("Số tiền không được âm!");
         }
@@ -124,44 +142,67 @@ function CreateTour() {
             return;
         }
 
-        const formattedItinerary = itinerary.map(day => ({
-            day: day.day,
-            date: day.date,
-            activities: day.activities.map(activity => ({
-                time: activity.time,
-                description: activity.description,
-                activityAddress: activity.activityAddress,
-                activityAmount: activity.activityAmount,
-                activityImage: activity.activityImage
-            }))
-        }));
-
-        const totalCost = costDetails.reduce((sum, cost) => sum + parseFloat(cost.amount), 0);
-
-        const formData = {
-            tourName: tourName,
-            price: totalCost,
-            startDate: startDate,
-            endDate: endDate,
-            numberOfDays: duration,
-            numberOfNights: duration - 1,
-            location: location,
-            maxGuests: maxGuests,
-            tourImage: tourImage,
-            itinerary: formattedItinerary,
-            costDetails: costDetails,
-            additionalInfo: valueRegulations
+        const uploadImageToFirebase = async (file) => {
+            const storageRef = ref(storage, `tourImages/${file.name}`);
+            await uploadBytes(storageRef, file);
+            return await getDownloadURL(storageRef);
         };
-        console.log(formData);
 
         try {
-            const response = await axios.post('https://travelmateapp.azurewebsites.net/api/Tour', formData, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            toast.success("Tạo tour thành công!");
-            console.log('Tour created successfully:', response.data);
+            let tourImageUrl = tourImage;
+            if (image) {
+                const file = document.getElementById('upload_trip_img_detail').files[0];
+                tourImageUrl = await uploadImageToFirebase(file);
+            }
+
+            const formattedItinerary = await Promise.all(itinerary.map(async (day) => {
+                const activities = await Promise.all(day.activities.map(async (activity) => {
+                    let activityImageUrl = activity.activityImage;
+                    if (activity.activityImage && activity.activityImage.startsWith('blob:')) {
+                        const file = document.getElementById(`activity-image-input-${day.day - 1}-${day.activities.indexOf(activity)}`).files[0];
+                        activityImageUrl = await uploadImageToFirebase(file);
+                    }
+                    return {
+                        time: activity.time,
+                        description: activity.description,
+                        activityAddress: activity.activityAddress,
+                        activityAmount: activity.activityAmount,
+                        activityImage: activityImageUrl
+                    };
+                }));
+                return {
+                    day: day.day,
+                    date: day.date,
+                    activities: activities
+                };
+            }));
+
+            const totalCost = costDetails.reduce((sum, cost) => sum + parseFloat(cost.amount), 0);
+
+            const formData = {
+                tourName: tourName,
+                price: totalCost,
+                startDate: startDate,
+                endDate: endDate,
+                numberOfDays: duration,
+                numberOfNights: duration - 1,
+                location: location,
+                maxGuests: maxGuests,
+                tourImage: tourImageUrl,
+                itinerary: formattedItinerary,
+                costDetails: costDetails,
+                additionalInfo: valueRegulations
+            };
+            console.log(formData);
+
+            try {
+                await mutation.mutateAsync(formData);
+                toast.success("Tạo tour thành công!");
+                console.log('Tour created successfully');
+            } catch (error) {
+                toast.error("Tạo tour không thành công!");
+                console.error('Error creating tour:', error);
+            }
         } catch (error) {
             toast.error("Tạo tour không thành công!");
             console.error('Error creating tour:', error);
@@ -331,7 +372,7 @@ function CreateTour() {
                                                     <div className='w-100 d-flex gap-3 border-1 rounded-3 p-2 mb-2' key={idx}>
                                                         <div>
                                                             <Form.Control 
-                                                                type="datetime-local" 
+                                                                type="time" 
                                                                 value={activity.time} 
                                                                 onChange={(e) => handleActivityChange(index, idx, 'time', e.target.value)} 
                                                             />

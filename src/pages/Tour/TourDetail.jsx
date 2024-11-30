@@ -2,9 +2,120 @@ import React, { useState } from "react";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import "../../assets/css/Tour/TourDetail.css";
-import { Button } from "react-bootstrap";
+import { Button, Placeholder } from "react-bootstrap";
+import { useSelector } from "react-redux";
+
 function TourDetail() {
     const [key, setKey] = useState("home");
+    const tourData = useSelector((state) => state.tour?.tour);
+
+    if (!tourData) {
+        return (
+            <div>
+                <main className="__className_843922">
+                    <div>
+                        <div className="py-0 container">
+                            <section className="flex flex-col py-4">
+                                <Placeholder as="h1" animation="glow">
+                                    <Placeholder xs={6} />
+                                </Placeholder>
+                            </section>
+                            <div className="row">
+                                <div className="col-md-8">
+                                    <Placeholder as="div" animation="glow">
+                                        <Placeholder className="w-100" style={{ height: "415px" }} />
+                                    </Placeholder>
+                                </div>
+                                <div className="hidden lg:block col-md-4">
+                                    <div className="border-1 p-3 rounded-4 d-flex flex-column align-items-center">
+                                        <Placeholder as="div" animation="glow">
+                                            <Placeholder className="rounded-circle" style={{ width: "50px", height: "50px" }} />
+                                        </Placeholder>
+                                        <Placeholder as="h5" animation="glow">
+                                            <Placeholder xs={6} />
+                                        </Placeholder>
+                                        <Placeholder as="h6" animation="glow">
+                                            <Placeholder xs={4} />
+                                        </Placeholder>
+                                        <div className="start_container">
+                                            <Placeholder as="div" animation="glow">
+                                                <Placeholder xs={2} />
+                                                <Placeholder xs={2} />
+                                                <Placeholder xs={2} />
+                                                <Placeholder xs={2} />
+                                                <Placeholder xs={2} />
+                                            </Placeholder>
+                                        </div>
+                                        <Placeholder as="p" animation="glow">
+                                            <Placeholder xs={4} />
+                                        </Placeholder>
+                                        <Placeholder as="p" animation="glow">
+                                            <Placeholder xs={4} />
+                                        </Placeholder>
+                                    </div>
+                                    <div className="border-1 p-3 rounded-4 mt-3">
+                                        <div className="flex flex-col tour-form_gap__N_UmA ">
+                                            <Placeholder as="h5" animation="glow">
+                                                <Placeholder xs={4} />
+                                            </Placeholder>
+                                            <Placeholder as="div" animation="glow">
+                                                <Placeholder xs={6} />
+                                            </Placeholder>
+                                            <Placeholder as="div" animation="glow">
+                                                <Placeholder xs={6} />
+                                            </Placeholder>
+                                            <Placeholder as="div" animation="glow">
+                                                <Placeholder xs={6} />
+                                            </Placeholder>
+                                        </div>
+                                        <Placeholder as="div" animation="glow">
+                                            <Placeholder xs={6} />
+                                        </Placeholder>
+                                        <div className="d-flex gap-3">
+                                            <Placeholder.Button variant="success" xs={6} />
+                                            <Placeholder.Button variant="outline-dark" xs={6} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <Tabs
+                                id="controlled-tab-example"
+                                activeKey={key}
+                                onSelect={(k) => setKey(k)}
+                                className="my-3 no-border-radius"
+                            >
+                                <Tab eventKey="home" title="Lịch trình">
+                                    <Placeholder as="div" animation="glow">
+                                        <Placeholder xs={12} />
+                                        <Placeholder xs={12} />
+                                        <Placeholder xs={12} />
+                                    </Placeholder>
+                                </Tab>
+                                <Tab eventKey="profile" title="Chi phí">
+                                    <Placeholder as="h4" animation="glow">
+                                        <Placeholder xs={4} />
+                                    </Placeholder>
+                                    <Placeholder as="ul" animation="glow">
+                                        <Placeholder as="li" xs={12} />
+                                        <Placeholder as="li" xs={12} />
+                                        <Placeholder as="li" xs={12} />
+                                    </Placeholder>
+                                </Tab>
+                                <Tab eventKey="contact" title="Quy định">
+                                    <Placeholder as="div" animation="glow">
+                                        <Placeholder xs={12} />
+                                        <Placeholder xs={12} />
+                                        <Placeholder xs={12} />
+                                    </Placeholder>
+                                </Tab>
+                            </Tabs>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        );
+    }
+
     return (
         <div>
             <main className="__className_843922">
@@ -12,7 +123,7 @@ function TourDetail() {
                     <div className="py-0 container">
                         <section className="flex flex-col py-4">
                             <h1 className="text-purple fw-semibold">
-                                Tour du lịch tình nguyện Lô Lô Chải – Hà Giang
+                                {tourData.tourName}
                             </h1>
                         </section>
                         <div className="row">
@@ -26,48 +137,52 @@ function TourDetail() {
                                     data-nimg={1}
                                     className="tour-detail_mainImg___iF_K"
                                     style={{ color: "transparent" }}
-                                    src="https://archive.veo.com.vn/tour/phat-trien-du-lich-cong-dong-tai-lo-lo-chai/du-lich-cong-dong-tai-ha-giang-1/"
+                                    src={tourData.tourImage}
                                 />
                             </div>
                             <div className="hidden lg:block col-md-4">
-                                <div className="border-1 p-3 rounded-4">
+                                <div className="border-1 p-3 rounded-4 d-flex flex-column align-items-center">
+                                    <img src={tourData.creator.avatarUrl} alt="" width={50} height={50} className="rounded-circle object-fit-cover" />
+                                    <h5>{tourData.creator.fullname}</h5>
+                                    <h6>{tourData.creator.address}</h6>
+                                    <div className="start_container">
+                                        {[...Array(tourData.creator.rating)].map((_, i) => (
+                                            <ion-icon key={i} name="star"></ion-icon>
+                                        ))}
+                                        {[...Array(5 - tourData.creator.rating)].map((_, i) => (
+                                            <ion-icon key={i} name="star-outline"></ion-icon>
+                                        ))}
+                                    </div>
+                                    <p>{tourData.creator.totalTrips} chuyến đi</p>
+                                    <p>Tham gia từ {new Date(tourData.creator.joinedAt).getFullYear()}</p>
+                                </div>
+                                <div className="border-1 p-3 rounded-4 mt-3"> {/* Added margin-top class here */}
                                     <div className="flex flex-col tour-form_gap__N_UmA ">
-                                        <h5>Thông tin người địa phương</h5>
-                                        <div className="d-flex gap-2 align-items-center"><ion-icon name="call-outline"></ion-icon> 
-                                            <p className="m-0">0123456789</p>
-                                        </div>
-                                        <div className="d-flex gap-2 align-items-center"><ion-icon name="logo-facebook"></ion-icon> 
-                                            <p className="m-0">
-                                                <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer">Trang cá nhân người địa phương</a>
-                                            </p>
-                                        </div>
-                                        <div className="d-flex gap-2 align-items-center"><ion-icon name="mail-outline"></ion-icon>
-                                            <p className="m-0">admin@gmail.com</p>
-                                        </div>
-
-                                        <h5>Thông tin cơ bản chuyến đi</h5>
+                                        <h5>Thông tin cơ bản</h5>
                                         <div>
                                             <span className="fw-semibold">Khởi hành từ: </span>
-                                            Hà Nội
+                                            {tourData.location}
                                         </div>
                                         <div>
-                                            <span className="fw-semibold">Thời gian: </span>2 ngày 3
-                                            đêm
+                                            <span className="fw-semibold">Thời gian: </span>{tourData.numberOfDays} ngày {tourData.numberOfNights} đêm
                                         </div>
                                         <div>
-                                            <span className="fw-semibold">Chọn ngày khởi hành: </span>
+                                            <span className="fw-semibold">Ngày khởi hành: </span>
+                                            {new Date(tourData.startDate).toLocaleString()}
+                                        </div>
+                                        <div>
+                                            <span className="fw-semibold">Ngày kết thúc: </span>
+                                            {new Date(tourData.endDate).toLocaleString()}
                                         </div>
                                         <div className="flex flex-wrap gap-[10px]" />
                                     </div>
                                     <div>
-                                        <span>2.980.000&nbsp;₫</span>
+                                        <span>{tourData.price.toLocaleString()}&nbsp;₫</span>
                                     </div>
                                     <div className="d-flex gap-3">
-                                        <Button variant="success">🔥 Đặt chỗ ngay!</Button>
+                                        <Button variant="success">🔥 Nhắn tin!</Button>
                                         <Button variant="outline-dark">📞 Liên hệ tư vấn</Button>
                                     </div>
-
-
                                 </div>
                             </div>
                         </div>
@@ -78,52 +193,34 @@ function TourDetail() {
                             className="my-3 no-border-radius"
                         >
                             <Tab eventKey="home" title="Lịch trình">
-                                <div>
-                                    <h4>Ngày 1</h4>
-                                    <p>8:00 AM - Khởi hành từ Hà Nội</p>
-                                    <p>12:00 PM - Ăn trưa tại nhà hàng địa phương</p>
-                                    <p>2:00 PM - Tham quan làng Lô Lô Chải</p>
-                                    <img src="https://vcdn1-dulich.vnecdn.net/2023/10/21/Lolo-1697862290.jpg?w=460&h=0&q=100&dpr=2&fit=crop&s=Opa6JQdzUR0Jjj5HF3WBTA" alt="" />
-                                    <ul>
-                                        <li>Nhóm dạy học: Tổ chức lớp học tiếng Anh và kỹ năng sống cho trẻ em vùng cao </li>
-                                        <li>Nhóm cơ sở: Triển khai hoạt động tu sửa cơ sở vật chất, cải tạo cảnh quan tại địa phương</li>
-                                        <li>Nhóm marketing: Thu thập tư liệu và quảng bá về mô hình du lịch cộng đồng tại Bản Giốc – Cao Bằng và văn hóa truyền thống dân tộc Tày</li>
-                                        <li>Nhóm chương trình: Chuẩn bị chương trình Gala Night giao lưu giữa tình nguyện viên và các em nhỏ, người dân địa phương</li>
-                                    </ul>
-                                    <p>6:00 PM - Ăn tối và nghỉ ngơi tại homestay</p>
-                                </div>
-                                <div>
-                                    <h4>Ngày 2</h4>
-                                    <p>7:00 AM - Ăn sáng</p>
-                                    <p>8:00 AM - Tham gia hoạt động tình nguyện</p>
-                                    <p>12:00 PM - Ăn trưa</p>
-                                    <p>2:00 PM - Khởi hành về Hà Nội</p>
-                                    <p>6:00 PM - Về đến Hà Nội, kết thúc chuyến đi</p>
-                                </div>
+                                {tourData.itinerary.$values.map((day, index) => (
+                                    <div key={index}>
+                                        <h4>Ngày {day.day}</h4>
+                                        {day.activities.$values.map((activity, idx) => {
+                                            const activityTime = new Date(`${day.date.split('T')[0]}T${activity.time}`);
+                                            const formattedTime = isNaN(activityTime) ? "Invalid Date" : activityTime.toLocaleTimeString();
+                                            return (
+                                                <div key={idx}>
+                                                    <p>{formattedTime} - {activity.description}</p>
+                                                    <p>Địa chỉ: {activity.activityAddress}</p>
+                                                    <p>Chi phí: {activity.activityAmount.toLocaleString()}₫</p>
+                                                    {activity.activityImage && <img src={activity.activityImage} alt="" />}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ))}
                             </Tab>
                             <Tab eventKey="profile" title="Chi phí">
-                                <h4>Lưu ý</h4>
-                                <ul>
-                                    <li>Trẻ em từ 5 – dưới 10 tuổi được giảm 25% chi phí tiêu chuẩn (yêu cầu người lớn đi cùng)</li>
-                                    <li>Phụ thu 10% chi phí đối với tình nguyện viên quốc tế</li>
-                                </ul>
                                 <h4>Chi phí bao gồm</h4>
                                 <ul>
-                                    <li>Xe đưa đón toàn bộ hành trình</li>
-                                    <li>Nơi ở trong toàn bộ hành trình
-                                        Bữa ăn: 4 bữa chính, 2 bữa phụ</li>
-                                    <li>Bữa ăn: 4 bữa chính, 2 bữa phụ</li>
-                                    <li>Chi phí cho hoạt động tình nguyện và trải nghiệm văn hóa</li>
-                                </ul>
-                                <h4>Chi phí không bao gồm</h4>
-                                <ul>
-                                    <li>Chi tiêu cá nhân</li>
-                                    <li>Đồ ăn, uống tự gọi ngoài chương trình</li>
-                                    <li>Hóa đơn VAT</li>
+                                    {tourData.costDetails.$values.map((cost, index) => (
+                                        <li key={index}>{cost.title}: {cost.amount.toLocaleString()}₫ - {cost.notes}</li>
+                                    ))}
                                 </ul>
                             </Tab>
                             <Tab eventKey="contact" title="Quy định">
-
+                                <div dangerouslySetInnerHTML={{ __html: tourData.additionalInfo }} />
                             </Tab>
                         </Tabs>
                     </div>
