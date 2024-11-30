@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Button, Col, Form, Modal, Row, Tab, Tabs } from 'react-bootstrap'
+import { Button, Col, Dropdown, Form, Modal, Row, Tab, Tabs } from 'react-bootstrap'
 import '../../assets/css/ProfileManagement/CreateTour.css'
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -40,6 +40,10 @@ function CreateTour() {
     const [costNotes, setCostNotes] = useState('');
     const user = useSelector(state => state.auth.user);
     const [costDetails, setCostDetails] = useState([]);
+    const [selectedCostIndex, setSelectedCostIndex] = useState(null);
+    const [addCostTitle, setAddCostTitle] = useState('');
+    const [addCostAmount, setAddCostAmount] = useState('');
+    const [addCostNotes, setAddCostNotes] = useState('');
     useEffect(() => {
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
@@ -89,14 +93,36 @@ function CreateTour() {
 
     const addCostDetail = () => {
         const newCostDetail = {
-            title: costTitle,
-            amount: costAmount,
-            notes: costNotes
+            title: addCostTitle,
+            amount: addCostAmount,
+            notes: addCostNotes
         };
         setCostDetails([...costDetails, newCostDetail]);
-        setCostTitle('');
-        setCostAmount('');
-        setCostNotes('');
+        setAddCostTitle('');
+        setAddCostAmount('');
+        setAddCostNotes('');
+    };
+
+    const updateCostDetail = () => {
+        if (selectedCostIndex !== null) {
+            const updatedCostDetails = [...costDetails];
+            updatedCostDetails[selectedCostIndex] = {
+                title: costTitle,
+                amount: costAmount,
+                notes: costNotes
+            };
+            setCostDetails(updatedCostDetails);
+            setSelectedCostIndex(null);
+            setCostTitle('');
+            setCostAmount('');
+            setCostNotes('');
+            handleCloseUpdateMoney();
+        }
+    };
+
+    const deleteCostDetail = (index) => {
+        const updatedCostDetails = costDetails.filter((_, i) => i !== index);
+        setCostDetails(updatedCostDetails);
     };
 
     const mutation = useMutation(formData => {
@@ -290,7 +316,7 @@ function CreateTour() {
             <Button variant="success" onClick={handleShow} className='rounded-5'>
                 Tạo tour du lịch
             </Button>
-            <Modal show={show} onHide={handleClose} className='modal_extraDetailForm'>
+            <Modal show={show} onHide={handleClose} dialogClassName='modal_extraDetailForm'>
 
                 <div style={{
                     padding: '1.5rem 2rem'
@@ -340,6 +366,7 @@ function CreateTour() {
                             </div>
                         </Col>
                     </Row>
+
                     <Tabs
                         id="controlled-tab-example"
                         activeKey={key}
@@ -371,45 +398,45 @@ function CreateTour() {
                                                 {day.activities.map((activity, idx) => (
                                                     <div className='w-100 d-flex gap-3 border-1 rounded-3 p-2 mb-2' key={idx}>
                                                         <div>
-                                                            <Form.Control 
-                                                                type="time" 
-                                                                value={activity.time} 
-                                                                onChange={(e) => handleActivityChange(index, idx, 'time', e.target.value)} 
+                                                            <Form.Control
+                                                                type="time"
+                                                                value={activity.time}
+                                                                onChange={(e) => handleActivityChange(index, idx, 'time', e.target.value)}
                                                             />
                                                         </div>
                                                         <div className='d-flex gap-3 align-items-center'>
-                                                            <img 
-                                                                className='' 
-                                                                src={activity.activityImage} 
-                                                                alt="" 
-                                                                width={50} 
-                                                                height={50} 
-                                                                onClick={() => handleActivityImageClick(index, idx)} 
-                                                                style={{ cursor: 'pointer' }} 
+                                                            <img
+                                                                className=''
+                                                                src={activity.activityImage}
+                                                                alt=""
+                                                                width={50}
+                                                                height={50}
+                                                                onClick={() => handleActivityImageClick(index, idx)}
+                                                                style={{ cursor: 'pointer' }}
                                                             />
-                                                            <Form.Control 
-                                                                id={`activity-image-input-${index}-${idx}`} 
-                                                                type="file" 
-                                                                className='d-none' 
-                                                                onChange={(e) => handleActivityImageChange(index, idx, e)} 
+                                                            <Form.Control
+                                                                id={`activity-image-input-${index}-${idx}`}
+                                                                type="file"
+                                                                className='d-none'
+                                                                onChange={(e) => handleActivityImageChange(index, idx, e)}
                                                             />
-                                                            <Form.Control 
-                                                                placeholder='Nhập địa chỉ hoạt động' 
-                                                                type="text" 
-                                                                value={activity.activityAddress} 
-                                                                onChange={(e) => handleActivityChange(index, idx, 'activityAddress', e.target.value)} 
+                                                            <Form.Control
+                                                                placeholder='Nhập địa chỉ hoạt động'
+                                                                type="text"
+                                                                value={activity.activityAddress}
+                                                                onChange={(e) => handleActivityChange(index, idx, 'activityAddress', e.target.value)}
                                                             />
-                                                            <Form.Control 
-                                                                type="text" 
-                                                                placeholder='Nhập mô tả hoạt động' 
-                                                                value={activity.description} 
-                                                                onChange={(e) => handleActivityChange(index, idx, 'description', e.target.value)} 
+                                                            <Form.Control
+                                                                type="text"
+                                                                placeholder='Nhập mô tả hoạt động'
+                                                                value={activity.description}
+                                                                onChange={(e) => handleActivityChange(index, idx, 'description', e.target.value)}
                                                             />
-                                                            <Form.Control 
-                                                                type="number" 
-                                                                placeholder='Nhập giá của hoạt động' 
-                                                                value={activity.activityAmount} 
-                                                                onChange={(e) => handleActivityChange(index, idx, 'activityAmount', e.target.value)} 
+                                                            <Form.Control
+                                                                type="number"
+                                                                placeholder='Nhập giá của hoạt động'
+                                                                value={activity.activityAmount}
+                                                                onChange={(e) => handleActivityChange(index, idx, 'activityAmount', e.target.value)}
                                                             />
                                                             <Button variant="danger" onClick={() => removeActivity(index, idx)}>
                                                                 Xóa
@@ -431,11 +458,11 @@ function CreateTour() {
                                 <Col lg={6}>
                                     <Form.Group className=''>
                                         <Form.Label>Tên chi phí</Form.Label>
-                                        <Form.Control type="text" placeholder="Nhập tên chi phí" value={costTitle} onChange={(e) => setCostTitle(e.target.value)} />
+                                        <Form.Control type="text" placeholder="Nhập tên chi phí" value={addCostTitle} onChange={(e) => setAddCostTitle(e.target.value)} />
                                     </Form.Group>
                                     <Form.Group className=''>
                                         <Form.Label>Số tiền</Form.Label>
-                                        <Form.Control type="number" placeholder="Nhập số tiền" value={costAmount} onChange={(e) => setCostAmount(e.target.value)} />
+                                        <Form.Control type="number" placeholder="Nhập số tiền" value={addCostAmount} onChange={(e) => setAddCostAmount(e.target.value)} />
                                     </Form.Group>
                                 </Col>
                                 <Col lg={5}>
@@ -443,7 +470,7 @@ function CreateTour() {
                                         <Form.Label>Ghi chú</Form.Label>
                                         <TextareaAutosize minRows={5} className='rounded-3 p-2 fw-normal' style={{
                                             borderColor: '#ced4da'
-                                        }} value={costNotes} onChange={(e) => setCostNotes(e.target.value)} />
+                                        }} value={addCostNotes} onChange={(e) => setAddCostNotes(e.target.value)} />
                                     </Form.Group>
                                 </Col>
                                 <Col lg={1} className='d-flex align-items-center'>
@@ -461,7 +488,23 @@ function CreateTour() {
                                         <div className='money_item p-2 w-100'>
                                             <div className='d-flex justify-content-between align-content-center'>
                                                 <div className='d-flex gap-3 align-items-center'>
-                                                    <div onClick={setShowUpdateMoney}><ion-icon name="ellipsis-vertical-outline"></ion-icon></div>
+
+                                                    <Dropdown>
+                                                        <Dropdown.Toggle variant="" >
+                                                            <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+                                                        </Dropdown.Toggle>
+
+                                                        <Dropdown.Menu>
+                                                            <Dropdown.Item onClick={() => {
+                                                                setSelectedCostIndex(index);
+                                                                setCostTitle(cost.title);
+                                                                setCostAmount(cost.amount);
+                                                                setCostNotes(cost.notes);
+                                                                handleShowUpdateMoney();
+                                                            }}>Cập nhật chi phí</Dropdown.Item>
+                                                            <Dropdown.Item onClick={() => deleteCostDetail(index)}>Loại bỏ chi phí</Dropdown.Item>
+                                                        </Dropdown.Menu>
+                                                    </Dropdown>
                                                     <p className='m-0'>{cost.title}</p>
                                                 </div>
                                                 <p className='m-0 text-success'>
@@ -499,6 +542,7 @@ function CreateTour() {
                             </div>
                         </Tab>
                     </Tabs>
+
                 </div>
                 <Modal.Footer className='border-top-0'>
                     <Button variant="outline-secondary" onClick={handleClose} className='rounded-5'>
@@ -532,7 +576,7 @@ function CreateTour() {
                     <Button variant="secondary" className='rounded-5' onClick={handleCloseUpdateMoney}>
                         Đóng
                     </Button>
-                    <Button variant="success" className='rounded-5' onClick={handleCloseUpdateMoney}>
+                    <Button variant="success" className='rounded-5' onClick={updateCostDetail}>
                         Lưu thay đổi
                     </Button>
                 </Modal.Footer>
