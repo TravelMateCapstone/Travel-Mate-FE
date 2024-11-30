@@ -8,6 +8,7 @@ import profileReducer from './profileReducer';
 import requestReducer from './requestReducer';
 import messageReducer from './messageReducer';
 import chatReducer from './chatReducer';
+import tourReducer from './tourReducer';
 
 const rootReducer = combineReducers({
     couter: couterReducer,
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
     request: requestReducer,
     message: messageReducer,
     chat: chatReducer,
+    tour: tourReducer,
 });
 
 export default rootReducer;
