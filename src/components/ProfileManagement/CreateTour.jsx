@@ -84,6 +84,46 @@ function CreateTour() {
     };
 
     const handleScheduleChange = async () => {
+        const errors = [];
+        if (!tourName) {
+            errors.push("Vui lòng nhập tên tour du lịch!");
+        }
+        if (!startDate) {
+            errors.push("Vui lòng chọn ngày bắt đầu!");
+        }
+        if (!endDate) {
+            errors.push("Vui lòng chọn ngày kết thúc!");
+        }
+        if (!location) {
+            errors.push("Vui lòng chọn địa điểm!");
+        }
+        if (!maxGuests) {
+            errors.push("Vui lòng nhập số lượng khách!");
+        }
+        if (!tourImage) {
+            errors.push("Vui lòng tải lên ảnh du lịch!");
+        }
+        if (itinerary.some(day => day.activities.length === 0)) {
+            errors.push("Mỗi ngày trong lịch trình phải có ít nhất một hoạt động!");
+        }
+        if (itinerary.some(day => day.activities.some(activity => parseFloat(activity.activityAmount) < 0))) {
+            errors.push("Giá hoạt động không được âm!");
+        }
+        if (!costTitle) {
+            errors.push("Vui lòng nhập tên chi phí!");
+        }
+        if (!costAmount) {
+            errors.push("Vui lòng nhập số tiền!");
+        }
+        if (parseFloat(costAmount) < 0) {
+            errors.push("Số tiền không được âm!");
+        }
+
+        if (errors.length > 0) {
+            errors.forEach(error => toast.error(error));
+            return;
+        }
+
         const formattedItinerary = itinerary.map(day => ({
             day: day.day,
             date: day.date,
