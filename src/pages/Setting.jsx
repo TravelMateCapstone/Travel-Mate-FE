@@ -1,8 +1,113 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col, Form, Button, Nav } from 'react-bootstrap';
 import '../assets/css/Setting.css';
 
+import { toast } from 'react-toastify';
+import axios from 'axios';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '../../firebaseConfig';
+import { useSelector } from 'react-redux';
+
 function Setting() {
+  const [frontImage, setFrontImage] = useState(null);
+
+  const [frontImageUrl, setFrontImageUrl] = useState(null);
+  const token = useSelector((state) => state.auth.token);
+
+  const handleFrontImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    setFrontImage(file);
+
+    try {
+      // Upload image to Firebase
+      const storageRef = ref(storage, `cccd/${file.name}`);
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
+
+      // Update state with the image URL
+      setFrontImageUrl(downloadURL);
+      console.log("Ảnh đã tải lên:", downloadURL);
+
+      // Prepare the data to send to the create-imageFront API
+      const imageFrontData = {
+        imageUrl: downloadURL
+      };
+
+      // Log the data being sent
+      console.log("Gửi dữ liệu:", imageFrontData);
+
+      // Call FPT API for OCR (nếu cần thiết)
+      const formData = new FormData();
+      formData.append('image', file);
+      const ocrResponse = await axios.post(
+        'https://api.fpt.ai/vision/idr/vnm',
+        formData,
+        {
+          headers: {
+            'api-key': '8JIYV5d32XHGakgucP899sGDv0QBej5R',
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      const { errorCode, data } = ocrResponse.data;
+      if (errorCode !== 0) {
+        toast.error('Không thể lấy được thông tin CCCD.');
+        return;
+      }
+
+      const cccdData = data[0];
+      console.log("Dữ liệu CCCD nhận được:", cccdData);
+
+      // Send image URL to your backend to create imageFront
+      const createImageFrontResponse = await axios.post(
+        'https://travelmateapp.azurewebsites.net/api/CCCD/create-imageFront',
+        `${imageFrontData}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `${token}`,  // Use Bearer token
+          },
+        }
+      );
+
+      console.log("Kết quả trả về từ API create-imageFront:", createImageFrontResponse.data);
+
+      if (createImageFrontResponse.status === 200) {
+        await axios.put(
+          'https://travelmateapp.azurewebsites.net/api/CCCD/update-details-front',
+          {
+            id: cccdData.id,
+            name: cccdData.name,
+            dob: cccdData.dob.split('/').reverse().join('-'),
+            sex: cccdData.sex,
+            nationality: cccdData.nationality,
+            home: cccdData.home,
+            address: cccdData.address,
+            doe: cccdData.doe.split('/').reverse().join('-'),
+          },
+          {
+            headers: {
+              'Authorization': `${token}`, // Make sure the token is passed here as well
+            },
+          }
+        );
+
+        toast.success('Xác thực CCCD thành công.');
+      }
+    } catch (error) {
+      console.error('Đã xảy ra lỗi:', error);
+      toast.error('Đã xảy ra lỗi trong quá trình xác thực CCCD.');
+    }
+  };
+
+
+
+  const handleBackImageUpload = (event) => {
+    // Handle logic upload image
+    console.log(event.target.files);
+  };
   return (
     <Container>
       <h2>Cài đặt</h2>
@@ -66,14 +171,56 @@ function Setting() {
                 </Form.Group>
               </Col>
             </Row>
-            <Row>
+            <Row className="mt-3">
+              {/* <Form.Label className="me-2" style={{ width: '10%' }}>Ảnh 2 mặt CCCD</Form.Label> */}
+              <Col md={6}>
+                <div className="image-upload-wrapper d-flex align-items-center">
+                  <p className="me-2" style={{ width: '28%' }}>Ảnh CCCD mặt trước</p>
+                  {frontImageUrl ? (
+                    <div className="uploaded-image">
+                      <img src={frontImageUrl} alt="CCCD Mặt Trước" style={{ maxWidth: '100%', height: 'auto' }} />
+                    </div>
+                  ) : (
+                    <div className="image-upload">
+                      <label htmlFor="front-image" className="upload-icon">
+                        <ion-icon name="camera-outline"></ion-icon>
+                      </label>
+                      <input
+                        type="file"
+                        id="front-image"
+                        accept="image/*"
+                        onChange={handleFrontImageUpload}
+                      />
+                    </div>
+                  )}
+                </div>
+              </Col>
+
+              <Col md={6}>
+                <div className="image-upload-wrapper d-flex align-items-center">
+                  <p className="me-2" style={{ width: '28%' }}>Ảnh CCCD mặt sau</p>
+                  <div className="image-upload">
+                    <label htmlFor="back-image" className="upload-icon">
+                      <ion-icon name="camera-outline"></ion-icon>
+                    </label>
+                    <input
+                      type="file"
+                      id="back-image"
+                      accept="image/*"
+                      onChange={handleBackImageUpload}
+                    />
+                  </div>
+                </div>
+              </Col>
+            </Row>
+            {/* <Row>
               <Col>
                 <Form.Group className="d-flex align-items-center my-3">
                   <Form.Label className="me-2" style={{ width: '11.5%' }}>Ảnh 2 mặt CCCD</Form.Label>
                   <Form.Control type="file" multiple />
                 </Form.Group>
               </Col>
-            </Row>
+            </Row> */}
           </section>
 
           <section id="account-details" className="mb-4">

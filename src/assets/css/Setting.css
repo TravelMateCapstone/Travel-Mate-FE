@@ -80,3 +80,47 @@ textarea,
 select {
     font-weight: 700;
 }
+
+/* Upload ảnh */
+
+.image-upload-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.image-upload-wrapper p {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.image-upload {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    border: 2px dashed #d9d9d9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    background-color: #f9f9f9;
+}
+
+.upload-icon {
+    display: none;
+    font-size: 30px;
+    color: #666;
+}
+
+.image-upload:hover .upload-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-upload input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
