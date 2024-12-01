@@ -23,7 +23,7 @@ function SearchListLocal() {
   const [locals, setLocals] = useState([]);
   const [selectedHobbies, setSelectedHobbies] = useState([]);
   const [allHobbies, setAllHobbies] = useState([]);
-  const itemsPerPage = 2;
+  const itemsPerPage = 4;
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
