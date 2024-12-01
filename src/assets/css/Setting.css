@@ -1,5 +1,4 @@
-/* Cài đặt chung */
-.container h2 {
+/* .container h2 {
     margin-bottom: 20px;
 }
 
@@ -9,21 +8,21 @@
 
 .bg-white {
     background-color: #ffffff !important;
-}
+} */
 
 /* Tiêu đề */
-h5 {
+/* h5 {
     color: #E65C00;
-}
+} */
 
 /* Menu Navigation */
-.nav-link-custom {
+.nav-link-custom-setting {
     color: #000 !important;
 }
 
-.nav-link-custom:hover,
-.nav-link-custom:focus,
-.nav-link-custom.active {
+.nav-link-custom-setting:hover,
+.nav-link-custom-setting:focus,
+.nav-link-custom-setting.active {
     color: #34A853 !important;
 }
 

@@ -233,6 +233,7 @@ function MyHome() {
                             value={homeData.guestPreferences || ''}
                             onChange={(e) => handleInputChange('guestPreferences', e.target.value)}
                         >
+                            <option value="">Chọn giới tính ưu tiên</option>
                             <option value="Nam">Nam</option>
                             <option value="Nữ">Nữ</option>
                             <option value="Khác">Khác</option>
@@ -256,6 +257,7 @@ function MyHome() {
                             value={homeData.allowedSmoking || ''}
                             onChange={(e) => handleInputChange('allowedSmoking', e.target.value)}
                         >
+                            <option value="">Lựa chọn</option>
                             <option value="Có">Có</option>
                             <option value="Không">Không</option>
                         </Form.Select>

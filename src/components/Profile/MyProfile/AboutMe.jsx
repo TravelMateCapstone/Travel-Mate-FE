@@ -16,10 +16,13 @@ function AboutMe() {
     const [locations, setLocations] = useState([]);
     const [citys, setCitys] = useState([]);
 
-    const [profileData, setProfileData] = useState({});
+    const [profileData, setProfileData] = useState({
+        city: '',
+        hometown: '',
+        // Các trường khác
+    });
 
     const dataProfile = useSelector(state => state.profile);
-
     const token = useSelector((state) => state.auth.token);
     const user = useSelector((state) => state.auth.user);
     const dispatch = useDispatch();
@@ -33,7 +36,8 @@ function AboutMe() {
                 ...dataProfile.profile,
                 education: dataProfile.education?.$values?.[0]?.university.universityId || '',
                 hostingAvailability: dataProfile.profile?.hostingAvailability || '',
-                city: dataProfile.profile?.city || '',  // Dùng trực tiếp city thay vì registeredLocation
+                city: dataProfile.profile?.city || '',
+                hometown: dataProfile.profile?.address || '', // Gán trường Quê quán
             });
         }
     };
@@ -113,7 +117,7 @@ function AboutMe() {
                 fullName: profileData.fullName || null,
                 firstName: profileData.firstName || null,
                 lastName: profileData.lastName || null,
-                address: profileData.address || null,
+                address: profileData.hometown || null,
                 phone: profileData.phone || null,
                 gender: profileData.gender || null,
                 birthdate: profileData.birthdate || null,
@@ -211,10 +215,12 @@ function AboutMe() {
                             value={profileData.hostingAvailability || ''}
                             onChange={(e) => handleInputChange('hostingAvailability', e.target.value)}
                         >
+                            <option value="">Chọn trạng thái</option>
                             <option value="Đang bận">Đang bận</option>
                             <option value="Chào đón khách">Chào đón khách</option>
                             <option value="Không nhận khách">Không nhận khách</option>
                         </Form.Select>
+
                     ) : (
                         renderDataOrFallback(dataProfile.profile?.hostingAvailability || null)
                     )}
@@ -233,6 +239,7 @@ function AboutMe() {
                             value={profileData.education || ''}
                             onChange={(e) => handleInputChange('education', e.target.value)}
                         >
+                            <option value="">Chọn thêm giáo dục</option>
                             {educations.length > 0 ? (
                                 educations.map(education => (
                                     <option key={education.universityId} value={education.universityId}>
@@ -243,6 +250,7 @@ function AboutMe() {
                                 <option>Đang tải...</option>
                             )}
                         </Form.Select>
+
                     ) : (
                         renderDataOrFallback(
                             dataProfile.education?.$values?.map((edu) => `${edu.university.universityName}`).join(", ")
@@ -262,11 +270,12 @@ function AboutMe() {
                     {isEditing ? (
                         <Form.Select
                             value={profileData.languages || ''}
-                            onChange={(e) => handleInputChange('languages', e.target.value)} // Gửi languagesId thay vì languagesName
+                            onChange={(e) => handleInputChange('languages', e.target.value)}
                         >
+                            <option value="">Chọn thêm ngôn ngữ</option>
                             {languages.length > 0 ? (
                                 languages.map(language => (
-                                    <option key={language.languagesId} value={language.languagesId}> {/* Lưu languagesId */}
+                                    <option key={language.languagesId} value={language.languagesId}>
                                         {language.languagesName}
                                     </option>
                                 ))
@@ -291,24 +300,25 @@ function AboutMe() {
                 <Col lg={8}>
                     {isEditing ? (
                         <Form.Select
-                            value={profileData.address || ''}
-                            onChange={(e) => handleInputChange('city', e.target.value)}
+                            value={profileData.hometown || ''}
+                            onChange={(e) => handleInputChange('hometown', e.target.value)}
                         >
+                            <option value="">Chọn quê quán</option>
                             {citys.map(city => (
                                 <option key={city.code} value={city.name}>
                                     {city.name}
                                 </option>
                             ))}
                         </Form.Select>
+
                     ) : (
-                        renderDataOrFallback(dataProfile.profile?.address)
+                        dataProfile.profile?.address || <span style={{ fontStyle: 'italic', color: '#6c757d' }}>Chưa cập nhật</span>
                     )}
                 </Col>
             </Row>
 
             <hr />
 
-            {/*Địa phương đăng ký */}
             <Row className="mb-3">
                 <Col lg={4} className="d-flex align-items-center">
                     <Form.Label>Địa phương đăng ký</Form.Label>
@@ -319,6 +329,7 @@ function AboutMe() {
                             value={profileData.city || ''}
                             onChange={(e) => handleInputChange('city', e.target.value)}
                         >
+                            <option value="">Chọn địa phương</option>
                             {locations.map(location => (
                                 <option key={location.code} value={location.name}>
                                     {location.name}
@@ -326,7 +337,7 @@ function AboutMe() {
                             ))}
                         </Form.Select>
                     ) : (
-                        renderDataOrFallback(dataProfile.profile?.city)
+                        dataProfile.profile?.city || <span style={{ fontStyle: 'italic', color: '#6c757d' }}>Chưa cập nhật</span>
                     )}
                 </Col>
             </Row>
@@ -341,16 +352,16 @@ function AboutMe() {
                 <Col lg={8}>
                     {isEditing ? (
                         <Form.Select
-                            value={profileData.hobbie || ''}  // Sử dụng activityId làm giá trị
-                            onChange={(e) => handleInputChange('hobbie', e.target.value)} // Lưu activityId
+                            value={profileData.hobbie || ''}
+                            onChange={(e) => handleInputChange('hobbie', e.target.value)}
                         >
+                            <option value="">Chọn thêm sở thích</option>
                             {hobbies.map(hobbie => (
-                                <option key={hobbie.activityId} value={hobbie.activityId}> {/* Lưu activityId */}
+                                <option key={hobbie.activityId} value={hobbie.activityId}>
                                     {hobbie.activityName}
                                 </option>
                             ))}
                         </Form.Select>
-
                     ) : (
                         dataProfile.activities?.$values?.map(activity => (
                             <span key={activity.activityId} className="badge bg-secondary mr-2">

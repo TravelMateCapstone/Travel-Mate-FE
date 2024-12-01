@@ -184,13 +184,13 @@ function Setting() {
       <Row>
         <Col md={3} className="bg-light p-4 rounded bg-white">
           <Nav className="flex-column setting-menu">
-            <Nav.Link href="#account" className="nav-link-custom">
+            <Nav.Link className="nav-link-custom-setting">
               Tài Khoản
             </Nav.Link>
-            <Nav.Link href="#notifications" className="nav-link-custom">
+            <Nav.Link className="nav-link-custom-setting">
               Thông Báo
             </Nav.Link>
-            <Nav.Link href="#membership" className="nav-link-custom">
+            <Nav.Link className="nav-link-custom-setting">
               Đăng Kí Thành Viên
             </Nav.Link>
           </Nav>
