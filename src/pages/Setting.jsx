@@ -10,8 +10,10 @@ import { useSelector } from 'react-redux';
 
 function Setting() {
   const [frontImage, setFrontImage] = useState(null);
+  const [backImage, setBackImage] = useState(null);
 
   const [frontImageUrl, setFrontImageUrl] = useState(null);
+  const [backImageUrl, setBackImageUrl] = useState(null);
   const token = useSelector((state) => state.auth.token);
 
   const handleFrontImageUpload = async (event) => {
@@ -61,21 +63,24 @@ function Setting() {
       console.log("Dữ liệu CCCD nhận được:", cccdData);
 
       // Send image URL to your backend to create imageFront
+      // Gọi API để cập nhật thông tin CCCD
       const createImageFrontResponse = await axios.post(
         'https://travelmateapp.azurewebsites.net/api/CCCD/create-imageFront',
         `${imageFrontData}`,
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `${token}`,  // Use Bearer token
+            'Authorization': `${token}`,  // Sử dụng Bearer token
           },
         }
       );
 
       console.log("Kết quả trả về từ API create-imageFront:", createImageFrontResponse.data);
 
+      // Kiểm tra kết quả trả về và gửi yêu cầu cập nhật
       if (createImageFrontResponse.status === 200) {
-        await axios.put(
+        // Gửi yêu cầu cập nhật thông tin CCCD vào API
+        const updateResponse = await axios.put(
           'https://travelmateapp.azurewebsites.net/api/CCCD/update-details-front',
           {
             id: cccdData.id,
@@ -89,25 +94,90 @@ function Setting() {
           },
           {
             headers: {
-              'Authorization': `${token}`, // Make sure the token is passed here as well
+              'Authorization': `${token}`, // Đảm bảo token được truyền vào đây
             },
           }
         );
 
+        // In ra kết quả trả về từ API khi cập nhật
+        console.log("Kết quả trả về từ API update-details-front:", updateResponse.data);
+
+        // Hiển thị thông báo thành công
         toast.success('Xác thực CCCD thành công.');
+      } else {
+        toast.error('Lỗi khi tạo ảnh CCCD.');
       }
+
     } catch (error) {
       console.error('Đã xảy ra lỗi:', error);
       toast.error('Đã xảy ra lỗi trong quá trình xác thực CCCD.');
     }
   };
 
+  const handleBackImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    setBackImage(file);
 
+    try {
+      // Upload image to Firebase
+      const storageRef = ref(storage, `cccd/${file.name}`);
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
+      setBackImageUrl(downloadURL);
 
-  const handleBackImageUpload = (event) => {
-    // Handle logic upload image
-    console.log(event.target.files);
+      console.log("Ảnh mặt sau đã tải lên:", downloadURL);
+
+      // Gửi ảnh tới API OCR
+      const formData = new FormData();
+      formData.append('image', file);
+      const ocrResponse = await axios.post(
+        'https://api.fpt.ai/vision/idr/vnm',
+        formData,
+        {
+          headers: {
+            'api-key': '8JIYV5d32XHGakgucP899sGDv0QBej5R',
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      const { errorCode, data } = ocrResponse.data;
+      if (errorCode !== 0) {
+        toast.error('Không thể lấy được thông tin mặt sau CCCD.');
+        return;
+      }
+
+      const cccdData = data[0];
+      console.log("Dữ liệu CCCD mặt sau nhận được:", cccdData);
+
+      // Gửi yêu cầu cập nhật thông tin CCCD mặt sau
+      const updateResponse = await axios.put(
+        'https://travelmateapp.azurewebsites.net/api/CCCD/update-details-back',
+        {
+          issue_date: cccdData.issue_date.split('/').reverse().join('-'),
+          issue_loc: cccdData.issue_loc,
+          features: cccdData.features,
+          mrz: cccdData.mrz, // Thêm trường mrz vào payload
+        },
+        {
+          headers: {
+            'Authorization': `${token}`,
+          },
+        }
+      );
+
+      console.log("Kết quả trả về từ API update-details-back:", updateResponse.data);
+      toast.success('Xác thực CCCD mặt sau thành công.');
+
+    } catch (error) {
+      console.error('Đã xảy ra lỗi:', error);
+      toast.error('Đã xảy ra lỗi trong quá trình xác thực CCCD mặt sau.');
+    }
   };
+
+
+
   return (
     <Container>
       <h2>Cài đặt</h2>
@@ -198,29 +268,27 @@ function Setting() {
 
               <Col md={6}>
                 <div className="image-upload-wrapper d-flex align-items-center">
-                  <p className="me-2" style={{ width: '28%' }}>Ảnh CCCD mặt sau</p>
-                  <div className="image-upload">
-                    <label htmlFor="back-image" className="upload-icon">
-                      <ion-icon name="camera-outline"></ion-icon>
-                    </label>
-                    <input
-                      type="file"
-                      id="back-image"
-                      accept="image/*"
-                      onChange={handleBackImageUpload}
-                    />
-                  </div>
+                  <p className="me-2" style={{ width: '28%' }}>Ảnh CCCD mặt trước</p>
+                  {backImageUrl ? (
+                    <div className="uploaded-image">
+                      <img src={backImageUrl} alt="CCCD Mặt Trước" style={{ maxWidth: '100%', height: 'auto' }} />
+                    </div>
+                  ) : (
+                    <div className="image-upload">
+                      <label htmlFor="front-image" className="upload-icon">
+                        <ion-icon name="camera-outline"></ion-icon>
+                      </label>
+                      <input
+                        type="file"
+                        id="front-image"
+                        accept="image/*"
+                        onChange={handleBackImageUpload}
+                      />
+                    </div>
+                  )}
                 </div>
               </Col>
             </Row>
-            {/* <Row>
-              <Col>
-                <Form.Group className="d-flex align-items-center my-3">
-                  <Form.Label className="me-2" style={{ width: '11.5%' }}>Ảnh 2 mặt CCCD</Form.Label>
-                  <Form.Control type="file" multiple />
-                </Form.Group>
-              </Col>
-            </Row> */}
           </section>
 
           <section id="account-details" className="mb-4">
