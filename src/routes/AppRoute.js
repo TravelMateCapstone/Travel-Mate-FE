@@ -93,7 +93,7 @@ const privateRoutes = [
     { path: RoutePath.LOCAL_PLAN_MANAGEMENT, component: PlanManagemnet, layout: AdminLayout },
 
     { path: RoutePath.DESTINATION, component: Destination,  },
-    { path: RoutePath.TOUR_DETAIL, component: TourDetail, layout: NavBarLayout },
+    { path: RoutePath.TOUR_DETAIL, component: TourDetail,  },
     { path: RoutePath.REGULATION, component: Regulation,  },
 ]
 

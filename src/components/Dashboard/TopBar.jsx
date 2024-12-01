@@ -10,6 +10,7 @@ function TopBar() {
   const location = useLocation();
   const dispatch = useDispatch();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
   const handleLogout = useCallback(() => {
     setShowConfirmModal(true);
   }, []);
@@ -17,6 +18,9 @@ function TopBar() {
     dispatch(logout());
     setShowConfirmModal(false);
   }, [dispatch]);
+  const toggleUserDropdown = useCallback(() => {
+    setShowUserDropdown((prev) => !prev);
+  }, []);
   return (
     <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
       <button
@@ -25,27 +29,12 @@ function TopBar() {
       >
         <i className="fa fa-bars" />
       </button>
-      <form className="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-        <div className="input-group">
-          <input
-            type="text"
-            className="form-control bg-light border-0 small"
-            placeholder="Search for..."
-            aria-label="Search"
-            aria-describedby="basic-addon2"
-          />
-          <div className="input-group-append">
-            <button className="btn btn-primary" type="button">
-              <i className="fas fa-search fa-sm" />
-            </button>
-          </div>
-        </div>
-      </form>
+      
       <ul className="navbar-nav ml-auto">
         <li className="nav-item dropdown no-arrow d-sm-none">
           <a
             className="nav-link dropdown-toggle"
-            href="#"
+            href="javascript:void(0)"
             id="searchDropdown"
             role="button"
             data-toggle="dropdown"
@@ -79,7 +68,7 @@ function TopBar() {
         <li className="nav-item dropdown no-arrow mx-1">
           <a
             className="nav-link dropdown-toggle"
-            href="#"
+            href="javascript:void(0)"
             id="alertsDropdown"
             role="button"
             data-toggle="dropdown"
@@ -94,7 +83,7 @@ function TopBar() {
             aria-labelledby="alertsDropdown"
           >
             <h6 className="dropdown-header">Alerts Center</h6>
-            <a className="dropdown-item d-flex align-items-center" href="#">
+            <a className="dropdown-item d-flex align-items-center" href="javascript:void(0)">
               <div className="mr-3">
                 <div className="icon-circle bg-primary">
                   <i className="fas fa-file-alt text-white" />
@@ -107,7 +96,7 @@ function TopBar() {
                 </span>
               </div>
             </a>
-            <a className="dropdown-item d-flex align-items-center" href="#">
+            <a className="dropdown-item d-flex align-items-center" href="javascript:void(0)">
               <div className="mr-3">
                 <div className="icon-circle bg-success">
                   <i className="fas fa-donate text-white" />
@@ -118,7 +107,7 @@ function TopBar() {
                 $290.29 has been deposited into your account!
               </div>
             </a>
-            <a className="dropdown-item d-flex align-items-center" href="#">
+            <a className="dropdown-item d-flex align-items-center" href="javascript:void(0)">
               <div className="mr-3">
                 <div className="icon-circle bg-warning">
                   <i className="fas fa-exclamation-triangle text-white" />
@@ -132,7 +121,7 @@ function TopBar() {
             </a>
             <a
               className="dropdown-item text-center small text-gray-500"
-              href="#"
+              href="javascript:void(0)"
             >
               Show All Alerts
             </a>
@@ -141,7 +130,7 @@ function TopBar() {
         <li className="nav-item dropdown no-arrow mx-1">
           <a
             className="nav-link dropdown-toggle"
-            href="#"
+            href="javascript:void(0)"
             id="messagesDropdown"
             role="button"
             data-toggle="dropdown"
@@ -156,7 +145,7 @@ function TopBar() {
             aria-labelledby="messagesDropdown"
           >
             <h6 className="dropdown-header">Message Center</h6>
-            <a className="dropdown-item d-flex align-items-center" href="#">
+            <a className="dropdown-item d-flex align-items-center" href="javascript:void(0)">
               <div className="dropdown-list-image mr-3">
                 <img
                   className="rounded-circle"
@@ -173,7 +162,7 @@ function TopBar() {
                 <div className="small text-gray-500">Emily Fowler · 58m</div>
               </div>
             </a>
-            <a className="dropdown-item d-flex align-items-center" href="#">
+            <a className="dropdown-item d-flex align-items-center" href="javascript:void(0)">
               <div className="dropdown-list-image mr-3">
                 <img
                   className="rounded-circle"
@@ -190,7 +179,7 @@ function TopBar() {
                 <div className="small text-gray-500">Jae Chun · 1d</div>
               </div>
             </a>
-            <a className="dropdown-item d-flex align-items-center" href="#">
+            <a className="dropdown-item d-flex align-items-center" href="javascript:void(0)">
               <div className="dropdown-list-image mr-3">
                 <img
                   className="rounded-circle"
@@ -207,7 +196,7 @@ function TopBar() {
                 <div className="small text-gray-500">Morgan Alvarez · 2d</div>
               </div>
             </a>
-            <a className="dropdown-item d-flex align-items-center" href="#">
+            <a className="dropdown-item d-flex align-items-center" href="javascript:void(0)">
               <div className="dropdown-list-image mr-3">
                 <img
                   className="rounded-circle"
@@ -226,7 +215,7 @@ function TopBar() {
             </a>
             <a
               className="dropdown-item text-center small text-gray-500"
-              href="#"
+              href="javascript:void(0)"
             >
               Read More Messages
             </a>
@@ -237,12 +226,12 @@ function TopBar() {
         <li className="nav-item dropdown no-arrow">
           <a
             className="nav-link dropdown-toggle"
-            href="#"
+ 
             id="userDropdown"
             role="button"
-            data-toggle="dropdown"
+            onClick={toggleUserDropdown}
             aria-haspopup="true"
-            aria-expanded="false"
+            aria-expanded={showUserDropdown}
           >
             <span className="mr-2 d-none d-lg-inline text-gray-600 small">
               {user?.username || "Không xác định"}
@@ -256,25 +245,27 @@ function TopBar() {
             />
           </a>
           {/* Dropdown - User Information */}
-          <div
-            className="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-            aria-labelledby="userDropdown"
-          >
-            {(location.pathname === RoutePath.LOCAL_STATICTIS ||
-              location.pathname === RoutePath.LOCAL_CALENDAR_MANAGEMENT ||
-              location.pathname === RoutePath.LOCAL_PLAN_MANAGEMENT ||
-              location.pathname === RoutePath.LOCAL_WALLET_MANAGEMENT ||
-              location.pathname === RoutePath.LOCAL_TRIP_HISTORY) && (
-              <Link className="dropdown-item" to={RoutePath.HOMEPAGE} >
-                <i className="fas fa-list fa-sm fa-fw mr-2 text-gray-400" />
-                Quay lại trang chủ
-              </Link>
-            )}
-            <a className="dropdown-item" onClick={handleLogout}>
-              <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400" />
-              Đăng xuất
-            </a>
-          </div>
+          {showUserDropdown && (
+            <div
+              className="dropdown-menu dropdown-menu-right shadow animated--grow-in show"
+              aria-labelledby="userDropdown"
+            >
+              {(location.pathname === RoutePath.LOCAL_STATICTIS ||
+                location.pathname === RoutePath.LOCAL_CALENDAR_MANAGEMENT ||
+                location.pathname === RoutePath.LOCAL_PLAN_MANAGEMENT ||
+                location.pathname === RoutePath.LOCAL_WALLET_MANAGEMENT ||
+                location.pathname === RoutePath.LOCAL_TRIP_HISTORY) && (
+                <Link className="dropdown-item" to={RoutePath.HOMEPAGE} >
+                  <i className="fas fa-list fa-sm fa-fw mr-2 text-gray-400" />
+                  Quay lại trang chủ
+                </Link>
+              )}
+              <a className="dropdown-item" onClick={handleLogout}>
+                <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400" />
+                Đăng xuất
+              </a>
+            </div>
+          )}
         </li>
       </ul>
       <ConfirmModal
