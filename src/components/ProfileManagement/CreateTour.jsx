@@ -10,19 +10,18 @@ import { Link } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useSelector } from 'react-redux';
 import { storage } from '../../../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useMutation } from 'react-query';
+import { useNavigate } from 'react-router-dom';
 
 function CreateTour() {
+    const navigate = useNavigate();
     const [show, setShow] = useState(false);
     const [image, setImage] = useState(null);
     const [tourImage, setTourImage] = useState(''); // Updated to be a string
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
-    const [valueSchedule, setValueSchedule] = useState('');
-    const [valueCost, setValueCost] = useState('');
     const [valueRegulations, setValueRegulations] = useState('');
     const [openDays, setOpenDays] = useState([]); // Change to an array to track multiple open days
     const quillRef = useRef(null);
@@ -38,29 +37,15 @@ function CreateTour() {
     const [costTitle, setCostTitle] = useState('');
     const [costAmount, setCostAmount] = useState('');
     const [costNotes, setCostNotes] = useState('');
-    const user = useSelector(state => state.auth.user);
     const [costDetails, setCostDetails] = useState([]);
     const [selectedCostIndex, setSelectedCostIndex] = useState(null);
     const [addCostTitle, setAddCostTitle] = useState('');
     const [addCostAmount, setAddCostAmount] = useState('');
     const [addCostNotes, setAddCostNotes] = useState('');
-    useEffect(() => {
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'childList') {
-                    // Handle the mutation
-                }
-            });
-        });
-
-        if (quillRef.current) {
-            observer.observe(quillRef.current, { childList: true, subtree: true });
-        }
-
-        return () => {
-            observer.disconnect();
-        };
-    }, []);
+    const [isTermsChecked, setIsTermsChecked] = useState(false);
+    const [showTermsModal, setShowTermsModal] = useState(false);
+    const handleShowTermsModal = () => setShowTermsModal(true);
+    const handleCloseTermsModal = () => setShowTermsModal(false);
     useEffect(() => {
         if (startDate && endDate) {
             const start = new Date(startDate);
@@ -162,6 +147,9 @@ function CreateTour() {
         if (parseFloat(costAmount) < 0) {
             errors.push("Số tiền không được âm!");
         }
+        if (!isTermsChecked) {
+            errors.push("Vui lòng xác nhận rằng bạn đã đọc và đồng ý với các Điều khoản và Quy định!");
+        }
 
         if (errors.length > 0) {
             errors.forEach(error => toast.error(error));
@@ -169,6 +157,9 @@ function CreateTour() {
         }
 
         const uploadImageToFirebase = async (file) => {
+            if (!file) {
+                throw new Error("No file selected");
+            }
             const storageRef = ref(storage, `tourImages/${file.name}`);
             await uploadBytes(storageRef, file);
             return await getDownloadURL(storageRef);
@@ -225,6 +216,7 @@ function CreateTour() {
                 await mutation.mutateAsync(formData);
                 toast.success("Tạo tour thành công!");
                 console.log('Tour created successfully');
+                navigate(RoutePath.TOUR_DETAIL); // Navigate to the tour detail page
             } catch (error) {
                 toast.error("Tạo tour không thành công!");
                 console.error('Error creating tour:', error);
@@ -537,8 +529,14 @@ function CreateTour() {
 
                             </div>
                             <div className='d-flex gap-2 mt-3'>
-                                <input type="checkbox" />
-                                <div className='m-0'>Bằng cách tạo tour này, bạn xác nhận rằng đã đọc, hiểu và đồng ý với các <Link to={RoutePath.HOMEPAGE} className='m-0 text-decoration-underline'>Điều khoản và Quy định</Link> của chúng tôi</div>
+                                <input type="checkbox" checked={isTermsChecked} onChange={(e) => setIsTermsChecked(e.target.checked)} />
+                                <div className='m-0'>
+                                    Bằng cách tạo tour này, bạn xác nhận rằng đã đọc, hiểu và đồng ý với các
+                                    <span className=' mx-1 text-success m-0 text-decoration-underline' style={{ cursor: 'pointer' }} onClick={handleShowTermsModal}>
+                                        Điều khoản và Quy định
+                                    </span>
+                                    của chúng tôi
+                                </div>
                             </div>
                         </Tab>
                     </Tabs>
@@ -578,6 +576,60 @@ function CreateTour() {
                     </Button>
                     <Button variant="success" className='rounded-5' onClick={updateCostDetail}>
                         Lưu thay đổi
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={showTermsModal} onHide={handleCloseTermsModal} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Điều khoản và Quy định</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className='overflow-auto d-flex flex-column align-items-start'>
+                    <h6>1. Giới thiệu</h6>
+                    <p>Chào mừng bạn đến với TravelMate! Khi sử dụng dịch vụ của chúng tôi, bạn đồng ý với các Điều khoản và Quy định này. Vui lòng đọc kỹ trước khi sử dụng trang web.</p>
+                    <h6>2. Quyền và Trách Nhiệm của Người Dùng</h6>
+                    <ul>
+                        <li>Người dùng phải cung cấp thông tin chính xác khi đăng ký tài khoản hoặc tạo nội dung (ví dụ: tour, bài viết).</li>
+                        <li>Bạn chịu trách nhiệm về mọi nội dung bạn đăng tải trên hệ thống, đảm bảo không vi phạm pháp luật hoặc quyền lợi của bên thứ ba.</li>
+                        <li>Bạn không được sử dụng TravelMate vào các mục đích gian lận, lừa đảo, hoặc vi phạm đạo đức.</li>
+                    </ul>
+                    <h6>3. Quyền và Trách Nhiệm của TravelMate</h6>
+                    <ul>
+                        <li>TravelMate có quyền từ chối, xóa hoặc chỉnh sửa bất kỳ nội dung nào vi phạm Điều khoản và Quy định.</li>
+                        <li>Chúng tôi cam kết bảo mật thông tin cá nhân của bạn theo Chính sách bảo mật của TravelMate.</li>
+                    </ul>
+                    <h6>4. Tạo và Quản Lý Tour</h6>
+                    <ul>
+                        <li>Khi tạo tour, bạn đảm bảo thông tin cung cấp đầy đủ, rõ ràng và chính xác.</li>
+                        <li>Bạn đồng ý tuân thủ các quy định pháp luật địa phương liên quan đến hoạt động du lịch và lưu trú.</li>
+                        <li>TravelMate không chịu trách nhiệm trực tiếp về chất lượng dịch vụ giữa người dùng và khách du lịch.</li>
+                    </ul>
+                    <h6>5. Chính sách Hủy Tour</h6>
+                    <ul>
+                        <li>Người dùng có thể hủy tour trước [thời gian quy định, ví dụ: 48 giờ]. Các khoản phí hoàn trả (nếu có) sẽ áp dụng theo Chính sách hủy dịch vụ.</li>
+                        <li>TravelMate có quyền can thiệp hoặc hủy các tour không tuân thủ quy định.</li>
+                        <li>Trong trường hợp chuyến du lịch bị gián đoạn do các nguyên nhân bất khả kháng như mưa, lũ, gió, ... TravelMate có thể chỉ hoàn lại một phần hoặc không hoàn lại tiền tùy theo mức độ ảnh hưởng.</li>
+                    </ul>
+                    <h6>6. Quyền Sở Hữu Trí Tuệ</h6>
+                    <ul>
+                        <li>Mọi nội dung, logo, thương hiệu trên TravelMate đều thuộc quyền sở hữu của TravelMate hoặc đối tác liên quan.</li>
+                        <li>Bạn không được sao chép, sử dụng cho mục đích thương mại nếu không có sự đồng ý bằng văn bản.</li>
+                    </ul>
+                    <h6>7. Hạn chế Trách nhiệm</h6>
+                    <ul>
+                        <li>TravelMate chỉ đóng vai trò trung gian kết nối giữa khách du lịch và người địa phương.</li>
+                        <li>Chúng tôi không chịu trách nhiệm về bất kỳ tổn thất, tranh chấp hoặc vấn đề phát sinh trong quá trình sử dụng dịch vụ.</li>
+                    </ul>
+                    <h6>8. Thay đổi Điều khoản</h6>
+                    <p>TravelMate có quyền thay đổi Điều khoản và Quy định bất kỳ lúc nào. Thông báo sẽ được cập nhật trên trang web hoặc qua email.</p>
+                    <h6>9. Liên hệ</h6>
+                    <p>TravelMate có quyền thay đổi Điều khoản và Quy định bất kỳ lúc nào. Thông báo sẽ được cập nhật trên trang web hoặc qua email.</p>
+                    <h6>10. Luật Áp Dụng</h6>
+                    <p>Điều khoản và Quy định này được điều chỉnh theo pháp luật Việt Nam.</p>
+
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseTermsModal}>
+                        Đóng
                     </Button>
                 </Modal.Footer>
             </Modal>
