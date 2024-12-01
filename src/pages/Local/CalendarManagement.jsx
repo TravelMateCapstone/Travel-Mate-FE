@@ -1,68 +1,87 @@
-import React, { useState } from 'react'
-import { Calendar, momentLocalizer } from 'react-big-calendar'
-import moment from 'moment'
-import 'react-big-calendar/lib/css/react-big-calendar.css'
+import React, { useEffect, useState } from 'react';
+import { Calendar, momentLocalizer } from 'react-big-calendar';
+import moment from 'moment';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import axios from 'axios';
 
-const localizer = momentLocalizer(moment)
+// Import Vietnamese locale
+import 'moment/locale/vi';
+
+// Set moment locale to Vietnamese
+moment.locale('vi');
+
+// Initialize localizer with Vietnamese locale
+const localizer = momentLocalizer(moment);
 
 function CalendarManagement() {
-  const now = new Date();
-  const [eventsData, setEventsData] = useState([
-    {
-      id: 0,
-      title: "All Day Event very long title",
-      allDay: true,
-      start: new Date(2015, 3, 0),
-      end: new Date(2015, 3, 1)
-    },
-    {
-      id: 1,
-      title: "Long Event",
-      start: now,
-      end: now
-    },
-  ]);
+  const [eventsData, setEventsData] = useState([]);
+
+  useEffect(() => {
+    // Lấy dữ liệu từ API
+    axios.get('https://travelmateapp.azurewebsites.net/api/Tour/toursStatus/1')
+      .then(response => {
+        const tour = response.data.$values[0]; // Giả sử lấy tour đầu tiên trong dữ liệu
+        const tourName = tour.tourName;
+        const startDate = new Date(tour.startDate);
+        const endDate = new Date(tour.endDate);
+
+        const events = [];
+
+        // Thêm sự kiện cho tên tour trải dài qua các ngày
+        events.push({
+          id: tour.tourId,
+          title: tourName,
+          allDay: true,
+          start: startDate,
+          end: endDate,
+          resource: 'tour',
+        });
+
+        // Thêm các sự kiện cho từng hoạt động của tour
+        tour.itinerary.$values.forEach((day) => {
+          day.activities.$values.forEach((activity, index) => {
+            const activityStart = moment(`${day.date} ${activity.time}`, 'YYYY-MM-DD HH:mm').toDate();
+            events.push({
+              id: `${tour.tourId}_activity_${index}`,
+              title: activity.description,
+              allDay: false,
+              start: activityStart,
+              end: activityStart, // Giả sử mỗi hoạt động chỉ có một thời gian duy nhất
+              resource: 'activity',
+            });
+          });
+        });
+
+        setEventsData(events);
+      })
+      .catch(error => console.error("Error fetching tour data:", error));
+  }, []);
 
   const handleSelect = ({ start, end }) => {
-    console.log(start);
-    console.log(end);
-    const title = window.prompt("New Event name");
-    if (title)
+    const title = window.prompt("Nhập tên sự kiện mới");
+    if (title) {
       setEventsData([
         ...eventsData,
-        {
-          start,
-          end,
-          title
-        }
+        { start, end, title },
       ]);
-  };
-
-  const handleEventEdit = (event) => {
-    const newTitle = window.prompt("Edit Event name", event.title);
-    if (newTitle) {
-      setEventsData(eventsData.map(evt => evt.id === event.id ? { ...evt, title: newTitle } : evt));
-    }
-  };
-
-  const handleEventDelete = (event) => {
-    if (window.confirm(`Are you sure you want to delete the event '${event.title}'?`)) {
-      setEventsData(eventsData.filter(evt => evt.id !== event.id));
     }
   };
 
   const handleEventSelect = (event) => {
-    const action = window.prompt("Enter 'edit' to edit or 'delete' to delete the event", "edit");
-    if (action === "edit") {
-      handleEventEdit(event);
-    } else if (action === "delete") {
-      handleEventDelete(event);
+    const action = window.prompt("Nhập 'sửa' để chỉnh sửa hoặc 'xóa' để xóa sự kiện", "sửa");
+    if (action === "sửa") {
+      const newTitle = window.prompt("Chỉnh sửa tên sự kiện", event.title);
+      if (newTitle) {
+        setEventsData(eventsData.map(evt => evt.id === event.id ? { ...evt, title: newTitle } : evt));
+      }
+    } else if (action === "xóa") {
+      setEventsData(eventsData.filter(evt => evt.id !== event.id));
     }
   };
 
   return (
     <div>
-       <Calendar
+      <Calendar
         views={["day", "agenda", "work_week", "month"]}
         selectable
         localizer={localizer}
@@ -74,7 +93,7 @@ function CalendarManagement() {
         onSelectSlot={handleSelect}
       />
     </div>
-  )
+  );
 }
 
-export default CalendarManagement
+export default CalendarManagement;
