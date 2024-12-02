@@ -164,21 +164,24 @@ function AboutMe() {
             }
 
             // Kiểm tra và gọi API thêm sở thích nếu cần
-            const selectedHobby = hobbies.find(hobby => hobby.activityId === parseInt(profileData.hobbie));
+            const hobbiesToAdd = profileData.selectedHobbies?.filter(
+                (hobbyId) =>
+                    !dataProfile.activities?.$values?.some(
+                        (act) => act.activity.activityId === hobbyId
+                    )
+            ) || [];
 
-            const isHobbyExist = dataProfile.activities?.$values?.some(act => act.activity.activityId === selectedHobby?.activityId);
-            console.log("id", selectedHobby);
-
-            if (!isHobbyExist && selectedHobby) {
-                await axios.post(
-                    'https://travelmateapp.azurewebsites.net/api/UserActivitiesWOO/edit-by-current-user',
-                    { activityId: selectedHobby.activityId },
-                    { headers: { Authorization: `${token}` } }
-                );
+            if (hobbiesToAdd.length > 0) {
+                for (const hobbyId of hobbiesToAdd) {
+                    await axios.post(
+                        'https://travelmateapp.azurewebsites.net/api/UserActivitiesWOO/edit-by-current-user',
+                        { activityId: hobbyId },
+                        { headers: { Authorization: `${token}` } }
+                    );
+                }
             }
 
             dispatch(viewProfile(user.id));
-
             toast.success('Cập nhật hồ sơ thành công!');
 
         } catch (error) {
@@ -186,6 +189,21 @@ function AboutMe() {
             console.error('Lỗi khi cập nhật hồ sơ:', error);
         } finally {
             setIsEditing(false); // Đóng chế độ chỉnh sửa
+        }
+    };
+
+
+    const handleDeleteHobby = async (hobbyId) => {
+        try {
+            await axios.delete(`https://travelmateapp.azurewebsites.net/api/UserActivitiesWOO/current-user/${hobbyId}`, {
+                headers: { Authorization: `${token}` },
+            });
+
+            dispatch(viewProfile(user.id)); // Đồng bộ lại Redux sau khi xóa
+            toast.success('Xóa sở thích thành công!');
+        } catch (error) {
+            toast.error('Lỗi khi xóa sở thích!');
+            console.error("Lỗi khi xóa sở thích:", error);
         }
     };
 
@@ -351,26 +369,77 @@ function AboutMe() {
                 </Col>
                 <Col lg={8}>
                     {isEditing ? (
-                        <Form.Select
-                            value={profileData.hobbie || ''}
-                            onChange={(e) => handleInputChange('hobbie', e.target.value)}
-                        >
-                            <option value="">Chọn thêm sở thích</option>
-                            {hobbies.map(hobbie => (
-                                <option key={hobbie.activityId} value={hobbie.activityId}>
-                                    {hobbie.activityName}
-                                </option>
-                            ))}
-                        </Form.Select>
+                        <Form.Group className="mb-3">
+                            <div
+                                className="hobby-list"
+                                style={{
+                                    maxHeight: '100px',
+                                    overflowY: 'auto',
+                                    marginBottom: '10px',
+                                }}
+                            >
+                                {hobbies.map((item) => (
+                                    <Button
+                                        key={item.activityId}
+                                        variant={
+                                            profileData.selectedHobbies?.includes(item.activityId)
+                                                ? 'primary'
+                                                : 'outline-secondary'
+                                        }
+                                        onClick={() => {
+                                            setProfileData((prev) => ({
+                                                ...prev,
+                                                selectedHobbies: prev.selectedHobbies?.includes(
+                                                    item.activityId
+                                                )
+                                                    ? prev.selectedHobbies.filter(
+                                                        (hobby) => hobby !== item.activityId
+                                                    )
+                                                    : [...(prev.selectedHobbies || []), item.activityId],
+                                            }));
+                                        }}
+                                        style={{ margin: '2px', padding: '5px 10px' }}
+                                    >
+                                        {item.activityName}
+                                    </Button>
+                                ))}
+                            </div>
+
+                            <div className="selected-hobbies">
+                                {dataProfile.activities?.$values?.map((activity) => (
+                                    <span
+                                        key={activity.activity.activityId}
+                                        className="badge bg-secondary mr-2 d-inline-flex align-items-center"
+                                        style={{ marginRight: '8px', padding: '8px', fontSize: '14px' }}
+                                    >
+                                        {activity.activity.activityName}
+                                        <Button
+                                            variant="danger"
+                                            size="sm"
+                                            onClick={() => handleDeleteHobby(activity.activity.activityId)}
+                                            style={{ marginLeft: '5px', padding: '0 5px', fontSize: '12px', lineHeight: '1' }}
+                                        >
+                                            &times;
+                                        </Button>
+                                    </span>
+                                )) || renderDataOrFallback(null)}
+                            </div>
+
+                        </Form.Group>
+
                     ) : (
-                        dataProfile.activities?.$values?.map(activity => (
-                            <span key={activity.activityId} className="badge bg-secondary mr-2">
+                        dataProfile.activities?.$values?.map((activity) => (
+                            <span
+                                key={activity.activityId}
+                                className="badge bg-secondary mr-2"
+                            >
                                 {activity.activity.activityName}
                             </span>
                         )) || renderDataOrFallback(null)
                     )}
                 </Col>
             </Row>
+
             <hr />
             {/* Giới thiệu */}
             <Row className="mb-3">

@@ -211,6 +211,7 @@ function MyHome() {
                     {isEditing ? (
                         <Form.Control
                             type="number"
+                            max={50}
                             value={homeData.maxGuests || ''}
                             onChange={(e) => handleInputChange('maxGuests', e.target.value)}
                         />
