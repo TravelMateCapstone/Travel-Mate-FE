@@ -82,7 +82,7 @@ const Navbar = React.memo(() => {
             const updatedNotifications = response.data.$values.map(notification => {
               return {
                 ...notification,
-                isRequest: notification.message.includes("Bạn đã nhận được một lời mời kết bạn từ"),
+                isRequest: notification.message.includes("Bạn đã nhận được một lời mời kết bạn t��"),
                 senderId: notification.senderId ? notification.senderId : null
               };
             });
@@ -103,7 +103,7 @@ const Navbar = React.memo(() => {
 
   const setupSignalRConnection = () => {
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl(SIGNALR_HUB_URL, { withCredentials: true })
+      .withUrl('/serviceHub')
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
       .build();
@@ -116,8 +116,7 @@ const Navbar = React.memo(() => {
 
         // Lắng nghe sự kiện "NotificationReceived"
         connection.on('NotificationCreated', (newNotification) => {
-          console.log('Tạo thong báo');
-
+          console.log('New notification received:', newNotification); // Log the new notification
           setNotifications((prevNotifications) => [
             newNotification,
             ...prevNotifications,
