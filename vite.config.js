@@ -13,6 +13,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: false, // If you're using self-signed SSL certificates
         rewrite: (path) => path.replace(/^\/serviceHub/, '/serviceHub'), // Keeps the correct path
+        ws: true,
       },
     },
   },

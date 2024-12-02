@@ -103,7 +103,10 @@ const Navbar = React.memo(() => {
 
   const setupSignalRConnection = () => {
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl('/serviceHub')
+    .withUrl('https://travelmateapp.azurewebsites.net/serviceHub', {
+      skipNegotiation: true,  // Optional: You can try skipping the negotiation if you're having issues with CORS
+      transport: signalR.HttpTransportType.WebSockets // Use WebSockets if available
+    })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
       .build();
