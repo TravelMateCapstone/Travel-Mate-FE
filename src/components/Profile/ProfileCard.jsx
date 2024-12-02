@@ -116,6 +116,7 @@ function ProfileCard() {
   // Kiểm tra trạng thái kết bạn
   useEffect(() => {
     if (dataProfile && dataProfile.profile && dataProfile.profile.userId) {
+      setFriendshipStatus();
       checkFriendshipStatus(dataProfile.profile.userId);
     }
   }, [dataProfile.profile]);
