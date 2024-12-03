@@ -2,19 +2,26 @@ import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import axios from 'axios' // Import axios for making API requests
 import { toast } from 'react-toastify';
-
+import { useNavigate } from 'react-router-dom';
+import Routepath from '../../routes/RoutePath';
+import { useDispatch } from 'react-redux';
+import { fetchTour } from '../../redux/actions/tourActions';
 function TourList() {
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [tourdata, setTourData] = useState(useSelector(state => state.profile.tour.$values));
     console.log(tourdata);
 
     const joinTour = async (tourId, tourName) => {
-        try {
-            await axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/join/${tourId}`);
-            toast.success(`Tham gia chuyến đi ${tourName} thành công!`);
-        } catch (error) {
-            console.error('Error joining tour:', error);
-            alert('Failed to join tour. Please try again later.');
-        }
+        // try {
+        //     await axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/join/${tourId}`);
+        //     toast.success(`Tham gia chuyến đi ${tourName} thành công!`);
+        // } catch (error) {
+        //     console.error('Error joining tour:', error);
+        //     alert('Failed to join tour. Please try again later.');
+        // }
+        dispatch(fetchTour(tourId));
+        navigate(Routepath.TOUR_DETAIL);
     };
 
     const formatCurrency = (price) => {
@@ -51,7 +58,7 @@ function TourList() {
                             height: '44px',
                             width: '176px',
                             backgroundColor: '#34A853',
-                        }} onClick={() => joinTour(tour.tourId, tour.tourName)}>Đặt chỗ ngay</button>
+                        }} onClick={() => joinTour(tour.tourId, tour.tourName)}>Xem chi tiết</button>
                     </li>
                 ))}
             </ul>

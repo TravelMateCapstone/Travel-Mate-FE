@@ -8,7 +8,6 @@ import { useSelector } from "react-redux";
 function TourDetail() {
     const [key, setKey] = useState("home");
     const tourData = useSelector((state) => state.tour?.tour);
-
     if (!tourData) {
         return (
             <div>
@@ -180,8 +179,8 @@ function TourDetail() {
                                         <span>{tourData.price.toLocaleString()}&nbsp;₫</span>
                                     </div>
                                     <div className="d-flex gap-3">
-                                        <Button variant="success">🔥 Nhắn tin!</Button>
-                                        <Button variant="outline-dark">📞 Liên hệ tư vấn</Button>
+                                        <Button variant="outline-secondary">🔥 Nhắn tin!</Button>
+                                        <Button variant="outline-success">Đặt chỗ ngay</Button>
                                     </div>
                                 </div>
                             </div>
