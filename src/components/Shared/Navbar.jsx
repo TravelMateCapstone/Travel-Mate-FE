@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Navbar as BootstrapNavbar, Nav, Row, Col, Container, Dropdown, Button, Offcanvas, Badge } from 'react-bootstrap';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
@@ -25,6 +25,8 @@ const Navbar = React.memo(() => {
   const [messages, setMessages] = useState([]); // Added messages state
   const [showMoreNotifications, setShowMoreNotifications] = useState(false);
   const [displayedNotifications, setDisplayedNotifications] = useState([]);
+  const connectionRef = useRef(null);
+  const [chats, setChats] = useState([]);
 
 
   const dispatch = useDispatch();
@@ -58,12 +60,12 @@ const Navbar = React.memo(() => {
 
   const fetchChats = async () => {
     try {
-      const response = await axios.get('https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/Chats', {
-        headers: {
-          Authorization: `${token}`
-        }
-      });
-      setChats(response.data?.$values);
+      // const response = await axios.get('https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/Chats', {
+      //   headers: {
+      //     Authorization: `${token}`
+      //   }
+      // });
+      // setChats(response.data?.$values);
     } catch (error) {
       console.error('Error fetching chats:', error);
     }
@@ -92,7 +94,7 @@ const Navbar = React.memo(() => {
             const unreadCount = updatedNotifications.filter(notification => !notification.isRead).length;
             setUnreadNotificationsCount(unreadCount); // Cập nhật số lượng thông báo chưa đọc
 
-            console.log("Notifications data: ", updatedNotifications);
+            // console.log("Notifications data: ", updatedNotifications);
           }
         })
         .catch(error => {
@@ -103,14 +105,15 @@ const Navbar = React.memo(() => {
 
   const setupSignalRConnection = () => {
     const connection = new signalR.HubConnectionBuilder()
-    .withUrl('https://travelmateapp.azurewebsites.net/serviceHub', {
-      skipNegotiation: true,  // Optional: You can try skipping the negotiation if you're having issues with CORS
-      transport: signalR.HttpTransportType.WebSockets // Use WebSockets if available
-    })
+      .withUrl('https://travelmateapp.azurewebsites.net/serviceHub', {
+        skipNegotiation: true,  // Optional: You can try skipping the negotiation if you're having issues with CORS
+        transport: signalR.HttpTransportType.WebSockets // Use WebSockets if available
+      })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
       .build();
 
+    connectionRef.current = connection;
 
     connection
       .start()
@@ -119,7 +122,6 @@ const Navbar = React.memo(() => {
 
         // Lắng nghe sự kiện "NotificationReceived"
         connection.on('NotificationCreated', (newNotification) => {
-          console.log('New notification received:', newNotification); // Log the new notification
           setNotifications((prevNotifications) => [
             newNotification,
             ...prevNotifications,
@@ -134,10 +136,24 @@ const Navbar = React.memo(() => {
 
 
   useEffect(() => {
-    fetchNotifications();
     setupSignalRConnection();
     fetchChats();
+    fetchNotifications();
+
+    // Cleanup on unmount or logout
+    return () => {
+      if (connectionRef.current) {
+        connectionRef.current.stop()
+          // .then(() => {
+          //   console.log("SignalR connection stopped on unmount.");
+          // })
+          .catch((error) => {
+            console.error("Error stopping SignalR connection on unmount:", error);
+          });
+      }
+    };
   }, [isAuthenticated, token]);
+
 
   const handleLoginModal = useCallback(() => {
     if (isLoginModalOpen) {
@@ -159,11 +175,23 @@ const Navbar = React.memo(() => {
     dispatch(logout());
     // Clear token from state
     dispatch(logout());
+
+    // Stop SignalR connection
+    if (connectionRef.current) {
+      connectionRef.current.stop()
+        .then(() => {
+          console.log("SignalR connection stopped.");
+        })
+        .catch((error) => {
+          console.error("Error stopping SignalR connection:", error);
+        });
+    }
   }, [dispatch]);
+
 
   const handleSelect = useCallback((eventKey) => {
     setSelectedItem(eventKey);
-    console.log(`Selected item: ${eventKey}`);
+    // console.log(`Selected item: ${eventKey}`);
   }, []);
 
   const handleShow = useCallback(() => setShowOffcanvas(true), []);

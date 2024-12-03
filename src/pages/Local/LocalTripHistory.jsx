@@ -170,7 +170,7 @@ function LocalTripHistory() {
         toast.success("Cập nhật tour thành công");
         console.log("Tour updated successfully", response.data);
         setShowModal(false);
-        refetch(); // Refetch the data after updating the tour
+        refetch(); 
       })
       .catch((error) => {
         console.error("Error updating tour", error);

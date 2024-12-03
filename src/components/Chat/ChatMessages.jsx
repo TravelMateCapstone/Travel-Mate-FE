@@ -10,8 +10,6 @@ const ChatMessages = ({ isSender, isRequest, selectedRequest }) => {
   const chatHeader = useSelector(state => state.chat.chatHeader);
 
 
-  console.log('chatData', chatData);
-
 
   return (
     <>

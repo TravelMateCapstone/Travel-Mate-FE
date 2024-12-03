@@ -1,11 +1,44 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../../assets/css/Contracts/CreateContract.css";
 import { Button, Col, Row } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import RoutePath from "../../routes/RoutePath";
+import axios from "axios";
+
 function CreateContract() {
   const user = useSelector((state) => state.auth.user);
+  const [profile, setProfile] = useState(null);
+  const tourInfo = useSelector((state) => state.tour.tour);
+  console.log(tourInfo);
+
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Profile/${user.id}`);
+        setProfile(response.data);
+        console.log(response.data);
+
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    };
+
+    fetchProfile();
+  }, [user.id]);
+  const handleSubmitContract = async () => {
+    const contractInfo = {
+      tourId: tourInfo.tourId,
+      travellerId: user.id,
+      localId: tourInfo.creator.id,
+      itinerary: tourInfo.itinerary,
+      costDetails: tourInfo.costDetails,
+    }
+    console.log(contractInfo);
+    
+  }
+
   return (
     <div className="">
       <Row
@@ -26,15 +59,15 @@ function CreateContract() {
           <div className="d-flex justify-content-between align-items-center">
             <div className="d-flex gap-2">
               <img
-                src={user.avatarUrl || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw'}
+                src={profile?.imageUser || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw'}
                 alt="avatar"
                 className="rounded-circle object-fit-cover"
                 height={60}
                 width={60}
               />
               <div>
-                <p className="m-0 fw-bold">{user.username}</p>
-                <sub className="fw-medium">Quảng Nam</sub>
+                <p className="m-0 fw-bold">{profile?.user.fullName || 'Không có thông tin'}</p>
+                <sub className="fw-medium">{profile?.address}</sub>
               </div>
             </div>
             <Button variant="outline-warning" className="rounded-5">
@@ -53,7 +86,7 @@ function CreateContract() {
             <div className="d-flex gap-2">
               <img
                 src={
-                  "https://thanhnien.mediacdn.vn/Uploaded/game/st.game.thanhnien.com.vn/image/phaquan123/tao-thao.jpg"
+                  tourInfo.creator.avatarUrl || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw'
                 }
                 alt="avatar"
                 className="rounded-circle object-fit-cover"
@@ -61,8 +94,8 @@ function CreateContract() {
                 width={60}
               />
               <div>
-                <p className="m-0 fw-bold">{"Tào tháo"}</p>
-                <sub className="fw-medium">Quảng Nam</sub>
+                <p className="m-0 fw-bold">{tourInfo.creator.fullname}</p>
+                <sub className="fw-medium">{tourInfo.creator.address}</sub>
               </div>
             </div>
             <Button variant="outline-success" className="rounded-5">
@@ -91,7 +124,7 @@ function CreateContract() {
             }}
           ></ion-icon>{" "}
           <p className="m-0">Địa điểm</p>
-          <p className="m-0 fw-medium">Quảng Trị</p>
+          <p className="m-0 fw-medium">{tourInfo.location}</p>
         </Col>
       </Row>
       <Row className="">
@@ -114,14 +147,14 @@ function CreateContract() {
             }}
           ></ion-icon>{" "}
           <p className="py-2 m-0">Thời gian diễn ra</p>
-          <p className="p-2 m-0 fw-medium">T7, 03, tháng 9 lúc 09:00</p>
+          <p className="p-2 m-0 fw-medium">{tourInfo.startDate}</p>
           <div
             className="py-2 px-3 rounded-5 text-danger fw-medium"
             style={{
               backgroundColor: "#f9f9f9",
             }}
           >
-            T7, 03, tháng 9 lúc 09:00
+            {tourInfo.endDate}
           </div>
         </Col>
       </Row>
@@ -149,26 +182,15 @@ function CreateContract() {
             <h6 className="fw-normal m-0">Chi phí thanh toán</h6>
           </div>
           <div className="d-flex justify-content-between flex-column gap-2 mt-2">
-            <div className="d-flex justify-content-between">
-              <strong>Phí dịch vụ</strong>{" "}
-              <div className="m-0 d-flex gap-1">
-                <p className="m-0">1.050.000</p> <p className="m-0 text-muted">VNĐ</p>
+            {tourInfo.costDetails.$values.map((cost) => (
+              <div className="d-flex justify-content-between">
+                <strong>{cost.title}</strong>{" "}
+                <div className="m-0 d-flex gap-1">
+                  <p className="m-0">{cost.amount}</p>{" "}
+                  <p className="m-0 text-muted">VNĐ</p>
+                </div>
               </div>
-            </div>
-
-            <div className="d-flex justify-content-between">
-              <strong>Di chuyển</strong>{" "}
-              <div className="m-0 d-flex gap-1">
-                <p className="m-0">250.000</p> <p className="m-0 text-muted">VNĐ</p>
-              </div>
-            </div>
-
-            <div className="d-flex justify-content-between">
-              <strong>Chỗ ở</strong>{" "}
-              <div className="m-0 d-flex gap-1">
-                <p className="m-0">0</p> <p className="m-0 text-muted">VNĐ</p>
-              </div>
-            </div>
+            ))}
           </div>
         </Col>
         <Col
@@ -188,35 +210,24 @@ function CreateContract() {
           </div>
           <div className="mt-2 d-flex flex-column">
             <div className="d-flex flex-column">
-              <h6>Ngày 1 : Đông Hà - Thành cổ và sông Bến Hải</h6>
-              <ul>
-                <li>Sáng: Thăm Thành cổ Quảng Trị, nơi ghi dấu ấn lịch sử cuộc chiến 81 ngày đêm khốc liệt</li>
-                <li>Trưa: Thưởng thức đặc sản địa phương tại Đông Hà như bún hến, bánh bột lọc, bún mắm nêm.</li>
-                <li>Chiều: Ghé cầu Hiền Lương và sông Bến Hải - biểu tượng chia cắt Bắc Nam một thời.</li>
-              </ul>
+              {tourInfo.itinerary.$values.map((day) => (
+                <div>
+                  <h6>Ngày {day.day}: {day.title}</h6>
+                  <ul>
+                    {day.activities.$values.map((activity) => (
+                      <li>{activity.description}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
-
-            <div className="d-flex flex-column">
-              <h6>Ngày 2 : Đông Hà - Thành cổ và sông Bến Hải</h6>
-              <ul>
-                <li>Sáng: Thăm Thành cổ Quảng Trị, nơi ghi dấu ấn lịch sử cuộc chiến 81 ngày đêm khốc liệt</li>
-                <li>Trưa: Thưởng thức đặc sản địa phương tại Đông Hà như bún hến, bánh bột lọc, bún mắm nêm.</li>
-                <li>Chiều: Ghé cầu Hiền Lương và sông Bến Hải - biểu tượng chia cắt Bắc Nam một thời.</li>
-              </ul>
-            </div>
-
-            <div className="d-flex flex-column">
-              <h6>Ngày 3 : Đông Hà - Thành cổ và sông Bến Hải</h6>
-              <ul>
-                <li>Sáng: Thăm Thành cổ Quảng Trị, nơi ghi dấu ấn lịch sử cuộc chiến 81 ngày đêm khốc liệt</li>
-                <li>Trưa: Thưởng thức đặc sản địa phương tại Đông Hà như bún hến, bánh bột lọc, bún mắm nêm.</li>
-                <li>Chiều: Ghé cầu Hiền Lương và sông Bến Hải - biểu tượng chia cắt Bắc Nam một thời.</li>
-              </ul>
-            </div>
-
-
             <div className="d-flex justify-content-end">
-            <Button as={Link} to={RoutePath.PAYMENT_CONTRACT} variant="success" className="rounded-5 d-flex align-items-center gap-2"><p className="m-0">Tiếp tục</p> <ion-icon name="arrow-forward-outline"></ion-icon></Button>
+              {/* <Button as={Link} to={RoutePath.PAYMENT_CONTRACT} variant="success" className="rounded-5 d-flex align-items-center gap-2"><p className="m-0">Tiếp tục</p> <ion-icon name="arrow-forward-outline"></ion-icon></Button>
+             */}
+              <Button onClick={() => handleSubmitContract} variant="success" className="rounded-5 d-flex align-items-center gap-2">
+                <p className="m-0">Tiếp tục</p>{" "}
+                <ion-icon name="arrow-forward-outline"></ion-icon>
+              </Button>
             </div>
           </div>
         </Col>

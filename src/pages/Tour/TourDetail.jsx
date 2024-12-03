@@ -4,10 +4,18 @@ import Tabs from "react-bootstrap/Tabs";
 import "../../assets/css/Tour/TourDetail.css";
 import { Button, Placeholder } from "react-bootstrap";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import RoutePath from "../../routes/RoutePath";
 
 function TourDetail() {
     const [key, setKey] = useState("home");
     const tourData = useSelector((state) => state.tour?.tour);
+    const navigate = useNavigate();
+
+    const handelJointTour = (tourId) => {
+        navigate(RoutePath.CREATE_CONTRACT);
+        console.log("Join tour " + tourId);
+    }
     if (!tourData) {
         return (
             <div>
@@ -180,7 +188,7 @@ function TourDetail() {
                                     </div>
                                     <div className="d-flex gap-3">
                                         <Button variant="outline-secondary">🔥 Nhắn tin!</Button>
-                                        <Button variant="outline-success">Đặt chỗ ngay</Button>
+                                        <Button variant="outline-success" onClick={() => handelJointTour(tourData.tourId)}>Đặt chỗ ngay</Button>
                                     </div>
                                 </div>
                             </div>

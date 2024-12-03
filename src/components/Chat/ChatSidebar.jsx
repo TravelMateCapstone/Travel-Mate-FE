@@ -43,7 +43,6 @@ const ChatSidebar = () => {
   useEffect(() => {
     fetchRequest();
     fetchChats();
-    console.log(requests);
   }, [token]);
 
   const handleRequestClick = async (request) => {
@@ -86,7 +85,7 @@ const ChatSidebar = () => {
         <Tab eventKey="tin-nhan" title="Tin nhắn">
           <div className='mt-2'>
             {filteredChats.map(chat => (
-              <div className='message d-flex gap-2 mb-2' key={chat.id} onClick={() => handleMessageClick(chat)}>
+              <div className='message d-flex gap-2 mb-2' key={chat.formId} onClick={() => handleMessageClick(chat)}>
                 <img src={chat.userAvatarUrl} alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
                 <div className='d-flex flex-column'>
                   <p className='m-0'>{chat.userName}</p>
@@ -103,7 +102,7 @@ const ChatSidebar = () => {
         </Tab>
         <Tab eventKey="yeu-cau" title="Yêu cầu">
           {filteredRequests.map(request => (
-            <div className='mt-2' key={request.id} onClick={() => handleRequestClick(request)}>
+            <div className='mt-2' key={request.formId} onClick={() => handleRequestClick(request)}>
               <div className='message d-flex gap-2 mb-2'>
                 <img src={request.userAvatarUrl} alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
                 <div className='d-flex flex-column'>
