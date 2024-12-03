@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Button, Nav } from 'react-bootstrap';
 import '../assets/css/Setting.css';
 
@@ -6,7 +6,8 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../firebaseConfig';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { viewProfile } from '../redux/actions/profileActions';
 
 function Setting() {
   const [frontImage, setFrontImage] = useState(null);
@@ -15,6 +16,119 @@ function Setting() {
   const [frontImageUrl, setFrontImageUrl] = useState(null);
   const [backImageUrl, setBackImageUrl] = useState(null);
   const token = useSelector((state) => state.auth.token);
+  const user = useSelector((state) => state.auth.user);
+
+  const dispatch = useDispatch();
+
+  const [profile, setProfile] = useState({
+    firstName: '',
+    lastName: '',
+    gender: '',
+    birthdate: '',
+    address: '',
+  });
+
+  const fetchCCCDInfo = async () => {
+    try {
+      const response = await axios.get(
+        'https://travelmateapp.azurewebsites.net/api/CCCD/Current-User',
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      if (!response.data.success) {
+        throw new Error('Không thể lấy thông tin CCCD');
+      }
+
+      const cccdData = response.data.data;
+      setFrontImageUrl(cccdData.imageFront);
+      setBackImageUrl(cccdData.imageBack);
+
+      return cccdData;
+    } catch (error) {
+      console.error('Lỗi khi lấy thông tin CCCD:', error);
+      // toast.error('Chưa có thông tin căn cước công dân.');
+      throw error;
+    }
+  };
+
+  const fetchProfileInfo = async () => {
+    try {
+      const response = await axios.get(
+        'https://travelmateapp.azurewebsites.net/api/Profile/current-profile',
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      const profileData = response.data;
+
+      setProfile({
+        firstName: profileData.firstName || '',
+        lastName: profileData.lastName || '',
+        gender: profileData.gender || '',
+        birthdate: profileData.birthdate ? profileData.birthdate.split('T')[0] : '',
+        address: profileData.address || '',
+      });
+      return profileData; // Trả về dữ liệu để dùng khi cần
+    } catch (error) {
+      console.error("Lỗi khi lấy thông tin Profile:", error);
+      toast.error('Lỗi khi lấy thông tin Profile.');
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    fetchCCCDInfo();
+    fetchProfileInfo();
+  }, [token]);
+
+
+  const splitFullName = (fullName) => {
+    const nameParts = fullName.trim().split(' ');
+    const lastName = nameParts.pop();
+    const firstName = nameParts.join(' ');
+    return { firstName, lastName };
+  };
+
+  const updateProfileInfo = async (cccdData, profileData) => {
+    const { firstName, lastName } = splitFullName(cccdData.name);
+    const payload = {
+      fullName: cccdData.name,
+      firstName,
+      lastName,
+      address: cccdData.address || profileData.address,
+      phone: profileData.phone || '',
+      gender: cccdData.sex || profileData.gender,
+      birthdate: cccdData.dob,
+      city: profileData.city || '',
+      description: profileData.description || '',
+      hostingAvailability: profileData.hostingAvailability || '',
+      whyUseTravelMate: profileData.whyUseTravelMate || '',
+      musicMoviesBooks: profileData.musicMoviesBooks || '',
+      whatToShare: profileData.whatToShare || '',
+      imageUser: profileData.imageUser || '',
+    };
+
+    try {
+      const response = await axios.put('https://travelmateapp.azurewebsites.net/api/Profile/edit-by-current-user', payload, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+      toast.success("Cập nhật thông tin thành công.");
+      console.log("Kết quả API cập nhật Profile:", response.data);
+    } catch (error) {
+      console.error("Lỗi khi cập nhật Profile:", error);
+      toast.error('Lỗi khi cập nhật thông tin Profile.');
+    }
+  };
+
 
   const handleFrontImageUpload = async (event) => {
     const file = event.target.files[0];
@@ -26,20 +140,10 @@ function Setting() {
       const storageRef = ref(storage, `cccd/${file.name}`);
       await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(storageRef);
-
-      // Update state with the image URL
       setFrontImageUrl(downloadURL);
       console.log("Ảnh đã tải lên:", downloadURL);
 
-      // Prepare the data to send to the create-imageFront API
-      const imageFrontData = {
-        imageUrl: downloadURL
-      };
-
-      // Log the data being sent
-      console.log("Gửi dữ liệu:", imageFrontData);
-
-      // Call FPT API for OCR (nếu cần thiết)
+      // Call FPT API for OCR
       const formData = new FormData();
       formData.append('image', file);
       const ocrResponse = await axios.post(
@@ -47,39 +151,46 @@ function Setting() {
         formData,
         {
           headers: {
-            'api-key': '8JIYV5d32XHGakgucP899sGDv0QBej5R',
+            'api-key': 'aHlapDPHrYrQuKWhKa0VsjcrTegwwamr',
             'Content-Type': 'multipart/form-data',
           },
         }
       );
 
       const { errorCode, data } = ocrResponse.data;
-      if (errorCode !== 0) {
+      if (errorCode !== 0 || !data || data.length === 0) {
         toast.error('Không thể lấy được thông tin CCCD.');
         return;
       }
 
       const cccdData = data[0];
+
+      // Kiểm tra dữ liệu nhận được
+      const requiredFields = ['id', 'name', 'dob', 'sex', 'nationality', 'home', 'address', 'doe'];
+      for (const field of requiredFields) {
+        if (!cccdData[field]) {
+          toast.error(`Không lấy được thông tin`);
+          setFrontImageUrl('');
+          return;
+        }
+      }
+
       console.log("Dữ liệu CCCD nhận được:", cccdData);
 
       // Send image URL to your backend to create imageFront
-      // Gọi API để cập nhật thông tin CCCD
       const createImageFrontResponse = await axios.post(
         'https://travelmateapp.azurewebsites.net/api/CCCD/create-imageFront',
-        `${imageFrontData}`,
+        downloadURL,
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `${token}`,  // Sử dụng Bearer token
+            'Authorization': `${token}`,
           },
         }
       );
 
-      console.log("Kết quả trả về từ API create-imageFront:", createImageFrontResponse.data);
-
-      // Kiểm tra kết quả trả về và gửi yêu cầu cập nhật
       if (createImageFrontResponse.status === 200) {
-        // Gửi yêu cầu cập nhật thông tin CCCD vào API
+        // Gửi yêu cầu cập nhật thông tin CCCD
         const updateResponse = await axios.put(
           'https://travelmateapp.azurewebsites.net/api/CCCD/update-details-front',
           {
@@ -94,25 +205,22 @@ function Setting() {
           },
           {
             headers: {
-              'Authorization': `${token}`, // Đảm bảo token được truyền vào đây
+              'Authorization': `${token}`,
             },
           }
         );
 
-        // In ra kết quả trả về từ API khi cập nhật
         console.log("Kết quả trả về từ API update-details-front:", updateResponse.data);
-
-        // Hiển thị thông báo thành công
         toast.success('Xác thực CCCD thành công.');
       } else {
         toast.error('Lỗi khi tạo ảnh CCCD.');
       }
-
     } catch (error) {
       console.error('Đã xảy ra lỗi:', error);
       toast.error('Đã xảy ra lỗi trong quá trình xác thực CCCD.');
     }
   };
+
 
   const handleBackImageUpload = async (event) => {
     const file = event.target.files[0];
@@ -136,7 +244,7 @@ function Setting() {
         formData,
         {
           headers: {
-            'api-key': '8JIYV5d32XHGakgucP899sGDv0QBej5R',
+            'api-key': 'aHlapDPHrYrQuKWhKa0VsjcrTegwwamr',
             'Content-Type': 'multipart/form-data',
           },
         }
@@ -148,6 +256,21 @@ function Setting() {
         return;
       }
 
+      // Gọi API update-imageBack với link ảnh
+      await axios.put(
+        'https://travelmateapp.azurewebsites.net/api/CCCD/update-imageBack',
+        {
+          imageBack: downloadURL
+        },
+        {
+          headers: {
+            'Authorization': `${token}`,
+          },
+        }
+      );
+
+      console.log("Đã cập nhật hình ảnh mặt sau CCCD thành công.");
+
       const cccdData = data[0];
       console.log("Dữ liệu CCCD mặt sau nhận được:", cccdData);
 
@@ -158,7 +281,7 @@ function Setting() {
           issue_date: cccdData.issue_date.split('/').reverse().join('-'),
           issue_loc: cccdData.issue_loc,
           features: cccdData.features,
-          mrz: cccdData.mrz, // Thêm trường mrz vào payload
+          mrz: cccdData.mrz,
         },
         {
           headers: {
@@ -170,12 +293,18 @@ function Setting() {
       console.log("Kết quả trả về từ API update-details-back:", updateResponse.data);
       toast.success('Xác thực CCCD mặt sau thành công.');
 
+      // Cập nhật thông tin Profile và CCCD
+      const cccdDataFromApi = await fetchCCCDInfo();
+      const profileData = await fetchProfileInfo();
+      await updateProfileInfo(cccdDataFromApi, profileData);
+
+      dispatch(viewProfile(user.id, token));
+
     } catch (error) {
       console.error('Đã xảy ra lỗi:', error);
       toast.error('Đã xảy ra lỗi trong quá trình xác thực CCCD mặt sau.');
     }
   };
-
 
 
   return (
@@ -205,7 +334,7 @@ function Setting() {
               <Col md={12}>
                 <Form.Group className="d-flex align-items-center">
                   <Form.Label className="me-2" style={{ width: '11.5%' }}>Tên tài khoản</Form.Label>
-                  <Form.Control type="text" placeholder="Tên tài khoản" />
+                  <Form.Control type="text" placeholder="" value={`${user.username}`} />
                 </Form.Group>
               </Col>
             </Row>
@@ -213,13 +342,21 @@ function Setting() {
               <Col md={6}>
                 <Form.Group className="d-flex align-items-center">
                   <Form.Label>Họ</Form.Label>
-                  <Form.Control type="text" placeholder="Họ" />
+                  <Form.Control
+                    type="text"
+                    value={profile.firstName}
+                    readOnly
+                  />
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group className="d-flex align-items-center">
                   <Form.Label>Tên</Form.Label>
-                  <Form.Control type="text" placeholder="Tên" />
+                  <Form.Control
+                    type="text"
+                    value={profile.lastName}
+                    readOnly
+                  />
                 </Form.Group>
               </Col>
             </Row>
@@ -227,22 +364,25 @@ function Setting() {
               <Col md={6}>
                 <Form.Group className="d-flex align-items-center">
                   <Form.Label>Giới tính</Form.Label>
-                  <Form.Select>
-                    <option>Nam</option>
-                    <option>Nữ</option>
-                    <option>Khác</option>
-                  </Form.Select>
+                  <Form.Control
+                    type="text"
+                    value={profile.gender}
+                    readOnly
+                  />
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group className="d-flex align-items-center">
                   <Form.Label>Ngày sinh</Form.Label>
-                  <Form.Control type="date" />
+                  <Form.Control
+                    type="date"
+                    value={profile.birthdate}
+                    readOnly
+                  />
                 </Form.Group>
               </Col>
             </Row>
             <Row className="mt-3">
-              {/* <Form.Label className="me-2" style={{ width: '10%' }}>Ảnh 2 mặt CCCD</Form.Label> */}
               <Col md={6}>
                 <div className="image-upload-wrapper d-flex align-items-center">
                   <p className="me-2" style={{ width: '28%' }}>Ảnh CCCD mặt trước</p>
@@ -268,19 +408,19 @@ function Setting() {
 
               <Col md={6}>
                 <div className="image-upload-wrapper d-flex align-items-center">
-                  <p className="me-2" style={{ width: '28%' }}>Ảnh CCCD mặt trước</p>
+                  <p className="me-2" style={{ width: '28%' }}>Ảnh CCCD mặt sau</p>
                   {backImageUrl ? (
                     <div className="uploaded-image">
-                      <img src={backImageUrl} alt="CCCD Mặt Trước" style={{ maxWidth: '100%', height: 'auto' }} />
+                      <img src={backImageUrl} alt="CCCD Mặt Sau" style={{ maxWidth: '100%', height: 'auto' }} />
                     </div>
                   ) : (
                     <div className="image-upload">
-                      <label htmlFor="front-image" className="upload-icon">
+                      <label htmlFor="back-image" className="upload-icon">
                         <ion-icon name="camera-outline"></ion-icon>
                       </label>
                       <input
                         type="file"
-                        id="front-image"
+                        id="back-image"
                         accept="image/*"
                         onChange={handleBackImageUpload}
                       />
@@ -295,7 +435,7 @@ function Setting() {
             <h5 style={{ color: '#E65C00' }}>Thông Tin Tài Khoản</h5>
             <Form.Group className="d-flex align-items-center">
               <Form.Label>Email</Form.Label>
-              <Form.Control type="email" placeholder="Email" />
+              <Form.Control type="email" value={`${user.email}`} />
             </Form.Group>
             <Form.Group className="d-flex align-items-center mt-3">
               <Form.Label className="me-2" style={{ width: '12.5%' }}>Mật khẩu</Form.Label>
@@ -311,7 +451,11 @@ function Setting() {
             </Form.Group>
             <Form.Group className="d-flex align-items-center mt-3">
               <Form.Label>Địa chỉ nhà</Form.Label>
-              <Form.Control type="text" placeholder="Địa chỉ nhà" />
+              <Form.Control
+                type="text"
+                value={profile.address}
+                readOnly
+              />
             </Form.Group>
           </section>
 

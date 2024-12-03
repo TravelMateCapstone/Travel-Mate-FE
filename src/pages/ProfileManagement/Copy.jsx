@@ -1122,4 +1122,183 @@
 
 
 
+// const file = event.target.files[0];
+//     if (!file) return;
+//     setFrontImage(file);
 
+//     try {
+//       // Upload image to Firebase
+//       const storageRef = ref(storage, `cccd/${file.name}`);
+//       await uploadBytes(storageRef, file);
+//       const downloadURL = await getDownloadURL(storageRef);
+
+//       // Update state with the image URL
+//       setFrontImageUrl(downloadURL);
+//       console.log("Ảnh đã tải lên:", downloadURL);
+
+//       // Prepare the data to send to the create-imageFront API
+//       const imageFrontData = {
+//         imageUrl: downloadURL
+//       };
+
+//       // Log the data being sent
+//       console.log("Gửi dữ liệu:", imageFrontData);
+
+//       // Call FPT API for OCR (nếu cần thiết)
+//       const formData = new FormData();
+//       formData.append('image', file);
+//       const ocrResponse = await axios.post(
+//         'https://api.fpt.ai/vision/idr/vnm',
+//         formData,
+//         {
+//           headers: {
+//             'api-key': 'aHlapDPHrYrQuKWhKa0VsjcrTegwwamr',
+//             'Content-Type': 'multipart/form-data',
+//           },
+//         }
+//       );
+
+//       const { errorCode, data } = ocrResponse.data;
+//       if (errorCode !== 0) {
+//         toast.error('Không thể lấy được thông tin CCCD.');
+//         return;
+//       }
+
+//       const cccdData = data[0];
+//       console.log("Dữ liệu CCCD nhận được:", cccdData);
+
+//       // Send image URL to your backend to create imageFront
+//       // Gọi API để cập nhật thông tin CCCD
+//       const createImageFrontResponse = await axios.post(
+//         'https://travelmateapp.azurewebsites.net/api/CCCD/create-imageFront',
+//         downloadURL,
+//         {
+//           headers: {
+//             'Content-Type': 'application/json',
+//             'Authorization': `${token}`,  // Sử dụng Bearer token
+//           },
+//         }
+//       );
+
+//       console.log("Kết quả trả về từ API create-imageFront:", createImageFrontResponse.data);
+
+//       // Kiểm tra kết quả trả về và gửi yêu cầu cập nhật
+//       if (createImageFrontResponse.status === 200) {
+//         // Gửi yêu cầu cập nhật thông tin CCCD vào API
+//         const updateResponse = await axios.put(
+//           'https://travelmateapp.azurewebsites.net/api/CCCD/update-details-front',
+//           {
+//             id: cccdData.id,
+//             name: cccdData.name,
+//             dob: cccdData.dob.split('/').reverse().join('-'),
+//             sex: cccdData.sex,
+//             nationality: cccdData.nationality,
+//             home: cccdData.home,
+//             address: cccdData.address,
+//             doe: cccdData.doe.split('/').reverse().join('-'),
+//           },
+//           {
+//             headers: {
+//               'Authorization': `${token}`, // Đảm bảo token được truyền vào đây
+//             },
+//           }
+//         );
+
+//         // In ra kết quả trả về từ API khi cập nhật
+//         console.log("Kết quả trả về từ API update-details-front:", updateResponse.data);
+
+//         // Hiển thị thông báo thành công
+//         toast.success('Xác thực CCCD thành công.');
+//       } else {
+//         toast.error('Lỗi khi tạo ảnh CCCD.');
+//       }
+
+//     } catch (error) {
+//       console.error('Đã xảy ra lỗi:', error);
+//       toast.error('Đã xảy ra lỗi trong quá trình xác thực CCCD.');
+//     }
+
+
+
+
+// const file = event.target.files[0];
+// if (!file) return;
+// setBackImage(file);
+
+// try {
+//     // Upload image to Firebase
+//     const storageRef = ref(storage, `cccd/${file.name}`);
+//     await uploadBytes(storageRef, file);
+//     const downloadURL = await getDownloadURL(storageRef);
+//     setBackImageUrl(downloadURL);
+
+//     console.log("Ảnh mặt sau đã tải lên:", downloadURL);
+
+//     // Gửi ảnh tới API OCR
+//     const formData = new FormData();
+//     formData.append('image', file);
+//     const ocrResponse = await axios.post(
+//         'https://api.fpt.ai/vision/idr/vnm',
+//         formData,
+//         {
+//             headers: {
+//                 'api-key': 'aHlapDPHrYrQuKWhKa0VsjcrTegwwamr',
+//                 'Content-Type': 'multipart/form-data',
+//             },
+//         }
+//     );
+
+//     const { errorCode, data } = ocrResponse.data;
+//     if (errorCode !== 0) {
+//         toast.error('Không thể lấy được thông tin mặt sau CCCD.');
+//         return;
+//     }
+
+//     // Gọi API update-imageBack với link ảnh
+//     await axios.put(
+//         'https://travelmateapp.azurewebsites.net/api/CCCD/update-imageBack',
+//         {
+//             imageBack: downloadURL
+//         },
+//         {
+//             headers: {
+//                 'Authorization': `${token}`,
+//             },
+//         }
+//     );
+
+//     console.log("Đã cập nhật hình ảnh mặt sau CCCD thành công.");
+
+//     const cccdData = data[0];
+//     console.log("Dữ liệu CCCD mặt sau nhận được:", cccdData);
+
+//     // Gửi yêu cầu cập nhật thông tin CCCD mặt sau
+//     const updateResponse = await axios.put(
+//         'https://travelmateapp.azurewebsites.net/api/CCCD/update-details-back',
+//         {
+//             issue_date: cccdData.issue_date.split('/').reverse().join('-'),
+//             issue_loc: cccdData.issue_loc,
+//             features: cccdData.features,
+//             mrz: cccdData.mrz,
+//         },
+//         {
+//             headers: {
+//                 'Authorization': `${token}`,
+//             },
+//         }
+//     );
+
+//     console.log("Kết quả trả về từ API update-details-back:", updateResponse.data);
+//     toast.success('Xác thực CCCD mặt sau thành công.');
+
+//     // Cập nhật thông tin Profile và CCCD
+//     const cccdDataFromApi = await fetchCCCDInfo();
+//     const profileData = await fetchProfileInfo();
+//     await updateProfileInfo(cccdDataFromApi, profileData);
+
+//     dispatch(viewProfile(user.id, token));
+
+// } catch (error) {
+//     console.error('Đã xảy ra lỗi:', error);
+//     toast.error('Đã xảy ra lỗi trong quá trình xác thực CCCD mặt sau.');
+// }

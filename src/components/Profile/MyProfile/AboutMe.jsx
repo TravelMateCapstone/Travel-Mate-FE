@@ -200,7 +200,7 @@ function AboutMe() {
             });
 
             dispatch(viewProfile(user.id)); // Đồng bộ lại Redux sau khi xóa
-            toast.success('Xóa sở thích thành công!');
+            // toast.success('Xóa sở thích thành công!');
         } catch (error) {
             toast.error('Lỗi khi xóa sở thích!');
             console.error("Lỗi khi xóa sở thích:", error);
