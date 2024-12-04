@@ -107,7 +107,7 @@ function LocalTripHistory() {
   };
 
   const handeleViewTour = (tour) => {
-    dispatch(fetchTour(tour.tourId));
+    dispatch(fetchTour(tour.tourId, token));
     navigate(RoutePath.TOUR_DETAIL);
   };
 

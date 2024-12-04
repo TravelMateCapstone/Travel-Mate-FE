@@ -9,6 +9,7 @@ import { RowGroupingModule } from "@ag-grid-enterprise/row-grouping";
 import axios from "axios";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 // Đăng ký các module của AG Grid
 ModuleRegistry.registerModules([
@@ -94,8 +95,12 @@ const TripHistory = () => {
     setModalData(null); // Xóa dữ liệu modal
   };
 
+  const token = useSelector((state) => state.auth.token);
+
   const fetchTourData = () => {
-    axios.get("https://travelmateapp.azurewebsites.net/api/Tour/local")
+    axios.get("https://travelmateapp.azurewebsites.net/api/Tour/local", {
+      headers: { Authorization: `${token}` }
+    })
       .then((response) => {
         setRowData(response.data.$values);
       })
@@ -106,7 +111,9 @@ const TripHistory = () => {
 
   // Chấp nhận tour
   const acceptTour = (tourId) => {
-    axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/accept/${tourId}`)
+    axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/accept/${tourId}`, {}, {
+      headers: { Authorization: `${token}` }
+    })
       .then((response) => {
         toast.success("Tour đã được chấp nhận thành công !")
         fetchTourData();  
@@ -119,7 +126,9 @@ const TripHistory = () => {
 
   // Từ chối tour
   const denyTour = (tourId) => {
-    axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/ban/${tourId}`)
+    axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/ban/${tourId}`, {}, {
+      headers: { Authorization: `${token}` }
+    })
       .then((response) => {
         console.log("Tour denied:", response.data);
         toast.success("Tour đã bị từ chối thành công!")

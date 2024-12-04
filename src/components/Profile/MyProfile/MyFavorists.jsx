@@ -11,6 +11,7 @@ import ProvinceSelector from "../../Shared/ProvinceSelector";
 import TextareaAutosize from "react-textarea-autosize";
 import ReactQuill from "react-quill";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 function MyFavorites() {
   const navigate = useNavigate();
@@ -63,9 +64,10 @@ function MyFavorites() {
     const totalPrice = totalCost + totalActivityAmount;
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(totalPrice);
   };
+  const token = useSelector((state) => state.auth.token);
 
   const handeleViewTour = (tour) => {
-    dispatch(fetchTour(tour.tourId));
+    dispatch(fetchTour(tour.tourId, token));
     navigate(RoutePath.TOUR_DETAIL);
   };
 
