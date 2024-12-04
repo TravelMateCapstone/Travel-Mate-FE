@@ -102,6 +102,8 @@ const TripHistory = () => {
       headers: { Authorization: `${token}` }
     })
       .then((response) => {
+        console.log("Dữ liệu tour:", response.data.$values);
+        
         setRowData(response.data.$values);
       })
       .catch((error) => {
