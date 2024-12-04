@@ -80,7 +80,11 @@ function MyProfile() {
             <div className='info_section'>
                 <div className='info_user_profile'>
                     <div className="profile-image-wrapper">
-                        <img src={dataProfile.profile.imageUser} alt="avatar" />
+                        <img
+                            src={dataProfile.profile.imageUser || "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3467.jpg"}
+                            alt="avatar"
+                        />
+
                         <label htmlFor="upload-image" className="upload-icon">
                             <ion-icon name="camera-outline"></ion-icon>
                         </label>
