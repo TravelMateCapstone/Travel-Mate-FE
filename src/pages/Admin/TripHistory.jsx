@@ -34,7 +34,7 @@ const TripHistory = () => {
     {
       field: "price",
       width: 100,
-      chartDataType: "number",
+      chartDataType: "series", // Changed from 'number' to 'series'
       valueFormatter: (params) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(params.value);
       }
