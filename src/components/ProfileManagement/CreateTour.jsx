@@ -4,9 +4,9 @@ import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { addDays, format } from 'date-fns';
-import Tab from 'react-bootstrap/Tab';
-import Tabs from 'react-bootstrap/Tabs';
-
+import { storage } from '../../../firebaseConfig';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { Button, Form, Row, Col, Tabs, Tab, Card } from 'react-bootstrap';
 Modal.setAppElement('#root');
 
 function CreateTour() {
@@ -108,7 +108,25 @@ function CreateTour() {
         });
     };
 
+    const handleImageUpload = async (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const storageRef = ref(storage, `tourImages/${file.name}`);
+            await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(storageRef);
+            setTourDetails({ ...tourDetails, tourImage: downloadURL });
+        }
+    };
 
+    const handleActivityImageUpload = async (event, dayIndex, actIndex) => {
+        const file = event.target.files[0];
+        if (file) {
+            const storageRef = ref(storage, `activityImages/${file.name}`);
+            await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(storageRef);
+            updateActivity(dayIndex, actIndex, 'activityImage', downloadURL);
+        }
+    };
 
     const handleSaveChanges = async () => {
         const tourData = {
@@ -170,14 +188,15 @@ function CreateTour() {
                 contentLabel="Create Tour Modal"
                 style={{
                     content: {
-                        top: '52%',
+                        top: '50%',
                         left: '50%',
                         right: 'auto',
                         bottom: 'auto',
                         marginRight: '-50%',
                         transform: 'translate(-50%, -50%)',
-                        width: '1800px',
-                        height: '800px',
+                        width: '80%',
+                        maxHeight: '90vh',
+                        overflowY: 'auto',
                         backgroundColor: '#f0f0f0',
                         display: 'flex',
                         flexDirection: 'column',
@@ -188,84 +207,171 @@ function CreateTour() {
                 }}
             >
                 <h2>Create a New Tour</h2>
-                <div className='row' style={{ flex: 1, overflowY: 'auto', marginBottom: '20px' }}>
-                    <div className='col-lg-4'>
-                        <div>
-                            <h3>Tour Details</h3>
-                            <p>Tour Name: <input type="text" value={tourDetails.tourName} onChange={(e) => setTourDetails({ ...tourDetails, tourName: e.target.value })} /></p>
-                            <p>Price: <input type="number" value={tourDetails.price} onChange={(e) => setTourDetails({ ...tourDetails, price: e.target.value })} /></p>
-                            <p>Start Date: <input type="datetime-local" value={tourDetails.startDate} onChange={(e) => setTourDetails({ ...tourDetails, startDate: e.target.value })} /></p>
-                            <p>End Date: <input type="datetime-local" value={tourDetails.endDate} onChange={(e) => setTourDetails({ ...tourDetails, endDate: e.target.value })} /></p>
-                            <p>Number of Days: <input type="number" value={tourDetails.numberOfDays} onChange={(e) => setTourDetails({ ...tourDetails, numberOfDays: e.target.value })} /></p>
-                            <p>Number of Nights: <input type="number" value={tourDetails.numberOfNights} onChange={(e) => setTourDetails({ ...tourDetails, numberOfNights: e.target.value })} /></p>
-                            <p>Tour Description: <textarea value={tourDetails.tourDescription} onChange={(e) => setTourDetails({ ...tourDetails, tourDescription: e.target.value })} /></p>
-                            <p>Location: <input type="text" value={tourDetails.location} onChange={(e) => setTourDetails({ ...tourDetails, location: e.target.value })} /></p>
-                            <p>Max Guests: <input type="number" value={tourDetails.maxGuests} onChange={(e) => setTourDetails({ ...tourDetails, maxGuests: e.target.value })} /></p>
-                            <p>Tour Image URL: <input type="text" value={tourDetails.tourImage} onChange={(e) => setTourDetails({ ...tourDetails, tourImage: e.target.value })} /></p>
-                        </div>
-                    </div>
-                    <div className='col-lg-4'>
-                        <Tabs id="controlled-tab-example" activeKey={key} onSelect={(k) => setKey(k)} className="mb-3">
+                <Row className="mb-4" style={{ flex: 1}}>
+                    <Col lg={4} style={{ height: '600px', overflowY: 'auto' }}>
+                        <Card>
+                            <Card.Body>
+                                <Card.Title>Tour Details</Card.Title>
+                                <Form>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Tour Name</Form.Label>
+                                        <Form.Control type="text" value={tourDetails.tourName} onChange={(e) => setTourDetails({ ...tourDetails, tourName: e.target.value })} />
+                                    </Form.Group>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Price</Form.Label>
+                                        <Form.Control type="number" value={tourDetails.price} onChange={(e) => setTourDetails({ ...tourDetails, price: e.target.value })} />
+                                    </Form.Group>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Start Date</Form.Label>
+                                        <Form.Control type="datetime-local" value={tourDetails.startDate} onChange={(e) => setTourDetails({ ...tourDetails, startDate: e.target.value })} />
+                                    </Form.Group>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>End Date</Form.Label>
+                                        <Form.Control type="datetime-local" value={tourDetails.endDate} onChange={(e) => setTourDetails({ ...tourDetails, endDate: e.target.value })} />
+                                    </Form.Group>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Number of Days</Form.Label>
+                                        <Form.Control type="number" value={tourDetails.numberOfDays} onChange={(e) => setTourDetails({ ...tourDetails, numberOfDays: e.target.value })} />
+                                    </Form.Group>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Number of Nights</Form.Label>
+                                        <Form.Control type="number" value={tourDetails.numberOfNights} onChange={(e) => setTourDetails({ ...tourDetails, numberOfNights: e.target.value })} />
+                                    </Form.Group>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Tour Description</Form.Label>
+                                        <Form.Control as="textarea" rows={3} value={tourDetails.tourDescription} onChange={(e) => setTourDetails({ ...tourDetails, tourDescription: e.target.value })} />
+                                    </Form.Group>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Location</Form.Label>
+                                        <Form.Control type="text" value={tourDetails.location} onChange={(e) => setTourDetails({ ...tourDetails, location: e.target.value })} />
+                                    </Form.Group>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Max Guests</Form.Label>
+                                        <Form.Control type="number" value={tourDetails.maxGuests} onChange={(e) => setTourDetails({ ...tourDetails, maxGuests: e.target.value })} />
+                                    </Form.Group>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Tour Image</Form.Label>
+                                        <Form.Control type="file" onChange={handleImageUpload} />
+                                    </Form.Group>
+                                    {tourDetails.tourImage && (
+                                        <img src={tourDetails.tourImage} alt="Tour" style={{ width: '100%', height: 'auto' }} />
+                                    )}
+                                </Form>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                    <Col lg={8} style={{ height: '600px', overflowY: 'auto' }}>
+                        <Tabs defaultActiveKey="schedule" id="controlled-tab-example" className="mb-3">
                             <Tab eventKey="schedule" title="Lịch trình">
-                                <div>
-                                    <h3>Activities</h3>
-                                    {activities.map((activity, dayIndex) => (
-                                        <div key={dayIndex} style={{ marginBottom: '10px' }}>
-                                            <p>Day: <input type="text" value={activity.day} readOnly /></p>
-                                            <p>Date: <input type="datetime-local" value={activity.date} readOnly /></p>
-                                            <button onClick={() => addActivity(dayIndex)}>Add Activity</button>
-                                            {activity.activities.map((act, actIndex) => (
-                                                <div key={actIndex} style={{ marginLeft: '20px', marginBottom: '10px' }}>
-                                                    <p>Title: <input type="text" value={act.title} onChange={(e) => updateActivity(dayIndex, actIndex, 'title', e.target.value)} /></p>
-                                                    <p>Start Time: <input type="time" step="1" value={act.startTime} onChange={(e) => updateActivity(dayIndex, actIndex, 'startTime', e.target.value)} /></p>
-                                                    <p>End Time: <input type="time" step="1" value={act.endTime} onChange={(e) => updateActivity(dayIndex, actIndex, 'endTime', e.target.value)} /></p>
-                                                    <p>Note: <input type="text" value={act.note} onChange={(e) => updateActivity(dayIndex, actIndex, 'note', e.target.value)} /></p>
-                                                    <p>Description: <input type="text" value={act.description} onChange={(e) => updateActivity(dayIndex, actIndex, 'description', e.target.value)} /></p>
-                                                    <p>Address: <input type="text" value={act.activityAddress} onChange={(e) => updateActivity(dayIndex, actIndex, 'activityAddress', e.target.value)} /></p>
-                                                    <p>Amount: <input type="number" value={act.activityAmount} onChange={(e) => updateActivity(dayIndex, actIndex, 'activityAmount', e.target.value)}/></p>
-                                                    <p>Image URL: <input type="text" value={act.activityImage} onChange={(e) => updateActivity(dayIndex, actIndex, 'activityImage', e.target.value)} /></p>
-                                                    <button onClick={() => removeActivity(dayIndex, actIndex)}>Remove activity</button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ))}
-                                </div>
+                                <Card>
+                                    <Card.Body>
+                                        <Card.Title>Activities</Card.Title>
+                                        {activities.map((activity, dayIndex) => (
+                                            <div key={dayIndex} className="mb-3">
+                                                <h5>Day {activity.day}</h5>
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>Date</Form.Label>
+                                                    <Form.Control type="datetime-local" value={activity.date} readOnly />
+                                                </Form.Group>
+                                                <Button variant="primary" onClick={() => addActivity(dayIndex)}>Add Activity</Button>
+                                                {activity.activities.map((act, actIndex) => (
+                                                    <div key={actIndex} className="ml-4 mt-3">
+                                                        <Form.Group className="mb-3">
+                                                            <Form.Label>Title</Form.Label>
+                                                            <Form.Control type="text" value={act.title} onChange={(e) => updateActivity(dayIndex, actIndex, 'title', e.target.value)} />
+                                                        </Form.Group>
+                                                        <Form.Group className="mb-3">
+                                                            <Form.Label>Start Time</Form.Label>
+                                                            <Form.Control type="time" step="1" value={act.startTime} onChange={(e) => updateActivity(dayIndex, actIndex, 'startTime', e.target.value)} />
+                                                        </Form.Group>
+                                                        <Form.Group className="mb-3">
+                                                            <Form.Label>End Time</Form.Label>
+                                                            <Form.Control type="time" step="1" value={act.endTime} onChange={(e) => updateActivity(dayIndex, actIndex, 'endTime', e.target.value)} />
+                                                        </Form.Group>
+                                                        <Form.Group className="mb-3">
+                                                            <Form.Label>Note</Form.Label>
+                                                            <Form.Control type="text" value={act.note} onChange={(e) => updateActivity(dayIndex, actIndex, 'note', e.target.value)} />
+                                                        </Form.Group>
+                                                        <Form.Group className="mb-3">
+                                                            <Form.Label>Description</Form.Label>
+                                                            <Form.Control type="text" value={act.description} onChange={(e) => updateActivity(dayIndex, actIndex, 'description', e.target.value)} />
+                                                        </Form.Group>
+                                                        <Form.Group className="mb-3">
+                                                            <Form.Label>Address</Form.Label>
+                                                            <Form.Control type="text" value={act.activityAddress} onChange={(e) => updateActivity(dayIndex, actIndex, 'activityAddress', e.target.value)} />
+                                                        </Form.Group>
+                                                        <Form.Group className="mb-3">
+                                                            <Form.Label>Amount</Form.Label>
+                                                            <Form.Control type="number" value={act.activityAmount} onChange={(e) => updateActivity(dayIndex, actIndex, 'activityAmount', e.target.value)} />
+                                                        </Form.Group>
+                                                        <Form.Group className="mb-3">
+                                                            <Form.Label>Image</Form.Label>
+                                                            <Form.Control type="file" onChange={(e) => handleActivityImageUpload(e, dayIndex, actIndex)} />
+                                                        </Form.Group>
+                                                        {act.activityImage && (
+                                                            <img src={act.activityImage} alt="Activity" style={{ width: '100%', height: 'auto' }} />
+                                                        )}
+                                                        <Button variant="danger" onClick={() => removeActivity(dayIndex, actIndex)}>Remove Activity</Button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ))}
+                                    </Card.Body>
+                                </Card>
                             </Tab>
                             <Tab eventKey="cost" title="Chi phí">
-                                <div>
-                                    <h3>Cost Details</h3>
-                                    {costDetails.map((costDetail, index) => (
-                                        <div key={index} style={{ marginBottom: '10px' }}>
-                                            <p>Title: <input type="text" value={costDetail.title} onChange={(e) => {
-                                                const updatedCostDetails = [...costDetails];
-                                                updatedCostDetails[index].title = e.target.value;
-                                                setCostDetails(updatedCostDetails);
-                                            }} /></p>
-                                            <p>Amount: <input type="number" value={costDetail.amount} onChange={(e) => {
-                                                const updatedCostDetails = [...costDetails];
-                                                updatedCostDetails[index].amount = e.target.value;
-                                                setCostDetails(updatedCostDetails);
-                                            }} /></p>
-                                            <p>Notes: <input type="text" value={costDetail.notes} onChange={(e) => {
-                                                const updatedCostDetails = [...costDetails];
-                                                updatedCostDetails[index].notes = e.target.value;
-                                                setCostDetails(updatedCostDetails);
-                                            }} /></p>
-                                            <button onClick={() => removeCostDetail(index)}>Remove Cost</button>
-                                        </div>
-                                    ))}
-                                    <button onClick={addCostDetail}>Add New Cost</button>
-                                </div>
+                                <Card>
+                                    <Card.Body>
+                                        <Card.Title>Cost Details</Card.Title>
+                                        {costDetails.map((costDetail, index) => (
+                                            <div key={index} className="mb-3">
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>Title</Form.Label>
+                                                    <Form.Control type="text" value={costDetail.title} onChange={(e) => {
+                                                        const updatedCostDetails = [...costDetails];
+                                                        updatedCostDetails[index].title = e.target.value;
+                                                        setCostDetails(updatedCostDetails);
+                                                    }} />
+                                                </Form.Group>
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>Amount</Form.Label>
+                                                    <Form.Control type="number" value={costDetail.amount} onChange={(e) => {
+                                                        const updatedCostDetails = [...costDetails];
+                                                        updatedCostDetails[index].amount = e.target.value;
+                                                        setCostDetails(updatedCostDetails);
+                                                    }} />
+                                                </Form.Group>
+                                                <Form.Group className="mb-3">
+                                                    <Form.Label>Notes</Form.Label>
+                                                    <Form.Control type="text" value={costDetail.notes} onChange={(e) => {
+                                                        const updatedCostDetails = [...costDetails];
+                                                        updatedCostDetails[index].notes = e.target.value;
+                                                        setCostDetails(updatedCostDetails);
+                                                    }} />
+                                                </Form.Group>
+                                                <Button variant="danger" onClick={() => removeCostDetail(index)}>Remove Cost</Button>
+                                            </div>
+                                        ))}
+                                        <Button variant="primary" onClick={addCostDetail}>Add New Cost</Button>
+                                    </Card.Body>
+                                </Card>
                             </Tab>
                             <Tab eventKey="regulation" title="Quy định">
-                                <p>Additional Info: <textarea value={tourDetails.additionalInfo} onChange={(e) => setTourDetails({ ...tourDetails, additionalInfo: e.target.value })} /></p>
+                                <Card>
+                                    <Card.Body>
+                                        <Form.Group className="mb-3">
+                                            <Form.Label>Additional Info</Form.Label>
+                                            <Form.Control as="textarea" rows={3} value={tourDetails.additionalInfo} onChange={(e) => setTourDetails({ ...tourDetails, additionalInfo: e.target.value })} />
+                                        </Form.Group>
+                                    </Card.Body>
+                                </Card>
                             </Tab>
                         </Tabs>
-                    </div>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'end', gap: '20px' }}>
-                    <button onClick={closeModal}>Close Modal</button>
-                    <button onClick={handleSaveChanges}>Save Changes</button>
+                    </Col>
+                </Row>
+                <div className="d-flex justify-content-end gap-3">
+                    <Button variant="secondary" onClick={closeModal}>Close Modal</Button>
+                    <Button variant="success" onClick={handleSaveChanges}>Save Changes</Button>
                 </div>
             </Modal>
         </div>

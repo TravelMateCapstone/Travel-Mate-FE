@@ -12,11 +12,11 @@ function TourDetail() {
     const tourData = useSelector((state) => state.tour?.tour);
     const navigate = useNavigate();
     const [openIndexes, setOpenIndexes] = useState([]);
-
+    
     const handelJointTour = (tourId) => {
         navigate(RoutePath.CREATE_CONTRACT);
         console.log("Join tour " + tourId);
-    }
+    };
 
     const handleToggle = (index) => {
         setOpenIndexes((prevIndexes) =>
@@ -223,18 +223,14 @@ function TourDetail() {
                                                 </div>
                                                 <Collapse in={openIndexes.includes(index)}>
                                                     <div className="timeline-activities" id={`example-collapse-text-${index}`}>
-                                                        {dayActivities.map((activity, idx) => {
-                                                            const activityTime = new Date(`${day.date.split('T')[0]}T${activity.time}`);
-                                                            const formattedTime = isNaN(activityTime) ? "Invalid Date" : activityTime.toLocaleTimeString();
-                                                            return (
-                                                                <div key={idx} className="timeline-activity">
-                                                                    <p><strong>{formattedTime}</strong> - {activity.description}</p>
-                                                                    <p>Địa chỉ: {activity.activityAddress}</p>
-                                                                    <p>Chi phí: {activity.activityAmount.toLocaleString()}₫</p>
-                                                                    {activity.activityImage && <img src={activity.activityImage} alt="" />}
-                                                                </div>
-                                                            );
-                                                        })}
+                                                        {dayActivities.map((activity, idx) => (
+                                                            <div key={idx} className="timeline-activity">
+                                                                <p><strong>{activity.startTime} - {activity.endTime}</strong> - {activity.title}</p>
+                                                                <p>Địa chỉ: {activity.activityAddress}</p>
+                                                                <p>Chi phí: {activity.activityAmount.toLocaleString()}₫</p>
+                                                                {activity.activityImage && <img src={activity.activityImage} alt="" />}
+                                                            </div>
+                                                        ))}
                                                     </div>
                                                 </Collapse>
                                             </div>
@@ -252,7 +248,7 @@ function TourDetail() {
                                 </ul>
                             </Tab>
                             <Tab eventKey="contact" title="Quy định">
-                                <div dangerouslySetInnerHTML={{ __html: tourData.additionalInfo }} />
+                                <div>{tourData.additionalInfo}</div>
                             </Tab>
                         </Tabs>
                     </div>
