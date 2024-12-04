@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import Accordion from "react-bootstrap/Accordion";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import "../../assets/css/Tour/TourDetail.css";
-import { Button, Placeholder, Collapse } from "react-bootstrap";
+import { Button, Placeholder } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import RoutePath from "../../routes/RoutePath";
@@ -11,19 +12,10 @@ function TourDetail() {
     const [key, setKey] = useState("home");
     const tourData = useSelector((state) => state.tour?.tour);
     const navigate = useNavigate();
-    const [openIndexes, setOpenIndexes] = useState([]);
     
     const handelJointTour = (tourId) => {
         navigate(RoutePath.CREATE_CONTRACT);
         console.log("Join tour " + tourId);
-    };
-
-    const handleToggle = (index) => {
-        setOpenIndexes((prevIndexes) =>
-            prevIndexes.includes(index)
-                ? prevIndexes.filter((i) => i !== index)
-                : [...prevIndexes, index]
-        );
     };
 
     if (!tourData) {
@@ -173,7 +165,7 @@ function TourDetail() {
                                     <p>{tourData.creator.totalTrips} chuyến đi</p>
                                     <p>Tham gia từ {new Date(tourData.creator.joinedAt).getFullYear()}</p>
                                 </div>
-                                <div className="border-1 p-3 rounded-4 mt-3"> {/* Added margin-top class here */}
+                                <div className="border-1 p-3 rounded-4 mt-3">
                                     <div className="flex flex-col tour-form_gap__N_UmA ">
                                         <h5>Thông tin cơ bản</h5>
                                         <div>
@@ -210,35 +202,24 @@ function TourDetail() {
                             className="my-3 no-border-radius"
                         >
                             <Tab eventKey="home" title="Lịch trình">
-                                <div className="timeline">
-                                    {tourData.itinerary.$values.map((day, index) => {
-                                        const dayActivities = day.activities.$values;
-                                        return (
-                                            <div key={index} className="timeline-item">
-                                                <div className="timeline-time" onClick={() => handleToggle(index)}
-                                                    aria-controls={`example-collapse-text-${index}`}
-                                                    aria-expanded={openIndexes.includes(index)}>
-                                                        <span>Ngày {day.day}</span>
-                                                        <span>{new Date(day.date).toLocaleDateString()}</span>
-                                                </div>
-                                                <Collapse in={openIndexes.includes(index)}>
-                                                    <div className="timeline-activities" id={`example-collapse-text-${index}`}>
-                                                        {dayActivities.map((activity, idx) => (
-                                                            <div key={idx} className="timeline-activity">
-                                                                <p><strong>{activity.startTime} - {activity.endTime}</strong> - {activity.title}</p>
-                                                                <p>Địa chỉ: {activity.activityAddress}</p>
-                                                                <p>Chi phí: {activity.activityAmount.toLocaleString()}₫</p>
-                                                                {activity.activityImage && <img src={activity.activityImage} alt="" />}
-                                                            </div>
-                                                        ))}
+                                <Accordion defaultActiveKey="0">
+                                    {tourData.itinerary.$values.map((day, index) => (
+                                        <Accordion.Item eventKey={index.toString()} key={index}>
+                                            <Accordion.Header>Ngày {day.day} - {new Date(day.date).toLocaleDateString()}</Accordion.Header>
+                                            <Accordion.Body>
+                                                {day.activities.$values.map((activity, idx) => (
+                                                    <div key={idx} className="timeline-activity">
+                                                        <p><strong>{activity.startTime} - {activity.endTime}</strong> - {activity.title}</p>
+                                                        <p>Địa chỉ: {activity.activityAddress}</p>
+                                                        <p>Chi phí: {activity.activityAmount.toLocaleString()}₫</p>
+                                                        {activity.activityImage && <img src={activity.activityImage} alt="" />}
                                                     </div>
-                                                </Collapse>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                                ))}
+                                            </Accordion.Body>
+                                        </Accordion.Item>
+                                    ))}
+                                </Accordion>
                             </Tab>
-
                             <Tab eventKey="profile" title="Chi phí">
                                 <h4>Chi phí bao gồm</h4>
                                 <ul>

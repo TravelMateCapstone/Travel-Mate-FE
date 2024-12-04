@@ -10,6 +10,7 @@ import { addDays, format } from 'date-fns';
 import { storage } from '../../../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Button, Form, Row, Col, Tabs, Tab, Card, Accordion } from 'react-bootstrap';
+import RoutePath from '../../routes/RoutePath';
 Modal.setAppElement('#root');
 
 function TourCard({ tour }) {
@@ -304,7 +305,6 @@ function TourCard({ tour }) {
                     },
                 }}
             >
-                <h2>Update Tour</h2>
                 <Row className="mb-4" style={{ flex: 1 }}>
                     <Col lg={4} style={{ height: '600px', overflowY: 'auto' }}>
                         <Card>
@@ -359,7 +359,7 @@ function TourCard({ tour }) {
                         </Card>
                     </Col>
                     <Col lg={8} style={{ height: '600px', overflowY: 'auto' }}>
-                        <Tabs defaultActiveKey="schedule" id="controlled-tab-example" className="mb-3">
+                        <Tabs defaultActiveKey="schedule" id="controlled-tab-example" className="mb-3 no-border-radius">
                             <Tab eventKey="schedule" title="Lịch trình">
                                 <Accordion defaultActiveKey="0">
                                     {activities.map((activity, dayIndex) => (
