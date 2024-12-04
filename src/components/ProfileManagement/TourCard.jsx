@@ -1,15 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import Modal from 'react-modal';
-import { useSelector } from 'react-redux';
+import Dropdown from 'react-bootstrap/Dropdown';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchTour } from '../../redux/actions/tourActions';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Modal from 'react-modal';
 import { toast } from 'react-toastify';
 import { addDays, format } from 'date-fns';
 import { storage } from '../../../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Button, Form, Row, Col, Tabs, Tab, Card } from 'react-bootstrap';
+import { Button, Form, Row, Col, Tabs, Tab, Card, Accordion } from 'react-bootstrap';
+import RoutePath from '../../routes/RoutePath';
 Modal.setAppElement('#root');
 
-function CreateTour({ onTourCreated }) {
+function TourCard({ tour, onTourUpdated }) {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const token = useSelector(state => state.auth.token);
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [activities, setActivities] = useState([]);
     const [costDetails, setCostDetails] = useState([]);
@@ -26,33 +33,98 @@ function CreateTour({ onTourCreated }) {
         tourImage: '',
         additionalInfo: '',
     });
-    const token = useSelector((state) => state.auth.token);
     const [key, setKey] = useState('schedule');
 
-    useEffect(() => {
+    useEffect(() => { 
         if (tourDetails.startDate && tourDetails.endDate) {
             const start = new Date(tourDetails.startDate);
             const end = new Date(tourDetails.endDate);
             const numberOfDays = Math.floor((end - start) / (1000 * 60 * 60 * 24));
-            const newActivities = [];
+            if (activities.length !== numberOfDays) {
+                const newActivities = activities.length ? activities : [];
 
-            for (let i = 0; i < numberOfDays; i++) {
-                newActivities.push({
-                    day: i + 1,
-                    date: format(addDays(start, i), "yyyy-MM-dd'T'HH:mm"),
-                    activities: [],
-                });
+                for (let i = newActivities.length; i < numberOfDays; i++) {
+                    newActivities.push({
+                        day: i + 1,
+                        date: format(addDays(start, i), "yyyy-MM-dd'T'HH:mm"),
+                        activities: [],
+                    });
+                }
+                setActivities(newActivities);
             }
-            setActivities(newActivities);
         }
     }, [tourDetails.startDate, tourDetails.endDate]);
 
-    const openModal = () => {
-        setModalIsOpen(true);
+    const openModal = async () => {
+        console.log(tour.tourId);
+        
+        try {
+            const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Tour/${tour.tourId}`, {
+                headers: {
+                    Authorization: `${token}`
+                }
+            });
+            const tourData = response.data;
+            console.log(`Tour data:`, tourData);
+            
+            setTourDetails({
+                tourName: tourData.tourName,
+                price: tourData.price,
+                startDate: format(new Date(tourData.startDate), "yyyy-MM-dd'T'HH:mm"),
+                endDate: format(new Date(tourData.endDate), "yyyy-MM-dd'T'HH:mm"),
+                numberOfDays: tourData.numberOfDays,
+                numberOfNights: tourData.numberOfNights,
+                tourDescription: tourData.tourDescription,
+                location: tourData.location,
+                maxGuests: tourData.maxGuests,
+                tourImage: tourData.tourImage,
+                additionalInfo: tourData.additionalInfo,
+            });
+            setActivities(tourData.itinerary.$values.map((item) => ({
+                day: item.day,
+                date: format(new Date(item.date), "yyyy-MM-dd'T'HH:mm"),
+                activities: item.activities.$values.map(act => ({
+                    startTime: act.startTime,
+                    endTime: act.endTime,
+                    title: act.title,
+                    note: act.note,
+                    description: act.description,
+                    activityAddress: act.activityAddress,
+                    activityAmount: act.activityAmount,
+                    activityImage: act.activityImage,
+                })),
+            })));
+            setCostDetails(tourData.costDetails.$values.map(cost => ({
+                title: cost.title,
+                amount: cost.amount,
+                notes: cost.notes,
+            })));
+            setModalIsOpen(true);
+        } catch (error) {
+            console.error("There was an error fetching the tour data!", error);
+        }
     };
 
     const closeModal = () => {
         setModalIsOpen(false);
+    };
+
+    const handleDelete = async (tourId) => {
+        try {
+            await axios.delete(`https://travelmateapp.azurewebsites.net/api/Tour/${tourId}`, {
+                headers: {
+                    Authorization: `${token}`
+                }
+            });
+            alert("Xóa tour thành công!");
+        } catch (error) {
+            console.error("There was an error deleting the tour!", error);
+        }
+    };
+
+    const handleView = (tourId) => {
+        dispatch(fetchTour(tourId, token));
+        navigate(RoutePath.TOUR_DETAIL);
     };
 
     const addActivity = (dayIndex) => {
@@ -128,7 +200,7 @@ function CreateTour({ onTourCreated }) {
         }
     };
 
-    const handleSaveChanges = async () => {
+    const handleSaveChanges = async (tourId) => {
         const tourData = {
             tourName: tourDetails.tourName,
             price: parseFloat(tourDetails.price),
@@ -164,31 +236,56 @@ function CreateTour({ onTourCreated }) {
         console.log('Tour data:', tourData);
 
         try {
-            const response = await axios.post('https://travelmateapp.azurewebsites.net/api/Tour', tourData, {
+            const response = await axios.put(`https://travelmateapp.azurewebsites.net/api/Tour/${tourId}`, tourData, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `${token}`,
                 },
             });
-            toast.success('Tour created successfully!');
+            toast.success('Tour updated successfully!');
             closeModal();
-            if (onTourCreated) {
-                onTourCreated();
-            }
+            onTourUpdated(); // Call the prop function to update the tour list
         } catch (error) {
-            console.error('Error creating tour:', error);
+            console.error('Error updating tour:', error);
             toast.error('An error occurred. Please try again.');
         }
     };
 
     return (
-        <div>
-            <h1>CreateTour</h1>
-            <Button variant='success' onClick={openModal}>Tạo tour du lịch</Button>
+        <div className='d-flex align-items-center justify-content-between mb-4'>
+            <div className='d-flex gap-3 align-items-center'>
+                <img src={tour.tourImage} alt="" width={150} height={100} className='rounded-3' />
+                <div className='d-flex flex-column justify-content-center'>
+                    <h6 className='m-0'>{tour.tourName}</h6>
+                    <p className='m-0'>{tour.location}</p>
+                    <p className='m-0'>{tour.numberOfDays} ngày {tour.numberOfNights} đêm</p>
+                </div>
+            </div>
+            <p className='m-0 fw-medium text-success'>{tour.price} VNĐ</p>
+            <div className='d-flex align-items-center gap-5'>
+                <div className='d-flex flex-column align-items-center'>
+                    <small>{tour.registeredGuests}/{tour.maxGuests}</small>
+                    <small>{tour.startDate}</small>
+                    <small>{tour.endDate}</small>
+                </div>
+                <Dropdown>
+                    <Dropdown.Toggle variant="success" >
+                        <ion-icon name="settings-outline"></ion-icon>
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                        <Dropdown.Item onClick={() => handleView(tour.tourId)}>Xem thêm</Dropdown.Item>
+                        <Dropdown.Item onClick={openModal}>Chỉnh sửa</Dropdown.Item>
+                        <Dropdown.Item>Quản lí</Dropdown.Item>
+                        <Dropdown.Item onClick={() => {
+                            handleDelete(tour.tourId);
+                        }}>Xóa</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
+            </div>
             <Modal
                 isOpen={modalIsOpen}
                 onRequestClose={closeModal}
-                contentLabel="Create Tour Modal"
+                contentLabel="Update Tour Modal"
                 style={{
                     content: {
                         top: '50%',
@@ -209,8 +306,7 @@ function CreateTour({ onTourCreated }) {
                     },
                 }}
             >
-                <h2>Create a New Tour</h2>
-                <Row className="mb-4" style={{ flex: 1}}>
+                <Row className="mb-4" style={{ flex: 1 }}>
                     <Col lg={4} style={{ height: '600px', overflowY: 'auto' }}>
                         <Card>
                             <Card.Body>
@@ -264,18 +360,13 @@ function CreateTour({ onTourCreated }) {
                         </Card>
                     </Col>
                     <Col lg={8} style={{ height: '600px', overflowY: 'auto' }}>
-                        <Tabs defaultActiveKey="schedule" id="controlled-tab-example" className="mb-3">
+                        <Tabs defaultActiveKey="schedule" id="controlled-tab-example" className="mb-3 no-border-radius">
                             <Tab eventKey="schedule" title="Lịch trình">
-                                <Card>
-                                    <Card.Body>
-                                        <Card.Title>Activities</Card.Title>
-                                        {activities.map((activity, dayIndex) => (
-                                            <div key={dayIndex} className="mb-3">
-                                                <h5>Day {activity.day}</h5>
-                                                <Form.Group className="mb-3">
-                                                    <Form.Label>Date</Form.Label>
-                                                    <Form.Control type="datetime-local" value={activity.date} readOnly />
-                                                </Form.Group>
+                                <Accordion defaultActiveKey="0">
+                                    {activities.map((activity, dayIndex) => (
+                                        <Accordion.Item eventKey={dayIndex.toString()} key={dayIndex}>
+                                            <Accordion.Header>Day {activity.day}: {format(new Date(activity.date), 'dd/MM/yyyy')}</Accordion.Header>
+                                            <Accordion.Body>
                                                 <Button variant="primary" onClick={() => addActivity(dayIndex)}>Add Activity</Button>
                                                 {activity.activities.map((act, actIndex) => (
                                                     <div key={actIndex} className="ml-4 mt-3">
@@ -317,10 +408,10 @@ function CreateTour({ onTourCreated }) {
                                                         <Button variant="danger" onClick={() => removeActivity(dayIndex, actIndex)}>Remove Activity</Button>
                                                     </div>
                                                 ))}
-                                            </div>
-                                        ))}
-                                    </Card.Body>
-                                </Card>
+                                            </Accordion.Body>
+                                        </Accordion.Item>
+                                    ))}
+                                </Accordion>
                             </Tab>
                             <Tab eventKey="cost" title="Chi phí">
                                 <Card>
@@ -374,11 +465,11 @@ function CreateTour({ onTourCreated }) {
                 </Row>
                 <div className="d-flex justify-content-end gap-3">
                     <Button variant="secondary" onClick={closeModal}>Close Modal</Button>
-                    <Button variant="success" onClick={handleSaveChanges}>Save Changes</Button>
+                    <Button variant="success" onClick={() => handleSaveChanges(tour.tourId)}>Save Changes</Button>
                 </div>
             </Modal>
         </div>
     );
 }
 
-export default CreateTour;
+export default TourCard;
