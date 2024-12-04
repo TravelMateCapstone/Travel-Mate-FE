@@ -12,7 +12,6 @@ import { viewProfile } from '../redux/actions/profileActions';
 function Setting() {
   const [frontImage, setFrontImage] = useState(null);
   const [backImage, setBackImage] = useState(null);
-
   const [frontImageUrl, setFrontImageUrl] = useState(null);
   const [backImageUrl, setBackImageUrl] = useState(null);
   const token = useSelector((state) => state.auth.token);
@@ -26,7 +25,11 @@ function Setting() {
     gender: '',
     birthdate: '',
     address: '',
+    phone: '', // Thêm thuộc tính phone nếu cần
   });
+
+  const [phone, setPhone] = useState(profile.phone || "Không có dữ liệu");
+
 
   const fetchCCCDInfo = async () => {
     try {
@@ -50,7 +53,6 @@ function Setting() {
       return cccdData;
     } catch (error) {
       console.error('Lỗi khi lấy thông tin CCCD:', error);
-      // toast.error('Chưa có thông tin căn cước công dân.');
       throw error;
     }
   };
@@ -75,6 +77,7 @@ function Setting() {
         birthdate: profileData.birthdate ? profileData.birthdate.split('T')[0] : '',
         address: profileData.address || '',
       });
+      setPhone(profileData.phone || "Không có dữ liệu");
       return profileData; // Trả về dữ liệu để dùng khi cần
     } catch (error) {
       console.error("Lỗi khi lấy thông tin Profile:", error);
@@ -116,16 +119,72 @@ function Setting() {
     };
 
     try {
-      const response = await axios.put('https://travelmateapp.azurewebsites.net/api/Profile/edit-by-current-user', payload, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
+      // Gọi API update-fullname
+      await axios.put(
+        'https://travelmateapp.azurewebsites.net/api/ApplicationUsersWOO/update-fullname',
+        { fullName: cccdData.name },
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+      console.log("Cập nhật tên đầy đủ thành công.");
+
+      // Gọi API cập nhật thông tin Profile
+      const response = await axios.put(
+        'https://travelmateapp.azurewebsites.net/api/Profile/edit-by-current-user',
+        payload,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
       toast.success("Cập nhật thông tin thành công.");
       console.log("Kết quả API cập nhật Profile:", response.data);
     } catch (error) {
-      console.error("Lỗi khi cập nhật Profile:", error);
+      console.error("Lỗi khi cập nhật Profile hoặc tên đầy đủ:", error);
       toast.error('Lỗi khi cập nhật thông tin Profile.');
+    }
+  };
+
+  const handleSaveInfo = async () => {
+    try {
+      const updatedData = {
+        firstName: profile.firstName || "Không có dữ liệu",
+        lastName: profile.lastName || "Không có dữ liệu",
+        address: profile.address || "Không có dữ liệu",
+        phone: phone || "Không có dữ liệu",
+        gender: profile.gender || "Không có dữ liệu",
+        city: profile.city || "Không có dữ liệu",
+        description: profile.description || "Không có dữ liệu",
+        hostingAvailability: profile.hostingAvailability || "Không có dữ liệu",
+        whyUseTravelMate: profile.whyUseTravelMate || "Không có dữ liệu",
+        musicMoviesBooks: profile.musicMoviesBooks || "Không có dữ liệu",
+        whatToShare: profile.whatToShare || "Không có dữ liệu",
+        birthdate: profile.birthdate || "2002-11-11T17:50:19.190Z",
+      };
+
+      const response = await axios.put(
+        'https://travelmateapp.azurewebsites.net/api/Profile/edit-by-current-user',
+        updatedData,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success("Cập nhật thông tin thành công.");
+      } else {
+        throw new Error("Cập nhật thất bại.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi lưu thông tin:", error);
+      toast.error("Lỗi khi cập nhật thông tin.");
     }
   };
 
@@ -221,7 +280,6 @@ function Setting() {
     }
   };
 
-
   const handleBackImageUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -260,11 +318,11 @@ function Setting() {
       await axios.put(
         'https://travelmateapp.azurewebsites.net/api/CCCD/update-imageBack',
         {
-          imageBack: downloadURL
+          imageBack: downloadURL,
         },
         {
           headers: {
-            'Authorization': `${token}`,
+            Authorization: `${token}`,
           },
         }
       );
@@ -285,7 +343,7 @@ function Setting() {
         },
         {
           headers: {
-            'Authorization': `${token}`,
+            Authorization: `${token}`,
           },
         }
       );
@@ -293,10 +351,20 @@ function Setting() {
       console.log("Kết quả trả về từ API update-details-back:", updateResponse.data);
       toast.success('Xác thực CCCD mặt sau thành công.');
 
-      // Cập nhật thông tin Profile và CCCD
+      // Cập nhật trực tiếp profile
       const cccdDataFromApi = await fetchCCCDInfo();
       const profileData = await fetchProfileInfo();
       await updateProfileInfo(cccdDataFromApi, profileData);
+
+      // Cập nhật profile state ngay lập tức
+      setProfile((prevProfile) => ({
+        ...prevProfile,
+        firstName: cccdDataFromApi.name.split(' ')[0],
+        lastName: cccdDataFromApi.name.split(' ').slice(1).join(' '),
+        address: cccdDataFromApi.address,
+        gender: cccdDataFromApi.sex,
+        birthdate: cccdDataFromApi.dob.split('/').reverse().join('-'),
+      }));
 
       dispatch(viewProfile(user.id, token));
 
@@ -305,6 +373,7 @@ function Setting() {
       toast.error('Đã xảy ra lỗi trong quá trình xác thực CCCD mặt sau.');
     }
   };
+
 
 
   return (
@@ -447,8 +516,13 @@ function Setting() {
             <h5 style={{ color: '#E65C00' }}>Thông Tin Liên Lạc</h5>
             <Form.Group className="d-flex align-items-center">
               <Form.Label>Số điện thoại</Form.Label>
-              <Form.Control type="text" placeholder="Số điện thoại" />
+              <Form.Control
+                type="text"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
             </Form.Group>
+
             <Form.Group className="d-flex align-items-center mt-3">
               <Form.Label>Địa chỉ nhà</Form.Label>
               <Form.Control
@@ -483,9 +557,10 @@ function Setting() {
           </section>
 
           <div className="d-flex justify-content-end">
-            <Button variant="success" className="mt-3">
+            <Button variant="success" className="mt-3" onClick={handleSaveInfo}>
               Lưu Thông Tin
             </Button>
+
           </div>
         </Col>
       </Row>
