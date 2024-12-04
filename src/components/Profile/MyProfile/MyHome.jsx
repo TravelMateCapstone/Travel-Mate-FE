@@ -43,9 +43,19 @@ function MyHome() {
         setIsEditing(!isEditing);
     };
 
+    const [errors, setErrors] = useState({});
+
     const handleInputChange = (field, value) => {
         setHomeData(prev => ({ ...prev, [field]: value }));
+        if (field === 'maxGuests') {
+            if (value < 0) {
+                setErrors(prev => ({ ...prev, maxGuests: 'Số lượng tối đa không được nhỏ hơn 0' }));
+            } else {
+                setErrors(prev => ({ ...prev, maxGuests: '' }));
+            }
+        }
     };
+
 
     const fetchLocations = async () => {
         try {
@@ -69,16 +79,18 @@ function MyHome() {
     };
 
     const handleSaveChanges = async () => {
+        if (homeData.maxGuests < 0) {
+            toast.error("Số lượng tối đa không được nhỏ hơn 0.");
+            return;
+        }
+
         try {
             const userHomeId = dataProfile?.home?.userHomeId;
             if (!userHomeId) {
                 toast.error("Không tìm thấy ID nhà của bạn.");
                 return;
             }
-
-            // In toàn bộ dữ liệu ra console để kiểm tra
-            console.log("Data to be sent:", homeData);
-
+            // Thực hiện cập nhật dữ liệu như bình thường
             const response = await axios.put(
                 `https://travelmateapp.azurewebsites.net/api/UserHome/edit-current-user/${userHomeId}`,
                 {
@@ -94,7 +106,7 @@ function MyHome() {
                 },
                 {
                     headers: {
-                        Authorization: `${token}`, // Bổ sung Bearer nếu cần
+                        Authorization: `${token}`,
                     },
                 }
             );
@@ -111,6 +123,7 @@ function MyHome() {
             toast.error("Đã xảy ra lỗi khi lưu thay đổi.");
         }
     };
+
 
     //Home photos
     const [isUploading, setIsUploading] = useState(false);
@@ -209,12 +222,23 @@ function MyHome() {
                 </Col>
                 <Col lg={8}>
                     {isEditing ? (
-                        <Form.Control
-                            type="number"
-                            max={50}
-                            value={homeData.maxGuests || ''}
-                            onChange={(e) => handleInputChange('maxGuests', e.target.value)}
-                        />
+                        <>
+                            <Form.Control
+                                type="number"
+                                max={50}
+                                min={0}
+                                value={homeData.maxGuests || ''}
+                                onChange={(e) => handleInputChange('maxGuests', e.target.value)}
+                                onBlur={() => {
+                                    if (homeData.maxGuests < 0) {
+                                        setErrors(prev => ({ ...prev, maxGuests: 'Số lượng tối đa không được nhỏ hơn 0' }));
+                                    }
+                                }}
+                            />
+                            {errors.maxGuests && (
+                                <Form.Text className="text-danger">{errors.maxGuests}</Form.Text>
+                            )}
+                        </>
                     ) : (
                         renderDataOrFallback(homeData.maxGuests)
                     )}
