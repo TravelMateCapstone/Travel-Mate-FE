@@ -119,7 +119,7 @@ const TripHistory = () => {
 
   // Từ chối tour
   const denyTour = (tourId) => {
-    axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/ban/${tourId}`)
+    axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/reject/${tourId}`)
       .then((response) => {
         console.log("Tour denied:", response.data);
         toast.success("Tour đã bị từ chối thành công!")
