@@ -13,7 +13,7 @@ import groupIcon from '../../assets/icon/group.png';
 import friendIcon from '../../assets/icon/friend.png';
 import notifyIcon from '../../assets/icon/notify.png';
 
-function NotifyItem({ notificationId, typeNotification, senderId, isRequest, avatar, content, name, isRead, onAccept, onDecline }) {
+function NotifyItem({ notificationId, typeNotification, senderId, isRequest, avatar, content, name, isRead, onAccept, onDecline, updateUnreadCount }) {
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -100,6 +100,7 @@ function NotifyItem({ notificationId, typeNotification, senderId, isRequest, ava
             try {
                 await axios.post(`https://travelmateapp.azurewebsites.net/api/Notification/current-user-read/${notificationId}`);
                 toast.success("Thông báo đã được đánh dấu là đã đọc!");
+                updateUnreadCount(); // Update unread count
             } catch (error) {
                 console.error("Error marking notification as read:", error);
                 toast.error("Có lỗi xảy ra khi đánh dấu thông báo là đã đọc!");

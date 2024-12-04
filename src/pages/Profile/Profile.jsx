@@ -6,6 +6,8 @@ import Favorites from '../../components/Profile/Favorites';
 import Friends from '../../components/Profile/Friends';
 import MyHome from '../../components/Profile/MyHome';
 import PastTrips from '../../components/Profile/PastTrips';
+import TourList from '../../components/Profile/TourList';  // Import the TourList component
+
 function Profile() {
   const [activeTab, setActiveTab] = useState(0);
 
@@ -20,6 +22,7 @@ function Profile() {
     <PastTrips />,
     <Friends />,
     <Favorites />,
+    <TourList />  
   ];
 
   const tabIcons = [
@@ -27,13 +30,14 @@ function Profile() {
     'home-outline',
     'car-sport-outline',
     'people-outline',
-    'bookmarks-outline'
+    'bookmarks-outline',
+    'map-outline',  
   ];
 
   return (
     <div className="tabs">
       <div className="tab-header">
-        {['Giới thiệu', 'Nhà của tôi', 'Chuyến đi', 'Bạn bè', 'Địa điểm'].map((tab, index) => (
+        {['Giới thiệu', 'Nhà của tôi', 'Chuyến đi', 'Bạn bè', 'Địa điểm', 'Danh sách tour'].map((tab, index) => (  
           <div
             key={index}
             className={activeTab === index ? 'active' : ''}
@@ -42,7 +46,8 @@ function Profile() {
             {/* Add icon before the tab name */}
             <ion-icon name={tabIcons[index]} style={{
               fontSize: '14px',
-            }}></ion-icon> <div className='fw-semibold' style={{
+            }}></ion-icon> 
+            <div className='fw-semibold' style={{
               fontSize: '13px',
             }}>{tab}</div>
           </div>
@@ -50,7 +55,7 @@ function Profile() {
       </div>
 
       <div className="tab-indicator">
-        <div style={{ left: `${activeTab * 20}%` }}></div>
+        <div style={{ left: `${activeTab * 16.67}%` }}></div> {/* Adjust the width of the indicator */}
       </div>
 
       <div className="tab-body">

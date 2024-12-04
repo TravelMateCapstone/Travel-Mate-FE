@@ -44,21 +44,27 @@ function GroupCreated() {
   return (
     <div>
       <div className='group-list'>
-        {data.groups.$values.map(group => (
-          <GroupCard key={group.groupId} group={group} userJoinedStatus="Owner" />
-        ))}
+        {data.groups.$values.length === 0 ? (
+          <div>Bạn chưa tạo nhóm nào</div>
+        ) : (
+          data.groups.$values.map(group => (
+            <GroupCard key={group.groupId} group={group} userJoinedStatus="Owner" />
+          ))
+        )}
       </div>
-      <ReactPaginate
-        previousLabel={"previous"}
-        nextLabel={"next"}
-        breakLabel={"..."}
-        pageCount={data.totalPages}
-        marginPagesDisplayed={2}
-        pageRangeDisplayed={3}
-        onPageChange={handlePageClick}
-        containerClassName={"pagination"}
-        activeClassName={"active"}
-      />
+      {data.totalPages > 1 && (
+        <ReactPaginate
+          previousLabel={"Trang truớc"}
+          nextLabel={"Trang sau"}
+          breakLabel={"..."}
+          pageCount={data.totalPages}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={3}
+          onPageChange={handlePageClick}
+          containerClassName={"pagination"}
+          activeClassName={"active"}
+        />
+      )}
     </div>
   )
 }

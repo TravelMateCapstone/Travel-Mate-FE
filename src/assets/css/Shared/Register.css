@@ -96,8 +96,9 @@
   display: flex;
   align-items: center;
   justify-content: start;
-  border-radius: 10px !important;
+  border-radius: 5px !important;
   margin-bottom: 10px;
+  border: 1px solid #d9d9d9 !important;
 }
 
 .social-btn img {

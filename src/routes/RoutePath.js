@@ -67,6 +67,7 @@ const RoutePath = {
 
     TOUR_DETAIL: '/tour-detail',
     TOUR_DETAIL_EDIT: '/tour-detail/edit',
+    REGULATION: '/regulation',
 
 
     //others Profile

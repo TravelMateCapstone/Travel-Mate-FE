@@ -42,6 +42,7 @@ import SearchListLocal from "../pages/Search/SearchListLocal"
 import SearchListTraveller from "../pages/Search/SearchListTraveller"
 import MyProfile from "../pages/ProfileManagement/MyProfile"
 import TourDetail from "../pages/Tour/TourDetail"
+import Regulation from "../pages/Regulation"
 
 const publishRoutes = [
     { path: RoutePath.HOMEPAGE, component: Home, layout: HomeFeedLayout },
@@ -91,8 +92,9 @@ const privateRoutes = [
     { path: RoutePath.LOCAL_WALLET_MANAGEMENT, component: LocalWalletManagement, layout: AdminLayout },
     { path: RoutePath.LOCAL_PLAN_MANAGEMENT, component: PlanManagemnet, layout: AdminLayout },
 
-    { path: RoutePath.DESTINATION, component: Destination, },
-    { path: RoutePath.TOUR_DETAIL, component: TourDetail, layout: NavBarLayout }
+    { path: RoutePath.DESTINATION, component: Destination,  },
+    { path: RoutePath.TOUR_DETAIL, component: TourDetail,  },
+    { path: RoutePath.REGULATION, component: Regulation,  },
 ]
 
 export { publishRoutes, privateRoutes }

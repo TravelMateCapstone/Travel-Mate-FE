@@ -56,17 +56,19 @@ function GroupList() {
           <GroupCard key={group.groupId} group={group} />
         ))}
       </div>
-      <ReactPaginate
-        previousLabel={"previous"}
-        nextLabel={"next"}
-        breakLabel={"..."}
-        pageCount={data.totalPages}
-        marginPagesDisplayed={2}
-        pageRangeDisplayed={3}
-        onPageChange={handlePageClick}
-        containerClassName={"pagination"}
-        activeClassName={"active"}
-      />
+      {data.totalPages > 1 && (
+        <ReactPaginate
+          previousLabel={"Trang trước"}
+          nextLabel={"Trang sau"}
+          breakLabel={"..."}
+          pageCount={data.totalPages}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={3}
+          onPageChange={handlePageClick}
+          containerClassName={"pagination"}
+          activeClassName={"active"}
+        />
+      )}
     </div>
   );
 }

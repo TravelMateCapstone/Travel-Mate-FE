@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Navbar as BootstrapNavbar, Nav, Row, Col, Container, Dropdown, Button, Offcanvas, Badge } from 'react-bootstrap';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
@@ -25,6 +25,8 @@ const Navbar = React.memo(() => {
   const [messages, setMessages] = useState([]); // Added messages state
   const [showMoreNotifications, setShowMoreNotifications] = useState(false);
   const [displayedNotifications, setDisplayedNotifications] = useState([]);
+  const connectionRef = useRef(null);
+  const [chats, setChats] = useState([]);
 
 
   const dispatch = useDispatch();
@@ -56,6 +58,19 @@ const Navbar = React.memo(() => {
 
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
+  const fetchChats = async () => {
+    try {
+      // const response = await axios.get('https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/Chats', {
+      //   headers: {
+      //     Authorization: `${token}`
+      //   }
+      // });
+      // setChats(response.data?.$values);
+    } catch (error) {
+      console.error('Error fetching chats:', error);
+    }
+  };
+
   // Fetch thông báo từ API
   const fetchNotifications = async () => {
     if (isAuthenticated && token) {
@@ -69,7 +84,7 @@ const Navbar = React.memo(() => {
             const updatedNotifications = response.data.$values.map(notification => {
               return {
                 ...notification,
-                isRequest: notification.message.includes("Bạn đã nhận được một lời mời kết bạn từ"),
+                isRequest: notification.message.includes("Bạn đã nhận được một lời mời kết bạn từ "),
                 senderId: notification.senderId ? notification.senderId : null
               };
             });
@@ -79,7 +94,7 @@ const Navbar = React.memo(() => {
             const unreadCount = updatedNotifications.filter(notification => !notification.isRead).length;
             setUnreadNotificationsCount(unreadCount); // Cập nhật số lượng thông báo chưa đọc
 
-            console.log("Notifications data: ", updatedNotifications);
+            // console.log("Notifications data: ", updatedNotifications);
           }
         })
         .catch(error => {
@@ -90,11 +105,15 @@ const Navbar = React.memo(() => {
 
   const setupSignalRConnection = () => {
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl(SIGNALR_HUB_URL, { withCredentials: true })
+      .withUrl('https://travelmateapp.azurewebsites.net/serviceHub', {
+        skipNegotiation: true,  // Optional: You can try skipping the negotiation if you're having issues with CORS
+        transport: signalR.HttpTransportType.WebSockets // Use WebSockets if available
+      })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
       .build();
 
+    connectionRef.current = connection;
 
     connection
       .start()
@@ -103,12 +122,22 @@ const Navbar = React.memo(() => {
 
         // Lắng nghe sự kiện "NotificationReceived"
         connection.on('NotificationCreated', (newNotification) => {
-          console.log('Tạo thong báo');
-
           setNotifications((prevNotifications) => [
             newNotification,
             ...prevNotifications,
           ]);
+        });
+
+        // Lắng nghe sự kiện "ReadNotification"
+        connection.on('ReadNotification', (updatedNotification) => {
+          console.log(updatedNotification);
+          setNotifications((prevNotifications) =>
+            prevNotifications.map((notification) =>
+              notification.notificationId === updatedNotification.notificationId
+                ? updatedNotification
+                : notification
+            )
+          );
         });
       })
       .catch((error) => {
@@ -119,9 +148,26 @@ const Navbar = React.memo(() => {
 
 
   useEffect(() => {
-    fetchNotifications();
     setupSignalRConnection();
+    fetchChats();
+    fetchNotifications();
+    // Cleanup on unmount or logout
+    return () => {
+      if (connectionRef.current) {
+        connectionRef.current.stop()
+          // .then(() => {
+          //   console.log("SignalR connection stopped on unmount.");
+          // })
+          .catch((error) => {
+            console.error("Error stopping SignalR connection on unmount:", error);
+          });
+      }
+    };
   }, [isAuthenticated, token]);
+
+  const updateUnreadCount = useCallback(() => {
+    setUnreadNotificationsCount((prevCount) => prevCount - 1);
+  }, []);
 
   const handleLoginModal = useCallback(() => {
     if (isLoginModalOpen) {
@@ -143,11 +189,23 @@ const Navbar = React.memo(() => {
     dispatch(logout());
     // Clear token from state
     dispatch(logout());
+
+    // Stop SignalR connection
+    if (connectionRef.current) {
+      connectionRef.current.stop()
+        .then(() => {
+          console.log("SignalR connection stopped.");
+        })
+        .catch((error) => {
+          console.error("Error stopping SignalR connection:", error);
+        });
+    }
   }, [dispatch]);
+
 
   const handleSelect = useCallback((eventKey) => {
     setSelectedItem(eventKey);
-    console.log(`Selected item: ${eventKey}`);
+    // console.log(`Selected item: ${eventKey}`);
   }, []);
 
   const handleShow = useCallback(() => setShowOffcanvas(true), []);
@@ -340,7 +398,7 @@ const Navbar = React.memo(() => {
                   <Dropdown.Menu className="py-3 dropdown-menu-notify">
                     <div className="notification-scroll">
                       {displayedNotifications.map((notification) => (
-                        <Dropdown.Item key={notification.notificationId} href={`#notification${notification.notificationId}`}>
+                        <Dropdown.Item key={notification.notificationId}>
                           <NotifyItem
                             notificationId={notification.notificationId}
                             typeNotification={notification.typeNotification}
@@ -352,6 +410,7 @@ const Navbar = React.memo(() => {
                             isRead={notification.isRead}
                             onAccept={() => handleAcceptFriendRequest(notification.senderId)}
                             onDecline={() => handleRejectFriendRequest(notification.senderId)}
+                            updateUnreadCount={updateUnreadCount}
                           />
                         </Dropdown.Item>
                       ))}
