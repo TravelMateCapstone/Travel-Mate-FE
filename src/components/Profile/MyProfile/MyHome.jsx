@@ -1,14 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Container, Row, Col, Button, Form } from 'react-bootstrap';
 import axios from 'axios';
+
+import { storage } from '../../../../firebaseConfig';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
 import UploadImageComponent from '../../../components/Shared/UploadImageComponent';
+
+import { useQuery, useMutation, useQueryClient } from 'react-query';
+
+import { toast } from 'react-toastify';  // Thêm phần này
+import 'react-toastify/dist/ReactToastify.css'; // Import CSS cho toastify
+import { useNavigate } from 'react-router-dom';
+import { viewProfile } from '../../../redux/actions/profileActions';
 
 function MyHome() {
     const [isEditing, setIsEditing] = useState(false);
     const [locations, setLocations] = useState([]);
     const [homeData, setHomeData] = useState({});
     const dataProfile = useSelector(state => state.profile);
+
+    const token = useSelector((state) => state.auth.token);
+    const user = useSelector((state) => state.auth.user);
+
+    const userHomeId = dataProfile?.home?.userHomeId;
+
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchLocations();
@@ -48,6 +67,129 @@ function MyHome() {
     const renderDataOrFallback = (data) => {
         return data ? data : <span style={{ fontStyle: 'italic', color: '#6c757d' }}>Chưa cập nhật</span>;
     };
+
+    const handleSaveChanges = async () => {
+        try {
+            const userHomeId = dataProfile?.home?.userHomeId;
+            if (!userHomeId) {
+                toast.error("Không tìm thấy ID nhà của bạn.");
+                return;
+            }
+
+            // In toàn bộ dữ liệu ra console để kiểm tra
+            console.log("Data to be sent:", homeData);
+
+            const response = await axios.put(
+                `https://travelmateapp.azurewebsites.net/api/UserHome/edit-current-user/${userHomeId}`,
+                {
+                    maxGuests: homeData.maxGuests,
+                    guestPreferences: homeData.guestPreferences,
+                    allowedSmoking: homeData.allowedSmoking,
+                    roomDescription: homeData.roomDescription,
+                    roomType: homeData.roomType || "",
+                    roomMateInfo: homeData.roomMateInfo,
+                    amenities: homeData.amenities,
+                    transportation: homeData.transportation,
+                    overallDescription: homeData.overallDescription,
+                },
+                {
+                    headers: {
+                        Authorization: `${token}`, // Bổ sung Bearer nếu cần
+                    },
+                }
+            );
+
+            if (response.status === 200) {
+                dispatch(viewProfile(user.id));
+                setIsEditing(false);
+                toast.success("Cập nhật thành công!");
+            } else {
+                toast.error("Cập nhật thất bại.");
+            }
+        } catch (error) {
+            console.error("Error saving changes:", error);
+            toast.error("Đã xảy ra lỗi khi lưu thay đổi.");
+        }
+    };
+
+    //Home photos
+    const [isUploading, setIsUploading] = useState(false);
+
+    const updateApiUrl = `${import.meta.env.VITE_BASE_API_URL}/api/UserHome/edit-current-user`;
+    const addImagesApiUrl = `${import.meta.env.VITE_BASE_API_URL}/api/HomePhoto/currentAddImagesHome`;
+
+    const queryClient = useQueryClient();
+    const [formData, setFormData] = useState({
+        maxGuests: 0,
+        guestPreferences: '',
+        allowedSmoking: '',
+        roomDescription: '',
+        roomType: '',
+        roomMateInfo: '',
+        amenities: '',
+        transportation: '',
+        overallDescription: '',
+        homePhotos: [],
+    });
+    const triggerFileInput = useCallback(() => {
+        document.getElementById('fileInputGroup').click();
+    }, []);
+
+    const updateHomePhotos = useCallback(async (photoUrls) => {
+        console.log(userHomeId);
+        console.log(photoUrls);
+        try {
+            await axios.post(addImagesApiUrl, {
+                userHomeId: userHomeId,
+                photoUrls: photoUrls,
+            }, {
+                headers: {
+                    Authorization: `${token}`,
+                },
+            });
+            dispatch(viewProfile(user.id, token));
+            toast.success("Ảnh đã được cập nhật thành công trên server!");
+        } catch (error) {
+            console.error("Error updating photos:", error);
+            toast.error("Lỗi khi cập nhật ảnh trên server.");
+        }
+    }, [addImagesApiUrl, userHomeId, token]);
+
+    const handleFileSelect = useCallback(async (event) => {
+        const files = event.target.files;
+        if (files.length > 0) {
+            setIsUploading(true);
+            const uploadedUrls = [];
+            for (const file of files) {
+                const storageRef = ref(storage, `images/${file.name}`);
+                try {
+                    await uploadBytes(storageRef, file);
+                    const url = await getDownloadURL(storageRef);
+                    uploadedUrls.push(url);
+                } catch (error) {
+                    toast.error(`Lỗi khi tải lên ảnh: ${file.name}`);
+                }
+            }
+
+            // Cập nhật trạng thái với các URL ảnh mới
+            setFormData((prevState) => ({
+                ...prevState,
+                homePhotos: [...prevState.homePhotos, ...uploadedUrls],
+            }));
+
+            // Chỉ truyền các URL ảnh mới được tải lên vào hàm updateHomePhotos
+            await updateHomePhotos(uploadedUrls);
+
+            toast.success('Ảnh đã được tải lên thành công');
+            setIsUploading(false);
+
+            // Tải lại dữ liệu sau khi cập nhật ảnh
+            queryClient.invalidateQueries('userData');
+        }
+    }, [updateHomePhotos, queryClient]);
+
+
+
 
     return (
         <Container>
@@ -91,6 +233,7 @@ function MyHome() {
                             value={homeData.guestPreferences || ''}
                             onChange={(e) => handleInputChange('guestPreferences', e.target.value)}
                         >
+                            <option value="">Chọn giới tính ưu tiên</option>
                             <option value="Nam">Nam</option>
                             <option value="Nữ">Nữ</option>
                             <option value="Khác">Khác</option>
@@ -114,6 +257,7 @@ function MyHome() {
                             value={homeData.allowedSmoking || ''}
                             onChange={(e) => handleInputChange('allowedSmoking', e.target.value)}
                         >
+                            <option value="">Lựa chọn</option>
                             <option value="Có">Có</option>
                             <option value="Không">Không</option>
                         </Form.Select>
@@ -229,6 +373,28 @@ function MyHome() {
             <hr />
 
             {/* Hình ảnh nhà */}
+
+            {/* <div className="container px-5">
+                <div className="row">
+                    {formData.homePhotos.map((image, index) => (
+                        <div
+                            key={index}
+                            className="col col-lg-4 col-md-6 col-6 image-grid-container"
+                        >
+                            <div className="img-thumbnail shadow p-3">
+                                <LazyLoadImage
+                                    src={image.homePhotoUrl}
+                                    alt={`image-${index}`}
+                                    effect="blur" // Tạo hiệu ứng làm mờ khi tải
+                                    className="img-fluid"
+                                />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div> */}
+
+
             <Row className="mb-3">
                 <Col lg={4} className="d-flex align-items-center">
                     <Form.Label>Hình ảnh nhà của bạn</Form.Label>
@@ -241,12 +407,37 @@ function MyHome() {
                             </Col>
                         ))}
                     </Row>
-                    {isEditing && <UploadImageComponent onUpload={handleUploadImages} />}
+                    {isEditing &&
+                        <div className="display-form-myhome mt-4">
+                            <input
+                                type="file"
+                                id="fileInputGroup"
+                                style={{ display: 'none' }}
+                                onChange={handleFileSelect}
+                                multiple // Cho phép chọn nhiều ảnh
+                            />
+                            <Button
+                                variant=""
+                                onClick={triggerFileInput}
+                                disabled={isUploading}
+                                className="mb-3 input-save"
+                            >
+                                {isUploading ? (
+                                    'Đang tải lên...'
+                                ) : (
+                                    <>
+                                        Nhấn vào đây để{' '}
+                                        <span className='text-primary'>upload</span>
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                    }
                 </Col>
             </Row>
 
             {isEditing && (
-                <Button variant='success' className='rounded-5' onClick={() => console.log('Save Changes:', homeData)}>
+                <Button variant='success' className='rounded-5' onClick={handleSaveChanges}>
                     Lưu thay đổi
                 </Button>
             )}

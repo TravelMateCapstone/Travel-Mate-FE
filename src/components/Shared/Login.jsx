@@ -57,10 +57,7 @@ const Login = ({ show, handleClose }) => {
         // Dispatch dữ liệu người dùng vào store
         dispatch(loginSuccess({ user, token }));
 
-        // Thông báo đăng nhập thành công
-        toast.success('Đăng nhập thành công!', {
-          position: "bottom-right",
-        });
+       
 
         // Kiểm tra role và chuyển hướng nếu là admin
         if (user.role === 'admin') {
@@ -185,7 +182,7 @@ const Login = ({ show, handleClose }) => {
                   onError={handleLoginFailure}
                 />
               </GoogleOAuthProvider>
-              <Button variant="outline-dark" className="social-btn">
+              <Button variant="" className="social-btn">
                 <img src={facebook} alt="facebook icon" />
                 <span>Đăng nhập bằng Facebook</span>
               </Button>

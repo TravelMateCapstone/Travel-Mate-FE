@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Navbar as BootstrapNavbar, Nav, Row, Col, Container, Dropdown, Button, Offcanvas, Badge } from 'react-bootstrap';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
@@ -15,6 +15,7 @@ import MessengerItem from "../Shared/MessengerItem";
 import { logout } from "../../redux/actions/authActions";
 import { toast } from 'react-toastify';
 import { viewProfile } from '../../redux/actions/profileActions';
+import * as signalR from '@microsoft/signalr';
 
 const Navbar = React.memo(() => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -24,6 +25,8 @@ const Navbar = React.memo(() => {
   const [messages, setMessages] = useState([]); // Added messages state
   const [showMoreNotifications, setShowMoreNotifications] = useState(false);
   const [displayedNotifications, setDisplayedNotifications] = useState([]);
+  const connectionRef = useRef(null);
+  const [chats, setChats] = useState([]);
 
 
   const dispatch = useDispatch();
@@ -34,10 +37,12 @@ const Navbar = React.memo(() => {
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
 
+
+  const SIGNALR_HUB_URL = 'https://travelmateapp.azurewebsites.net/serviceHub';
+
   const handelShowOffcanvas = useCallback(() => {
     setShowOffcanvas(true);
   });
-
 
   const handleSearchDestination = useCallback(() => {
     navigate(RoutePath.DESTINATION); // Điều hướng đến trang "Khách du lịch"
@@ -51,11 +56,23 @@ const Navbar = React.memo(() => {
     navigate(RoutePath.SEARCH_LIST_TRAVELLER); // Điều hướng đến trang "Khách du lịch"
   }, [navigate]);
 
-
-
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
-  useEffect(() => {
+  const fetchChats = async () => {
+    try {
+      // const response = await axios.get('https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/Chats', {
+      //   headers: {
+      //     Authorization: `${token}`
+      //   }
+      // });
+      // setChats(response.data?.$values);
+    } catch (error) {
+      console.error('Error fetching chats:', error);
+    }
+  };
+
+  // Fetch thông báo từ API
+  const fetchNotifications = async () => {
     if (isAuthenticated && token) {
       axios.get('https://travelmateapp.azurewebsites.net/api/Notification/current-user/notifications', {
         headers: {
@@ -67,7 +84,7 @@ const Navbar = React.memo(() => {
             const updatedNotifications = response.data.$values.map(notification => {
               return {
                 ...notification,
-                isRequest: notification.message.includes("Bạn đã nhận được một lời mời kết bạn từ"),
+                isRequest: notification.message.includes("Bạn đã nhận được một lời mời kết bạn t��"),
                 senderId: notification.senderId ? notification.senderId : null
               };
             });
@@ -84,7 +101,59 @@ const Navbar = React.memo(() => {
           console.error('Error fetching notifications:', error);
         });
     }
+  };
+
+  const setupSignalRConnection = () => {
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl('https://travelmateapp.azurewebsites.net/serviceHub', {
+        skipNegotiation: true,  // Optional: You can try skipping the negotiation if you're having issues with CORS
+        transport: signalR.HttpTransportType.WebSockets // Use WebSockets if available
+      })
+      .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information)
+      .build();
+
+    connectionRef.current = connection;
+
+    connection
+      .start()
+      .then(() => {
+        console.log('SignalR connected successfully.');
+
+        // Lắng nghe sự kiện "NotificationReceived"
+        connection.on('NotificationCreated', (newNotification) => {
+          setNotifications((prevNotifications) => [
+            newNotification,
+            ...prevNotifications,
+          ]);
+        });
+      })
+      .catch((error) => {
+        console.error('Error connecting to SignalR hub:', error);
+        console.error(error.response || error.message || error);
+      });
+  };
+
+
+  useEffect(() => {
+    setupSignalRConnection();
+    fetchChats();
+    fetchNotifications();
+
+    // Cleanup on unmount or logout
+    return () => {
+      if (connectionRef.current) {
+        connectionRef.current.stop()
+          // .then(() => {
+          //   console.log("SignalR connection stopped on unmount.");
+          // })
+          .catch((error) => {
+            console.error("Error stopping SignalR connection on unmount:", error);
+          });
+      }
+    };
   }, [isAuthenticated, token]);
+
 
   const handleLoginModal = useCallback(() => {
     if (isLoginModalOpen) {
@@ -106,11 +175,23 @@ const Navbar = React.memo(() => {
     dispatch(logout());
     // Clear token from state
     dispatch(logout());
+
+    // Stop SignalR connection
+    if (connectionRef.current) {
+      connectionRef.current.stop()
+        .then(() => {
+          console.log("SignalR connection stopped.");
+        })
+        .catch((error) => {
+          console.error("Error stopping SignalR connection:", error);
+        });
+    }
   }, [dispatch]);
+
 
   const handleSelect = useCallback((eventKey) => {
     setSelectedItem(eventKey);
-    console.log(`Selected item: ${eventKey}`);
+    // console.log(`Selected item: ${eventKey}`);
   }, []);
 
   const handleShow = useCallback(() => setShowOffcanvas(true), []);

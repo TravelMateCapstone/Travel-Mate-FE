@@ -17,15 +17,11 @@ const MapComponent = () => {
     y: 0,
   });
 
-  // Sử dụng useEffect để log giá trị tooltip sau khi nó được cập nhật
-  useEffect(() => {
-    console.log(tooltip);
-  }, [tooltip]);
+
 
   const handleMouseEnter = (e, name) => {
     setHovered(true);
     setHoveredElement(name);
-    console.log(`Hovered on: ${name}`);
     setTooltip(
       {
         visible: true,
@@ -46,13 +42,11 @@ const MapComponent = () => {
       y: 0,
     });
   };
-  // Sử dụng useEffect để log giá trị tooltip sau khi nó được cập nhật
-  useEffect(() => {
-    console.log("Tooltip: ", tooltip);
-  }, [tooltip]);
 
   return (
-    <>
+    <div style={{
+      marginTop: "-130px",
+    }}>
       {tooltip.visible && (
         <p style={{
           position: "absolute",
@@ -68,16 +62,16 @@ const MapComponent = () => {
         }}>{tooltip.content}</p>
       )}
       <svg
-        baseprofile="tiny"
+        baseProfile="tiny"
         fill="#6f9c76"
         height="1000"
         stroke="#ffffff"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width=".3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth=".3"
         version="1.2"
-        viewbox="0"
-        width="1300"
+        viewBox="0 0 1000 1000"
+        width="1000"
         xmlns="http://www.w3.org/2000/svg"
         transform="scale(0.8)"
         style={{
@@ -89,8 +83,8 @@ const MapComponent = () => {
 
           <path
             d="M 770.628 526.425 L 771.878 528.93 L 769.478 529.53 L 769.408 529.549 L 769.458 529.61 L 770.348 530.71 L 770.368 530.735 L 770.408 530.727 L 773.148 530.041 L 772.868 530.232 L 770.108 530.823 L 769.068 529.592 L 770.608 528.726 C 771.638 522.016 776.518 523.56 775.898 527.55 L 775.448 528.445 L 773.258 529.961 L 774.138 528.605 L 774.198 528.509 L 774.078 528.529 L 770.628 526.425 Z M 738.338 519.556 L 736.548 520.778 L 736.738 518.182 L 736.748 518.128 L 736.688 518.128 L 733.318 518.128 L 734.238 519.061 L 733.818 520.141 L 727.958 521.242 L 728.008 521.324 L 731.088 520.034 L 731.898 520.482 L 729.868 521.832 L 727.718 522.419 L 717.558 523.081 L 722.618 515.534 L 736.878 516.83 L 737.848 517.41 L 738.338 519.556 Z M 751.398 514.635 L 748.788 514.728 L 748.788 514.727 L 749.008 516.787 L 745.078 517.77 L 745.448 514.616 L 749.388 513.631 L 751.398 514.635 Z M 739.278 528.292 L 737.488 529.424 L 735.978 528.952 L 737.108 527.537 L 739.278 528.292 Z M 729.928 507.205 L 729.188 509.788 L 725.968 508.13 L 729.928 507.205 Z M 738.958 506.234 L 735.738 509.467 L 735.738 505.759 L 738.958 506.234 Z M 734.868 503.39 L 732.518 504.591 L 734.618 506.751 L 734.868 503.39 Z M 719.008 489.874 L 724.768 497.338 L 708.408 498.3 L 719.008 489.874 Z M 760.428 480.03 L 764.068 485.743 L 757.908 484.125 L 757.178 483.398 L 760.428 480.03 Z M 727.308 476.999 L 732.878 481.902 L 725.148 483.714 L 721.458 481.82 L 721.158 479.71 L 727.308 476.999 Z"
-            fill-opacity="1"
-            stroke-width="1"
+            fillOpacity="1"
+            strokeWidth="1"
             id="object-0"
             fill={getFillColor("Hoàng Sa")}
             onMouseEnter={(e) => handleMouseEnter(e, "Hoàng Sa")}
@@ -730,19 +724,19 @@ const MapComponent = () => {
         </g>
         <g id="points">
           <circle
-            class="9.305608612735412|102.49714125375418"
+            className="9.305608612735412|102.49714125375418"
             cx="305.5"
             cy="910.5"
             id="0"
           ></circle>
           <circle
-            class="15.225848359677293|106.16834202638059"
+            className="15.225848359677293|106.16834202638059"
             cx="521.6"
             cy="553.7"
             id="1"
           ></circle>
           <circle
-            class="22.626148043354654|109.10530264448171"
+            className="22.626148043354654|109.10530264448171"
             cx="694.5"
             cy="92.8"
             id="2"
@@ -750,92 +744,92 @@ const MapComponent = () => {
         </g>
        
         <g id="label_points">
-          <circle class="Kon Tum" cx="624" cy="586.8" id="VN28"></circle>
-          <circle class="Đắk Nông" cx="611.6" cy="739.5" id="VN72"></circle>
-          <circle class="Đắk Lắk" cx="641.4" cy="699.2" id="VN33"></circle>
-          <circle class="Gia Lai" cx="643.1" cy="637.1" id="VN30"></circle>
-          <circle class="Bình Phước" cx="565.5" cy="765.6" id="VN58"></circle>
-          <circle class="Tây Ninh" cx="518.3" cy="784.3" id="VN37"></circle>
-          <circle class="Long An" cx="531.7" cy="823.2" id="VN41"></circle>
-          <circle class="Ðong Tháp" cx="488.2" cy="830" id="VN45"></circle>
-          <circle class="An Giang" cx="463.3" cy="838.7" id="VN44"></circle>
-          <circle class="Kiên Giang" cx="469.6" cy="873.8" id="VN47"></circle>
-          <circle class="Điện Biên" cx="350.8" cy="148.5" id="VN71"></circle>
-          <circle class="Son La" cx="386.3" cy="177.1" id="VN05"></circle>
-          <circle class="Thanh Hóa" cx="481.1" cy="258.6" id="VN21"></circle>
-          <circle class="Nghệ An" cx="448" cy="307.1" id="VN22"></circle>
-          <circle class="Ha Tinh" cx="495.7" cy="364.4" id="VN23"></circle>
-          <circle class="Quảng Bình" cx="526.3" cy="412.5" id="VN24"></circle>
-          <circle class="Quảng Trị" cx="566.6" cy="459.5" id="VN25"></circle>
+          <circle className="Kon Tum" cx="624" cy="586.8" id="VN28"></circle>
+          <circle className="Đắk Nông" cx="611.6" cy="739.5" id="VN72"></circle>
+          <circle className="Đắk Lắk" cx="641.4" cy="699.2" id="VN33"></circle>
+          <circle className="Gia Lai" cx="643.1" cy="637.1" id="VN30"></circle>
+          <circle className="Bình Phước" cx="565.5" cy="765.6" id="VN58"></circle>
+          <circle className="Tây Ninh" cx="518.3" cy="784.3" id="VN37"></circle>
+          <circle className="Long An" cx="531.7" cy="823.2" id="VN41"></circle>
+          <circle className="Ðong Tháp" cx="488.2" cy="830" id="VN45"></circle>
+          <circle className="An Giang" cx="463.3" cy="838.7" id="VN44"></circle>
+          <circle className="Kiên Giang" cx="469.6" cy="873.8" id="VN47"></circle>
+          <circle className="Điện Biên" cx="350.8" cy="148.5" id="VN71"></circle>
+          <circle className="Son La" cx="386.3" cy="177.1" id="VN05"></circle>
+          <circle className="Thanh Hóa" cx="481.1" cy="258.6" id="VN21"></circle>
+          <circle className="Nghệ An" cx="448" cy="307.1" id="VN22"></circle>
+          <circle className="Ha Tinh" cx="495.7" cy="364.4" id="VN23"></circle>
+          <circle className="Quảng Bình" cx="526.3" cy="412.5" id="VN24"></circle>
+          <circle className="Quảng Trị" cx="566.6" cy="459.5" id="VN25"></circle>
           <circle
-            class="Thừa Thiên - Huế"
+            className="Thừa Thiên - Huế"
             cx="595.3"
             cy="484.3"
             id="VN26"
           ></circle>
-          <circle class="Quàng Nam" cx="629.3" cy="530.4" id="VN27"></circle>
-          <circle class="Hà Giang" cx="446.6" cy="92" id="VN03"></circle>
-          <circle class="Cao Bằng" cx="515.8" cy="84.2" id="VN04"></circle>
-          <circle class="Lào Cai" cx="400.8" cy="116.3" id="VN02"></circle>
-          <circle class="Lai Chau" cx="352.8" cy="109" id="VN01"></circle>
-          <circle class="Lạng Sơn" cx="539.1" cy="143.8" id="VN09"></circle>
-          <circle class="Quảng Ninh" cx="580.8" cy="183.5" id="VN13"></circle>
-          <circle class="Sóc Trăng" cx="508.1" cy="895.7" id="VN52"></circle>
-          <circle class="Tiền Giang" cx="524.3" cy="841.9" id="VN46"></circle>
+          <circle className="Quàng Nam" cx="629.3" cy="530.4" id="VN27"></circle>
+          <circle className="Hà Giang" cx="446.6" cy="92" id="VN03"></circle>
+          <circle className="Cao Bằng" cx="515.8" cy="84.2" id="VN04"></circle>
+          <circle className="Lào Cai" cx="400.8" cy="116.3" id="VN02"></circle>
+          <circle className="Lai Chau" cx="352.8" cy="109" id="VN01"></circle>
+          <circle className="Lạng Sơn" cx="539.1" cy="143.8" id="VN09"></circle>
+          <circle className="Quảng Ninh" cx="580.8" cy="183.5" id="VN13"></circle>
+          <circle className="Sóc Trăng" cx="508.1" cy="895.7" id="VN52"></circle>
+          <circle className="Tiền Giang" cx="524.3" cy="841.9" id="VN46"></circle>
           <circle
-            class="Bà Rịa - Vũng Tàu"
+            className="Bà Rịa - Vũng Tàu"
             cx="586.2"
             cy="835.3"
             id="VN43"
           ></circle>
           <circle
-            class="Hồ Chí Minh city"
+            className="Hồ Chí Minh city"
             cx="549"
             cy="820.8"
             id="VNSG"
           ></circle>
-          <circle class="Khánh Hòa" cx="686" cy="731.5" id="VN34"></circle>
-          <circle class="Cà Mau" cx="456.5" cy="924.7" id="VN59"></circle>
-          <circle class="Bạc Liêu" cx="481.6" cy="911" id="VN55"></circle>
-          <circle class="Hau Giang" cx="493.4" cy="877.6" id="VN73"></circle>
-          <circle class="Vĩnh Long" cx="512.7" cy="864.5" id="VN49"></circle>
-          <circle class="Trà Vinh" cx="529.9" cy="881.3" id="VN51"></circle>
-          <circle class="Bến Tre" cx="544.4" cy="861.1" id="VN50"></circle>
-          <circle class="Đông Nam Bộ" cx="582.6" cy="805.7" id="VN39"></circle>
-          <circle class="Bình Thuận" cx="619.6" cy="806.9" id="VN40"></circle>
-          <circle class="Ninh Thuận" cx="680.8" cy="764.3" id="VN36"></circle>
-          <circle class="Phú Yên" cx="692.2" cy="685.4" id="VN32"></circle>
-          <circle class="Bình Định" cx="683" cy="615.9" id="VN31"></circle>
-          <circle class="Quảng Ngãi" cx="667" cy="564.2" id="VN29"></circle>
-          <circle class="Đà Nẵng" cx="634.7" cy="502.8" id="VNDN"></circle>
-          <circle class="Ninh Bình" cx="503" cy="242.5" id="VN18"></circle>
-          <circle class="Nam Định" cx="527" cy="244.8" id="VN67"></circle>
-          <circle class="Thái Bình" cx="533.2" cy="226.9" id="VN20"></circle>
-          <circle class="Hải Phòng" cx="548.8" cy="209.2" id="VNHP"></circle>
-          <circle class="Hòa Bình" cx="473.4" cy="215.9" id="VN14"></circle>
-          <circle class="Tuyên Quang" cx="466.5" cy="125.8" id="VN07"></circle>
-          <circle class="Yên Bái" cx="431.8" cy="149.7" id="VN06"></circle>
-          <circle class="Vĩnh Phúc" cx="488.6" cy="175.1" id="VN70"></circle>
-          <circle class="Phú Thọ" cx="459.8" cy="175.4" id="VN68"></circle>
-          <circle class="Ha Noi" cx="495.3" cy="199.8" id="VNHN"></circle>
-          <circle class="Đông Bắc" cx="505.2" cy="118.7" id="VN53"></circle>
+          <circle className="Khánh Hòa" cx="686" cy="731.5" id="VN34"></circle>
+          <circle className="Cà Mau" cx="456.5" cy="924.7" id="VN59"></circle>
+          <circle className="Bạc Liêu" cx="481.6" cy="911" id="VN55"></circle>
+          <circle className="Hau Giang" cx="493.4" cy="877.6" id="VN73"></circle>
+          <circle className="Vĩnh Long" cx="512.7" cy="864.5" id="VN49"></circle>
+          <circle className="Trà Vinh" cx="529.9" cy="881.3" id="VN51"></circle>
+          <circle className="Bến Tre" cx="544.4" cy="861.1" id="VN50"></circle>
+          <circle className="Đông Nam Bộ" cx="582.6" cy="805.7" id="VN39"></circle>
+          <circle className="Bình Thuận" cx="619.6" cy="806.9" id="VN40"></circle>
+          <circle className="Ninh Thuận" cx="680.8" cy="764.3" id="VN36"></circle>
+          <circle className="Phú Yên" cx="692.2" cy="685.4" id="VN32"></circle>
+          <circle className="Bình Định" cx="683" cy="615.9" id="VN31"></circle>
+          <circle className="Quảng Ngãi" cx="667" cy="564.2" id="VN29"></circle>
+          <circle className="Đà Nẵng" cx="634.7" cy="502.8" id="VNDN"></circle>
+          <circle className="Ninh Bình" cx="503" cy="242.5" id="VN18"></circle>
+          <circle className="Nam Định" cx="527" cy="244.8" id="VN67"></circle>
+          <circle className="Thái Bình" cx="533.2" cy="226.9" id="VN20"></circle>
+          <circle className="Hải Phòng" cx="548.8" cy="209.2" id="VNHP"></circle>
+          <circle className="Hòa Bình" cx="473.4" cy="215.9" id="VN14"></circle>
+          <circle className="Tuyên Quang" cx="466.5" cy="125.8" id="VN07"></circle>
+          <circle className="Yên Bái" cx="431.8" cy="149.7" id="VN06"></circle>
+          <circle className="Vĩnh Phúc" cx="488.6" cy="175.1" id="VN70"></circle>
+          <circle className="Phú Thọ" cx="459.8" cy="175.4" id="VN68"></circle>
+          <circle className="Ha Noi" cx="495.3" cy="199.8" id="VNHN"></circle>
+          <circle className="Đông Bắc" cx="505.2" cy="118.7" id="VN53"></circle>
           <circle
-            class="Đồng Bằng Sông Hồng"
+            className="Đồng Bằng Sông Hồng"
             cx="513.2"
             cy="204.5"
             id="VN66"
           ></circle>
-          <circle class="Bắc Ninh" cx="518.6" cy="189.7" id="VN56"></circle>
-          <circle class="Bắc Giang" cx="550.4" cy="173.2" id="VN54"></circle>
-          <circle class="Thái Nguyên" cx="502.6" cy="158.6" id="VN69"></circle>
-          <circle class="Hải Dương" cx="532.3" cy="204.2" id="VN61"></circle>
-          <circle class="Hà Nam" cx="508.2" cy="224.5" id="VN63"></circle>
-          <circle class="Bình Dương" cx="553" cy="799.6" id="VN57"></circle>
-          <circle class="Lâm Đồng" cx="650.3" cy="760.4" id="VN35"></circle>
-          <circle class="Can Tho" cx="487.9" cy="854.9" id="VNCT"></circle>
+          <circle className="Bắc Ninh" cx="518.6" cy="189.7" id="VN56"></circle>
+          <circle className="Bắc Giang" cx="550.4" cy="173.2" id="VN54"></circle>
+          <circle className="Thái Nguyên" cx="502.6" cy="158.6" id="VN69"></circle>
+          <circle className="Hải Dương" cx="532.3" cy="204.2" id="VN61"></circle>
+          <circle className="Hà Nam" cx="508.2" cy="224.5" id="VN63"></circle>
+          <circle className="Bình Dương" cx="553" cy="799.6" id="VN57"></circle>
+          <circle className="Lâm Đồng" cx="650.3" cy="760.4" id="VN35"></circle>
+          <circle className="Can Tho" cx="487.9" cy="854.9" id="VNCT"></circle>
         </g>
       </svg>
-    </>
+    </div>
   );
 };
 

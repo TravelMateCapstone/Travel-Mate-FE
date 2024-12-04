@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Container, Row, Col, Button } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import { viewProfile } from '../../../redux/actions/profileActions';
+
 
 function AboutMe() {
     const [isEditing, setIsEditing] = useState(false);
@@ -10,9 +14,19 @@ function AboutMe() {
     const [hobbies, setHobbies] = useState([]);
     const [educations, setEducations] = useState([]);
     const [locations, setLocations] = useState([]);
-    const [profileData, setProfileData] = useState({});
+    const [citys, setCitys] = useState([]);
+
+    const [profileData, setProfileData] = useState({
+        city: '',
+        hometown: '',
+        // Các trường khác
+    });
 
     const dataProfile = useSelector(state => state.profile);
+    const token = useSelector((state) => state.auth.token);
+    const user = useSelector((state) => state.auth.user);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const toggleEdit = () => {
         setIsEditing(!isEditing);
@@ -22,7 +36,8 @@ function AboutMe() {
                 ...dataProfile.profile,
                 education: dataProfile.education?.$values?.[0]?.university.universityId || '',
                 hostingAvailability: dataProfile.profile?.hostingAvailability || '',
-                city: dataProfile.profile?.city || '',  // Dùng trực tiếp city thay vì registeredLocation
+                city: dataProfile.profile?.city || '',
+                hometown: dataProfile.profile?.address || '', // Gán trường Quê quán
             });
         }
     };
@@ -36,20 +51,35 @@ function AboutMe() {
         fetchLanguages();
         fetchHobbies();
         fetchEducation();
+        fetchCitys();
     }, []);
+
+    const fetchCitys = async () => {
+        try {
+            const response = await axios.get('https://provinces.open-api.vn/api/p/');
+            const cityData = response.data.map(city => ({
+                ...city,
+                name: city.name.replace(/^Tỉnh |^Thành phố /, ''),
+            }));
+            setCitys(cityData);
+        } catch (error) {
+            console.error("Error fetching city:", error);
+        }
+    };
 
     const fetchLocations = async () => {
         try {
-            const response = await axios.get('https://provinces.open-api.vn/api/p/');
-            const locationData = response.data.map(location => ({
-                ...location,
-                name: location.name.replace(/^Tỉnh |^Thành phố /, ''),
+            const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Locations');
+            const locationData = response.data.$values.map(location => ({
+                code: location.locationId,
+                name: location.locationName,
             }));
             setLocations(locationData);
         } catch (error) {
             console.error("Error fetching locations:", error);
         }
     };
+
 
     const fetchLanguages = async () => {
         try {
@@ -81,11 +111,84 @@ function AboutMe() {
         }
     };
 
-    const handleEditProfile = () => {
-        // Tìm kiếm ngôn ngữ bằng languagesId
-        const selectedLanguage = languages.find(lang => lang.languagesId === profileData.languages);
-        console.log("Dữ liệu đã chỉnh sửa:", profileData);
+    const handleEditProfile = async () => {
+        try {
+            const dataToSubmit = {
+                fullName: profileData.fullName || null,
+                firstName: profileData.firstName || null,
+                lastName: profileData.lastName || null,
+                address: profileData.hometown || null,
+                phone: profileData.phone || null,
+                gender: profileData.gender || null,
+                birthdate: profileData.birthdate || null,
+                city: profileData.city || null,
+                description: profileData.description || null,
+                hostingAvailability: profileData.hostingAvailability || null,
+                whyUseTravelMate: profileData.whyUseTravelMate || null,
+                musicMoviesBooks: profileData.musicMoviesBooks || null,
+                whatToShare: profileData.whatToShare || null,
+                imageUser: profileData.imageUser || null,
+            };
+
+            await axios.put(
+                'https://travelmateapp.azurewebsites.net/api/Profile/edit-by-current-user',
+                dataToSubmit,
+                { headers: { Authorization: `${token}` } }
+            );
+
+            // Kiểm tra và gọi API thêm ngôn ngữ nếu cần
+            const selectedLanguage = languages.find(lang => lang.languagesId === parseInt(profileData.languages));
+            const isLanguageExist = dataProfile.languages?.$values?.some(lang => lang.languages.languagesId === selectedLanguage?.languagesId);
+
+            if (!isLanguageExist && selectedLanguage) {
+                await axios.post(
+                    'https://travelmateapp.azurewebsites.net/api/SpokenLanguages/add-by-current-user',
+                    { languagesId: selectedLanguage.languagesId, proficiency: 'Tốt' },
+                    { headers: { Authorization: `${token}` } }
+                );
+            }
+
+            // Kiểm tra và gọi API thêm giáo dục nếu cần
+            const selectedEducation = educations.find(edu => edu.universityId === parseInt(profileData.education));
+            const isEducationExist = dataProfile.education?.$values?.some(edu => edu.university.universityId === selectedEducation?.universityId);
+
+            if (!isEducationExist && selectedEducation) {
+                await axios.post(
+                    'https://travelmateapp.azurewebsites.net/api/UserEducation/add-by-current-user',
+                    {
+                        universityId: selectedEducation.universityId,
+                        graduationYear: '2025-02-25T15:16:15.239' // Thay thế bằng giá trị thật từ form nếu có
+                    },
+                    { headers: { Authorization: `${token}` } }
+                );
+            }
+
+            // Kiểm tra và gọi API thêm sở thích nếu cần
+            const selectedHobby = hobbies.find(hobby => hobby.activityId === parseInt(profileData.hobbie));
+
+            const isHobbyExist = dataProfile.activities?.$values?.some(act => act.activity.activityId === selectedHobby?.activityId);
+            console.log("id", selectedHobby);
+
+            if (!isHobbyExist && selectedHobby) {
+                await axios.post(
+                    'https://travelmateapp.azurewebsites.net/api/UserActivitiesWOO/edit-by-current-user',
+                    { activityId: selectedHobby.activityId },
+                    { headers: { Authorization: `${token}` } }
+                );
+            }
+
+            dispatch(viewProfile(user.id));
+
+            toast.success('Cập nhật hồ sơ thành công!');
+
+        } catch (error) {
+            toast.error('Lỗi khi cập nhật hồ sơ hoặc thêm thông tin!');
+            console.error('Lỗi khi cập nhật hồ sơ:', error);
+        } finally {
+            setIsEditing(false); // Đóng chế độ chỉnh sửa
+        }
     };
+
 
     const renderDataOrFallback = (data) => {
         return data ? data : <span style={{ fontStyle: 'italic', color: '#6c757d' }}>Chưa cập nhật</span>;
@@ -112,10 +215,12 @@ function AboutMe() {
                             value={profileData.hostingAvailability || ''}
                             onChange={(e) => handleInputChange('hostingAvailability', e.target.value)}
                         >
+                            <option value="">Chọn trạng thái</option>
                             <option value="Đang bận">Đang bận</option>
                             <option value="Chào đón khách">Chào đón khách</option>
                             <option value="Không nhận khách">Không nhận khách</option>
                         </Form.Select>
+
                     ) : (
                         renderDataOrFallback(dataProfile.profile?.hostingAvailability || null)
                     )}
@@ -134,6 +239,7 @@ function AboutMe() {
                             value={profileData.education || ''}
                             onChange={(e) => handleInputChange('education', e.target.value)}
                         >
+                            <option value="">Chọn thêm giáo dục</option>
                             {educations.length > 0 ? (
                                 educations.map(education => (
                                     <option key={education.universityId} value={education.universityId}>
@@ -144,8 +250,12 @@ function AboutMe() {
                                 <option>Đang tải...</option>
                             )}
                         </Form.Select>
+
                     ) : (
-                        renderDataOrFallback(dataProfile.education?.$values?.[0]?.university.universityName)
+                        renderDataOrFallback(
+                            dataProfile.education?.$values?.map((edu) => `${edu.university.universityName}`).join(", ")
+                            // dataProfile.education?.$values?.map((edu) => `${edu.university.universityName} (${new Date(edu.graduationYear).getFullYear()})`).join(", ")
+                        )
                     )}
                 </Col>
             </Row>
@@ -160,11 +270,12 @@ function AboutMe() {
                     {isEditing ? (
                         <Form.Select
                             value={profileData.languages || ''}
-                            onChange={(e) => handleInputChange('languages', e.target.value)} // Gửi languagesId thay vì languagesName
+                            onChange={(e) => handleInputChange('languages', e.target.value)}
                         >
+                            <option value="">Chọn thêm ngôn ngữ</option>
                             {languages.length > 0 ? (
                                 languages.map(language => (
-                                    <option key={language.languagesId} value={language.languagesId}> {/* Lưu languagesId */}
+                                    <option key={language.languagesId} value={language.languagesId}>
                                         {language.languagesName}
                                     </option>
                                 ))
@@ -189,24 +300,25 @@ function AboutMe() {
                 <Col lg={8}>
                     {isEditing ? (
                         <Form.Select
-                            value={profileData.address || ''}
-                            onChange={(e) => handleInputChange('address', e.target.value)}
+                            value={profileData.hometown || ''}
+                            onChange={(e) => handleInputChange('hometown', e.target.value)}
                         >
-                            {locations.map(location => (
-                                <option key={location.code} value={location.name}>
-                                    {location.name}
+                            <option value="">Chọn quê quán</option>
+                            {citys.map(city => (
+                                <option key={city.code} value={city.name}>
+                                    {city.name}
                                 </option>
                             ))}
                         </Form.Select>
+
                     ) : (
-                        renderDataOrFallback(dataProfile.profile?.address)
+                        dataProfile.profile?.address || <span style={{ fontStyle: 'italic', color: '#6c757d' }}>Chưa cập nhật</span>
                     )}
                 </Col>
             </Row>
 
             <hr />
 
-            {/*Địa phương đăng ký */}
             <Row className="mb-3">
                 <Col lg={4} className="d-flex align-items-center">
                     <Form.Label>Địa phương đăng ký</Form.Label>
@@ -217,6 +329,7 @@ function AboutMe() {
                             value={profileData.city || ''}
                             onChange={(e) => handleInputChange('city', e.target.value)}
                         >
+                            <option value="">Chọn địa phương</option>
                             {locations.map(location => (
                                 <option key={location.code} value={location.name}>
                                     {location.name}
@@ -224,7 +337,7 @@ function AboutMe() {
                             ))}
                         </Form.Select>
                     ) : (
-                        renderDataOrFallback(dataProfile.profile?.city)
+                        dataProfile.profile?.city || <span style={{ fontStyle: 'italic', color: '#6c757d' }}>Chưa cập nhật</span>
                     )}
                 </Col>
             </Row>
@@ -239,17 +352,19 @@ function AboutMe() {
                 <Col lg={8}>
                     {isEditing ? (
                         <Form.Select
+                            value={profileData.hobbie || ''}
                             onChange={(e) => handleInputChange('hobbie', e.target.value)}
                         >
+                            <option value="">Chọn thêm sở thích</option>
                             {hobbies.map(hobbie => (
-                                <option key={hobbie.activityId} value={hobbie.activityName}>
+                                <option key={hobbie.activityId} value={hobbie.activityId}>
                                     {hobbie.activityName}
                                 </option>
                             ))}
                         </Form.Select>
                     ) : (
                         dataProfile.activities?.$values?.map(activity => (
-                            <span key={activity.activityId} className="badge bg-secondary">
+                            <span key={activity.activityId} className="badge bg-secondary mr-2">
                                 {activity.activity.activityName}
                             </span>
                         )) || renderDataOrFallback(null)
@@ -279,7 +394,7 @@ function AboutMe() {
             {/* Tại sao tôi sử dụng Travel Mate */}
             <Row className="mb-3">
                 <Col lg={4} className="d-flex align-items-center">
-                    <Form.Label>Tại sao tôi sử dụng Travel Mate</Form.Label>
+                    <Form.Label>Công việc hiện tại</Form.Label>
                 </Col>
                 <Col lg={8}>
                     {isEditing ? (

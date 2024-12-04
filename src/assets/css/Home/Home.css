@@ -6,6 +6,7 @@
   filter: brightness(130%) contrast(70%);
   height: 115vh;
   position: relative;
+  width: 100%;
 }
 
 /* Cài đặt cho phần text nằm trên hình nền */
@@ -24,10 +25,6 @@
   color: white;
 }
 
-.home-map-container {
-  margin-top: -125px;
-  margin-right: -300px;
-}
 
 .home-statistics {
   display: flex;
@@ -35,7 +32,6 @@
   gap: 3rem;
   color: white;
   margin-top: -100px;
-  margin-left: -300px;
 }
 
 .home-statistics .stat-item {
@@ -63,4 +59,18 @@
   border-radius: 5px;
   color: white;
   border: none !important;
+}
+.regulation_content li, .regulation_content p{
+  font-size: 20px;
+}
+
+.gallery-wrapper {
+  overflow: hidden; /* Ẩn phần tràn */
+  width: 100%;
+}
+
+
+.mySwiper img{
+  height: 275px;
+  object-fit: cover;
 }

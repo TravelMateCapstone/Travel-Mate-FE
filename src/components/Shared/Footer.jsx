@@ -4,7 +4,7 @@ import foooterApp from '../../assets/images/android_ios.png'
 import logo from '../../assets/images/logo.png'
 const Footer = () => {
   return (
-    <footer className="footer">
+    <footer className="footer mt-3">
       <div className="footer-container">
         <div className="footer-left">
           <ul className="footer-nav d-md-flex gap-md-5 text-uppercase fw-semibold">

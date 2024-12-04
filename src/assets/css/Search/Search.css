@@ -1,0 +1,28 @@
+.hobby-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.hobby-list button {
+    font-size: 12px;
+}
+
+.selected-hobbies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.selected-hobby {
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+}
+
+.selected-hobby button {
+    margin-left: 5px;
+}
