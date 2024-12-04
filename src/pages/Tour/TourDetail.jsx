@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import "../../assets/css/Tour/TourDetail.css";
-import { Button, Placeholder } from "react-bootstrap";
+import { Button, Placeholder, Collapse } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import RoutePath from "../../routes/RoutePath";
@@ -11,11 +11,21 @@ function TourDetail() {
     const [key, setKey] = useState("home");
     const tourData = useSelector((state) => state.tour?.tour);
     const navigate = useNavigate();
+    const [openIndexes, setOpenIndexes] = useState([]);
 
     const handelJointTour = (tourId) => {
         navigate(RoutePath.CREATE_CONTRACT);
         console.log("Join tour " + tourId);
     }
+
+    const handleToggle = (index) => {
+        setOpenIndexes((prevIndexes) =>
+            prevIndexes.includes(index)
+                ? prevIndexes.filter((i) => i !== index)
+                : [...prevIndexes, index]
+        );
+    };
+
     if (!tourData) {
         return (
             <div>
@@ -200,24 +210,39 @@ function TourDetail() {
                             className="my-3 no-border-radius"
                         >
                             <Tab eventKey="home" title="Lịch trình">
-                                {tourData.itinerary.$values.map((day, index) => (
-                                    <div key={index}>
-                                        <h4>Ngày {day.day}</h4>
-                                        {day.activities.$values.map((activity, idx) => {
-                                            const activityTime = new Date(`${day.date.split('T')[0]}T${activity.time}`);
-                                            const formattedTime = isNaN(activityTime) ? "Invalid Date" : activityTime.toLocaleTimeString();
-                                            return (
-                                                <div key={idx}>
-                                                    <p>{formattedTime} - {activity.description}</p>
-                                                    <p>Địa chỉ: {activity.activityAddress}</p>
-                                                    <p>Chi phí: {activity.activityAmount.toLocaleString()}₫</p>
-                                                    {activity.activityImage && <img src={activity.activityImage} alt="" />}
+                                <div className="timeline">
+                                    {tourData.itinerary.$values.map((day, index) => {
+                                        const dayActivities = day.activities.$values;
+                                        return (
+                                            <div key={index} className="timeline-item">
+                                                <div className="timeline-time" onClick={() => handleToggle(index)}
+                                                    aria-controls={`example-collapse-text-${index}`}
+                                                    aria-expanded={openIndexes.includes(index)}>
+                                                        <span>Ngày {day.day}</span>
+                                                        <span>{new Date(day.date).toLocaleDateString()}</span>
                                                 </div>
-                                            );
-                                        })}
-                                    </div>
-                                ))}
+                                                <Collapse in={openIndexes.includes(index)}>
+                                                    <div className="timeline-activities" id={`example-collapse-text-${index}`}>
+                                                        {dayActivities.map((activity, idx) => {
+                                                            const activityTime = new Date(`${day.date.split('T')[0]}T${activity.time}`);
+                                                            const formattedTime = isNaN(activityTime) ? "Invalid Date" : activityTime.toLocaleTimeString();
+                                                            return (
+                                                                <div key={idx} className="timeline-activity">
+                                                                    <p><strong>{formattedTime}</strong> - {activity.description}</p>
+                                                                    <p>Địa chỉ: {activity.activityAddress}</p>
+                                                                    <p>Chi phí: {activity.activityAmount.toLocaleString()}₫</p>
+                                                                    {activity.activityImage && <img src={activity.activityImage} alt="" />}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </Collapse>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </Tab>
+
                             <Tab eventKey="profile" title="Chi phí">
                                 <h4>Chi phí bao gồm</h4>
                                 <ul>

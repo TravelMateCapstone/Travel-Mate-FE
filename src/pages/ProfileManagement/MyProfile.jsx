@@ -122,9 +122,9 @@ function MyProfile() {
                     <Tab eventKey="friend" title="BẠN BÈ">
                         <MyFriends />
                     </Tab>
-                    <Tab eventKey="destination" title="TOURS">
+                    {/* <Tab eventKey="destination" title="TOURS">
                         <MyFavorites />
-                    </Tab>
+                    </Tab> */}
                 </Tabs>
             </div>
         </Container>

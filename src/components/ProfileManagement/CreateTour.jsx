@@ -315,7 +315,7 @@ function CreateTour() {
                 }} className='overflow-y-scroll d-flex flex-column gap-3 container_create_trip'>
                     <Row>
                         <h5 className='fw-bold mb-3'>Tạo tour du lịch</h5>
-                        <Col lg={8} className='form_create_tour border-1 p-3 rounded-4'>
+                        <Col lg={8} className='form_create_tour p-3 rounded-4'>
                             <Form.Group className='d-flex align-items-center mb-3'>
                                 <Form.Label className='text-nowrap'>Tên tour du lịch</Form.Label>
                                 <Form.Control type="text" placeholder="Nhập tên tour du lịch" value={tourName} onChange={(e) => setTourName(e.target.value)} />
@@ -342,7 +342,7 @@ function CreateTour() {
 
                         </Col>
 
-                        <Col lg={4}>
+                        <Col lg={4} className='p-3'>
                             <div className='upload_image_create_trip d-flex align-items-center justify-content-center' onClick={() => {
                                 document.getElementById('upload_trip_img_detail').click()
                             }}>
@@ -368,7 +368,7 @@ function CreateTour() {
                         {/* Tab Lịch trình */}
                         <Tab eventKey="home" title="LỊCH TRÌNH">
                             {itinerary.map((day, index) => (
-                                <div className='day_plan' key={index}>
+                                <div className='day_plan mb-2' key={index}>
                                     <Button
                                         variant='' // Add a default variant
                                         className='d-flex justify-content-between align-items-center gap-3'
@@ -437,7 +437,9 @@ function CreateTour() {
                                                     </div>
                                                 ))}
                                             </div>
-                                            <div id='' onClick={() => addActivity(index)}><ion-icon name="add-circle-outline"></ion-icon> Thêm hoạt động mới</div>
+                                            <div style={{
+                                                width: 'fit-content'
+                                            }} className='btn btn-outline-primary d-flex align-items-center gap-2' id='' onClick={() => addActivity(index)}><ion-icon name="add-circle-outline"></ion-icon> Thêm hoạt động mới</div>
                                         </div>
                                     </Collapse>
                                 </div>

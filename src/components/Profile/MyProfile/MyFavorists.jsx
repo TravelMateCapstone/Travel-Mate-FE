@@ -354,7 +354,7 @@ function MyFavorites() {
                 </div>
                 <Form.Group className="d-flex align-items-center mb-3">
                   <Form.Label className="text-nowrap">Số lượng khách</Form.Label>
-                  <Form.Control type="number" placeholder="Nhập tên tour du lịch" value={maxGuests} onChange={(e) => setMaxGuests(e.target.value)} />
+                  <Form.Control type="number" placeholder="Nhập số lượng khách tối đa" value={maxGuests} onChange={(e) => setMaxGuests(e.target.value)} />
                 </Form.Group>
               </Col>
               <Col lg={4}>
