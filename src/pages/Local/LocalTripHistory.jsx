@@ -17,12 +17,13 @@ import axios from "axios";
 import { useQuery } from "react-query";
 import { Link, useNavigate } from "react-router-dom";
 import RoutePath from "../../routes/RoutePath";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import TextareaAutosize from "react-textarea-autosize";
 import ReactQuill from "react-quill";
 import { toast } from "react-toastify";
 import { fetchTour } from "../../redux/actions/tourActions";
 import ProvinceSelector from "../../components/Shared/ProvinceSelector";
+import CreateTour from "../../components/ProfileManagement/CreateTour";
 
 function LocalTripHistory() {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ function LocalTripHistory() {
   const [showUpdateMoney, setShowUpdateMoney] = useState(false);
   const [status, setStatus] = useState("1");
   const [searchTerm, setSearchTerm] = useState("");
+  const token = useSelector((state) => state.auth.token);
 
   const handleCloseUpdateMoney = () => setShowUpdateMoney(false);
 
@@ -67,7 +69,12 @@ function LocalTripHistory() {
 
   const fetchFavorites = async (status) => {
     const response = await axios.get(
-      `https://travelmateapp.azurewebsites.net/api/Tour/toursStatus/${status}`
+      `https://travelmateapp.azurewebsites.net/api/Tour/toursStatus/${status}`,
+      {
+        headers: {
+          Authorization: `${token}`,
+        },
+      }
     );
     return response.data;
   };
@@ -334,6 +341,7 @@ function LocalTripHistory() {
 
   return (
     <Container className="py-3 px-0 border-0 rounded-5">
+      <CreateTour />
       {/* Search Bar */}
       <div className="d-flex gap-3 align-items-center">
         <FormControl

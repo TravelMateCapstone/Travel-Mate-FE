@@ -103,8 +103,7 @@ function MyProfile() {
                         <p className='text-success fw-medium  d-flex align-items-center gap-2'><ion-icon name="shield-checkmark-outline"></ion-icon> 65% hoàn thành hồ sơ</p>
                     </div>
                 </div>
-
-                <CreateTour />
+                {/* <CreateTour /> */}
             </div>
 
             <div className="edit_section">
