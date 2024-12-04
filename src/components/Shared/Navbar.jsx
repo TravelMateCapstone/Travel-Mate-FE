@@ -19,7 +19,6 @@ import * as signalR from '@microsoft/signalr';
 
 const Navbar = React.memo(() => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  const [selectedItem, setSelectedItem] = useState('Địa điểm du lịch');
   const [showOffcanvas, setShowOffcanvas] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [messages, setMessages] = useState([]); // Added messages state
@@ -28,7 +27,6 @@ const Navbar = React.memo(() => {
   const connectionRef = useRef(null);
   const [chats, setChats] = useState([]);
 
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -36,7 +34,6 @@ const Navbar = React.memo(() => {
   const isRegisterModalOpen = useSelector((state) => state.modal.isRegisterModalOpen);
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
-
 
   const SIGNALR_HUB_URL = 'https://travelmateapp.azurewebsites.net/serviceHub';
 
@@ -89,11 +86,9 @@ const Navbar = React.memo(() => {
               };
             });
             setNotifications(updatedNotifications);
-
             // Đếm số lượng thông báo chưa đọc
             const unreadCount = updatedNotifications.filter(notification => !notification.isRead).length;
             setUnreadNotificationsCount(unreadCount); // Cập nhật số lượng thông báo chưa đọc
-
             // console.log("Notifications data: ", updatedNotifications);
           }
         })
@@ -112,14 +107,11 @@ const Navbar = React.memo(() => {
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
       .build();
-
     connectionRef.current = connection;
-
     connection
       .start()
       .then(() => {
         console.log('SignalR connected successfully.');
-
         // Lắng nghe sự kiện "NotificationReceived"
         connection.on('NotificationCreated', (newNotification) => {
           setNotifications((prevNotifications) => [
@@ -127,7 +119,6 @@ const Navbar = React.memo(() => {
             ...prevNotifications,
           ]);
         });
-
         // Lắng nghe sự kiện "ReadNotification"
         connection.on('ReadNotification', (updatedNotification) => {
           console.log(updatedNotification);
@@ -145,7 +136,6 @@ const Navbar = React.memo(() => {
         console.error(error.response || error.message || error);
       });
   };
-
 
   useEffect(() => {
     setupSignalRConnection();
@@ -189,7 +179,6 @@ const Navbar = React.memo(() => {
     dispatch(logout());
     // Clear token from state
     dispatch(logout());
-
     // Stop SignalR connection
     if (connectionRef.current) {
       connectionRef.current.stop()
@@ -202,10 +191,8 @@ const Navbar = React.memo(() => {
     }
   }, [dispatch]);
 
-
   const handleSelect = useCallback((eventKey) => {
     setSelectedItem(eventKey);
-    // console.log(`Selected item: ${eventKey}`);
   }, []);
 
   const handleShow = useCallback(() => setShowOffcanvas(true), []);
@@ -263,11 +250,87 @@ const Navbar = React.memo(() => {
     }
   };
 
-
   useEffect(() => {
     const initialNotifications = notifications.slice(0, 5);
     setDisplayedNotifications(initialNotifications);
   }, [notifications]);
+
+  // search
+
+  const [locations, setLocations] = useState([]);
+  const [filteredLocations, setFilteredLocations] = useState([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [selectedItem, setSelectedItem] = useState('Địa điểm du lịch');
+
+  // Hàm chuyển chuỗi thành không dấu
+  const removeVietnameseTones = (str) => {
+    return str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'D');
+  };
+
+  // Gọi API để lấy danh sách địa điểm
+  const fetchLocations = useCallback(async () => {
+    try {
+      const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Locations');
+      setLocations(response.data.$values);
+    } catch (error) {
+      console.error('Error fetching locations:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchLocations();
+  }, [fetchLocations]);
+
+  useEffect(() => {
+    const savedLocations = JSON.parse(localStorage.getItem('selectedLocations')) || [];
+    console.log('Địa điểm đã lưu:', savedLocations);
+  }, []);
+
+
+  // Hàm xử lý khi người dùng nhập vào ô tìm kiếm
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchInput(value);
+
+    const filtered = locations.filter((location) =>
+      removeVietnameseTones(location.locationName.toLowerCase()).includes(removeVietnameseTones(value.toLowerCase()))
+    );
+
+    setFilteredLocations(filtered.slice(0, 5));
+
+    // Điều hướng khi nhập tìm kiếm và chọn một tùy chọn trong dropdown
+    if (value && filtered.length === 0) {
+      switch (selectedItem) {
+        case "Địa điểm du lịch":
+          navigate(RoutePath.DESTINATION);
+          break;
+        case "Người địa phương":
+        case "Khách du lịch":
+          navigate(RoutePath.SEARCH_LIST_LOCAL);
+          break;
+        default:
+          break;
+      }
+    }
+  };
+  // Hàm xử lý khi người dùng chọn địa điểm từ gợi ý
+  const handleLocationSelect = (location) => {
+    setSearchInput(location.locationName);
+    setFilteredLocations([]);
+
+    // Lưu địa điểm mới vào localStorage và chỉ giữ lại địa điểm mới nhất
+    localStorage.setItem('selectedLocation', JSON.stringify(location));
+
+    console.log('Địa điểm đã chọn:', location);
+
+    // Điều hướng sang trang DESTINATION và truyền dữ liệu vào state
+    navigate(RoutePath.DESTINATION, { state: { selectedLocation: location } });
+  };
+
 
   return (
     <BootstrapNavbar bg="white" expand="lg" className='my-navbar fixed-top'>
@@ -286,7 +349,23 @@ const Navbar = React.memo(() => {
             <div className='d-none d-lg-flex align-items-center'>
               <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ccc', padding: '5px', height: '38px', background: 'white' }} className='rounded-start-5 border-end-0'>
                 <ion-icon name="search" style={{ marginRight: '10px', padding: '0 10px', background: 'white' }}></ion-icon>
-                <input className='search-input bg-white' type="text" placeholder="Nhập từ khóa..." style={{ border: 'none', outline: 'none', flex: 1, fontSize: '12px' }} />
+                <input
+                  className="search-input bg-white"
+                  type="text"
+                  placeholder="Bạn muốn đến..."
+                  value={searchInput}
+                  onChange={handleInputChange}
+                  style={{ border: 'none', outline: 'none', flex: 1, fontSize: '12px' }}
+                />
+                {filteredLocations.length > 0 && (
+                  <Dropdown.Menu show className="w-100">
+                    {filteredLocations.map((location) => (
+                      <Dropdown.Item key={location.locationId} onClick={() => handleLocationSelect(location)}>
+                        {location.locationName}
+                      </Dropdown.Item>
+                    ))}
+                  </Dropdown.Menu>
+                )}
               </div>
 
               <div className='d-flex'>
@@ -492,7 +571,7 @@ const Navbar = React.memo(() => {
                 {/* Nút để mở Offcanvas */}
                 <Button variant='outline-secondary' className='d-lg-none' onClick={handleShow}><ion-icon name="menu-outline"></ion-icon></Button></>
             )}
-          </Col>
+          </Col >
         </Row>
       </Container>
 

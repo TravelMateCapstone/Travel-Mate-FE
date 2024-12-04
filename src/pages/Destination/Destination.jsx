@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import '../../assets/css/Destination/Destination.css'
 import Navbar from '../../components/Shared/Navbar'
 import { Button, Col, Row, Dropdown, Form } from 'react-bootstrap'
 import { id } from 'date-fns/locale'
 import TourCard from '../../components/Destination/TourCard'
 import Tag from '../../components/Destination/Tag'
+import { useLocation } from 'react-router-dom'
 function Destination() {
     const [showDropdown, setShowDropdown] = useState(false);
     const [rating, setRating] = useState(1);
@@ -15,6 +16,16 @@ function Destination() {
     const [minConnections, setMinConnections] = useState(1);
     const [maxConnections, setMaxConnections] = useState(10000);
     const [tags, setTags] = useState(['Thể thao', 'Âm nhạc', 'Ẩm thực']);
+    const location = useLocation();
+    const selectedLocation = location.state?.selectedLocation || JSON.parse(localStorage.getItem('selectedLocation'));
+
+    useEffect(() => {
+        if (selectedLocation) {
+            console.log('Địa điểm được chọn: ', selectedLocation);
+        }
+    }, [selectedLocation]);
+
+
     const handleRemoveTag = (tagToRemove) => {
         setTags(tags.filter(tag => tag !== tagToRemove));
     };
@@ -138,26 +149,43 @@ function Destination() {
         }
     ]
 
-
     return (
         <div>
             <Navbar />
-            <img src="https://images.unsplash.com/photo-1726725830701-967a0fe957d0?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" className='w-100 object-fit-cover' height={586} />
+            <img
+                src={selectedLocation?.image || "https://designercomvn.s3.ap-southeast-1.amazonaws.com/wp-content/uploads/2017/10/26015647/dich-vu-thiet-ke-banner-du-lich-chuyen-nghiep-tai-ha-noi4.jpg"}
+                alt="image"
+                className='w-100 object-fit-cover'
+                height={586}
+            />
+
             <div className='p-5'>
                 <Row>
                     <Col lg={6}>
-                        <h2 className='fw-bold'>Hà Giang, chào mừng bạn</h2>
+                        <h2 className='fw-bold'>{selectedLocation ? selectedLocation?.locationName + ", chào đón bạn" : "Chào mừng bạn khám phá Việt Nam"}</h2>
                         <div className='d-flex gap-3'>
                             <p>334 tour</p>
                             <p>334 tour</p>
                             <p>334 tour</p>
                         </div>
-                        <p>Hà Giang là một tỉnh miền núi nằm ở cực Bắc của Việt Nam, nổi tiếng với cảnh quan thiên nhiên hùng vĩ và văn hóa độc đáo của các dân tộc thiểu số. Đây là vùng đất với nhiều dãy núi đá vôi, những con đèo quanh co, và các thung lũng sâu thẳm, tạo nên một bức tranh thiên nhiên tuyệt đẹp.</p>
+                        <p>{selectedLocation?.description || "Bắt Đầu Hành Trình Của Bạn Khám Phá Việt Nam Theo Cách Riêng"}</p>
                     </Col>
                     <Col lg={6}>
+                        <iframe
+                            src={selectedLocation?.mapHtml || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7864731.700104102!2d100.61635744583909!3d15.740501300528281!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31157a4d736a1e5f%3A0xb03bb0c9e2fe62be!2sVietnam!5e0!3m2!1sen!2s!4v1733335793286!5m2!1sen!2s"}
+                            width="600"
+                            height="450"
+                            style={{ border: 0 }}
+                            allowFullScreen=""
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                        />
+
 
                     </Col>
                 </Row>
+
+                {/* Thông tin tours */}
                 <div className='d-flex justify-content-between align-items-center'>
                     <h5 className='fw-bold mt-4'>Danh sách tour du lịch</h5>
                     <Dropdown show={showDropdown} onToggle={handleToggleDropdown}>

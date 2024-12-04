@@ -89,6 +89,7 @@ function Setting() {
   useEffect(() => {
     fetchCCCDInfo();
     fetchProfileInfo();
+
   }, [token]);
 
 
@@ -115,7 +116,7 @@ function Setting() {
       whyUseTravelMate: profileData.whyUseTravelMate || '',
       musicMoviesBooks: profileData.musicMoviesBooks || '',
       whatToShare: profileData.whatToShare || '',
-      imageUser: profileData.imageUser || '',
+      imageUser: profileData.imageUser || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg',
     };
 
     try {
@@ -164,7 +165,8 @@ function Setting() {
         whyUseTravelMate: profile.whyUseTravelMate || "Không có dữ liệu",
         musicMoviesBooks: profile.musicMoviesBooks || "Không có dữ liệu",
         whatToShare: profile.whatToShare || "Không có dữ liệu",
-        birthdate: profile.birthdate || "2002-11-11T17:50:19.190Z",
+        birthdate: profile.birthdate || "2002-01-01T17:50:19.190Z",
+        imageUser: user?.avatarUrl || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg',
       };
 
       const response = await axios.put(
@@ -187,7 +189,6 @@ function Setting() {
       toast.error("Lỗi khi cập nhật thông tin.");
     }
   };
-
 
   const handleFrontImageUpload = async (event) => {
     const file = event.target.files[0];
@@ -374,8 +375,6 @@ function Setting() {
     }
   };
 
-
-
   return (
     <Container>
       <h2>Cài đặt</h2>
@@ -504,7 +503,7 @@ function Setting() {
             <h5 style={{ color: '#E65C00' }}>Thông Tin Tài Khoản</h5>
             <Form.Group className="d-flex align-items-center">
               <Form.Label>Email</Form.Label>
-              <Form.Control type="email" value={`${user.email}`} />
+              <Form.Control type="email" value={`${user.emailaddress}`} />
             </Form.Group>
             <Form.Group className="d-flex align-items-center mt-3">
               <Form.Label className="me-2" style={{ width: '12.5%' }}>Mật khẩu</Form.Label>

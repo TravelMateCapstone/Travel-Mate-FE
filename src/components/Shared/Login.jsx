@@ -37,7 +37,7 @@ const Login = ({ show, handleClose }) => {
           headers: { "Content-Type": "application/json" },
         }
       );
-      
+
 
       // Kiểm tra xem API trả về dữ liệu người dùng hay không
       if (userResponse.data) {
@@ -49,6 +49,7 @@ const Login = ({ show, handleClose }) => {
           role: claim["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
           avatarUrl: claim.ImageUser || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw',
           FullName: claim.FullName,
+          emailaddress: claim["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"]
         }
 
         // Lưu token vào localStorage
@@ -57,7 +58,7 @@ const Login = ({ show, handleClose }) => {
         // Dispatch dữ liệu người dùng vào store
         dispatch(loginSuccess({ user, token }));
 
-       
+
 
         // Kiểm tra role và chuyển hướng nếu là admin
         if (user.role === 'admin') {
@@ -99,6 +100,7 @@ const Login = ({ show, handleClose }) => {
         role: claim["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"],
         avatarUrl: claim.ImageUser || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw',
         FullName: claim.FullName,
+        emailaddress: claim["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"]
       }
       console.log(user);
 
@@ -136,7 +138,7 @@ const Login = ({ show, handleClose }) => {
           </Button>
         </Modal.Header>
         <Modal.Body>
-          
+
           {errorMessage && <small className="text-danger fw-normal small-text">{errorMessage}</small>}
           <Form onSubmit={handleSubmit}>
 
@@ -166,7 +168,7 @@ const Login = ({ show, handleClose }) => {
             <div className="fw-normal small-text" style={{
               width: '420px'
             }}>
-           
+
             </div>
 
             <button variant="" type="submit" className="btn-continues w-100 mt-0 fw-bold">

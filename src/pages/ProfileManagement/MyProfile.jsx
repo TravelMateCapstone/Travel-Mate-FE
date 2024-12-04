@@ -29,6 +29,7 @@ function MyProfile() {
     const dataProfile = useSelector((state) => state.profile);
 
     const url = import.meta.env.VITE_BASE_API_URL;
+    console.log("avt", dataProfile.profile.imageUser);
 
 
     const handleImageUpload = async (event) => {
