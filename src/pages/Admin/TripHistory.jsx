@@ -9,6 +9,7 @@ import { RowGroupingModule } from "@ag-grid-enterprise/row-grouping";
 import axios from "axios";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 // Đăng ký các module của AG Grid
 ModuleRegistry.registerModules([
@@ -33,7 +34,7 @@ const TripHistory = () => {
     {
       field: "price",
       width: 100,
-      chartDataType: "number",
+      chartDataType: "series", // Changed from 'number' to 'series'
       valueFormatter: (params) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(params.value);
       }
@@ -94,9 +95,15 @@ const TripHistory = () => {
     setModalData(null); // Xóa dữ liệu modal
   };
 
+  const token = useSelector((state) => state.auth.token);
+
   const fetchTourData = () => {
-    axios.get("https://travelmateapp.azurewebsites.net/api/Tour/local")
+    axios.get("https://travelmateapp.azurewebsites.net/api/Tour", {
+      headers: { Authorization: `${token}` }
+    })
       .then((response) => {
+        console.log("Dữ liệu tour:", response.data.$values);
+        
         setRowData(response.data.$values);
       })
       .catch((error) => {
@@ -106,7 +113,9 @@ const TripHistory = () => {
 
   // Chấp nhận tour
   const acceptTour = (tourId) => {
-    axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/accept/${tourId}`)
+    axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/accept/${tourId}`, {}, {
+      headers: { Authorization: `${token}` }
+    })
       .then((response) => {
         toast.success("Tour đã được chấp nhận thành công !")
         fetchTourData();  
@@ -119,7 +128,7 @@ const TripHistory = () => {
 
   // Từ chối tour
   const denyTour = (tourId) => {
-    axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/ban/${tourId}`)
+    axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/reject/${tourId}`)
       .then((response) => {
         console.log("Tour denied:", response.data);
         toast.success("Tour đã bị từ chối thành công!")

@@ -11,6 +11,7 @@ import ProvinceSelector from "../../Shared/ProvinceSelector";
 import TextareaAutosize from "react-textarea-autosize";
 import ReactQuill from "react-quill";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 function MyFavorites() {
   const navigate = useNavigate();
@@ -63,9 +64,10 @@ function MyFavorites() {
     const totalPrice = totalCost + totalActivityAmount;
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(totalPrice);
   };
+  const token = useSelector((state) => state.auth.token);
 
   const handeleViewTour = (tour) => {
-    dispatch(fetchTour(tour.tourId));
+    dispatch(fetchTour(tour.tourId, token));
     navigate(RoutePath.TOUR_DETAIL);
   };
 
@@ -354,7 +356,7 @@ function MyFavorites() {
                 </div>
                 <Form.Group className="d-flex align-items-center mb-3">
                   <Form.Label className="text-nowrap">Số lượng khách</Form.Label>
-                  <Form.Control type="number" placeholder="Nhập tên tour du lịch" value={maxGuests} onChange={(e) => setMaxGuests(e.target.value)} />
+                  <Form.Control type="number" placeholder="Nhập số lượng khách tối đa" value={maxGuests} onChange={(e) => setMaxGuests(e.target.value)} />
                 </Form.Group>
               </Col>
               <Col lg={4}>

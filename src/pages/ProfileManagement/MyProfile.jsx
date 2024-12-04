@@ -104,8 +104,7 @@ function MyProfile() {
                         <p className='text-success fw-medium  d-flex align-items-center gap-2'><ion-icon name="shield-checkmark-outline"></ion-icon> 65% hoàn thành hồ sơ</p>
                     </div>
                 </div>
-
-                <CreateTour />
+                {/* <CreateTour /> */}
             </div>
 
             <div className="edit_section">
@@ -127,9 +126,9 @@ function MyProfile() {
                     <Tab eventKey="friend" title="BẠN BÈ">
                         <MyFriends />
                     </Tab>
-                    <Tab eventKey="destination" title="TOURS">
+                    {/* <Tab eventKey="destination" title="TOURS">
                         <MyFavorites />
-                    </Tab>
+                    </Tab> */}
                 </Tabs>
             </div>
         </Container>
