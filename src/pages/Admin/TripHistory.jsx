@@ -98,7 +98,7 @@ const TripHistory = () => {
   const token = useSelector((state) => state.auth.token);
 
   const fetchTourData = () => {
-    axios.get("https://travelmateapp.azurewebsites.net/api/Tour/local", {
+    axios.get("https://travelmateapp.azurewebsites.net/api/Tour", {
       headers: { Authorization: `${token}` }
     })
       .then((response) => {
