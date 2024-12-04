@@ -9,7 +9,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Button, Form, Row, Col, Tabs, Tab, Card } from 'react-bootstrap';
 Modal.setAppElement('#root');
 
-function CreateTour() {
+function CreateTour({ onTourCreated }) {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [activities, setActivities] = useState([]);
     const [costDetails, setCostDetails] = useState([]);
@@ -172,6 +172,9 @@ function CreateTour() {
             });
             toast.success('Tour created successfully!');
             closeModal();
+            if (onTourCreated) {
+                onTourCreated();
+            }
         } catch (error) {
             console.error('Error creating tour:', error);
             toast.error('An error occurred. Please try again.');
@@ -181,7 +184,7 @@ function CreateTour() {
     return (
         <div>
             <h1>CreateTour</h1>
-            <button onClick={openModal}>Open Modal</button>
+            <Button variant='success' onClick={openModal}>Tạo tour du lịch</Button>
             <Modal
                 isOpen={modalIsOpen}
                 onRequestClose={closeModal}

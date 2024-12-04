@@ -13,7 +13,7 @@ import { Button, Form, Row, Col, Tabs, Tab, Card, Accordion } from 'react-bootst
 import RoutePath from '../../routes/RoutePath';
 Modal.setAppElement('#root');
 
-function TourCard({ tour }) {
+function TourCard({ tour, onTourUpdated }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const token = useSelector(state => state.auth.token);
@@ -244,6 +244,7 @@ function TourCard({ tour }) {
             });
             toast.success('Tour updated successfully!');
             closeModal();
+            onTourUpdated(); // Call the prop function to update the tour list
         } catch (error) {
             console.error('Error updating tour:', error);
             toast.error('An error occurred. Please try again.');
