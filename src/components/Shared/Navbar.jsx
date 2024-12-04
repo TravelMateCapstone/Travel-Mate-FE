@@ -84,7 +84,7 @@ const Navbar = React.memo(() => {
             const updatedNotifications = response.data.$values.map(notification => {
               return {
                 ...notification,
-                isRequest: notification.message.includes("Bạn đã nhận được một lời mời kết bạn t��"),
+                isRequest: notification.message.includes("Bạn đã nhận được một lời mời kết bạn từ "),
                 senderId: notification.senderId ? notification.senderId : null
               };
             });
@@ -127,6 +127,18 @@ const Navbar = React.memo(() => {
             ...prevNotifications,
           ]);
         });
+
+        // Lắng nghe sự kiện "ReadNotification"
+        connection.on('ReadNotification', (updatedNotification) => {
+          console.log(updatedNotification);
+          setNotifications((prevNotifications) =>
+            prevNotifications.map((notification) =>
+              notification.notificationId === updatedNotification.notificationId
+                ? updatedNotification
+                : notification
+            )
+          );
+        });
       })
       .catch((error) => {
         console.error('Error connecting to SignalR hub:', error);
@@ -139,7 +151,6 @@ const Navbar = React.memo(() => {
     setupSignalRConnection();
     fetchChats();
     fetchNotifications();
-
     // Cleanup on unmount or logout
     return () => {
       if (connectionRef.current) {
@@ -154,6 +165,9 @@ const Navbar = React.memo(() => {
     };
   }, [isAuthenticated, token]);
 
+  const updateUnreadCount = useCallback(() => {
+    setUnreadNotificationsCount((prevCount) => prevCount - 1);
+  }, []);
 
   const handleLoginModal = useCallback(() => {
     if (isLoginModalOpen) {
@@ -384,7 +398,7 @@ const Navbar = React.memo(() => {
                   <Dropdown.Menu className="py-3 dropdown-menu-notify">
                     <div className="notification-scroll">
                       {displayedNotifications.map((notification) => (
-                        <Dropdown.Item key={notification.notificationId} href={`#notification${notification.notificationId}`}>
+                        <Dropdown.Item key={notification.notificationId}>
                           <NotifyItem
                             notificationId={notification.notificationId}
                             typeNotification={notification.typeNotification}
@@ -396,6 +410,7 @@ const Navbar = React.memo(() => {
                             isRead={notification.isRead}
                             onAccept={() => handleAcceptFriendRequest(notification.senderId)}
                             onDecline={() => handleRejectFriendRequest(notification.senderId)}
+                            updateUnreadCount={updateUnreadCount}
                           />
                         </Dropdown.Item>
                       ))}
