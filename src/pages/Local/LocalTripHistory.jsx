@@ -4,6 +4,7 @@ import TourCard from '../../components/ProfileManagement/TourCard'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
 import { useQuery, useQueryClient } from 'react-query'
+import { Form } from 'react-bootstrap'
 
 function LocalTripHistory() {
   const [approvalStatus, setApprovalStatus] = useState(0)
@@ -34,11 +35,12 @@ function LocalTripHistory() {
       <div className='mb-4 d-flex justify-content-between align-items-center'>
         <CreateTour onTourCreated={() => queryClient.invalidateQueries('tours')} />
         <div>
-          <select value={approvalStatus} onChange={(e) => setApprovalStatus(Number(e.target.value))}>
+          
+          <Form.Select  value={approvalStatus} onChange={(e) => setApprovalStatus(Number(e.target.value))}>
             <option value={0}>Đang xử lí</option>
             <option value={1}>Đã chấp nhận</option>
             <option value={2}>Từ chối</option>
-          </select>
+          </Form.Select>
         </div>
       </div>
       <div>
