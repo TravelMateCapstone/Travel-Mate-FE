@@ -9,7 +9,16 @@ import { fetchTour } from '../../redux/actions/tourActions';
 function TourList() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const [tourdata, setTourData] = useState(useSelector(state => state.profile.tour.$values));
+    const [tourdata, setTourData] = useState([]);
+    const token = useSelector(state => state.auth.token);
+    const profileTourData = useSelector(state => state.profile.tour.$values);
+
+    useEffect(() => {
+        setTourData(profileTourData);
+    }, [profileTourData]);
+    
+    console.log(token);
+    
     console.log(tourdata);
 
     const joinTour = async (tourId, tourName) => {
@@ -20,7 +29,7 @@ function TourList() {
         //     console.error('Error joining tour:', error);
         //     alert('Failed to join tour. Please try again later.');
         // }
-        dispatch(fetchTour(tourId));
+        dispatch(fetchTour(tourId, token));
         navigate(Routepath.TOUR_DETAIL);
     };
 

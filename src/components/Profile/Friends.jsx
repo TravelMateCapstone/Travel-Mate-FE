@@ -58,7 +58,7 @@ function Friends() {
         }
       );
       if (response.status === 200) {
-        dispatch(viewProfile(user.id));
+        dispatch(viewProfile(user.id, token));
         toast.success('Hủy kết bạn thành công!');
         // Xóa bạn bè khỏi danh sách trực tiếp từ Redux hoặc cần yêu cầu lại API
       }

@@ -213,7 +213,7 @@ function ProfileCard() {
         }
       );
       if (response.status === 200) {
-        dispatch(viewProfile(userIdRequest));
+        dispatch(viewProfile(userIdRequest, token));
         toast.success("Hủy kết bạn thành công!");
         setFriendshipStatus(2);
       }
@@ -235,7 +235,7 @@ function ProfileCard() {
         }
       );
       if (response.status === 200) {
-        dispatch(viewProfile(senderId));
+        dispatch(viewProfile(senderId, token));
         toast.success("Chấp nhận kết bạn thành công!");
         setFriendshipStatus(1);
       }

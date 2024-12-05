@@ -2,15 +2,16 @@ import React, { useEffect, useState } from "react";
 import "../../assets/css/Contracts/CreateContract.css";
 import { Button, Col, Row } from "react-bootstrap";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import RoutePath from "../../routes/RoutePath";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 function CreateContract() {
   const user = useSelector((state) => state.auth.user);
   const [profile, setProfile] = useState(null);
   const tourInfo = useSelector((state) => state.tour.tour);
-  console.log(tourInfo);
+  const navigate = useNavigate();
 
 
   useEffect(() => {
@@ -29,15 +30,40 @@ function CreateContract() {
   }, [user.id]);
   const handleSubmitContract = async () => {
     const contractInfo = {
-      tourId: tourInfo.tourId,
-      travellerId: user.id,
+      travelerId: user.id,
       localId: tourInfo.creator.id,
-      itinerary: tourInfo.itinerary,
-      costDetails: tourInfo.costDetails,
-    }
+      tourId: tourInfo.tourId,
+      location: tourInfo.location,
+      details: JSON.stringify(tourInfo),
+      travelerSignature: 'chuky9',
+      localSignature: 'chuky8',
+    };
     console.log(contractInfo);
-    
-  }
+
+    try {
+      const response = await axios.post('https://travelmateapp.azurewebsites.net/api/BlockContract/create-contract', contractInfo);
+      if(response.data.data.isCompleted){
+        navigate(RoutePath.PAYMENT_CONTRACT);
+        const infoPayment =  {
+          tourName: tourInfo.tourName,
+          tourId: tourInfo.tourId,
+          localId: tourInfo.creator.id,
+          travelerId: user.id,
+          amount: 2500
+        }
+        await axios.post(`https://travelmateapp.azurewebsites.net/api/order`, infoPayment, {
+          headers: {
+            Authorization: `${user.token}`
+          }
+        });
+      } 
+      toast.success('Contract created successfully');
+      console.log('Contract created successfully:', response.data);
+    } catch (error) {
+      toast.error('Error creating contract');
+      console.error('Error creating contract:', error);
+    }
+  };
 
   return (
     <div className="">
@@ -224,7 +250,7 @@ function CreateContract() {
             <div className="d-flex justify-content-end">
               {/* <Button as={Link} to={RoutePath.PAYMENT_CONTRACT} variant="success" className="rounded-5 d-flex align-items-center gap-2"><p className="m-0">Tiếp tục</p> <ion-icon name="arrow-forward-outline"></ion-icon></Button>
              */}
-              <Button onClick={() => handleSubmitContract} variant="success" className="rounded-5 d-flex align-items-center gap-2">
+              <Button onClick={handleSubmitContract} variant="success" className="rounded-5 d-flex align-items-center gap-2">
                 <p className="m-0">Tiếp tục</p>{" "}
                 <ion-icon name="arrow-forward-outline"></ion-icon>
               </Button>

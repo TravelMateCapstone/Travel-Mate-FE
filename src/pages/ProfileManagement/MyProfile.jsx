@@ -57,7 +57,7 @@ function MyProfile() {
                     ...prevProfile,
                     imageUser: downloadURL,
                 }));
-                dispatch(viewProfile(user.id));
+                dispatch(viewProfile(user.id, token));
                 toast.success("Cập nhật ảnh đại diện thành công!");
                 dispatch(updateUserAvatar(downloadURL));
             } catch (error) {

@@ -101,11 +101,11 @@ function EventJoined() {
         console.log("id", user.id);
         if (parseInt(memberId) === parseInt(user.id)) {
             console.log("idp");
-            dispatch(viewProfile(memberId));
+            dispatch(viewProfile(memberId, token));
             navigate(RoutePath.PROFILE);
         } else {
             console.log("ido");
-            dispatch(viewProfile(memberId));
+            dispatch(viewProfile(memberId, token));
             navigate(RoutePath.OTHERS_PROFILE);
         }
     };

@@ -20,7 +20,13 @@ export const viewProfile = (userId, token) => async (dispatch) => {
         },
       });
     },
-    tour: () => axios.get(`https://travelmateapp.azurewebsites.net/api/Tour/local`),
+    tour: () => {
+      return axios.get(`https://travelmateapp.azurewebsites.net/api/Tour/local/${userId}`, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+    }
   };
 
   const properties = Object.keys(requests);

@@ -14,12 +14,13 @@ const UserCard = ({ id, img, name, address, numberOfConnect, descriptions }) => 
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const token = useSelector(state => state.auth.token);
 
     const data = useSelector(state => state.profile);
 
     const handleCardClick = () => {
         console.log("card")
-        dispatch(viewProfile(id));
+        dispatch(viewProfile(id, token));
         navigate(RoutePath.OTHERS_PROFILE);
     };
 

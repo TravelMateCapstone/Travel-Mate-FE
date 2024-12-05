@@ -271,11 +271,11 @@ function EventCreated() {
     console.log("id", user.id);
     if (parseInt(memberId) === parseInt(user.id)) {
       console.log("idp");
-      dispatch(viewProfile(memberId));
+      dispatch(viewProfile(memberId, token));
       navigate(RoutePath.PROFILE);
     } else {
       console.log("ido");
-      dispatch(viewProfile(memberId));
+      dispatch(viewProfile(memberId, token));
       navigate(RoutePath.OTHERS_PROFILE);
     }
   };
@@ -403,7 +403,7 @@ function EventCreated() {
                   <ion-icon name="ellipsis-vertical-outline"></ion-icon>
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="dropdown-menu">
-                  <Dropdown.Item onClick={() => handleViewProfile(member.userId)}>Xem hồ sơ</Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleViewProfile(member.userId, token)}>Xem hồ sơ</Dropdown.Item>
                   <Dropdown.Item href="#" onClick={() => handleRemoveMember(member.userId)}>Gỡ</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>

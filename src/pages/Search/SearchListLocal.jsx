@@ -8,6 +8,7 @@ import { viewProfile } from '../../redux/actions/profileActions';
 import RoutePath from '../../routes/RoutePath';
 import { useNavigate } from 'react-router-dom';
 import '../../assets/css/Search/Search.css';
+import { useSelector } from 'react-redux';
 
 function SearchListLocal() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -65,6 +66,7 @@ function SearchListLocal() {
       console.error('Error fetching locals:', error);
     }
   };
+  const token = useSelector((state) => state.auth.token);
 
   const fetchLocations = async () => {
     try {
@@ -80,7 +82,7 @@ function SearchListLocal() {
   };
 
   const handleUserClick = (userId) => {
-    dispatch(viewProfile(userId));
+    dispatch(viewProfile(userId, token));
     navigate(RoutePath.OTHERS_PROFILE);
   };
 
