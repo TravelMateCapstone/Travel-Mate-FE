@@ -240,7 +240,6 @@ function CreateTour({ onTourCreated }) {
 
     return (
         <div>
-            <h1>CreateTour</h1>
             <Button variant='success' onClick={openModal}>Tạo tour du lịch</Button>
             <Modal
                 isOpen={modalIsOpen}

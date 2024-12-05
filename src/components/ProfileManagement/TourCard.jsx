@@ -7,9 +7,10 @@ import axios from 'axios';
 import Modal from 'react-modal';
 import { toast } from 'react-toastify';
 import { addDays, format } from 'date-fns';
+import { vi } from 'date-fns/locale';
 import { storage } from '../../../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Button, Form, Row, Col, Tabs, Tab, Card, Accordion } from 'react-bootstrap';
+import { Button, Form, Row, Col, Tabs, Tab, Card, Accordion, Table } from 'react-bootstrap';
 import RoutePath from '../../routes/RoutePath';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -24,6 +25,8 @@ function TourCard({ tour, onTourUpdated }) {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [activities, setActivities] = useState([]);
     const [costDetails, setCostDetails] = useState([]);
+    const [managementModalIsOpen, setManagementModalIsOpen] = useState(false);
+    const [participants, setParticipants] = useState([]);
     const [tourDetails, setTourDetails] = useState({
         tourName: '',
         price: 0,
@@ -39,8 +42,27 @@ function TourCard({ tour, onTourUpdated }) {
     });
     const [key, setKey] = useState('schedule');
     const [isGlobalContract, setIsGlobalContract] = useState(true);
+    const [filter, setFilter] = useState('paid');
+    const [searchTerm, setSearchTerm] = useState('');
+    const handleOpenManagementModal = async () => {
+        try {
+            const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Tour/tourParticipants/${tour.tourId}`, {
+                headers: {
+                    Authorization: `${token}`
+                }
+            });
+            setParticipants(response.data.$values);
+            console.log(response.data.$values);
+        } catch (error) {
+            console.error("There was an error fetching the participants!", error);
+        }
+        setManagementModalIsOpen(true);
+    }
+    const handleCloseManagementModal = () => {
+        setManagementModalIsOpen(false);
+    }
 
-    useEffect(() => { 
+    useEffect(() => {
         if (tourDetails.startDate && tourDetails.endDate) {
             const start = new Date(tourDetails.startDate);
             const end = new Date(tourDetails.endDate);
@@ -51,7 +73,7 @@ function TourCard({ tour, onTourUpdated }) {
                 for (let i = newActivities.length; i < numberOfDays; i++) {
                     newActivities.push({
                         day: i + 1,
-                        date: format(addDays(start, i), "yyyy-MM-dd'T'HH:mm"),
+                        date: format(addDays(start, i), "yyyy-MM-dd'T'HH:mm", { locale: vi }),
                         activities: [],
                     });
                 }
@@ -60,9 +82,11 @@ function TourCard({ tour, onTourUpdated }) {
         }
     }, [tourDetails.startDate, tourDetails.endDate]);
 
+
+
     const openModal = async () => {
         console.log(tour.tourId);
-        
+
         try {
             const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Tour/${tour.tourId}`, {
                 headers: {
@@ -71,12 +95,12 @@ function TourCard({ tour, onTourUpdated }) {
             });
             const tourData = response.data;
             console.log(`Tour data:`, tourData);
-            
+
             setTourDetails({
                 tourName: tourData.tourName,
                 price: tourData.price,
-                startDate: format(new Date(tourData.startDate), "yyyy-MM-dd'T'HH:mm"),
-                endDate: format(new Date(tourData.endDate), "yyyy-MM-dd'T'HH:mm"),
+                startDate: format(new Date(tourData.startDate), "yyyy-MM-dd'T'HH:mm", { locale: vi }),
+                endDate: format(new Date(tourData.endDate), "yyyy-MM-dd'T'HH:mm", { locale: vi }),
                 numberOfDays: tourData.numberOfDays,
                 numberOfNights: tourData.numberOfNights,
                 tourDescription: tourData.tourDescription,
@@ -87,7 +111,7 @@ function TourCard({ tour, onTourUpdated }) {
             });
             setActivities(tourData.itinerary.$values.map((item) => ({
                 day: item.day,
-                date: format(new Date(item.date), "yyyy-MM-dd'T'HH:mm"),
+                date: format(new Date(item.date), "yyyy-MM-dd'T'HH:mm", { locale: vi }),
                 activities: item.activities.$values.map(act => ({
                     startTime: act.startTime,
                     endTime: act.endTime,
@@ -117,10 +141,10 @@ function TourCard({ tour, onTourUpdated }) {
     const handleSwitchToggle = (isOn) => {
         console.log('Switch is now', isOn ? 'ON' : 'OFF');
         console.log(isOn);
-        
+
         setIsGlobalContract(isOn);
-       
-        
+
+
     };
 
     const handleDelete = async (tourId) => {
@@ -266,23 +290,37 @@ function TourCard({ tour, onTourUpdated }) {
         }
     };
 
+    const filteredParticipants = participants.filter(participant => {
+        const matchesFilter = filter === 'paid' ? participant.paymentStatus : !participant.paymentStatus;
+        const matchesSearch = participant.fullName.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesFilter && matchesSearch;
+    });
+
     return (
-        <div className='d-flex align-items-center justify-content-between mb-4'>
-            <div className='d-flex gap-3 align-items-center'>
+        <tr>
+            <td className='d-flex gap-3 align-items-center'>
                 <img src={tour.tourImage} alt="" width={150} height={100} className='rounded-3' />
                 <div className='d-flex flex-column justify-content-center'>
                     <h6 className='m-0'>{tour.tourName}</h6>
                     <p className='m-0'>{tour.location}</p>
                     <p className='m-0'>{tour.numberOfDays} ngày {tour.numberOfNights} đêm</p>
                 </div>
-            </div>
-            <p className='m-0 fw-medium text-success'>{tour.price} VNĐ</p>
-            <div className='d-flex align-items-center gap-5'>
-                <div className='d-flex flex-column align-items-center'>
-                    <small>{tour.registeredGuests}/{tour.maxGuests}</small>
-                    <small>{tour.startDate}</small>
-                    <small>{tour.endDate}</small>
+            </td>
+            <td>
+                <p className='m-0 fw-medium'>{(tour.price).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</p>
+            </td>
+            <td>
+                <div className='d-flex align-items-center gap-5'>
+                    <div className='d-flex flex-column align-items-center'>
+                        <small className='fw-medium'>{format(new Date(tour.startDate), 'dd/MM/yyyy', { locale: vi })}</small>
+                        <small className='fw-medium'>{format(new Date(tour.endDate), 'dd/MM/yyyy', { locale: vi })}</small>
+                    </div>
                 </div>
+            </td>
+            <td>
+                <small>{tour.registeredGuests}/{tour.maxGuests}</small>
+            </td>
+            <td>
                 <Dropdown>
                     <Dropdown.Toggle variant="success" >
                         <ion-icon name="settings-outline"></ion-icon>
@@ -290,13 +328,13 @@ function TourCard({ tour, onTourUpdated }) {
                     <Dropdown.Menu>
                         <Dropdown.Item onClick={() => handleView(tour.tourId)}>Xem thêm</Dropdown.Item>
                         <Dropdown.Item onClick={openModal}>Chỉnh sửa</Dropdown.Item>
-                        <Dropdown.Item>Quản lí</Dropdown.Item>
+                        <Dropdown.Item onClick={handleOpenManagementModal}>Quản lí</Dropdown.Item>
                         <Dropdown.Item onClick={() => {
                             handleDelete(tour.tourId);
                         }}>Xóa</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
-            </div>
+            </td>
             <Modal
                 isOpen={modalIsOpen}
                 onRequestClose={closeModal}
@@ -482,7 +520,7 @@ function TourCard({ tour, onTourUpdated }) {
                                                 <Button variant="outline-danger" className='d-flex align-items-center gap-2' onClick={() => removeCostDetail(index)}><ion-icon name="trash-outline"></ion-icon> Loại bỏ chi phí</Button>
                                             </div>
                                         ))}
-                                         <Button className='d-flex align-items-center gap-2' variant="outline-primary" onClick={addCostDetail}> <ion-icon name="add-circle-outline"></ion-icon>Thêm chi phí</Button>
+                                        <Button className='d-flex align-items-center gap-2' variant="outline-primary" onClick={addCostDetail}> <ion-icon name="add-circle-outline"></ion-icon>Thêm chi phí</Button>
                                     </Card.Body>
                                 </div>
                             </Tab>
@@ -507,7 +545,118 @@ function TourCard({ tour, onTourUpdated }) {
                     <Button variant="success" onClick={() => handleSaveChanges(tour.tourId)}>Save Changes</Button>
                 </div>
             </Modal>
-        </div>
+            <Modal isOpen={managementModalIsOpen}
+                onRequestClose={handleCloseManagementModal}
+                contentLabel="Update Tour Modal"
+                style={{
+                    content: {
+                        top: '50%',
+                        left: '50%',
+                        right: 'auto',
+                        bottom: 'auto',
+                        marginRight: '-50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '75%',
+                        height: '800px',
+                        overflowY: 'auto',
+                        backgroundColor: '#f0f0f0',
+                        display: 'flex',
+                        flexDirection: 'column',
+                    },
+                    overlay: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                    },
+                }}
+            >
+                <h4>Quản lí tour</h4>
+                <div className='h-100'>
+                    <Row style={{
+                        borderBottom: '1px solid black',
+                        paddingBottom: '20px',
+                    }}>
+                        <Col lg={6}>
+                            <div>
+                                <div className='d-flex gap-5'>
+                                    <p className='w-25 m-0'>Tên tour du lịch</p>
+                                    <p className='m-0'>{tour.tourName}</p>
+                                </div>
+                                <div className='d-flex gap-5'>
+                                    <p className='w-25 m-0'>Ngày bắt đầu</p>
+                                    <p className='m-0'>{tour.startDate}</p>
+                                </div>
+                                <div className='d-flex gap-5'>
+                                    <p className='w-25 m-0'>Ngày kết thúc</p>
+                                    <p className='m-0'>{tour.endDate}</p>
+                                </div>
+                                <div className='d-flex gap-5'>
+                                    <p className='w-25 m-0'>Địa điểm</p>
+                                    <p className='m-0'>{tour.location}</p>
+                                </div>
+
+                            </div>
+                        </Col>
+                        <Col lg={6}>
+                            <div className='d-flex gap-5'>
+                                <div className='p-3 border-1'>
+                                    <h5>Tổng thu nhập</h5>
+                                    <p>100000VND</p>
+                                </div>
+                                <div className='d-flex align-items-center gap-3 p-3 border-1'>
+                                    <div>
+                                        <ion-icon name="person-outline"></ion-icon>
+                                        <h5>Số lượng khách</h5>
+                                    </div>
+                                    <h5>5/10</h5>
+                                </div>
+                            </div>
+                        </Col>
+                    </Row>
+                    <Row>
+                        Danh sách người tham gia
+                        <div className='d-flex justify-content-between my-4'>
+                            <Form.Control type='text' className='w-25' placeholder='Tìm kiếm người tham gia' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                            <div className='py-2 px-2 rounded-5 bg-black'>
+                                <Button variant='success' className='rounded-5 border-0' onClick={() => setFilter('paid')}>Đã thanh toán</Button>
+                                <Button variant='success' className='rounded-5 border-0' onClick={() => setFilter('unpaid')}>Chưa thanh toán</Button>
+                            </div>
+                        </div>
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <td>Thời gian đăng kí</td>
+                                    <td>Người dùng</td>
+                                    <td>Giới tính</td>
+                                    <td>Địa chỉ</td>
+                                    <td>Điện thoại</td>
+                                    <td>Trạng thái</td>
+                                    <td>Chiết khấu</td>
+                                    <td>Số tiền</td>
+                                    <td>Hành động</td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredParticipants.map((participant) => (
+                                    <tr key={participant.id}>
+                                        <td>{participant.registeredAt}</td>
+                                        <td>{participant.fullName}</td>
+                                        <td>{participant.gender}</td>
+                                        <td>{participant.address}</td>
+                                        <td>{participant.phone}</td>
+                                        <td>{participant.paymentStatus? 'Đã thanh toán' : 'Chưa thanh toán'}</td>
+                                        <td>{participant.discount}</td>
+                                        <td>{participant.totalAmount}</td>
+                                        <td><ion-icon name="ellipsis-horizontal-outline"></ion-icon></td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </Row>
+                </div>
+                <div className="d-flex justify-content-end gap-3">
+                    <Button variant="secondary" onClick={handleCloseManagementModal}>Close Modal</Button>
+                </div>
+            </Modal>
+        </tr>
     );
 }
 
