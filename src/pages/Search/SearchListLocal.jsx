@@ -1,27 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import { ToastContainer } from 'react-toastify';
 import axios from 'axios';
-import { ToastContainer, toast } from 'react-toastify'; // Import Toast
-import 'react-toastify/dist/ReactToastify.css'; // Import CSS cho Toast
-import '../../assets/css/Search/Search.css';
 import { useDispatch } from 'react-redux';
 import { viewProfile } from '../../redux/actions/profileActions';
 import RoutePath from '../../routes/RoutePath';
 import { useNavigate } from 'react-router-dom';
+import '../../assets/css/Search/Search.css';
 
 function SearchListLocal() {
   const [searchTerm, setSearchTerm] = useState('');
   const [address, setAddress] = useState('');
   const [gender, setGender] = useState('');
-  const [ageRange, setAgeRange] = useState([18, 40]);
+  const [ageRange, setAgeRange] = useState([18, 60]);
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedLocation, setSelectedLocation] = useState('');
+  const [selectedHobbies, setSelectedHobbies] = useState([]);
   const [locations, setLocations] = useState([]);
   const [locals, setLocals] = useState([]);
-  const [selectedHobbies, setSelectedHobbies] = useState([]);
   const [allHobbies, setAllHobbies] = useState([]);
   const itemsPerPage = 4;
 
@@ -29,59 +26,56 @@ function SearchListLocal() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchLocations();
+    fetchActivities();
     fetchLocals();
+    fetchLocations();
   }, []);
 
-  const fetchLocations = async () => {
+  const fetchActivities = async () => {
     try {
-      const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Locations');
-      const locationData = response.data.$values.map(location => ({
-        code: location.locationId,
-        name: location.locationName,
+      const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Activity');
+      const hobbiesData = response.data.$values.map((activity) => ({
+        id: activity.activityId,
+        name: activity.activityName,
       }));
-      setLocations(locationData);
+      setAllHobbies(hobbiesData);
     } catch (error) {
-      console.error("Error fetching locations:", error);
+      console.error('Error fetching activities:', error);
     }
   };
 
   const fetchLocals = async () => {
     try {
-      const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Profile');
-      const profiles = response.data.$values.map(profile => ({
-        id: profile.profileId,
-        avatar: profile.imageUser || '',
-        name: profile.user.fullName || 'Chưa xác định',
-        age: profile.user.birthdate ? new Date().getFullYear() - new Date(profile.user.birthdate).getFullYear() : 'Chưa xác định',
-        gender: profile.gender || 'Chưa xác định',
-        address: `${profile.address}, ${profile.city}` || 'Chưa xác định',
-        description: profile.description || 'Không có mô tả',
-        guestStatus: profile.hostingAvailability || 'Không rõ',
-        rating: 'Chưa xác định',
-        connections: 'Chưa xác định',
-        activeTime: new Date(profile.user.registrationTime).toLocaleDateString() || 'Chưa xác định',
-        userId: profile.user.id,
-        hobbies: []
+      const response = await axios.get('https://travelmateapp.azurewebsites.net/odata/ApplicationUsers');
+      const profiles = response.data.value.map((user) => ({
+        id: user.UserId,
+        avatar: user.Profile?.ImageUser || 'https://img.freepik.com/premium-vector/default-avatar-profile-icon_561158-3467.jpg',
+        name: user.FullName || 'Chưa xác định',
+        age: user.CCCD?.Age || 'Chưa xác định',
+        gender: user.CCCD?.Sex || 'Chưa xác định',
+        address: user.Profile?.Address || 'Chưa xác định',
+        description: '',
+        rating: user.Star,
+        connections: user.CountConnect,
+        activeTime: 'Chưa xác định',
+        hobbies: allHobbies.filter((hobby) => user.ActivityIds.includes(hobby.id)).map((hobby) => hobby.name),
       }));
-      const profilesWithHobbies = await Promise.all(profiles.map(async (profile) => {
-        const hobbies = await fetchUserHobbies(profile.userId);
-        return { ...profile, hobbies };
-      }));
-      setLocals(profilesWithHobbies);
-      setAllHobbies([...new Set(profilesWithHobbies.flatMap(local => local.hobbies))]);
+      setLocals(profiles);
     } catch (error) {
-      console.error("Error fetching profiles:", error);
+      console.error('Error fetching locals:', error);
     }
   };
 
-  const fetchUserHobbies = async (userId) => {
+  const fetchLocations = async () => {
     try {
-      const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserActivitiesWOO/user/${userId}`);
-      return response.data.$values.map(activity => activity.activity.activityName);
+      const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Locations');
+      const locationData = response.data.$values.map((location) => ({
+        code: location.locationId,
+        name: location.locationName,
+      }));
+      setLocations(locationData);
     } catch (error) {
-      console.error(`Error fetching hobbies for user ${userId}:`, error);
-      return [];
+      console.error('Error fetching locations:', error);
     }
   };
 
@@ -95,8 +89,9 @@ function SearchListLocal() {
     const matchesAddress = local.address.toLowerCase().includes(address.toLowerCase());
     const matchesGender = !gender || local.gender.toLowerCase() === gender.toLowerCase();
     const matchesAge = local.age === 'Chưa xác định' || (local.age >= ageRange[0] && local.age <= ageRange[1]);
-    const matchesHobby = selectedHobbies.length === 0 || selectedHobbies.some(hobby => local.hobbies.includes(hobby));
+    const matchesHobby = selectedHobbies.length === 0 || selectedHobbies.every((hobby) => local.hobbies.includes(hobby));
     const matchesLocation = !selectedLocation || local.address.includes(selectedLocation);
+
     return matchesName && matchesAddress && matchesGender && matchesAge && matchesHobby && matchesLocation;
   });
 
@@ -104,10 +99,8 @@ function SearchListLocal() {
 
   return (
     <Container fluid style={{ padding: '10px', width: '90%' }}>
-      <ToastContainer /> {/* Thêm ToastContainer để hiển thị Toast */}
+      <ToastContainer />
       <Row>
-        <h3 className="mb-3">Người địa phương</h3>
-        {/* Phần Lọc */}
         <Col md={3} className="border-end">
           <Form.Group className="mb-3">
             <Form.Label>Tên</Form.Label>
@@ -118,7 +111,6 @@ function SearchListLocal() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </Form.Group>
-
           <Form.Group className="mb-3">
             <Form.Label>Địa điểm</Form.Label>
             <Form.Select
@@ -159,85 +151,55 @@ function SearchListLocal() {
 
           <Form.Group className="mb-3">
             <Form.Label>Sở thích</Form.Label>
-            <div className="hobby-list" style={{ maxHeight: '100px', overflowY: 'auto', marginBottom: '10px' }}>
-              {allHobbies.map((item, index) => (
+            <div style={{ maxHeight: '100px', overflowY: 'auto' }}>
+              {allHobbies.map((hobby) => (
                 <Button
-                  key={index}
-                  variant={selectedHobbies.includes(item) ? 'primary' : 'outline-secondary'}
+                  key={hobby.id}
+                  variant={selectedHobbies.includes(hobby.name) ? 'primary' : 'outline-secondary'}
                   onClick={() => {
                     setSelectedHobbies((prev) =>
-                      prev.includes(item) ? prev : [...prev, item]
+                      prev.includes(hobby.name)
+                        ? prev.filter((h) => h !== hobby.name)
+                        : [...prev, hobby.name]
                     );
                   }}
-                  style={{ margin: '2px', padding: '5px 10px' }}
+                  className="m-1"
                 >
-                  {item}
+                  {hobby.name}
                 </Button>
-              ))}
-            </div>
-
-            <div className="selected-hobbies">
-              {selectedHobbies.map((hobby, index) => (
-                <span key={index} className="selected-hobby">
-                  {hobby}
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedHobbies((prev) => prev.filter((h) => h !== hobby));
-                    }}
-                    style={{ marginLeft: '5px', padding: '2px 5px' }}
-                  >
-                    &times;
-                  </Button>
-                </span>
               ))}
             </div>
           </Form.Group>
         </Col>
-
-        {/* Phần Danh Sách */}
         <Col md={9}>
           {filteredLocals.length === 0 ? (
             <div className="text-center">Không tìm thấy kết quả.</div>
           ) : (
             displayedLocals.map((local) => (
-              <Row key={local.id} className="border-bottom p-3" onClick={() => handleUserClick(local.userId)} style={{ cursor: 'pointer' }}>
+              <Row key={local.id} className="border-bottom p-3" onClick={() => handleUserClick(local.id)}>
                 <Col md={2}>
-                  <img
-                    src={local.avatar}
-                    alt="Avatar"
-                    style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '8px' }}
-                  />
+                  <img src={local.avatar} alt="Avatar" style={{ width: '100%', height: '150px', objectFit: 'cover' }} />
                 </Col>
                 <Col md={8}>
                   <h6>{local.name} ({local.age} tuổi, {local.gender})</h6>
-                  <p><ion-icon name="location-outline"></ion-icon> {local.address}</p>
-                  <p>Mô tả: {local.description}</p>
+                  <p>Địa chỉ: {local.address}</p>
                   <p>Sở thích: {local.hobbies.join(', ')}</p>
-                  <p style={{ color: 'green' }}><ion-icon name="walk-outline"></ion-icon> {local.guestStatus}</p>
                 </Col>
                 <Col md={2}>
-                  <p><ion-icon name="star-outline"></ion-icon> {local.rating} sao</p>
-                  <p><ion-icon name="people-outline"></ion-icon> {local.connections} kết nối</p>
-                  <p>Tham gia từ {local.activeTime}</p>
+                  <p>{local.rating} sao</p>
+                  <p>{local.connections} kết nối</p>
                 </Col>
               </Row>
             ))
           )}
-          {filteredLocals.length > itemsPerPage && (
-            <ReactPaginate
-              previousLabel={'Trước'}
-              nextLabel={'Sau'}
-              breakLabel={'...'}
-              pageCount={Math.ceil(filteredLocals.length / itemsPerPage)}
-              marginPagesDisplayed={2}
-              pageRangeDisplayed={5}
-              onPageChange={({ selected }) => setCurrentPage(selected)}
-              containerClassName={'pagination justify-content-center'}
-              activeClassName={'active'}
-            />
-          )}
+          <ReactPaginate
+            previousLabel={'Trước'}
+            nextLabel={'Tiếp'}
+            pageCount={Math.ceil(filteredLocals.length / itemsPerPage)}
+            onPageChange={(data) => setCurrentPage(data.selected)}
+            containerClassName={'pagination'}
+            activeClassName={'active'}
+          />
         </Col>
       </Row>
     </Container>
