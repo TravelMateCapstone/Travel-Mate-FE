@@ -43,6 +43,7 @@ import SearchListTraveller from "../pages/Search/SearchListTraveller"
 import MyProfile from "../pages/ProfileManagement/MyProfile"
 import TourDetail from "../pages/Tour/TourDetail"
 import Regulation from "../pages/Regulation"
+import FailContract from "../pages/Contracts/FailContract"
 
 const publishRoutes = [
     { path: RoutePath.HOMEPAGE, component: Home, layout: HomeFeedLayout },
@@ -85,6 +86,7 @@ const privateRoutes = [
     { path: RoutePath.FINISH_CONTRACT, component: FinishContract, layout: ContractLayout },
     { path: RoutePath.ONGOING_CONTRACT, component: OngoingContract, layout: ContractLayout },
     { path: RoutePath.PAYMENT_CONTRACT, component: PaymentContract, layout: ContractLayout },
+    { path: RoutePath.PAYMENT_FAILED_CONTRACT, component: FailContract, layout: ContractLayout },
 
     { path: RoutePath.LOCAL_STATICTIS, component: LocalIncomeStaticstic, layout: AdminLayout },
     { path: RoutePath.LOCAL_CALENDAR_MANAGEMENT, component: CalendarManagement, layout: AdminLayout },

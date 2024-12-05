@@ -14,6 +14,7 @@ import RoutePath from '../../routes/RoutePath';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import TextareaAutosize from 'react-textarea-autosize';
+import Switch from '../Shared/Switch';
 Modal.setAppElement('#root');
 
 function TourCard({ tour, onTourUpdated }) {
@@ -37,6 +38,7 @@ function TourCard({ tour, onTourUpdated }) {
         additionalInfo: '',
     });
     const [key, setKey] = useState('schedule');
+    const [isGlobalContract, setIsGlobalContract] = useState(true);
 
     useEffect(() => { 
         if (tourDetails.startDate && tourDetails.endDate) {
@@ -110,6 +112,15 @@ function TourCard({ tour, onTourUpdated }) {
 
     const closeModal = () => {
         setModalIsOpen(false);
+    };
+
+    const handleSwitchToggle = (isOn) => {
+        console.log('Switch is now', isOn ? 'ON' : 'OFF');
+        console.log(isOn);
+        
+        setIsGlobalContract(isOn);
+       
+        
     };
 
     const handleDelete = async (tourId) => {
@@ -207,6 +218,7 @@ function TourCard({ tour, onTourUpdated }) {
         const tourData = {
             tourName: tourDetails.tourName,
             price: parseFloat(tourDetails.price),
+            isGlobalContract: isGlobalContract,
             startDate: new Date(tourDetails.startDate).toISOString(),
             endDate: new Date(tourDetails.endDate).toISOString(),
             numberOfDays: parseInt(tourDetails.numberOfDays),
@@ -309,51 +321,54 @@ function TourCard({ tour, onTourUpdated }) {
                     },
                 }}
             >
-                <h2>Update Tour</h2>
+                <h2>Cập nhật tour</h2>
                 <Row className="mb-4" style={{ flex: 1 }}>
                     <Col lg={12}>
                         <Row>
                             <Col lg={8}>
                                 <div>
                                     <div>
-                                        <Card.Title>Tour Details</Card.Title>
                                         <Form>
                                             <Form.Group className="mb-3 form-group-custom-create-tour">
-                                                <Form.Label>Tour Name</Form.Label>
+                                                <Form.Label>Tên Tour</Form.Label>
                                                 <Form.Control type="text" value={tourDetails.tourName} onChange={(e) => setTourDetails({ ...tourDetails, tourName: e.target.value })} />
                                             </Form.Group>
                                             <Row>
                                                 <Col>
                                                     <Form.Group className="mb-3 form-group-custom-create-tour">
-                                                        <Form.Label>Start Date</Form.Label>
+                                                        <Form.Label>Ngày Bắt Đầu</Form.Label>
                                                         <Form.Control type="datetime-local" value={tourDetails.startDate} onChange={(e) => setTourDetails({ ...tourDetails, startDate: e.target.value })} />
                                                     </Form.Group>
                                                 </Col>
                                                 <Col>
                                                     <Form.Group className="mb-3 form-group-custom-create-tour">
-                                                        <Form.Label>End Date</Form.Label>
+                                                        <Form.Label>Ngày Kết Thúc</Form.Label>
                                                         <Form.Control type="datetime-local" value={tourDetails.endDate} onChange={(e) => setTourDetails({ ...tourDetails, endDate: e.target.value })} />
                                                     </Form.Group>
                                                 </Col>
                                             </Row>
                                             <Form.Group className="mb-3 d-none">
-                                                <Form.Label>Number of Days</Form.Label>
+                                                <Form.Label>Số Ngày</Form.Label>
                                                 <Form.Control type="number" value={tourDetails.numberOfDays} onChange={(e) => setTourDetails({ ...tourDetails, numberOfDays: e.target.value })} />
                                             </Form.Group>
                                             <Form.Group className="mb-3 d-none">
-                                                <Form.Label>Number of Nights</Form.Label>
+                                                <Form.Label>Số Đêm</Form.Label>
                                                 <Form.Control type="number" value={tourDetails.numberOfNights} onChange={(e) => setTourDetails({ ...tourDetails, numberOfNights: e.target.value })} />
                                             </Form.Group>
                                             <Form.Group className="mb-3 form-group-custom-create-tour">
-                                                <Form.Label>Location</Form.Label>
+                                                <Form.Label>Địa Điểm</Form.Label>
                                                 <Form.Control type="text" value={tourDetails.location} onChange={(e) => setTourDetails({ ...tourDetails, location: e.target.value })} />
                                             </Form.Group>
                                             <Form.Group className="mb-3 form-group-custom-create-tour">
-                                                <Form.Label>Max Guests</Form.Label>
+                                                <Form.Label>Số Khách Tối Đa</Form.Label>
                                                 <Form.Control type="number" value={tourDetails.maxGuests} onChange={(e) => setTourDetails({ ...tourDetails, maxGuests: e.target.value })} />
                                             </Form.Group>
+                                            <Form.Group className="mb-3 form-group-custom-create-tour">
+                                                <Form.Label>Chữ ký cho toàn bộ</Form.Label>
+                                                <Switch isOn={isGlobalContract} handleToggle={handleSwitchToggle} />
+                                            </Form.Group>
                                             <Form.Group className="mb-3 form-group-custom-create-tour align-items-start">
-                                                <Form.Label>Tour Description</Form.Label>
+                                                <Form.Label>Mô Tả Tour</Form.Label>
                                                 <TextareaAutosize
                                                     minRows={3}
                                                     value={tourDetails.tourDescription}
@@ -390,41 +405,41 @@ function TourCard({ tour, onTourUpdated }) {
                                                         {activity.activities.map((act, actIndex) => (
                                                             <div key={actIndex} className="ml-4 mt-3">
                                                                 <Form.Group className="mb-3">
-                                                                    <Form.Label>Title</Form.Label>
+                                                                    <Form.Label>Tiêu Đề</Form.Label>
                                                                     <Form.Control type="text" value={act.title} onChange={(e) => updateActivity(dayIndex, actIndex, 'title', e.target.value)} />
                                                                 </Form.Group>
                                                                 <Form.Group className="mb-3">
-                                                                    <Form.Label>Start Time</Form.Label>
+                                                                    <Form.Label>Thời Gian Bắt Đầu</Form.Label>
                                                                     <Form.Control type="time" step="1" value={act.startTime} onChange={(e) => updateActivity(dayIndex, actIndex, 'startTime', e.target.value)} />
                                                                 </Form.Group>
                                                                 <Form.Group className="mb-3">
-                                                                    <Form.Label>End Time</Form.Label>
+                                                                    <Form.Label>Thời Gian Kết Thúc</Form.Label>
                                                                     <Form.Control type="time" step="1" value={act.endTime} onChange={(e) => updateActivity(dayIndex, actIndex, 'endTime', e.target.value)} />
                                                                 </Form.Group>
                                                                 <Form.Group className="mb-3">
-                                                                    <Form.Label>Note</Form.Label>
+                                                                    <Form.Label>Ghi Chú</Form.Label>
                                                                     <Form.Control type="text" value={act.note} onChange={(e) => updateActivity(dayIndex, actIndex, 'note', e.target.value)} />
                                                                 </Form.Group>
                                                                 <Form.Group className="mb-3">
-                                                                    <Form.Label>Description</Form.Label>
+                                                                    <Form.Label>Mô Tả</Form.Label>
                                                                     <Form.Control type="text" value={act.description} onChange={(e) => updateActivity(dayIndex, actIndex, 'description', e.target.value)} />
                                                                 </Form.Group>
                                                                 <Form.Group className="mb-3">
-                                                                    <Form.Label>Address</Form.Label>
+                                                                    <Form.Label>Địa Chỉ</Form.Label>
                                                                     <Form.Control type="text" value={act.activityAddress} onChange={(e) => updateActivity(dayIndex, actIndex, 'activityAddress', e.target.value)} />
                                                                 </Form.Group>
                                                                 <Form.Group className="mb-3">
-                                                                    <Form.Label>Amount</Form.Label>
+                                                                    <Form.Label>Số Tiền</Form.Label>
                                                                     <Form.Control type="number" value={act.activityAmount} onChange={(e) => updateActivity(dayIndex, actIndex, 'activityAmount', e.target.value)} />
                                                                 </Form.Group>
                                                                 <Form.Group className="mb-3">
-                                                                    <Form.Label>Image</Form.Label>
+                                                                    <Form.Label>Hình Ảnh</Form.Label>
                                                                     <Form.Control type="file" onChange={(e) => handleActivityImageUpload(e, dayIndex, actIndex)} />
                                                                 </Form.Group>
                                                                 {act.activityImage && (
                                                                     <img src={act.activityImage} alt="Activity" style={{ width: '100%', height: 'auto' }} />
                                                                 )}
-                                                                <Button variant="danger" onClick={() => removeActivity(dayIndex, actIndex)}>Remove Activity</Button>
+                                                                <Button variant="danger" onClick={() => removeActivity(dayIndex, actIndex)}>Xóa hoạt động</Button>
                                                             </div>
                                                         ))}
                                                     </Accordion.Body>
@@ -441,7 +456,7 @@ function TourCard({ tour, onTourUpdated }) {
                                         {costDetails.map((costDetail, index) => (
                                             <div key={index} className="mb-3">
                                                 <Form.Group className="mb-3">
-                                                    <Form.Label>Title</Form.Label>
+                                                    <Form.Label>Tiêu Đề</Form.Label>
                                                     <Form.Control type="text" value={costDetail.title} onChange={(e) => {
                                                         const updatedCostDetails = [...costDetails];
                                                         updatedCostDetails[index].title = e.target.value;
@@ -449,7 +464,7 @@ function TourCard({ tour, onTourUpdated }) {
                                                     }} />
                                                 </Form.Group>
                                                 <Form.Group className="mb-3">
-                                                    <Form.Label>Amount</Form.Label>
+                                                    <Form.Label>Số Tiền</Form.Label>
                                                     <Form.Control type="number" value={costDetail.amount} onChange={(e) => {
                                                         const updatedCostDetails = [...costDetails];
                                                         updatedCostDetails[index].amount = e.target.value;
@@ -457,17 +472,17 @@ function TourCard({ tour, onTourUpdated }) {
                                                     }} />
                                                 </Form.Group>
                                                 <Form.Group className="mb-3">
-                                                    <Form.Label>Notes</Form.Label>
+                                                    <Form.Label>Ghi Chú</Form.Label>
                                                     <Form.Control type="text" value={costDetail.notes} onChange={(e) => {
                                                         const updatedCostDetails = [...costDetails];
                                                         updatedCostDetails[index].notes = e.target.value;
                                                         setCostDetails(updatedCostDetails);
                                                     }} />
                                                 </Form.Group>
-                                                <Button variant="danger" onClick={() => removeCostDetail(index)}>Remove Cost</Button>
+                                                <Button variant="outline-danger" className='d-flex align-items-center gap-2' onClick={() => removeCostDetail(index)}><ion-icon name="trash-outline"></ion-icon> Loại bỏ chi phí</Button>
                                             </div>
                                         ))}
-                                        <Button variant="primary" onClick={addCostDetail}>Add New Cost</Button>
+                                         <Button className='d-flex align-items-center gap-2' variant="outline-primary" onClick={addCostDetail}> <ion-icon name="add-circle-outline"></ion-icon>Thêm chi phí</Button>
                                     </Card.Body>
                                 </div>
                             </Tab>

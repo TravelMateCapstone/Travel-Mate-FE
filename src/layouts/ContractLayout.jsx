@@ -25,6 +25,8 @@ function ContractLayout({ children }) {
         );
     } else if (location.pathname === RoutePath.ONGOING_CONTRACT) {
         rightContent = <></>
+    } else if (location.pathname === RoutePath.PAYMENT_FAILED_CONTRACT) {
+        rightContent = <></>
     }
     else {
         rightContent = <img src={contract_glass} alt='icon search' />

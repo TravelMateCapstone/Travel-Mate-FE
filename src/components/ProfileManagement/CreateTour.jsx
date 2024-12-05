@@ -11,12 +11,14 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import '../../assets/css/Local/CreateTour.css'
 import TextareaAutosize from 'react-textarea-autosize';
+import Switch from '../Shared/Switch';
 Modal.setAppElement('#root');
 function CreateTour({ onTourCreated }) {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [activities, setActivities] = useState([]);
     const [costDetails, setCostDetails] = useState([]);
     const [locationCurent, setLocationCurent] = useState('');
+    const [isGlobalContract, setIsGlobalContract] = useState(true);
 
     const [tourDetails, setTourDetails] = useState({
         tourName: '',
@@ -72,15 +74,20 @@ function CreateTour({ onTourCreated }) {
     useEffect(() => {
         const fetchLocations = async () => {
             try {
-                const response = await axios.get('https://travelmateapp.azurewebsites.net/api/UserLocationsWOO/get-current-user');
+                const response = await axios.get('https://travelmateapp.azurewebsites.net/api/UserLocationsWOO/get-current-user', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `${token}`,
+                    },
+                });
                 console.log('Location:', response.data.$values);
-                setLocations(response.data.$values);
+                setLocations(response.data.$values || []);
             } catch (error) {
                 console.error('Error fetching locations:', error);
             }
         };
         fetchLocations();
-    }, []);
+    }, [token]);
 
 
     const formatPrice = (price) => {
@@ -172,6 +179,7 @@ function CreateTour({ onTourCreated }) {
         const tourData = {
             tourName: tourDetails.tourName,
             price: parseFloat(tourDetails.price),
+            isGlobalContract: isGlobalContract,
             startDate: new Date(tourDetails.startDate).toISOString(),
             endDate: new Date(tourDetails.endDate).toISOString(),
             numberOfDays: parseInt(tourDetails.numberOfDays),
@@ -221,6 +229,15 @@ function CreateTour({ onTourCreated }) {
         }
     };
 
+    const handleSwitchToggle = (isOn) => {
+        console.log('Switch is now', isOn ? 'ON' : 'OFF');
+        setIsGlobalContract(isOn);
+    };
+
+    const handleImageUploadClick = () => {
+        document.getElementById('image_tour_detail').click();
+    };
+
     return (
         <div>
             <h1>CreateTour</h1>
@@ -249,14 +266,13 @@ function CreateTour({ onTourCreated }) {
                     },
                 }}
             >
-                <h2>Create a New Tour</h2>
+                <h2>Tạo tour</h2>
                 <Row className="mb-4" style={{ flex: 1 }}>
                     <Col lg={12}>
                         <Row>
-                            <Col lg={8}>
+                            <Col lg={7}>
                                 <div>
                                     <div>
-                                        <Card.Title>Tour Details</Card.Title>
                                         <Form>
                                             <Form.Group className="mb-3 form-group-custom-create-tour">
                                                 <Form.Label>Tên tour du lịch</Form.Label>
@@ -295,9 +311,14 @@ function CreateTour({ onTourCreated }) {
                                                     ))}
                                                 </Form.Control>
                                             </Form.Group>
+
                                             <Form.Group className="mb-3 form-group-custom-create-tour">
                                                 <Form.Label>Số lượng tối đa</Form.Label>
                                                 <Form.Control type="number" value={tourDetails.maxGuests} onChange={(e) => setTourDetails({ ...tourDetails, maxGuests: e.target.value })} />
+                                            </Form.Group>
+                                            <Form.Group className="mb-3 form-group-custom-create-tour">
+                                                <Form.Label>Chữ ký cho toàn bộ</Form.Label>
+                                                <Switch isOn={isGlobalContract} handleToggle={handleSwitchToggle} />
                                             </Form.Group>
                                             <Form.Group className="mb-3 form-group-custom-create-tour align-items-start">
                                                 <Form.Label>Mô tả tour</Form.Label>
@@ -312,14 +333,44 @@ function CreateTour({ onTourCreated }) {
                                     </div>
                                 </div>
                             </Col>
-                            <Col lg={4}>
-                                <Form.Group className="mt-4 form-group-custom-create-tour">
-                                    <Form.Control type="file" onChange={handleImageUpload} />
+                            <Col lg={5}>
+                                <Form.Group className="mb-4">
+                                    <div
+                                        onClick={handleImageUploadClick}
+                                        style={{
+                                            cursor: 'pointer',
+                                            display: tourDetails.tourImage ? 'none' : 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            border: '2px dashed #ccc',
+                                            borderRadius: '5px',
+                                            padding: '20px',
+                                            width: '100%',
+                                            minHeight: '200px',
+                                            maxHeight: '300px',
+                                        }}
+                                    >
+                                        <ion-icon name="image-outline"></ion-icon>
+                                        <span>Tải ảnh lên</span>
+                                    </div>
+                                    <Form.Control
+                                        type="file"
+                                        id="image_tour_detail"
+                                        onChange={handleImageUpload}
+                                        style={{ display: 'none' }}
+                                    />
                                 </Form.Group>
                                 {tourDetails.tourImage && (
-                                    <img src={tourDetails.tourImage} alt="Tour" style={{ width: '100%', height: 'auto' }} />
+                                    <img
+                                        src={tourDetails.tourImage}
+                                        alt="Tour"
+                                        onClick={handleImageUploadClick}
+                                        style={{ width: '100%', height: 'auto', cursor: 'pointer' }}
+                                    />
                                 )}
-                                <h4 className='text-success'>{formatPrice(tourDetails.price)}</h4>
+
+                                <h4 className='text-success mt-4'>{formatPrice(tourDetails.price)}</h4>
                             </Col>
                         </Row>
                     </Col>
@@ -339,12 +390,12 @@ function CreateTour({ onTourCreated }) {
                                                                 <Row>
                                                                     <Col lg={8}>
                                                                         <Row>
-                                                                           <Col>
+                                                                            <Col>
                                                                                 <Form.Group className="mb-3 form-group-custom-create-tour">
                                                                                     <Form.Label>Tên hoạt động</Form.Label>
                                                                                     <Form.Control type="text" value={act.title} onChange={(e) => updateActivity(dayIndex, actIndex, 'title', e.target.value)} />
                                                                                 </Form.Group>
-                                                                           </Col>
+                                                                            </Col>
                                                                             <Col>
                                                                                 <Form.Group className="mb-3 form-group-custom-create-tour">
                                                                                     <Form.Label>Chi phí</Form.Label>
@@ -414,7 +465,7 @@ function CreateTour({ onTourCreated }) {
                                         <Card.Title>Cost Details</Card.Title>
                                         {costDetails.map((costDetail, index) => (
                                             <div key={index} className="mb-3">
-                                               <Row>
+                                                <Row>
                                                     <Col>
                                                         <Form.Group className="mb-3 form-group-custom-create-tour">
                                                             <Form.Label>Tiêu đề</Form.Label>
@@ -435,7 +486,7 @@ function CreateTour({ onTourCreated }) {
                                                             }} />
                                                         </Form.Group>
                                                     </Col>
-                                               </Row>
+                                                </Row>
                                                 <Form.Group className="mb-3 form-group-custom-create-tour">
                                                     <Form.Label>Ghi chú</Form.Label>
                                                     <TextareaAutosize

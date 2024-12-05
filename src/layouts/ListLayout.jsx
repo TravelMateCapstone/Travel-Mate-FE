@@ -390,14 +390,14 @@ function ListLayout({ children }) {
                                                 onChange={(e) => setGroupDescription(e.target.value)}
                                                 className={`form-control ${errors.groupDescription ? 'is-invalid' : ''}`}
                                             />
-                                            <Button
+                                            {/* <Button
                                                 variant="secondary"
                                                 onClick={handleGenerateDescription}
                                                 className="mt-2"
                                                 disabled={isGeneratingDescription}
                                             >
                                                 {isGeneratingDescription ? 'Đang tạo...' : 'Viết mô tả tự động'}
-                                            </Button>
+                                            </Button> */}
                                             <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
                                                 {errors.groupDescription}
                                             </Form.Control.Feedback>
