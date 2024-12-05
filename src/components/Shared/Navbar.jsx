@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Navbar as BootstrapNavbar, Nav, Row, Col, Container, Dropdown, Button, Offcanvas, Badge } from 'react-bootstrap';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
 import '../../assets/css/Shared/NavBar.css';
 import logo from '../../assets/images/logo.png';
@@ -262,6 +262,8 @@ const Navbar = React.memo(() => {
   const [searchInput, setSearchInput] = useState('');
   const [selectedItem, setSelectedItem] = useState('Địa điểm du lịch');
 
+  const location = useLocation(); // Lấy Route hiện tại
+
   // Hàm chuyển chuỗi thành không dấu
   const removeVietnameseTones = (str) => {
     return str
@@ -291,7 +293,19 @@ const Navbar = React.memo(() => {
   }, []);
 
 
-  // Hàm xử lý khi người dùng nhập vào ô tìm kiếm
+  // Hàm xử lý tìm kiếm theo từng loại
+  const handleEnterSearch = (e) => {
+    if (e.key === 'Enter') {
+      if (selectedItem === 'Địa điểm du lịch') {
+        navigate(RoutePath.DESTINATION, { state: { searchInput } });
+      } else if (selectedItem === 'Người địa phương') {
+        navigate(RoutePath.SEARCH_LIST_LOCAL, { state: { searchInput } });
+      } else if (selectedItem === 'Khách du lịch') {
+        navigate(RoutePath.SEARCH_LIST_TRAVELLER, { state: { searchInput } });
+      }
+    }
+  };
+
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchInput(value);
@@ -299,38 +313,36 @@ const Navbar = React.memo(() => {
     const filtered = locations.filter((location) =>
       removeVietnameseTones(location.locationName.toLowerCase()).includes(removeVietnameseTones(value.toLowerCase()))
     );
-
     setFilteredLocations(filtered.slice(0, 5));
-
-    // Điều hướng khi nhập tìm kiếm và chọn một tùy chọn trong dropdown
-    if (value && filtered.length === 0) {
-      switch (selectedItem) {
-        case "Địa điểm du lịch":
-          navigate(RoutePath.DESTINATION);
-          break;
-        case "Người địa phương":
-        case "Khách du lịch":
-          navigate(RoutePath.SEARCH_LIST_LOCAL);
-          break;
-        default:
-          break;
-      }
-    }
   };
-  // Hàm xử lý khi người dùng chọn địa điểm từ gợi ý
+
   const handleLocationSelect = (location) => {
     setSearchInput(location.locationName);
     setFilteredLocations([]);
+    localStorage.setItem('selectedLocation', JSON.stringify(location)); // Lưu vào localStorage
 
-    // Lưu địa điểm mới vào localStorage và chỉ giữ lại địa điểm mới nhất
-    localStorage.setItem('selectedLocation', JSON.stringify(location));
-
-    console.log('Địa điểm đã chọn:', location);
-
-    // Điều hướng sang trang DESTINATION và truyền dữ liệu vào state
-    navigate(RoutePath.DESTINATION, { state: { selectedLocation: location } });
+    if (selectedItem === "Địa điểm du lịch") {
+      navigate(RoutePath.DESTINATION, { state: { selectedLocation: location } });
+    } else if (selectedItem === "Người địa phương") {
+      navigate(RoutePath.SEARCH_LIST_LOCAL, { state: { selectedLocation: location } });
+    } else if (selectedItem === "Khách du lịch") {
+      navigate(RoutePath.SEARCH_LIST_TRAVELLER, { state: { selectedLocation: location } });
+    }
   };
 
+  // Cập nhật giao diện khi thay đổi `location.pathname`
+  useEffect(() => {
+    if (location.pathname.includes(RoutePath.SEARCH_LIST_LOCAL)) {
+      localStorage.removeItem('selectedLocation');
+      setSelectedItem("Người địa phương");
+    } else if (location.pathname.includes(RoutePath.SEARCH_LIST_TRAVELLER)) {
+      localStorage.removeItem('selectedLocation');
+      setSelectedItem("Khách du lịch");
+    } else {
+      localStorage.removeItem('selectedLocation');
+      setSelectedItem("Địa điểm du lịch");
+    }
+  }, [location.pathname]);
 
   return (
     <BootstrapNavbar bg="white" expand="lg" className='my-navbar fixed-top'>
@@ -355,6 +367,7 @@ const Navbar = React.memo(() => {
                   placeholder="Bạn muốn đến..."
                   value={searchInput}
                   onChange={handleInputChange}
+                  onKeyDown={handleEnterSearch}
                   style={{ border: 'none', outline: 'none', flex: 1, fontSize: '12px' }}
                 />
                 {filteredLocations.length > 0 && (
@@ -507,9 +520,6 @@ const Navbar = React.memo(() => {
                       ></ion-icon>
                     </div>
                   </Dropdown.Menu>
-
-
-
                 </Dropdown>
 
                 <Dropdown align="end">
