@@ -186,7 +186,7 @@ function FinishContract() {
 
 
             <div className="d-flex justify-content-end">
-              <Button as={Link} to={RoutePath.PAYMENT_CONTRACT} variant="success" className="rounded-5 d-flex align-items-center gap-2"><p className="m-0">Tiếp tục</p> <ion-icon name="arrow-forward-outline"></ion-icon></Button>
+              <Button variant="success" className="rounded-5 d-flex align-items-center gap-2"><p className="m-0">Tiếp tục</p> <ion-icon name="arrow-forward-outline"></ion-icon></Button>
             </div>
           </div>
         </Col>
