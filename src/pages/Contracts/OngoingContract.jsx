@@ -10,12 +10,14 @@ function OngoingContract() {
       display: 'flex',
       justifyContent: 'center',
     }}>
-      <div className='d-flex flex-column align-items-center'><img src={car_mini} alt='icon' height={200} />
-        <p>Dành thời gian để trải nghiệm chuyến đi tuyệt vời.</p>
+      <div className='d-flex flex-column'>
+        <div className='d-flex flex-column align-items-center'><img src={car_mini} alt='icon' height={200} />
+          <p>Dành thời gian để trải nghiệm chuyến đi tuyệt vời.</p>
+        </div>
+        <Button variant='outline-success'>
+          Đánh giá
+        </Button>
       </div>
-      <Button variant='outline-success'>
-        Đánh giá
-      </Button>
     </div>
   )
 }
