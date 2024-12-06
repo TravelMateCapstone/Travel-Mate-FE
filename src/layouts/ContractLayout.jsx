@@ -58,7 +58,7 @@ function ContractLayout({ children }) {
                             fontWeight: 'bold',
                         }}>Hợp đồng</p>
                     </div>
-                    <p>Hiện tại không có hợp đồng nào được tạo cho chuyến đi.  Hãy tìm và kết nối với người bạn thích hợp để trải nghiệm</p>
+                    {/* <p>Hiện tại không có hợp đồng nào được tạo cho chuyến đi.  Hãy tìm và kết nối với người bạn thích hợp để trải nghiệm</p> */}
                 </div>
                 {rightContent}
             </div>

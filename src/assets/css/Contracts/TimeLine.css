@@ -1,11 +1,11 @@
 
 
 
-  .timeline{
+  .timeline_contract{
     counter-reset: test 0;
     position: relative;
   }
-  .timeline li{
+  .timeline_contract li{
     list-style: none;
     float: left;
     width: 25%;
@@ -18,7 +18,7 @@
     color: black;
   }
   
-  .timeline li:before{
+  .timeline_contract li:before{
     counter-increment: test;
     content: counter(test);
     width: 50px;
@@ -35,7 +35,7 @@
     cursor: pointer;
   }
   
-  .timeline li:after{
+  .timeline_contract li:after{
     content: "";
     position: absolute;
     width: 100%;
@@ -47,27 +47,27 @@
     transition: all ease-in-out .3s;
   }
   
-  .timeline li:first-child:after{
+  .timeline_contract li:first-child:after{
     content: none;
   }
-  .timeline li.active-tl{
+  .timeline_contract li.active-tl{
     color: #555555;
   }
-  .timeline li.active-tl:before{
+  .timeline_contract li.active-tl:before{
     background: #E65C00;
     color: #F1F1F1;
   }
   
-  .timeline li.active-tl + li:after{
+  .timeline_contract li.active-tl + li:after{
     background: #E65C00;
   }
 
 /* Định dạng cho trạng thái active */
-.timeline li.active-tl {
+.timeline_contract li.active-tl {
   color: #E65C00; /* Màu chữ cho bước active */
 }
 
 
-  .timeline li {
+  .timeline_contract li {
     color: #333; /* Màu chữ mặc định */
 }
