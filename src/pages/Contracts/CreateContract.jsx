@@ -44,7 +44,7 @@ function CreateContract() {
       tourId: tourInfo.tourId,
       location: tourInfo.location,
       details: JSON.stringify(tourInfo),
-      travelerSignature: "luongtaokhoa35",
+      travelerSignature: "luongtaokhoa37",
       localSignature: "chuky8",
     };
     console.log(contractInfo);
@@ -61,7 +61,7 @@ function CreateContract() {
           localId: tourInfo.creator.id,
           travelerId: user.id,
           // amount: tourInfo.price,
-          amount: 1000,
+          amount: 2000,
         };
         // Redirect to payment form submission
         const form = document.createElement("form");
