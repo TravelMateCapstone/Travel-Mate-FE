@@ -7,11 +7,13 @@ import { Button, Placeholder } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import RoutePath from "../../routes/RoutePath";
+import axios from "axios";
 
 function TourDetail() {
     const [key, setKey] = useState("home");
     const tourData = useSelector((state) => state.tour?.tour);
     const navigate = useNavigate();
+    const token = useSelector((state) => state.auth.token);
     
     const handelJointTour = (tourId) => {
         const response =  axios.post(
