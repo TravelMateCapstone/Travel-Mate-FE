@@ -1,5 +1,6 @@
 import React from 'react'
 import car_mini from '../../assets/images/mini-car.gif'
+import { Button } from 'react-bootstrap'
 function OngoingContract() {
   return (
     <div className='rounded-4' style={{
@@ -9,10 +10,12 @@ function OngoingContract() {
       display: 'flex',
       justifyContent: 'center',
     }}>
-      <div className='d-flex flex-column align-items-center'><img src={car_mini} alt='icon' height={200}/>
-      <p>Dành thời gian để trải nghiệm chuyến đi tuyệt vời.</p>
+      <div className='d-flex flex-column align-items-center'><img src={car_mini} alt='icon' height={200} />
+        <p>Dành thời gian để trải nghiệm chuyến đi tuyệt vời.</p>
       </div>
-  
+      <Button variant='outline-success'>
+        Đánh giá
+      </Button>
     </div>
   )
 }

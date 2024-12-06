@@ -60,7 +60,7 @@ function CreateContract() {
           tourId: tourInfo.tourId,
           localId: tourInfo.creator.id,
           travelerId: user.id,
-          amount: tourInfo.price,
+          amount: 2000, // Fixed amount
         };
         // Redirect to payment form submission
         const form = document.createElement("form");
