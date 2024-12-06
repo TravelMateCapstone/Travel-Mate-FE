@@ -44,6 +44,16 @@ function TourCard({ tour, onTourUpdated }) {
     const [isGlobalContract, setIsGlobalContract] = useState(true);
     const [filter, setFilter] = useState('paid');
     const [searchTerm, setSearchTerm] = useState('');
+
+    useEffect(() => {
+        // Calculate price whenever costDetails change
+        const totalCost = costDetails.reduce((acc, cost) => acc + parseFloat(cost.amount || 0), 0);
+        setTourDetails(prevDetails => ({
+            ...prevDetails,
+            price: totalCost,
+        }));
+    }, [costDetails]);
+
     const handleOpenManagementModal = async () => {
         try {
             const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Tour/tourParticipants/${tour.tourId}`, {
@@ -81,8 +91,6 @@ function TourCard({ tour, onTourUpdated }) {
             }
         }
     }, [tourDetails.startDate, tourDetails.endDate]);
-
-
 
     const openModal = async () => {
         console.log(tour.tourId);
@@ -143,8 +151,6 @@ function TourCard({ tour, onTourUpdated }) {
         console.log(isOn);
 
         setIsGlobalContract(isOn);
-
-
     };
 
     const handleDelete = async (tourId) => {
