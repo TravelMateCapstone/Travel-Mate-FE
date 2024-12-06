@@ -14,8 +14,20 @@ function TourDetail() {
     const navigate = useNavigate();
     
     const handelJointTour = (tourId) => {
-        navigate(RoutePath.CREATE_CONTRACT);
+        const response =  axios.post(
+            `https://travelmateapp.azurewebsites.net/api/Tour/join/${tourId}`,
+            {
+                headers: {
+                    Authorization: `${token}`,
+                },
+            }
+        );
+        console.log(response.data);
+        
+
         console.log("Join tour " + tourId);
+        navigate(RoutePath.CREATE_CONTRACT);
+
     };
 
     if (!tourData) {
