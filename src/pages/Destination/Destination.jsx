@@ -6,6 +6,7 @@ import { id } from 'date-fns/locale'
 import TourCard from '../../components/Destination/TourCard'
 import Tag from '../../components/Destination/Tag'
 import { useLocation } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 function Destination() {
     const [showDropdown, setShowDropdown] = useState(false);
     const [rating, setRating] = useState(1);
@@ -69,14 +70,15 @@ function Destination() {
     const [tours, setTours] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const searchkey = useSelector(state => state.search.searchKey);
 
     useEffect(() => {
         const fetchTours = async () => {
             try {
-                const response = await fetch('https://travelmateapp.azurewebsites.net/api/FilterToursWOO/GetAllTour-WithUserDetails');
+                const response = await fetch(`https://travelmateapp.azurewebsites.net/api/FilterToursWOO/GetAllTour-WithUserDetails-ByLocation?location=${selectedLocation.locationName}`);
                 const data = await response.json();
-                setTours(data?.$values || []);
-                console.log("tours", tours);
+                console.log("data", data);
+                setTours(data || []);
                 setLoading(false);
             } catch (err) {
                 setError('Có lỗi xảy ra khi tải dữ liệu');
@@ -85,7 +87,7 @@ function Destination() {
         };
 
         fetchTours();
-    }, []);
+    }, [selectedLocation]);
 
     return (
         <div>
@@ -125,7 +127,7 @@ function Destination() {
 
                 {/* Thông tin tours */}
                 <div className='d-flex justify-content-between align-items-center'>
-                    <h5 className='fw-bold mt-4'>Danh sách tour du lịch</h5>
+                    <h5 className='fw-bold mt-4 mb-4'>Danh sách tour du lịch</h5>
                     <Dropdown show={showDropdown} onToggle={handleToggleDropdown}>
                         <Dropdown.Toggle variant='outline-dark' className='rounded-5'>
                             Bộ lọc

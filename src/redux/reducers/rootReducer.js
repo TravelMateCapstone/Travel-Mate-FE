@@ -9,6 +9,7 @@ import requestReducer from './requestReducer';
 import messageReducer from './messageReducer';
 import chatReducer from './chatReducer';
 import tourReducer from './tourReducer';
+import searchReducer from './searchReducer';
 
 const rootReducer = combineReducers({
     couter: couterReducer,
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
     message: messageReducer,
     chat: chatReducer,
     tour: tourReducer,
+    search: searchReducer
 });
 
 export default rootReducer;

@@ -45,23 +45,27 @@ function ContractLayout({ children }) {
     return (
         <div>
             <Navbar />
-            <div className='container d-flex justify-content-between' style={{
-                paddingTop: '100px',
-            }}>
-                <div>
-                    <div className='d-flex gap-2'>
-                        <ion-icon name="document-outline" style={{
-                            fontSize: '50px',
-                        }}></ion-icon>
-                        <p style={{
-                            fontSize: '30px',
-                            fontWeight: 'bold',
-                        }}>Hợp đồng</p>
+            {location.pathname !== RoutePath.DONE_CONTRACT && (
+                <div className='header_payment'>
+                    <div className='container d-flex justify-content-between' style={{
+                        paddingTop: '100px',
+                    }}>
+                        <div>
+                            <div className='d-flex gap-2'>
+                                <ion-icon name="document-outline" style={{
+                                    fontSize: '50px',
+                                }}></ion-icon>
+                                <p style={{
+                                    fontSize: '30px',
+                                    fontWeight: 'bold',
+                                }}>Hợp đồng</p>
+                            </div>
+                            {/* <p>Hiện tại không có hợp đồng nào được tạo cho chuyến đi.  Hãy tìm và kết nối với người bạn thích hợp để trải nghiệm</p> */}
+                        </div>
+                        {rightContent}
                     </div>
-                    {/* <p>Hiện tại không có hợp đồng nào được tạo cho chuyến đi.  Hãy tìm và kết nối với người bạn thích hợp để trải nghiệm</p> */}
                 </div>
-                {rightContent}
-            </div>
+            )}
             <div className=''>
                 {timeLineStep}
             </div>

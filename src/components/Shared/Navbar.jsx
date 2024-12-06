@@ -16,6 +16,7 @@ import { logout } from "../../redux/actions/authActions";
 import { toast } from 'react-toastify';
 import { viewProfile } from '../../redux/actions/profileActions';
 import * as signalR from '@microsoft/signalr';
+import { searchTour } from '../../redux/actions/searchAction';
 
 const Navbar = React.memo(() => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -304,6 +305,7 @@ const Navbar = React.memo(() => {
         navigate(RoutePath.SEARCH_LIST_TRAVELLER, { state: { searchInput } });
       }
     }
+    dispatch(searchTour(searchInput));
   };
 
   const handleInputChange = (e) => {
@@ -329,6 +331,7 @@ const Navbar = React.memo(() => {
       navigate(RoutePath.SEARCH_LIST_TRAVELLER, { state: { selectedLocation: location } });
     }
   };
+  
 
   // Cập nhật giao diện khi thay đổi `location.pathname`
   useEffect(() => {
