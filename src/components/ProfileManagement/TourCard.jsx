@@ -296,6 +296,8 @@ function TourCard({ tour, onTourUpdated }) {
         return matchesFilter && matchesSearch;
     });
 
+    const totalIncome = participants.reduce((sum, participant) => sum + participant.totalAmount, 0);
+
     return (
         <tr>
             <td className='d-flex gap-3 align-items-center'>
@@ -599,14 +601,14 @@ function TourCard({ tour, onTourUpdated }) {
                             <div className='d-flex gap-5'>
                                 <div className='p-3 border-1'>
                                     <h5>Tổng thu nhập</h5>
-                                    <p>100000VND</p>
+                                    <p>{totalIncome.toLocaleString('vi', { style: 'currency', currency: 'VND' })}</p>
                                 </div>
                                 <div className='d-flex align-items-center gap-3 p-3 border-1'>
                                     <div>
                                         <ion-icon name="person-outline"></ion-icon>
                                         <h5>Số lượng khách</h5>
                                     </div>
-                                    <h5>5/10</h5>
+                                    <h5>{participants.length}/{tour.maxGuests}</h5>
                                 </div>
                             </div>
                         </Col>

@@ -66,3 +66,15 @@
   font-size: 1rem;
   color: #777;
 }
+
+.activity-image {
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+}
+
+.fixed-size {
+  width: 60%; /* Set your desired width */
+  height: auto; /* Set your desired height */
+  object-fit: cover;
+}

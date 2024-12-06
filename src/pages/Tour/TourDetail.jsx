@@ -190,7 +190,7 @@ function TourDetail() {
                                     </div>
                                     <div className="d-flex gap-3">
                                         <Button variant="outline-secondary">🔥 Nhắn tin!</Button>
-                                        <Button variant="outline-success" onClick={() => handelJointTour(tourData.tourId)}>Đặt chỗ ngay</Button>
+                                        <Button variant="outline-success" onClick={() => handelJointTour(tourData.tourId)}>🚀 Đặt chỗ ngay</Button>
                                     </div>
                                 </div>
                             </div>
@@ -212,7 +212,7 @@ function TourDetail() {
                                                         <p><strong>{activity.startTime} - {activity.endTime}</strong> - {activity.title}</p>
                                                         <p>Địa chỉ: {activity.activityAddress}</p>
                                                         <p>Chi phí: {activity.activityAmount.toLocaleString()}₫</p>
-                                                        {activity.activityImage && <img src={activity.activityImage} alt="" />}
+                                                        {activity.activityImage && <img src={activity.activityImage} alt="" className="activity-image fixed-size" />}
                                                     </div>
                                                 ))}
                                             </Accordion.Body>
@@ -221,7 +221,6 @@ function TourDetail() {
                                 </Accordion>
                             </Tab>
                             <Tab eventKey="profile" title="Chi phí">
-                                <h4>Chi phí bao gồm</h4>
                                 <ul>
                                     {tourData.costDetails.$values.map((cost, index) => (
                                         <li key={index}>{cost.title}: {cost.amount.toLocaleString()}₫ - {cost.notes}</li>
@@ -229,7 +228,7 @@ function TourDetail() {
                                 </ul>
                             </Tab>
                             <Tab eventKey="contact" title="Quy định">
-                                <div>{tourData.additionalInfo}</div>
+                                <div dangerouslySetInnerHTML={{ __html: tourData.additionalInfo }} />
                             </Tab>
                         </Tabs>
                     </div>

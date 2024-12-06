@@ -8,6 +8,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
+import VerirySignature from "../../components/Shared/VerirySignature";
 
 function CreateContract() {
   const user = useSelector((state) => state.auth.user);
@@ -121,6 +122,7 @@ function CreateContract() {
                 <sub className="fw-medium">{profile?.address}</sub>
               </div>
             </div>
+            <VerirySignature publickey={'chuky8'}/>
             <Button variant="outline-warning" className="rounded-5">
               Chưa đồng ý
             </Button>

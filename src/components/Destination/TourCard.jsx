@@ -1,8 +1,16 @@
 import React from 'react';
 import { Col, Row } from 'react-bootstrap';
 import '../../assets/css/Tour/TourCard.css';
+import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+import { fetchTour } from '../../redux/actions/tourActions';
+import { useNavigate } from 'react-router-dom';
+import RoutePath from '../../routes/RoutePath';
 
 function TourCard({ tour }) {
+    const disPatch = useDispatch();
+    const token = useSelector((state) => state.auth.token);
+    const navigate = useNavigate();
     const renderStars = (rating) => {
         const stars = [];
         for (let i = 0; i < rating; i++) {
@@ -12,7 +20,10 @@ function TourCard({ tour }) {
     };
 
     return (
-        <Row className="w-100 d-flex m-0 mb-3">
+        <Row className="w-100 d-flex m-0 mb-3" onClick={() => {
+            disPatch(fetchTour(tour.TourId, token));
+            navigate(RoutePath.TOUR_DETAIL);
+        }}>
             <Col lg={3}>
                 <img
                     src={tour.TourImage || 'https://via.placeholder.com/150'}
