@@ -79,7 +79,7 @@ function Setting() {
         address: profileData.address || '',
       });
       setPhone(profileData.phone || "Không có dữ liệu");
-      return profileData; // Trả về dữ liệu để dùng khi cần
+      return profileData; 
     } catch (error) {
       console.error("Lỗi khi lấy thông tin Profile:", error);
       toast.error('Lỗi khi lấy thông tin Profile.');

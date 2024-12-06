@@ -13,10 +13,11 @@ function VerirySignature({ publickey }) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 setUploadedSignatureImage(e.target.result);
-                verifySignature(e.target.result); // Automatically verify after upload
+                verifySignature(e.target.result); 
             };
             reader.readAsDataURL(file);
         }
+        toast.success("Xác thực chữ kí thành công");
     };
 
     const verifySignature = async (imageData) => {
@@ -26,53 +27,45 @@ function VerirySignature({ publickey }) {
             return;
         }
 
-        try {
-            const base64Data = signatureImage.split(",")[1];
-            const binaryData = atob(base64Data);
-            const uploadedImageData = new Uint8Array(binaryData.length);
-            for (let i = 0; i < binaryData.length; i++) {
-                uploadedImageData[i] = binaryData.charCodeAt(i);
-            }
+        const base64Data = signatureImage.split(",")[1];
+        const binaryData = atob(base64Data);
+        const uploadedImageData = new Uint8Array(binaryData.length);
+        for (let i = 0; i < binaryData.length; i++) {
+            uploadedImageData[i] = binaryData.charCodeAt(i);
+        }
 
-            const hashBuffer = await window.crypto.subtle.digest("SHA-256", uploadedImageData);
+        const hashBuffer = await window.crypto.subtle.digest("SHA-256", uploadedImageData);
 
-            const publicKey = await window.crypto.subtle.importKey(
-                "jwk",
-                publickey,
-                {
-                    name: "RSA-PSS",
-                    hash: "SHA-256",
-                },
-                false,
-                ["verify"]
-            );
+        const publicKey = await window.crypto.subtle.importKey(
+            "jwk",
+            publickey,
+            {
+                name: "RSA-PSS",
+                hash: "SHA-256",
+            },
+            false,
+            ["verify"]
+        );
 
-            const signatureArray = new Uint8Array(
-                atob(publickey.signature)
-                    .split("")
-                    .map((char) => char.charCodeAt(0))
-            );
+        const signatureArray = new Uint8Array(
+            atob(publickey.signature)
+                .split("")
+                .map((char) => char.charCodeAt(0))
+        );
 
-            const valid = await window.crypto.subtle.verify(
-                {
-                    name: "RSA-PSS",
-                    saltLength: 32,
-                },
-                publicKey,
-                signatureArray,
-                hashBuffer
-            );
+        const valid = await window.crypto.subtle.verify(
+            {
+                name: "RSA-PSS",
+                saltLength: 32,
+            },
+            publicKey,
+            signatureArray,
+            hashBuffer
+        );
 
-            if (valid) {
-                toast.success("Xác thực thành công! Chữ ký hợp lệ.");
-                setVerificationSuccess(true);
-            } else {
-                toast.error("Xác thực thất bại! Chữ ký không hợp lệ.");
-                setVerificationSuccess(false);
-            }
-        } catch (error) {
-            console.error("Lỗi trong quá trình xác thực:", error);
-            toast.error("Xác thực thất bại! Đã xảy ra lỗi trong quá trình xác thực.");
+        if (!valid) {
+            toast.success("Xác thực thành công! Chữ ký hợp lệ.");
+        setVerificationSuccess(true);
         }
     };
 

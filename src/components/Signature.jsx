@@ -59,10 +59,11 @@ const Signature = () => {
         link.download = "signature.png";
         link.click();
     };
+    const user = useSelector((state) => state.auth.user);
 
     const saveSignature = async () => {
         const canvas = canvasRef.current;
-        const name = nameInputRef.current.value.trim();
+        const name = user.userName;
         if (!name) {
             alert("Vui lòng nhập tên cho chữ ký.");
             return;
