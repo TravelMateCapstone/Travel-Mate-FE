@@ -8,6 +8,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../firebaseConfig';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewProfile } from '../redux/actions/profileActions';
+import Signature from '../components/Signature';
 
 function Setting() {
   const [frontImage, setFrontImage] = useState(null);
@@ -495,6 +496,15 @@ function Setting() {
                     </div>
                   )}
                 </div>
+              </Col>
+            </Row>
+
+            <Row className="mt-3">
+              <Col md={12}>
+                <Form.Group className="d-flex align-items-center">
+                  <Form.Label>Chữ ký số</Form.Label>
+                  <Signature />
+                </Form.Group>
               </Col>
             </Row>
           </section>

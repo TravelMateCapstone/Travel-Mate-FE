@@ -66,88 +66,26 @@ function Destination() {
         setMaxConnections(e.target.value);
     };
 
-    const tours = [
-        {
-            id: 1,
-            name: 'Tour Phú Quốc 5 ngày 4 đêm',
-            description: 'Phú Quốc là một hòn đảo xinh đẹp với các bãi biển cát trắng và làn nước trong xanh. Đây là điểm đến lý tưởng để thư giãn, khám phá thiên nhiên và thưởng thức hải sản tươi ngon.',
-            destination: 'Phú Quốc',
-            duration: '5 ngày 4 đêm',
-            participants: 20,
-            price: formatPrice(3500000),
-            image: 'https://images.unsplash.com/photo-1730270567793-9903004e0f15?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8dG91ciUyMGR1JTIwbCVFMSVCQiU4QmNoJTIwcGh1JTIwcXVvY3xlbnwwfHwwfHx8MA%3D%3D',
-            localName: 'Lê Thị Lan Anh',
-            localAvatar: 'https://cdn.vietnam.vn/wp-content/uploads/2024/07/Ly-do-Anh-Tu-noi-bat-o-Anh-trai-say.jpg',
-            rating: 4.9,
-            trip: 30,
-            timeParticipate: '2023-08-20',
-            localLocation: 'Phú Quốc',
-        },
-        {
-            id: 2,
-            name: 'Tour Phú Quốc 5 ngày 4 đêm',
-            description: 'Phú Quốc là một hòn đảo xinh đẹp với các bãi biển cát trắng và làn nước trong xanh. Đây là điểm đến lý tưởng để thư giãn, khám phá thiên nhiên và thưởng thức hải sản tươi ngon.',
-            destination: 'Phú Quốc',
-            duration: '5 ngày 4 đêm',
-            participants: 20,
-            price: formatPrice(3500000),
-            image: 'https://images.unsplash.com/photo-1730270567793-9903004e0f15?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8dG91ciUyMGR1JTIwbCVFMSVCQiU4QmNoJTIwcGh1JTIwcXVvY3xlbnwwfHwwfHx8MA%3D%3D',
-            localName: 'Lê Thị Lan Anh',
-            localAvatar: 'https://cdn.vietnam.vn/wp-content/uploads/2024/07/Ly-do-Anh-Tu-noi-bat-o-Anh-trai-say.jpg',
-            rating: 4.9,
-            trip: 30,
-            timeParticipate: '2023-08-20',
-            localLocation: 'Phú Quốc',
-        },
-        {
-            id: 3,
-            name: 'Tour Phú Quốc 5 ngày 4 đêm',
-            description: 'Phú Quốc là một hòn đảo xinh đẹp với các bãi biển cát trắng và làn nước trong xanh. Đây là điểm đến lý tưởng để thư giãn, khám phá thiên nhiên và thưởng thức hải sản tươi ngon.',
-            destination: 'Phú Quốc',
-            duration: '5 ngày 4 đêm',
-            participants: 20,
-            price: formatPrice(3500000),
-            image: 'https://images.unsplash.com/photo-1730270567793-9903004e0f15?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8dG91ciUyMGR1JTIwbCVFMSVCQiU4QmNoJTIwcGh1JTIwcXVvY3xlbnwwfHwwfHx8MA%3D%3D',
-            localName: 'Lê Thị Lan Anh',
-            localAvatar: 'https://cdn.vietnam.vn/wp-content/uploads/2024/07/Ly-do-Anh-Tu-noi-bat-o-Anh-trai-say.jpg',
-            rating: 4.9,
-            trip: 30,
-            timeParticipate: '2023-08-20',
-            localLocation: 'Phú Quốc',
-        },
-        {
-            id: 4,
-            name: 'Tour Nha Trang 3 ngày 2 đêm',
-            description: 'Nha Trang là thành phố biển nổi tiếng với bãi biển dài, cát trắng và những hòn đảo xinh đẹp. Các hoạt động như lặn biển, tham quan tháp Bà Ponagar hay thưởng thức hải sản đặc sản là những điểm nổi bật của chuyến đi.',
-            destination: 'Nha Trang',
-            duration: '3 ngày 2 đêm',
-            participants: 12,
-            price: formatPrice(2200000),
-            image: 'https://media.istockphoto.com/id/1744623865/photo/chua-long-son-pagoda-temple-in-nha-trang-vietnam.webp?a=1&b=1&s=612x612&w=0&k=20&c=80nuMaq4y366whXjl9ttVPWScohJ4JeQH5mPl4uqfbs=',
-            localName: 'Phạm Minh Tuấn',
-            localAvatar: 'https://images2.thanhnien.vn/528068263637045248/2024/1/10/truong-giang-56-1704913245711242412702.jpg',
-            rating: 4.6,
-            trip: 15,
-            timeParticipate: '2023-07-05',
-            localLocation: 'Nha Trang',
-        },
-        {
-            id: 5,
-            name: 'Tour Sapa 2 ngày 1 đêm',
-            description: 'Sapa là một thị trấn vùng cao với cảnh quan tuyệt đẹp, những dãy núi xanh mướt, thung lũng mù sương và các bản làng của người dân tộc H\'Mông, Dao. Đây là nơi lý tưởng để thưởng thức khí hậu mát mẻ và khám phá văn hóa độc đáo.',
-            destination: 'Sapa',
-            duration: '2 ngày 1 đêm',
-            participants: 8,
-            price: formatPrice(1500000),
-            image: 'https://images.unsplash.com/photo-1570366583862-f91883984fde?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjB8fHRvdXIlMjBkdSUyMGwlRTElQkIlOEJjaCUyMHNhcGF8ZW58MHx8MHx8fDA%3D',
-            localName: 'Hoàng Đức Quang',
-            localAvatar: 'https://cafefcdn.com/thumb_w/640/203337114487263232/2023/8/22/avatar1692709004135-16927090046852041812399.jpg',
-            rating: 4.4,
-            trip: 12,
-            timeParticipate: '2023-06-01',
-            localLocation: 'Sapa',
-        }
-    ]
+    const [tours, setTours] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchTours = async () => {
+            try {
+                const response = await fetch('https://travelmateapp.azurewebsites.net/api/FilterToursWOO/GetAllTour-WithUserDetails');
+                const data = await response.json();
+                setTours(data?.$values || []);
+                console.log("tours", tours);
+                setLoading(false);
+            } catch (err) {
+                setError('Có lỗi xảy ra khi tải dữ liệu');
+                setLoading(false);
+            }
+        };
+
+        fetchTours();
+    }, []);
 
     return (
         <div>
@@ -201,10 +139,10 @@ function Destination() {
                             }} />
                             <h6>Giới tính</h6>
                             <Form.Select aria-label="Default select example" className='mb-2'>
-                                <option>Open this select menu</option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
+                                <option>Chọn giới tính</option>
+                                <option value="1">Nam</option>
+                                <option value="2">Nữ</option>
+                                <option value="3">Khác</option>
                             </Form.Select>
                             <h6>Số sao <span>{rating}</span></h6>
                             <Form.Range min={1} max={5} value={rating} onChange={(e) => setRating(e.target.value)} className='star-range' />
@@ -266,10 +204,12 @@ function Destination() {
                     </Dropdown>
                 </div>
 
-                <div className='container_tours'>
-                    {tours.map(tour => (
-                        <TourCard tour={tour} />
-                    ))}
+                <div className="container_tours">
+                    {tours.length > 0 ? (
+                        tours.map((tour) => <TourCard key={tour.TourId} tour={tour} />)
+                    ) : (
+                        <div>Không có dữ liệu tour</div>
+                    )}
                 </div>
 
             </div>

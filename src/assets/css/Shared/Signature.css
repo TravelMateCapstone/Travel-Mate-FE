@@ -1,0 +1,58 @@
+.signature-container {
+    padding: 20px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.signature-canvas {
+    border: 2px solid #4a4a8f;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    cursor: crosshair;
+}
+
+.name-input {
+    margin-top: 10px;
+    padding: 8px;
+    width: 300px;
+    font-size: 14px;
+}
+
+.actions button {
+    margin: 5px;
+    padding: 10px 15px;
+    font-size: 14px;
+    background-color: #4a4a8f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.actions button:hover {
+    background-color: #6a6ad9;
+}
+
+.upload-section {
+    margin-top: 20px;
+}
+
+.signature-item {
+    display: inline-block;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px;
+    text-align: center;
+}
+
+.signature-item img {
+    width: 100px;
+    height: 50px;
+    margin-bottom: 5px;
+}
+
+.verification-result {
+    font-size: 16px;
+    font-weight: bold;
+    color: green;
+}
