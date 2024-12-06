@@ -60,7 +60,8 @@ function CreateContract() {
           tourId: tourInfo.tourId,
           localId: tourInfo.creator.id,
           travelerId: user.id,
-          amount: 2000, // Fixed amount
+          // amount: tourInfo.price,
+          amount: 1000,
         };
         // Redirect to payment form submission
         const form = document.createElement("form");
@@ -123,9 +124,9 @@ function CreateContract() {
               </div>
             </div>
             <VerirySignature publickey={'chuky8'}/>
-            <Button variant="outline-warning" className="rounded-5">
+            {/* <Button variant="outline-warning" className="rounded-5">
               Chưa đồng ý
-            </Button>
+            </Button> */}
           </div>
         </Col>
         <Col

@@ -72,6 +72,7 @@ function VerirySignature({ publickey }) {
     return (
         <div>
             <Button 
+            className='rounded-5'
                 variant={verificationSuccess ? 'success' : 'outline-dark'} 
                 onClick={() => document.getElementById('upload_file_contract_signature').click()}
             >
