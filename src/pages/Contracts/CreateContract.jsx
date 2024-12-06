@@ -51,11 +51,6 @@ function CreateContract() {
           travelerId: user.id,
           amount: 2500
         }
-        await axios.post(`https://travelmateapp.azurewebsites.net/api/order`, infoPayment, {
-          headers: {
-            Authorization: `${user.token}`
-          }
-        });
       } 
       toast.success('Contract created successfully');
       console.log('Contract created successfully:', response.data);
