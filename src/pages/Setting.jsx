@@ -9,6 +9,8 @@ import { storage } from '../../firebaseConfig';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewProfile } from '../redux/actions/profileActions';
 import Signature from '../components/Signature';
+import VerirySignature from '../components/Shared/VerirySignature';
+import SaveSignature from '../components/Tour/SaveSignature';
 
 function Setting() {
   const [frontImage, setFrontImage] = useState(null);
@@ -503,7 +505,7 @@ function Setting() {
               <Col md={12}>
                 <Form.Group className="d-flex align-items-center">
                   <Form.Label>Chữ ký số</Form.Label>
-                  <Signature />
+                  <SaveSignature/>
                 </Form.Group>
               </Col>
             </Row>
