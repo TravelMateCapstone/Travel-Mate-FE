@@ -41,17 +41,18 @@ const Navbar = React.memo(() => {
   const handelShowOffcanvas = useCallback(() => {
     setShowOffcanvas(true);
   });
+  const [navigateTo, setNavigateTo] = useState(RoutePath.DESTINATION);
 
   const handleSearchDestination = useCallback(() => {
-    navigate(RoutePath.DESTINATION); // Điều hướng đến trang "Khách du lịch"
+    setNavigateTo(RoutePath.DESTINATION);
   }, [navigate]);
 
   const handleSearchLocal = useCallback(() => {
-    navigate(RoutePath.SEARCH_LIST_LOCAL); // Điều hướng đến trang "Người địa phương"
+    setNavigateTo(RoutePath.SEARCH_LIST_LOCAL);
   }, [navigate]);
 
   const handleSearchTraveller = useCallback(() => {
-    navigate(RoutePath.SEARCH_LIST_TRAVELLER); // Điều hướng đến trang "Khách du lịch"
+    setNavigateTo(RoutePath.SEARCH_LIST_TRAVELLER);
   }, [navigate]);
 
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
@@ -82,7 +83,7 @@ const Navbar = React.memo(() => {
             const updatedNotifications = response.data.$values.map(notification => {
               return {
                 ...notification,
-                isRequest: notification.message.includes("Bạn đã nhận được một lời mời kết bạn từ "),
+                isRequest: notification.message.includes("Bạn đã nhận được một lời m���i kết bạn từ "),
                 senderId: notification.senderId ? notification.senderId : null
               };
             });
@@ -311,11 +312,16 @@ const Navbar = React.memo(() => {
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchInput(value);
-
-    const filtered = locations.filter((location) =>
-      removeVietnameseTones(location.locationName.toLowerCase()).includes(removeVietnameseTones(value.toLowerCase()))
-    );
-    setFilteredLocations(filtered.slice(0, 5));
+    if (value.trim() === '') {
+      setFilteredLocations([]);
+      return;
+    }
+    if (navigateTo === RoutePath.DESTINATION) {
+      const filtered = locations.filter((location) =>
+        removeVietnameseTones(location.locationName.toLowerCase()).includes(removeVietnameseTones(value.toLowerCase()))
+      );
+      setFilteredLocations(filtered.slice(0, 5));
+    }
   };
 
   const handleLocationSelect = (location) => {
@@ -331,7 +337,7 @@ const Navbar = React.memo(() => {
       navigate(RoutePath.SEARCH_LIST_TRAVELLER, { state: { selectedLocation: location } });
     }
   };
-  
+
 
   // Cập nhật giao diện khi thay đổi `location.pathname`
   useEffect(() => {

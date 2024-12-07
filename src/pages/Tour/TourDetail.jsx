@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import RoutePath from "../../routes/RoutePath";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 function TourDetail() {
     const [key, setKey] = useState("home");
@@ -15,21 +16,25 @@ function TourDetail() {
     const navigate = useNavigate();
     const token = useSelector((state) => state.auth.token);
     
-    const handelJointTour = (tourId) => {
-        const response =  axios.post(
-            `https://travelmateapp.azurewebsites.net/api/Tour/join/${tourId}`,
-            {
-                headers: {
-                    Authorization: `${token}`,
-                },
+    const handelJointTour = async (tourId) => {
+        try {
+            const response = await axios.post(
+                `https://travelmateapp.azurewebsites.net/api/Tour/join/${tourId}`,
+                {},
+                {
+                    headers: {
+                        Authorization: `${token}`,
+                    },
+                }
+            );
+            console.log(response.data);
+            navigate(RoutePath.CREATE_CONTRACT);
+        } catch (error) {
+            console.error("Error joining tour:", error);
+            if (error.response && error.response.data === "You have joined this tour") {
+                toast.error("You have already joined this tour");
             }
-        );
-        console.log(response.data);
-        
-
-        console.log("Join tour " + tourId);
-        navigate(RoutePath.CREATE_CONTRACT);
-
+        }
     };
 
     if (!tourData) {
