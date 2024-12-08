@@ -191,7 +191,8 @@ const Navbar = React.memo(() => {
           console.error("Error stopping SignalR connection:", error);
         });
     }
-  }, [dispatch]);
+    navigate(RoutePath.AUTH); // Navigate to login page after logout
+  }, [dispatch, navigate]);
 
   const handleSelect = useCallback((eventKey) => {
     setSelectedItem(eventKey);

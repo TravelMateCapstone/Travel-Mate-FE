@@ -44,14 +44,16 @@ import MyProfile from "../pages/ProfileManagement/MyProfile"
 import TourDetail from "../pages/Tour/TourDetail"
 import Regulation from "../pages/Regulation"
 import FailContract from "../pages/Contracts/FailContract"
+import Login from "../pages/Auth/Auth"
 
 const publishRoutes = [
-    { path: RoutePath.HOMEPAGE, component: Home, layout: HomeFeedLayout },
-    { path: RoutePath.EVENT, component: EventList, layout: ListLayout },
-    { path: RoutePath.GROUP, component: GroupList, layout: ListLayout },
+    { path: RoutePath.AUTH, component: Login, layout: null },
 ]
 
 const privateRoutes = [
+    { path: RoutePath.HOMEPAGE, component: Home, layout: HomeFeedLayout },
+    { path: RoutePath.EVENT, component: EventList, layout: ListLayout },
+    { path: RoutePath.GROUP, component: GroupList, layout: ListLayout },
     { path: RoutePath.GROUP_DETAILS, component: GroupDetail, layout: DetailLayout },
     { path: RoutePath.ADMIN, component: IncomeStatistic, layout: AdminLayout },
     { path: RoutePath.ADMIN_ACCOUNT_LIST, component: AccountList, layout: AdminLayout },

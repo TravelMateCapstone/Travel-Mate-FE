@@ -29,7 +29,8 @@ function MyProfile() {
     const dataProfile = useSelector((state) => state.profile);
 
     const url = import.meta.env.VITE_BASE_API_URL;
-    console.log("avt", dataProfile.profile.imageUser);
+    const profileImage = dataProfile.profile?.imageUser || "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3467.jpg";
+    console.log("avt", profileImage);
 
 
     const handleImageUpload = async (event) => {
@@ -82,7 +83,7 @@ function MyProfile() {
                 <div className='info_user_profile'>
                     <div className="profile-image-wrapper">
                         <img
-                            src={dataProfile.profile.imageUser || "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3467.jpg"}
+                            src={profileImage}
                             alt="avatar"
                         />
 
@@ -98,8 +99,8 @@ function MyProfile() {
                     </div>
 
                     <div className='info_user_profile_content'>
-                        <h4>{dataProfile.profile.user.fullName}</h4>
-                        <p className='fw-medium d-flex align-items-center gap-2'><ion-icon name="location-outline"></ion-icon> {dataProfile.profile.city}</p>
+                        <h4>{dataProfile.profile?.user?.fullName}</h4>
+                        <p className='fw-medium d-flex align-items-center gap-2'><ion-icon name="location-outline"></ion-icon> {dataProfile.profile?.city}</p>
                         <p className='fw-medium d-flex align-items-center gap-2'><ion-icon name="person-add-outline"></ion-icon> Thành viên tham gia từ {registrationDate}</p>
                         <p className='text-success fw-medium  d-flex align-items-center gap-2'><ion-icon name="shield-checkmark-outline"></ion-icon> 65% hoàn thành hồ sơ</p>
                     </div>

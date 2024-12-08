@@ -76,6 +76,9 @@ const RoutePath = {
 
     //Destination
     DESTINATION: '/destination',
+
+
+    AUTH: '/auth',
 }
 
 export default RoutePath;
