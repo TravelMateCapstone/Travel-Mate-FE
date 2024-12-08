@@ -78,7 +78,7 @@ function Destination() {
             try {
                 const response = await fetch(`https://travelmateapp.azurewebsites.net/api/FilterToursWOO/GetAllTour-WithUserDetails-ByLocation?location=${selectedLocation.locationName}`);
                 const data = await response.json();
-                console.log("data", data);
+                console.log("Data tour list", data);
                 setTours(data || []);
                 setLoading(false);
             } catch (err) {

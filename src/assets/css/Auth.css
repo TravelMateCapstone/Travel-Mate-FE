@@ -27,7 +27,7 @@
   z-index: 5;
 }
 
-form {
+.custom-auth-form {
   display: flex;
   align-items: center;
   justify-content: center;

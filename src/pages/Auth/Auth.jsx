@@ -137,7 +137,7 @@ const Auth = () => {
     <div className={`custom-container ${isSignUpMode ? "sign-up-mode" : ""}`}>
       <div className="custom-forms-container">
         <div className="custom-signin-signup">
-          <form className="custom-sign-in-form" onSubmit={handleSubmit}>
+          <form className="custom-auth-form custom-sign-in-form" onSubmit={handleSubmit}>
             <h2 className="custom-title">Đăng nhập</h2>
             {errorMessage && <small className="text-danger fw-normal small-text">{errorMessage}</small>}
             <div className="custom-input-field">
@@ -157,7 +157,7 @@ const Auth = () => {
             </div>
           </form>
 
-          <form className="custom-sign-up-form" onSubmit={handleSignUp}>
+          <form className="custom-auth-form custom-sign-up-form" onSubmit={handleSignUp}>
             <h2 className="custom-title">Đăng ký</h2>
             <div className="custom-input-field">
               <i className="fas fa-user"></i>
