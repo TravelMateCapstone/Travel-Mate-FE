@@ -412,7 +412,7 @@ const Navbar = React.memo(() => {
                   >
                     <Dropdown.Item
                       eventKey="Địa điểm du lịch"
-                      className="custom-dropdown-item px-0 d-flex flex-column"
+                      className="custom-dropdown-item px-0 "
                       onClick={handleSearchDestination}
                     >
                       <p className="m-0 fw-medium">Địa điểm du lịch</p>
@@ -421,7 +421,7 @@ const Navbar = React.memo(() => {
 
                     <Dropdown.Item
                       eventKey="Người địa phương"
-                      className="custom-dropdown-item px-0 d-flex flex-column"
+                      className="custom-dropdown-item px-0"
                       onClick={handleSearchLocal} // Gọi hàm điều hướng
                     >
                       <p className="m-0">Người địa phương</p>
@@ -429,7 +429,7 @@ const Navbar = React.memo(() => {
                     </Dropdown.Item>
                     <Dropdown.Item
                       eventKey="Khách du lịch"
-                      className="custom-dropdown-item px-0 d-flex flex-column"
+                      className="custom-dropdown-item px-0"
                       onClick={handleSearchTraveller} // Gọi hàm điều hướng
                     >
                       <p className="m-0">Khách du lịch</p>
@@ -497,7 +497,7 @@ const Navbar = React.memo(() => {
                     )}
                   </Dropdown.Toggle>
 
-                  <Dropdown.Menu className="py-3 dropdown-menu-notify">
+                  <Dropdown.Menu className={`m-0 pt-3 pb-0 dropdown-menu-notify ${showMoreNotifications ? "show-more" : ""}`}>
                     <div className="notification-scroll">
                       {displayedNotifications.map((notification) => (
                         <Dropdown.Item key={notification.notificationId}>
@@ -517,19 +517,22 @@ const Navbar = React.memo(() => {
                         </Dropdown.Item>
                       ))}
                     </div>
-                    <div
-                      className="d-flex align-items-center justify-content-center mt-2 gap-1"
-                      onClick={handleShowMoreNotifications}
-                    >
-                      <p className="m-0 messege-more">
-                        {showMoreNotifications ? "Hiển thị ít hơn" : "Xem thêm thông báo"}
-                      </p>
-                      <ion-icon
-                        name={showMoreNotifications ? "chevron-up-circle-outline" : "chevron-down-circle-outline"}
-                        style={{ fontSize: '20px' }}
-                      ></ion-icon>
+                    <div className="notification-footer">
+                      <div
+                        className="d-flex align-items-center justify-content-center gap-1"
+                        onClick={handleShowMoreNotifications}
+                      >
+                        <p className="m-0 messege-more">
+                          {showMoreNotifications ? "Hiển thị ít hơn" : "Xem thêm thông báo"}
+                        </p>
+                        <ion-icon
+                          name={showMoreNotifications ? "chevron-up-circle-outline" : "chevron-down-circle-outline"}
+                          style={{ fontSize: '20px' }}
+                        ></ion-icon>
+                      </div>
                     </div>
                   </Dropdown.Menu>
+
                 </Dropdown>
 
                 <Dropdown align="end">

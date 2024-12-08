@@ -47,20 +47,7 @@ button.mt-3:hover {
     background-color: #218838;
 }
 
-.setting-menu,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-label,
-button,
-input,
-textarea,
-select {
-    font-weight: 700;
-}
+
 
 /* Upload ảnh */
 

@@ -4,8 +4,7 @@ import TourCard from '../../components/ProfileManagement/TourCard'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
 import { useQuery, useQueryClient } from 'react-query'
-import { Form } from 'react-bootstrap'
-import Table from 'react-bootstrap/Table';
+import { Form, Table, Placeholder, Dropdown } from 'react-bootstrap';
 
 function LocalTripHistory() {
   const [approvalStatus, setApprovalStatus] = useState(0)
@@ -21,7 +20,7 @@ function LocalTripHistory() {
     return response.data.$values
   }
 
-  const { data: tours, refetch } = useQuery(['tours', approvalStatus], fetchTours)
+  const { data: tours, isLoading, refetch } = useQuery(['tours', approvalStatus], fetchTours)
 
   useEffect(() => {
     refetch()
@@ -54,9 +53,59 @@ function LocalTripHistory() {
           </tr>
         </thead>
         <tbody>
-          {tours?.map((tour) => (
-            <TourCard key={tour.id} tour={tour} onTourUpdated={handleTourUpdated} />
-          ))}
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, index) => (
+              <tr key={index}>
+              <td className='d-flex gap-3 align-items-center'>
+                <Placeholder as="div" animation="wave" style={{ width: '150px', height: '100px' }}>
+                  <Placeholder className="rounded-3 w-100 h-100" />
+                </Placeholder>
+                <div className='d-flex flex-column justify-content-center'>
+                  <Placeholder as="h6" animation="wave" className="mb-2">
+                    <Placeholder xs={6} />
+                  </Placeholder>
+                  <Placeholder as="p" animation="wave" className="mb-1">
+                    <Placeholder xs={4} />
+                  </Placeholder>
+                  <Placeholder as="p" animation="wave" className="mb-0">
+                    <Placeholder xs={3} />
+                  </Placeholder>
+                </div>
+              </td>
+              <td>
+                <Placeholder as="p" animation="wave" className="m-0">
+                  <Placeholder xs={5} />
+                </Placeholder>
+              </td>
+              <td>
+                <Placeholder as="div" animation="wave" className="d-flex align-items-center gap-5">
+                  <div className='d-flex flex-column align-items-center'>
+                    <Placeholder xs={4} className="mb-1" />
+                    <Placeholder xs={4} />
+                  </div>
+                </Placeholder>
+              </td>
+              <td>
+                <Placeholder as="small" animation="wave">
+                  <Placeholder xs={3} />
+                </Placeholder>
+              </td>
+              <td>
+                <Dropdown>
+                  <Dropdown.Toggle variant="success" disabled>
+                    <Placeholder as="div" animation="wave" style={{ width: '20px', height: '20px' }}>
+                      <Placeholder className="w-100 h-100" />
+                    </Placeholder>
+                  </Dropdown.Toggle>
+                </Dropdown>
+              </td>
+            </tr>
+            ))
+          ) : (
+            tours?.map((tour) => (
+              <TourCard key={tour.id} tour={tour} onTourUpdated={handleTourUpdated} />
+            ))
+          )}
         </tbody>
       </Table>
     </div>

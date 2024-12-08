@@ -44,7 +44,7 @@ function CreateContract() {
       tourId: tourInfo.tourId,
       location: tourInfo.location,
       details: JSON.stringify(tourInfo),
-      travelerSignature: "luongtaokhoa37",
+      travelerSignature: "chuky9",
       localSignature: "chuky8",
     };
     console.log(contractInfo);
