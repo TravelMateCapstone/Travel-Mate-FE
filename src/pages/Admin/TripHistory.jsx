@@ -11,7 +11,6 @@ import Modal from "react-modal";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 
-// Đăng ký các module của AG Grid
 ModuleRegistry.registerModules([
   ClientSideRowModelModule,
   GridChartsModule,
@@ -19,33 +18,77 @@ ModuleRegistry.registerModules([
   RowGroupingModule,
 ]);
 
-// Thiết lập Modal cho khả năng truy cập
 Modal.setAppElement("#root");
 
 const TripHistory = () => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
-  const gridStyle = useMemo(() => ({ height: "500px", width: "100%" }), []); // Đặt chiều cao cho bảng
-  const chartStyle = useMemo(() => ({ height: "400px", width: "100%" }), []); // Đặt chiều cao cho biểu đồ
+  const gridStyle = useMemo(() => ({ height: "500px", width: "100%" }), []);
+  const chartStyle = useMemo(() => ({ height: "400px", width: "100%" }), []);
 
   const [rowData, setRowData] = useState([]);
+  const [quickFilterText, setQuickFilterText] = useState("");
+
   const [columnDefs, setColumnDefs] = useState([
-    { field: "tourId", width: 100, chartDataType: "category" },
-    { field: "tourName", width: 100, chartDataType: "category" },
     {
+      headerName: "Tên tour",
+      field: "tourName",
+      width: 200,
+      chartDataType: "category",
+      filter: "agSetColumnFilter",
+      resizable: true, // Cho phép thay đổi kích thước
+    },
+    {
+      headerName: "Giá",
       field: "price",
       width: 100,
-      chartDataType: "series", // Changed from 'number' to 'series'
+      chartDataType: "series",
+      filter: "agNumberColumnFilter",
       valueFormatter: (params) => {
-        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(params.value);
-      }
+        return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(params.value);
+      },
     },
-    { field: "startDate", width: 100, chartDataType: "time" }, 
-    { field: "endDate", width: 100, chartDataType: "time" }, 
-    { field: "location", width: 100, chartDataType: "category" },
     {
+      headerName: "Ngày bắt đầu",
+      field: "startDate",
+      width: 100,
+      chartDataType: "time",
+      filter: "agDateColumnFilter",
+      valueFormatter: (params) => {
+        return new Date(params.value).toLocaleDateString("vi-VN", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        });
+      },
+    },
+    {
+      headerName: "Ngày kết thúc",
+      field: "endDate",
+      width: 100,
+      chartDataType: "time",
+      filter: "agDateColumnFilter",
+      valueFormatter: (params) => {
+        return new Date(params.value).toLocaleDateString("vi-VN", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        });
+      },
+    },
+    {
+      headerName: "Địa điểm",
+      field: "location",
+      width: 100,
+      chartDataType: "category",
+      filter: "agSetColumnFilter",
+      resizable: true,
+    },
+    {
+      headerName: "Trạng thái phê duyệt",
       field: "approvalStatus",
       width: 100,
       chartDataType: "category",
+      filter: "agSetColumnFilter",
       cellRenderer: (params) => {
         switch (params.value) {
           case 0:
@@ -63,47 +106,54 @@ const TripHistory = () => {
       headerName: "Hành động",
       width: 100,
       cellRenderer: (params) => (
-        <div className="d-flex gap-2 align-items-center"> 
+        <div className="d-flex gap-2 align-items-center">
           <button onClick={() => openModal(params.data)} className="btn btn-primary btn-sm">
             <ion-icon name="information-circle-outline"></ion-icon>
           </button>
-          <button onClick={() => acceptTour(params.data.tourId)} className="btn btn-success btn-sm">
-            Chấp nhận
-          </button>
-          <button onClick={() => denyTour(params.data.tourId)} className="btn btn-danger btn-sm">
-            Từ chối
-          </button>
+          {params.data.approvalStatus === 0 && (
+            <>
+              <button onClick={() => acceptTour(params.data.tourId)} className="btn btn-success btn-sm">
+                Chấp nhận
+              </button>
+              <button onClick={() => denyTour(params.data.tourId)} className="btn btn-danger btn-sm">
+                Từ chối
+              </button>
+            </>
+          )}
         </div>
       ),
     },
   ]);
-
-  const defaultColDef = useMemo(() => ({ flex: 1 }), []);
+  
+  const defaultColDef = useMemo(() => ({
+    flex: 1,
+    filter: true,
+    sortable: true,
+    resizable: true, // Cho phép thay đổi kích thước
+  }), []);
+  
   const popupParent = useMemo(() => document.body, []);
 
-  // Trạng thái modal (mở và đóng modal)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
 
   const openModal = (data) => {
-    setModalData(data); // Đặt dữ liệu cho modal
-    setIsModalOpen(true); // Mở modal
+    setModalData(data);
+    setIsModalOpen(true);
   };
 
   const closeModal = () => {
-    setIsModalOpen(false); // Đóng modal
-    setModalData(null); // Xóa dữ liệu modal
+    setIsModalOpen(false);
+    setModalData(null);
   };
 
   const token = useSelector((state) => state.auth.token);
 
   const fetchTourData = () => {
     axios.get("https://travelmateapp.azurewebsites.net/api/Tour", {
-      headers: { Authorization: `${token}` }
+      headers: { Authorization: `${token}` },
     })
       .then((response) => {
-        console.log("Dữ liệu tour:", response.data.$values);
-        
         setRowData(response.data.$values);
       })
       .catch((error) => {
@@ -111,14 +161,13 @@ const TripHistory = () => {
       });
   };
 
-  // Chấp nhận tour
   const acceptTour = (tourId) => {
     axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/accept/${tourId}`, {}, {
-      headers: { Authorization: `${token}` }
+      headers: { Authorization: `${token}` },
     })
-      .then((response) => {
-        toast.success("Tour đã được chấp nhận thành công !")
-        fetchTourData();  
+      .then(() => {
+        toast.success("Tour đã được chấp nhận thành công !");
+        fetchTourData();
       })
       .catch((error) => {
         console.error("Lỗi khi chấp nhận tour:", error);
@@ -126,13 +175,13 @@ const TripHistory = () => {
       });
   };
 
-  // Từ chối tour
   const denyTour = (tourId) => {
-    axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/reject/${tourId}`)
-      .then((response) => {
-        console.log("Tour denied:", response.data);
-        toast.success("Tour đã bị từ chối thành công!")
-        fetchTourData();  // Làm mới dữ liệu sau khi thao tác thành công
+    axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/reject/${tourId}`, {}, {
+      headers: { Authorization: `${token}` },
+    })
+      .then(() => {
+        toast.success("Tour đã bị từ chối thành công!");
+        fetchTourData();
       })
       .catch((error) => {
         console.error("Lỗi khi từ chối tour:", error);
@@ -140,81 +189,65 @@ const TripHistory = () => {
       });
   };
 
-  const chartThemeOverrides = useMemo(() => ({
-    common: {
-      title: { enabled: true, text: "Medals by Age" },
-    },
-    bar: {
-      axes: {
-        category: {
-          label: { rotation: 0 },
-        },
-      },
-    },
-  }), []);
-
-  const onFirstDataRendered = useMemo(() => (params) => {
-    params.api.createRangeChart({
-      chartContainer: document.querySelector("#myChart"),
-      cellRange: {
-        rowStartIndex: 0,
-        rowEndIndex: 79,
-        columns: ["age", "gold", "silver", "bronze"],
-      },
-      chartType: "groupedColumn",
-      aggFunc: "sum",
-    });
+  const autoSizeStrategy = useMemo(() => {
+    return {
+      type: "fitCellContents",
+    };
   }, []);
 
-  const modalStyles = {
-    content: {
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      backgroundColor: "#fff",
-      padding: "30px",
-      maxWidth: "900px",
-      width: "100%",
-      borderRadius: "10px",
-      boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-      zIndex: 9999,
-      height: '80%',
-      overflowY: 'auto',
-    },
-    overlay: {
-      backgroundColor: "rgba(0,0,0,0.5)",
-    },
-  };
-
-  // Lấy dữ liệu tour ban đầu khi component mount
   React.useEffect(() => {
     fetchTourData();
   }, []);
 
   return (
     <div style={containerStyle}>
-      <div className="wrapper">
-        {/* Container cho bảng */}
-        <div style={gridStyle} className="ag-theme-quartz">
-          <AgGridReact
-            rowData={rowData}
-            columnDefs={columnDefs}
-            defaultColDef={defaultColDef}
-            cellSelection={true}
-            popupParent={popupParent}
-            enableCharts={true}
-            chartThemeOverrides={chartThemeOverrides}
-            onFirstDataRendered={onFirstDataRendered}
-          />
-        </div>
+      <div className="d-flex justify-content-between mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Tìm kiếm nhanh..."
+          onChange={(e) => setQuickFilterText(e.target.value)}
+        />
       </div>
-      {/* Modal để xem thêm chi tiết */}
+
+      <div style={gridStyle} className="ag-theme-quartz">
+        <AgGridReact
+          rowData={rowData}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          quickFilterText={quickFilterText}
+          popupParent={popupParent}
+          enableCharts={true}
+          cellSelection={true}
+          pagination={true}
+          paginationPageSize={20}
+          
+        />
+      </div>
+
+      
+
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
         contentLabel="Chi tiết tour"
-        style={modalStyles}
+        style={{
+          content: {
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "#fff",
+            padding: "30px",
+            maxWidth: "900px",
+            width: "100%",
+            borderRadius: "10px",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+          },
+          overlay: {
+            backgroundColor: "rgba(0,0,0,0.5)",
+          },
+        }}
       >
         <h2>{modalData?.tourName}</h2>
         <p><strong>Mã tour:</strong> {modalData?.tourId}</p>
@@ -223,52 +256,7 @@ const TripHistory = () => {
         <p><strong>Ngày bắt đầu:</strong> {new Date(modalData?.startDate).toLocaleDateString()}</p>
         <p><strong>Ngày kết thúc:</strong> {new Date(modalData?.endDate).toLocaleDateString()}</p>
 
-        <h3>Lịch trình:</h3>
-        {modalData?.itinerary?.$values.map((day, index) => (
-          <div key={index} style={{ marginBottom: "20px" }}>
-            <strong>Ngày {day.day}:</strong> {new Date(day.date).toLocaleDateString()}
-            <ul style={{ paddingLeft: "20px" }}>
-              {day.activities.$values.map((activity, i) => (
-                <li key={i} style={{ marginBottom: "10px" }}>
-                  <strong>{activity.time}</strong>: {activity.description} <br />
-                  Số tiền: {activity.activityAmount} VND
-                  {activity.activityImage && (
-                    <div style={{ marginTop: "10px" }}>
-                      <img
-                        src={activity.activityImage}
-                        alt={activity.description}
-                        style={{ maxWidth: "100%", height: "auto", borderRadius: "8px" }}
-                      />
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-
-        <h3>Chi tiết chi phí:</h3>
-        {modalData?.costDetails?.$values.map((cost, index) => (
-          <div key={index} style={{ marginBottom: "10px" }}>
-            <strong>{cost.title}</strong>: {cost.amount} VND
-            <p>{cost.notes}</p>
-          </div>
-        ))}
-
-        <h3>Thông tin bổ sung:</h3>
-        <div
-          dangerouslySetInnerHTML={{ __html: modalData?.additionalInfo }}
-          style={{ marginBottom: "20px", fontSize: "14px", lineHeight: "1.6" }}
-        />
-
-        <div className="d-flex justify-content-end">
-          <button
-            onClick={closeModal}
-            style={{ padding: "10px 20px", borderRadius: "5px", backgroundColor: "#007BFF", color: "#fff", border: "none", cursor: "pointer" }}
-          >
-            Đóng
-          </button>
-        </div>
+        <button onClick={closeModal} className="btn btn-primary mt-3">Đóng</button>
       </Modal>
     </div>
   );

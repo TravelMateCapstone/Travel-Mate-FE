@@ -27,10 +27,14 @@ function TourCard({ tour }) {
     const formatPrice = (price) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
     };
+    const handleTourClick = () => {
+        disPatch(fetchTour(tour.TourId, token));
+        navigate(RoutePath.TOUR_DETAIL);
+    }
 
     return (
-        <div className='d-flex justify-content-between gap-3 mb-3'>
-            <img src={tour.TourImage} alt={tour.TourName} width={322} height={210}  className='rounded-3'/>
+        <div className='d-flex justify-content-between gap-3 mb-3' onClick={handleTourClick}>
+            <img src={tour.TourImage} alt={tour.TourName} width={322} height={210} className='rounded-3' />
             <div style={{
                 flex: 1,
                 display: 'flex',
@@ -45,6 +49,7 @@ function TourCard({ tour }) {
                         <p><ion-icon name="location-outline"></ion-icon> {tour.Location}</p>
                         <p><ion-icon name="time-outline"></ion-icon> {tour.NumberOfDays} ngày {tour.NumberOfNights}</p>
                         <p>{tour.RegisteredGuests}/{tour.MaxGuests}</p>
+                        <p style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden' }}>{tour.TourDescription}</p>
                     </div>
                     <div className='d-flex flex-column justify-content-end'>
                         <div className='fw-medium text-success'>
@@ -56,11 +61,11 @@ function TourCard({ tour }) {
             <div style={{
                 width: '322px',
                 height: '210px',
-              display: 'flex',
-              alignItems: 'center',
+                display: 'flex',
+                alignItems: 'center',
                 flexDirection: 'column',
             }}>
-                <img src={tour.User.Profile.ImageUser}  alt="" width={50} height={50}/>
+                <img src={tour.User.Profile.ImageUser || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'} className='rounded-5' alt="" width={50} height={50} />
                 <h5>{tour.User.FullName}</h5>
                 <small>{tour.User.Profile.Address}</small>
                 <div>{renderStars(tour.User.Star)}</div>
