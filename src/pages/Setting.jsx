@@ -8,9 +8,8 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../firebaseConfig';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewProfile } from '../redux/actions/profileActions';
-import Signature from '../components/Signature';
-import VerirySignature from '../components/Shared/VerirySignature';
 import SaveSignature from '../components/Tour/SaveSignature';
+import VerifySignatureRSA from '../components/Tour/VerifySignatureRSA';
 
 function Setting() {
   const [frontImage, setFrontImage] = useState(null);

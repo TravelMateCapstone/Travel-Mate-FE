@@ -3,6 +3,7 @@ import React, { useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { Container, Row, Col, Button, Alert } from "react-bootstrap";
+import { generateKeys, encrypt } from "../../utils/implementRSA";
 
 const SaveSignature = () => {
     const [signatures, setSignatures] = useState([]);
@@ -10,6 +11,7 @@ const SaveSignature = () => {
     const token = useSelector((state) => state.auth.token);
     const user = useSelector((state) => state.auth.user);
     const [isDrawing, setIsDrawing] = useState(false);
+    const { publicKey } = generateKeys();
 
     const getContext = (canvas) => canvas.getContext("2d");
 
@@ -53,26 +55,39 @@ const SaveSignature = () => {
             alert("Canvas not found.");
             return;
         }
-
+    
         const name = user.username;
         if (!name) {
             alert("Please provide a name for the signature.");
             return;
         }
-
+    
         try {
             const image = canvas.toDataURL("image/png");
-            const signatureData = { name, image };
-
+    
+            // Lưu ảnh gốc trước khi mã hóa
+            const link = document.createElement("a");
+            link.href = image;
+            link.download = `${name}_signature.png`;
+            link.click();
+    
+            // Tiếp tục mã hóa ảnh
+            const encryptedImage = encrypt(image, publicKey).join(',');
+            const signatureData = { name, image: encryptedImage };
             setSignatures([signatureData]);
-            localStorage.setItem("signatures", JSON.stringify([signatureData]));
+
+            // Save encrypted image to localStorage
+            localStorage.setItem('encryptedSignature', encryptedImage);
+    
             clearCanvas();
             alert("Signature saved successfully!");
-
-            // Save signature to backend
+    
+            // Gửi chữ ký đã mã hóa lên backend
+            console.log(encryptedImage);
+            
             await axios.put(
                 "https://travelmateapp.azurewebsites.net/api/CCCD/add-publicKey",
-                { publicSignature: image },
+                { publicSignature: encryptedImage },
                 { headers: { Authorization: `${token}` } }
             );
         } catch (error) {
@@ -80,7 +95,7 @@ const SaveSignature = () => {
             alert("An error occurred while saving the signature.");
         }
     };
-
+    
     const downloadSavedSignature = () => {
         if (signatures.length === 0) {
             alert("No saved signature to download.");
@@ -112,13 +127,7 @@ const SaveSignature = () => {
                         <Button variant="primary" onClick={saveSignature} className="mx-2">Save Signature</Button>
                         <Button variant="secondary" onClick={clearCanvas} className="mx-2">Clear Canvas</Button>
                     </div>
-                    {signatures.map((sig, index) => (
-                        <div key={index} className="text-center my-3">
-                            <Button variant="success" onClick={downloadSavedSignature} className="mx-2">Download Saved Signature</Button>
-                            <img src={sig.image} alt={sig.name} className="img-fluid my-2" />
-                            <p>{sig.name}</p>
-                        </div>
-                    ))}
+                 
                 </Col>
             </Row>
         </Container>

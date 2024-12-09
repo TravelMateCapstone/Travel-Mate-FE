@@ -8,7 +8,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import VerifySignature from "../../components/Shared/VerirySignature";
+import VerifySignatureRSA from "../../components/Tour/VerifySignatureRSA";
 
 function CreateContract() {
   const user = useSelector((state) => state.auth.user);
@@ -79,10 +79,10 @@ function CreateContract() {
         document.body.appendChild(form);
         form.submit();
       }
-      toast.success("Contract created successfully");
+      toast.success("Tạo hơp đồng thành công");
       console.log("Contract created successfully:", response.data);
     } catch (error) {
-      toast.error("Error creating contract");
+      toast.error(error.response.data?.message);
       console.error("Error creating contract:", error);
     }
   };
@@ -123,7 +123,7 @@ function CreateContract() {
                 <sub className="fw-medium">{profile?.address}</sub>
               </div>
             </div>
-            <VerifySignature />
+            <VerifySignatureRSA />
             {/* <Button variant="outline-warning" className="rounded-5">
               Chưa đồng ý
             </Button> */}
@@ -153,7 +153,6 @@ function CreateContract() {
                 <sub className="fw-medium">{tourInfo.creator.address}</sub>
               </div>
             </div>
-            <VerifySignature />
           </div>
         </Col>
       </Row>
