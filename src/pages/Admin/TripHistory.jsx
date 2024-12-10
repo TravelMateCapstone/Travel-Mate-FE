@@ -440,6 +440,7 @@ const TripHistory = () => {
             Đóng
           </button>
        </div>
+       
       </Modal>
 
     </div>
