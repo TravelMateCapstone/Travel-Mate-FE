@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-theme-quartz.css";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
@@ -35,13 +35,10 @@ const TripHistory = () => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const gridStyle = useMemo(() => ({ height: "500px", width: "100%" }), []);
   const chartStyle = useMemo(() => ({ height: "400px", width: "100%" }), []);
-
-  // const [rowData, setRowData] = useState([]);
   const [quickFilterText, setQuickFilterText] = useState("");
-
   const queryClient = useQueryClient();
 
-  const [columnDefs, setColumnDefs] = useState([
+  const [columnDefs] = useState([
     {
       headerName: "Tên tour",
       field: "tourName",
@@ -154,7 +151,6 @@ const TripHistory = () => {
     []
   );
 
-
   const { data: rowData = [], isLoading } = useQuery(
     ["tours", token],
     () => fetchTours(token),
@@ -167,7 +163,6 @@ const TripHistory = () => {
       keepPreviousData: true, // Giữ dữ liệu cũ trong khi refetch
     }
   );
-  
 
   // Mutation: Chấp nhận tour
   const acceptTourMutation = useMutation(
@@ -250,24 +245,7 @@ const TripHistory = () => {
     ],
   });
 
-
-
-  const fetchTourData = () => {
-    axios
-      .get("https://travelmateapp.azurewebsites.net/api/Tour", {
-        headers: { Authorization: `${token}` },
-      })
-      .then((response) => {
-        const tours = response.data.$values;
-        setRowData(tours);
-        updateChartData(tours);
-      })
-      .catch((error) => {
-        console.error("Có lỗi khi lấy dữ liệu:", error);
-      });
-  };
-
-  const updateChartData = (data) => {
+  const updateChartData = useCallback((data) => {
     const locationCount = data.reduce((acc, curr) => {
       acc[curr.location] = (acc[curr.location] || 0) + 1;
       return acc;
@@ -301,58 +279,23 @@ const TripHistory = () => {
       ...prev,
       data: barChartData,
     }));
-  };
-
-
-  const openModal = (data) => {
-    setModalData(data);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setModalData(null);
-  };
-
-  const acceptTour = (tourId) => {
-    axios
-      .post(`https://travelmateapp.azurewebsites.net/api/Tour/accept/${tourId}`, {}, {
-        headers: { Authorization: `${token}` },
-      })
-      .then(() => {
-        toast.success("Tour đã được chấp nhận thành công!");
-        fetchTourData();
-      })
-      .catch((error) => {
-        console.error("Lỗi khi chấp nhận tour:", error);
-        alert("Có lỗi khi chấp nhận tour. Vui lòng thử lại.");
-      });
-  };
-
-  const denyTour = (tourId) => {
-    axios
-      .post(`https://travelmateapp.azurewebsites.net/api/Tour/reject/${tourId}`, {}, {
-        headers: { Authorization: `${token}` },
-      })
-      .then(() => {
-        toast.success("Tour đã bị từ chối thành công!");
-        fetchTourData();
-      })
-      .catch((error) => {
-        console.error("Lỗi khi từ chối tour:", error);
-        alert("Có lỗi khi từ chối tour. Vui lòng thử lại.");
-      });
-  };
-
-  useEffect(() => {
-    fetchTourData();
   }, []);
+
   useEffect(() => {
-    if (rowData) {
+    if (rowData.length > 0) {
       updateChartData(rowData);
     }
-  }, [rowData]);
-  
+  }, [rowData, updateChartData]);
+
+  const openModal = useCallback((data) => {
+    setModalData(data);
+    setIsModalOpen(true);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setIsModalOpen(false);
+    setModalData(null);
+  }, []);
 
   return (
     <div style={containerStyle}>
