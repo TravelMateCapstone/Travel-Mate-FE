@@ -45,6 +45,7 @@ import TourDetail from "../pages/Tour/TourDetail"
 import Regulation from "../pages/Regulation"
 import FailContract from "../pages/Contracts/FailContract"
 import Login from "../pages/Auth/Auth"
+import Destinationmanagement from "../pages/Admin/Destinationmanagement"
 
 const publishRoutes = [
     { path: RoutePath.AUTH, component: Login, layout: null },
@@ -61,6 +62,7 @@ const privateRoutes = [
     { path: RoutePath.ADMIN_WALLET_MANAGEMENT, component: WalletManagement, layout: AdminLayout },
     { path: RoutePath.ADMIN_TRIP_HISTORY, component: TripHistory, layout: AdminLayout },
     { path: RoutePath.ADMIN_TRANSACTION, component: Transaction, layout: AdminLayout },
+    { path: RoutePath.ADMIN_DESTINATION_MANAGEMENT, component: Destinationmanagement, layout: AdminLayout },
 
     { path: RoutePath.GROUP_CREATED, component: GroupCreated, layout: ListLayout },
     { path: RoutePath.Group_Management, component: GroupManagement, layout: DetailLayout },

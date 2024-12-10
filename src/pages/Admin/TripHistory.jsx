@@ -38,14 +38,12 @@ const TripHistory = () => {
       resizable: true, // Cho phép thay đổi kích thước
     },
     {
-      headerName: "Giá",
-      field: "price",
+      headerName: "Địa điểm",
+      field: "location",
       width: 100,
-      chartDataType: "series",
-      filter: "agNumberColumnFilter",
-      valueFormatter: (params) => {
-        return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(params.value);
-      },
+      chartDataType: "category",
+      filter: "agSetColumnFilter",
+      resizable: true,
     },
     {
       headerName: "Ngày bắt đầu",
@@ -76,12 +74,14 @@ const TripHistory = () => {
       },
     },
     {
-      headerName: "Địa điểm",
-      field: "location",
+      headerName: "Giá",
+      field: "price",
       width: 100,
-      chartDataType: "category",
-      filter: "agSetColumnFilter",
-      resizable: true,
+      chartDataType: "series",
+      filter: "agNumberColumnFilter",
+      valueFormatter: (params) => {
+        return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(params.value);
+      },
     },
     {
       headerName: "Trạng thái phê duyệt",
