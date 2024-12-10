@@ -12,7 +12,7 @@ function AdminLayout({ children }) {
     { icon: 'mail-open', title: 'Quản lý khiếu nại', route: RoutePath.ADMIN_REPORT },
     { icon: 'accessibility', title: 'Quản lý tài khoản', route: RoutePath.ADMIN_ACCOUNT_LIST },
     { icon: 'cash', title: 'Lịch sử giao dịch', route: RoutePath.ADMIN_TRANSACTION },
-    { icon: 'airplane', title: 'Lịch sử chuyến đi', route: RoutePath.ADMIN_TRIP_HISTORY },
+    { icon: 'airplane', title: 'Quản lí tour', route: RoutePath.ADMIN_TRIP_HISTORY },
     { icon: 'location', title: 'Quản lý địa điểm', route: RoutePath.ADMIN_DESTINATION_MANAGEMENT },
   ];
   const sidebarItemsLocal = [

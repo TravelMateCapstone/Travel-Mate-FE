@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-theme-quartz.css";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
@@ -10,6 +10,9 @@ import axios from "axios";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
+import { AgCharts } from "ag-charts-react";
+import { Col, Row } from "react-bootstrap";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 
 ModuleRegistry.registerModules([
   ClientSideRowModelModule,
@@ -20,13 +23,23 @@ ModuleRegistry.registerModules([
 
 Modal.setAppElement("#root");
 
+const fetchTours = async (token) => {
+  const { data } = await axios.get("https://travelmateapp.azurewebsites.net/api/Tour", {
+    headers: { Authorization: `${token}` },
+  });
+  return data.$values;
+};
+
 const TripHistory = () => {
+  const token = useSelector((state) => state.auth.token);
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const gridStyle = useMemo(() => ({ height: "500px", width: "100%" }), []);
   const chartStyle = useMemo(() => ({ height: "400px", width: "100%" }), []);
 
-  const [rowData, setRowData] = useState([]);
+  // const [rowData, setRowData] = useState([]);
   const [quickFilterText, setQuickFilterText] = useState("");
+
+  const queryClient = useQueryClient();
 
   const [columnDefs, setColumnDefs] = useState([
     {
@@ -112,10 +125,16 @@ const TripHistory = () => {
           </button>
           {params.data.approvalStatus === 0 && (
             <>
-              <button onClick={() => acceptTour(params.data.tourId)} className="btn btn-success btn-sm">
+              <button
+                onClick={() => acceptTourMutation.mutate(params.data.tourId)}
+                className="btn btn-success btn-sm"
+              >
                 Chấp nhận
               </button>
-              <button onClick={() => denyTour(params.data.tourId)} className="btn btn-danger btn-sm">
+              <button
+                onClick={() => denyTourMutation.mutate(params.data.tourId)}
+                className="btn btn-danger btn-sm"
+              >
                 Từ chối
               </button>
             </>
@@ -124,18 +143,166 @@ const TripHistory = () => {
       ),
     },
   ]);
+
+  const defaultColDef = useMemo(
+    () => ({
+      flex: 1,
+      filter: true,
+      sortable: true,
+      resizable: true,
+    }),
+    []
+  );
+
+
+  const { data: rowData = [], isLoading } = useQuery(
+    ["tours", token],
+    () => fetchTours(token),
+    {
+      staleTime: 60000,
+      refetchOnWindowFocus: false,
+      onSuccess: (data) => {
+        updateChartData(data); // Đảm bảo hàm này chạy ngay khi lấy dữ liệu
+      },
+      keepPreviousData: true, // Giữ dữ liệu cũ trong khi refetch
+    }
+  );
   
-  const defaultColDef = useMemo(() => ({
-    flex: 1,
-    filter: true,
-    sortable: true,
-    resizable: true, // Cho phép thay đổi kích thước
-  }), []);
-  
+
+  // Mutation: Chấp nhận tour
+  const acceptTourMutation = useMutation(
+    (tourId) =>
+      axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/accept/${tourId}`, {}, {
+        headers: { Authorization: `${token}` },
+      }),
+    {
+      onSuccess: () => {
+        toast.success("Tour đã được chấp nhận thành công!");
+        queryClient.invalidateQueries("tours"); // Refresh dữ liệu
+      },
+    }
+  );
+
+  // Mutation: Từ chối tour
+  const denyTourMutation = useMutation(
+    (tourId) =>
+      axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/reject/${tourId}`, {}, {
+        headers: { Authorization: `${token}` },
+      }),
+    {
+      onSuccess: () => {
+        toast.success("Tour đã bị từ chối thành công!");
+        queryClient.invalidateQueries("tours"); // Refresh dữ liệu
+      },
+    }
+  );
+
   const popupParent = useMemo(() => document.body, []);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
+
+  const [options, setOptions] = useState({
+    title: {
+      text: "Số lượng tour theo địa điểm",
+    },
+    series: [
+      {
+        type: "pie",
+        angleKey: "count",
+        calloutLabelKey: "location", // Gắn nhãn gọi ra cho từng phần
+        sectorLabelKey: "count", // Hiển thị giá trị số lượng trong từng phần
+        sectorLabel: {
+          color: "white",
+          fontWeight: "bold", // Tùy chỉnh phong cách nhãn
+        },
+      },
+    ],
+  });
+
+  const [barChartOptions, setBarChartOptions] = useState({
+    title: {
+      text: "Giá cả trung bình theo địa điểm",
+    },
+    series: [
+      {
+        type: "bar",
+        xKey: "location",
+        yKey: "averagePrice",
+        label: {
+          formatter: ({ value }) =>
+            new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value),
+        },
+      },
+    ],
+    axes: [
+      {
+        type: "category",
+        position: "bottom",
+      },
+      {
+        type: "number",
+        position: "left",
+        title: {
+          text: "Giá trung bình (VND)",
+        },
+      },
+    ],
+  });
+
+
+
+  const fetchTourData = () => {
+    axios
+      .get("https://travelmateapp.azurewebsites.net/api/Tour", {
+        headers: { Authorization: `${token}` },
+      })
+      .then((response) => {
+        const tours = response.data.$values;
+        setRowData(tours);
+        updateChartData(tours);
+      })
+      .catch((error) => {
+        console.error("Có lỗi khi lấy dữ liệu:", error);
+      });
+  };
+
+  const updateChartData = (data) => {
+    const locationCount = data.reduce((acc, curr) => {
+      acc[curr.location] = (acc[curr.location] || 0) + 1;
+      return acc;
+    }, {});
+
+    const pieChartData = Object.entries(locationCount).map(([location, count]) => ({
+      location,
+      count,
+    }));
+
+    const locationPriceSum = data.reduce((acc, curr) => {
+      if (!acc[curr.location]) {
+        acc[curr.location] = { totalPrice: 0, count: 0 };
+      }
+      acc[curr.location].totalPrice += curr.price;
+      acc[curr.location].count += 1;
+      return acc;
+    }, {});
+
+    const barChartData = Object.entries(locationPriceSum).map(([location, { totalPrice, count }]) => ({
+      location,
+      averagePrice: totalPrice / count,
+    }));
+
+    setOptions((prev) => ({
+      ...prev,
+      data: pieChartData,
+    }));
+
+    setBarChartOptions((prev) => ({
+      ...prev,
+      data: barChartData,
+    }));
+  };
+
 
   const openModal = (data) => {
     setModalData(data);
@@ -147,26 +314,13 @@ const TripHistory = () => {
     setModalData(null);
   };
 
-  const token = useSelector((state) => state.auth.token);
-
-  const fetchTourData = () => {
-    axios.get("https://travelmateapp.azurewebsites.net/api/Tour", {
-      headers: { Authorization: `${token}` },
-    })
-      .then((response) => {
-        setRowData(response.data.$values);
-      })
-      .catch((error) => {
-        console.error("Có lỗi khi lấy dữ liệu:", error);
-      });
-  };
-
   const acceptTour = (tourId) => {
-    axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/accept/${tourId}`, {}, {
-      headers: { Authorization: `${token}` },
-    })
+    axios
+      .post(`https://travelmateapp.azurewebsites.net/api/Tour/accept/${tourId}`, {}, {
+        headers: { Authorization: `${token}` },
+      })
       .then(() => {
-        toast.success("Tour đã được chấp nhận thành công !");
+        toast.success("Tour đã được chấp nhận thành công!");
         fetchTourData();
       })
       .catch((error) => {
@@ -176,9 +330,10 @@ const TripHistory = () => {
   };
 
   const denyTour = (tourId) => {
-    axios.post(`https://travelmateapp.azurewebsites.net/api/Tour/reject/${tourId}`, {}, {
-      headers: { Authorization: `${token}` },
-    })
+    axios
+      .post(`https://travelmateapp.azurewebsites.net/api/Tour/reject/${tourId}`, {}, {
+        headers: { Authorization: `${token}` },
+      })
       .then(() => {
         toast.success("Tour đã bị từ chối thành công!");
         fetchTourData();
@@ -189,15 +344,15 @@ const TripHistory = () => {
       });
   };
 
-  const autoSizeStrategy = useMemo(() => {
-    return {
-      type: "fitCellContents",
-    };
-  }, []);
-
-  React.useEffect(() => {
+  useEffect(() => {
     fetchTourData();
   }, []);
+  useEffect(() => {
+    if (rowData) {
+      updateChartData(rowData);
+    }
+  }, [rowData]);
+  
 
   return (
     <div style={containerStyle}>
@@ -221,12 +376,22 @@ const TripHistory = () => {
           cellSelection={true}
           pagination={true}
           paginationPageSize={20}
-          
         />
       </div>
 
-      
+      <Row>
+        <Col lg={4}>
+          <div style={chartStyle}>
+            <AgCharts options={options} />
+          </div>
+        </Col>
 
+        <Col lg={8}>
+          <div style={chartStyle}>
+            <AgCharts options={barChartOptions} />
+          </div>
+        </Col>
+      </Row>
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
@@ -250,13 +415,28 @@ const TripHistory = () => {
         }}
       >
         <h2>{modalData?.tourName}</h2>
-        <p><strong>Mã tour:</strong> {modalData?.tourId}</p>
-        <p><strong>Giá:</strong> {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(modalData?.price)}</p>
-        <p><strong>Địa điểm:</strong> {modalData?.location}</p>
-        <p><strong>Ngày bắt đầu:</strong> {new Date(modalData?.startDate).toLocaleDateString()}</p>
-        <p><strong>Ngày kết thúc:</strong> {new Date(modalData?.endDate).toLocaleDateString()}</p>
+        <p>
+          <strong>Mã tour:</strong> {modalData?.tourId}
+        </p>
+        <p>
+          <strong>Giá:</strong>{" "}
+          {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(modalData?.price)}
+        </p>
+        <p>
+          <strong>Địa điểm:</strong> {modalData?.location}
+        </p>
+        <p>
+          <strong>Ngày bắt đầu:</strong>{" "}
+          {new Date(modalData?.startDate).toLocaleDateString()}
+        </p>
+        <p>
+          <strong>Ngày kết thúc:</strong>{" "}
+          {new Date(modalData?.endDate).toLocaleDateString()}
+        </p>
 
-        <button onClick={closeModal} className="btn btn-primary mt-3">Đóng</button>
+        <button onClick={closeModal} className="btn btn-primary mt-3">
+          Đóng
+        </button>
       </Modal>
     </div>
   );
