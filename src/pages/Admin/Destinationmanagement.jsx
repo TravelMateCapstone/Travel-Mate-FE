@@ -1,53 +1,113 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useQuery } from "react-query";
 import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-theme-alpine.css";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import { ModuleRegistry } from "@ag-grid-community/core";
 import axios from "axios";
+import ConfirmModal from "../../components/Shared/ConfirmModal";
+import { toast } from "react-toastify";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 function DestinationManagement() {
-  const [rowData, setRowData] = useState([]);
-  const [columnDefs] = useState([
+  const [showModal, setShowModal] = useState(false);
+  const [tempData, setTempData] = useState(null); // Lưu dữ liệu tạm thời khi chỉnh sửa
+  const [changeInfo, setChangeInfo] = useState(""); // Thông tin thay đổi (giá trị cũ -> giá trị mới)
+
+  const fetchLocations = async () => {
+    const response = await axios.get("https://travelmateapp.azurewebsites.net/api/Locations");
+    return response.data.$values;
+  };
+
+  const updateLocation = async (updatedData) => {
+    try {
+      const response = await axios.put(
+        `https://travelmateapp.azurewebsites.net/api/Locations/${updatedData.locationId}`,
+        updatedData
+      );
+      toast.success("Cập nhật thành công!");
+      console.log("Cập nhật thành công:", response.data);
+    } catch (error) {
+      toast.error("Cập nhật thất bại. Vui lòng thử lại.");
+      console.error("Lỗi khi cập nhật dữ liệu:", error);
+    }
+  };
+
+  const { data: rowData = [], isLoading, error } = useQuery(
+    "locations", 
+    fetchLocations
+  );
+
+  const [columnDefs] = React.useState([
     { field: "locationId", headerName: "ID", sortable: true, filter: true },
-    { field: "locationName", headerName: "Location Name", sortable: true, filter: true },
-    { field: "title", headerName: "Title", sortable: true, filter: true },
-    { field: "description", headerName: "Description", flex: 2 },
+    { field: "locationName", headerName: "Tên địa điểm", sortable: true, filter: true, editable: true },
+    { field: "title", headerName: "Tiêu đề", sortable: true, filter: true, editable: true },
+    { field: "description", headerName: "Mô tả", flex: 2, editable: true },
     {
       field: "image",
-      headerName: "Image",
-     
+      headerName: "Hình ảnh",
+      editable: true,
     },
     {
       field: "mapHtml",
-      headerName: "Map",
-    
+      headerName: "Bản đồ",
+      editable: true,
     },
   ]);
 
-  useEffect(() => {
-    axios
-      .get("https://travelmateapp.azurewebsites.net/api/Locations")
-      .then((response) => {
-        setRowData(response.data.$values);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
-  }, []);
+  const handleCellValueChanged = (params) => {
+    const { oldValue, newValue, data, colDef } = params;
+
+    if (oldValue !== newValue) {
+      const fieldName = colDef.headerName; // Lấy tên cột
+      setChangeInfo(`Cập nhật "${fieldName}" từ "${oldValue}" sang "${newValue}".`);
+      setTempData(data); // Lưu dữ liệu chỉnh sửa tạm thời
+      setShowModal(true); // Hiển thị modal xác nhận
+    }
+  };
+
+  const handleConfirm = () => {
+    if (tempData) {
+      updateLocation(tempData); // Cập nhật dữ liệu khi người dùng xác nhận
+    }
+    setShowModal(false); // Đóng modal
+    setTempData(null); // Xóa dữ liệu tạm thời
+    setChangeInfo(""); // Xóa thông tin thay đổi
+  };
+
+  const handleClose = () => {
+    setShowModal(false); // Đóng modal khi hủy
+    setTempData(null); // Xóa dữ liệu tạm thời
+    setChangeInfo(""); // Xóa thông tin thay đổi
+  };
+
+  if (isLoading) return <div>Đang tải dữ liệu...</div>;
+  if (error) return <div>Lỗi khi lấy dữ liệu: {error.message}</div>;
 
   return (
-    <div
-      className="ag-theme-alpine"
-      style={{ height: 500, width: "100%" }}
-    >
-      <AgGridReact
-        rowData={rowData}
-        columnDefs={columnDefs}
-        defaultColDef={{ flex: 1, resizable: true }}
+    <>
+      <div
+        className="ag-theme-alpine"
+        style={{ height: 500, width: "100%" }}
+      >
+        <AgGridReact
+          rowData={rowData}
+          columnDefs={columnDefs}
+          defaultColDef={{ flex: 1, resizable: true }}
+          onCellValueChanged={handleCellValueChanged} // Lắng nghe sự kiện chỉnh sửa
+        />
+      </div>
+
+      {/* Modal xác nhận */}
+      <ConfirmModal
+        show={showModal}
+        onHide={handleClose}
+        onConfirm={handleConfirm}
+        title="Xác nhận cập nhật"
+        message={changeInfo} // Hiển thị thông tin thay đổi
       />
-    </div>
+    </>
   );
 }
 
