@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { generateKeys, encrypt } from '../../utils/implementRSA';
 import { Button } from 'react-bootstrap';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
+import { saveSignature } from '../../redux/actions/signatureAction';
 
 function VerifySignatureRSA() {
     const [image, setImage] = useState(null);
@@ -14,7 +15,7 @@ function VerifySignatureRSA() {
     const token = useSelector((state) => state.auth.token);
     const [responeSignature, setResponeSignature] = useState(null);
     const [isValidSignature, setIsValidSignature] = useState(false);
-
+    const dispatch = useDispatch();
 
     const handleImageUpload = async (event) => {
         const file = event.target.files[0];
@@ -23,7 +24,7 @@ function VerifySignatureRSA() {
             setImage(reader.result);
             const encrypted = encrypt(reader.result, publicKey);
             setEncryptedImage(encrypted);
-
+            
             try {
                 const response = await axios.post('https://travelmateapp.azurewebsites.net/api/CCCD/verify-signature', {
                     userId: user.id,
@@ -35,6 +36,7 @@ function VerifySignatureRSA() {
                 });
                 setResponeSignature(response.data);
                 if (response.data.success) {
+                    dispatch(saveSignature(encrypted.join(',')));
                     toast.success('Chữ kí hợp lệ');
                     setVerificationResult('Chữ kí hợp lệ');
                     setIsValidSignature(true);

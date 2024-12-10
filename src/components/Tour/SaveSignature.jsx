@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { Container, Row, Col, Button, Alert } from "react-bootstrap";
 import { generateKeys, encrypt } from "../../utils/implementRSA";
+import { toast } from "react-toastify";
 
 const SaveSignature = () => {
     const [signatures, setSignatures] = useState([]);
@@ -55,22 +56,18 @@ const SaveSignature = () => {
             alert("Canvas not found.");
             return;
         }
-    
+
         const name = user.username;
         if (!name) {
             alert("Please provide a name for the signature.");
             return;
         }
-    
+
         try {
             const image = canvas.toDataURL("image/png");
-    
-            // Lưu ảnh gốc trước khi mã hóa
-            const link = document.createElement("a");
-            link.href = image;
-            link.download = `${name}_signature.png`;
-            link.click();
-    
+
+
+
             // Tiếp tục mã hóa ảnh
             const encryptedImage = encrypt(image, publicKey).join(',');
             const signatureData = { name, image: encryptedImage };
@@ -78,24 +75,31 @@ const SaveSignature = () => {
 
             // Save encrypted image to localStorage
             localStorage.setItem('encryptedSignature', encryptedImage);
-    
+
             clearCanvas();
-            alert("Signature saved successfully!");
-    
+
+
             // Gửi chữ ký đã mã hóa lên backend
             console.log(encryptedImage);
-            
+
             await axios.put(
                 "https://travelmateapp.azurewebsites.net/api/CCCD/add-publicKey",
                 { publicSignature: encryptedImage },
                 { headers: { Authorization: `${token}` } }
             );
+            toast.success("Tạo chữ ký thành công");
+            // Lưu ảnh gốc trước khi mã hóa
+            const link = document.createElement("a");
+            link.href = image;
+            link.download = `${name}_signature.png`;
+            link.click();
+
         } catch (error) {
             console.error("Error saving signature:", error);
-            alert("An error occurred while saving the signature.");
+            toast.error(error.response.data?.message);
         }
     };
-    
+
     const downloadSavedSignature = () => {
         if (signatures.length === 0) {
             alert("No saved signature to download.");
@@ -112,7 +116,6 @@ const SaveSignature = () => {
         <Container className="signature-container">
             <Row className="justify-content-center">
                 <Col md={8}>
-                    <h2 className="text-center my-4">Create and Save Signature</h2>
                     <canvas
                         ref={canvasRef}
                         width="500"
@@ -123,11 +126,16 @@ const SaveSignature = () => {
                         onMouseUp={stopDrawing}
                         onMouseLeave={stopDrawing}
                     ></canvas>
-                    <div className="actions text-center my-3">
-                        <Button variant="primary" onClick={saveSignature} className="mx-2">Save Signature</Button>
-                        <Button variant="secondary" onClick={clearCanvas} className="mx-2">Clear Canvas</Button>
+                    <div className="actions text-center">
+                        <small className="text-center">
+                            Sau khi lưu chữ kí thì chữ kí tự động tải về máy của bạn.
+                        </small>
+                        <div className="mt-2">
+                            <Button variant="success" onClick={saveSignature} className="mx-2">Lưu chữ ký</Button>
+                            <Button variant="secondary" onClick={clearCanvas} className="mx-2">Xóa canvas</Button>
+                        </div>
                     </div>
-                 
+
                 </Col>
             </Row>
         </Container>

@@ -15,12 +15,10 @@ function CreateContract() {
   const [profile, setProfile] = useState(null);
   const tourInfo = useSelector((state) => state.tour.tour);
   const navigate = useNavigate();
-  console.log(tourInfo);
-  
+  const travlerrSignature = useSelector((state) => state.signature.signature);
   const formatDate = (date) => {
     return format(new Date(date), "dd/MM/yyyy", { locale: vi });
   };
-
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -39,19 +37,18 @@ function CreateContract() {
 
   const handleCreateContractAndPayment = async () => {
     const contractInfo = {
-      travelerId: user.id,
+      travelerId: parseInt(user.id),
       localId: tourInfo.creator.id,
       tourId: tourInfo.tourId,
       location: tourInfo.location,
       details: JSON.stringify(tourInfo),
-      travelerSignature: "chuky9",
-      localSignature: "chuky8",
+      travelerSignature: travlerrSignature,
+      // localSignature: "chuky8",
     };
     console.log(contractInfo);
-
     try {
       const response = await axios.post(
-        "https://travelmateapp.azurewebsites.net/api/BlockContract/create-contract",
+        "https://travelmateapp.azurewebsites.net/api/BlockContract/create-contract-local-pass",
         contractInfo
       );
       if (response.data.data.isCompleted) {
@@ -82,8 +79,12 @@ function CreateContract() {
       toast.success("Tạo hơp đồng thành công");
       console.log("Contract created successfully:", response.data);
     } catch (error) {
-      toast.error(error.response.data?.message);
       console.error("Error creating contract:", error);
+      toast.error(error.response.data?.message);
+      if(error.response.data?.message == 'Chữ ký số không tồn tại hoặc người dùng chưa tạo chữ ký số.'){
+        toast.error('Vui lòng tạo chữ ký số trước khi tiếp tục');
+        navigate(RoutePath.SETTING);
+      }
     }
   };
 

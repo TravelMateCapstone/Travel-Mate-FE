@@ -42,6 +42,7 @@ const GroupDetail = () => {
   const { useCreate: useSendJoinRequest } = useApi(`https://travelmateapp.azurewebsites.net/api/Groups/JoinedGroups/Join/${group?.groupId}`, `sendJoinRequest-${group?.groupId}`);
   const { mutate: sendJoinRequest, isLoading: isSending, isSuccess: isSent } = useSendJoinRequest(false);
   const token = useSelector(state => state.auth.token);
+  const user = useSelector(state => state.auth.user);
 
 
 
@@ -256,7 +257,7 @@ const GroupDetail = () => {
       {(userJoinedStatus === 'Joined' || userJoinedStatus === 'Owner') && (
         <div className='write_post_container mb-5'>
           <div className='d-flex align-items-center gap-3'>
-            <img src='https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw' alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
+            <img src={user.avatarUrl} alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
             <h5 className='m-0'></h5>
           </div>
           <TextareaAutosize name="" id="post_title" placeholder='Bạn đang nghĩ gì... ?'></TextareaAutosize>
@@ -305,7 +306,7 @@ const GroupDetail = () => {
           <Form.Control type="text" id="group_name" defaultValue={group?.groupName} placeholder="Nhập tên nhóm" />
         </Form.Group>
         <Form.Group>
-          <Form.Label>Địa điểm</Form.Label>
+          {/* <Form.Label>Địa điểm</Form.Label> */}
           <ProvinceSelector onSelect={setSelectedProvince} />
         </Form.Group>
         <Form.Group>
