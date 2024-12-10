@@ -45,7 +45,7 @@ const TripHistory = () => {
       width: 200,
       chartDataType: "category",
       filter: "agSetColumnFilter",
-      resizable: true, // Cho phép thay đổi kích thước
+      resizable: true,
     },
     {
       headerName: "Địa điểm",
@@ -197,6 +197,8 @@ const TripHistory = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null);
 
+
+
   const [options, setOptions] = useState({
     title: {
       text: "Số lượng tour theo địa điểm",
@@ -296,7 +298,6 @@ const TripHistory = () => {
     setIsModalOpen(false);
     setModalData(null);
   }, []);
-
   return (
     <div style={containerStyle}>
       <div className="d-flex justify-content-between mb-3">
@@ -347,10 +348,11 @@ const TripHistory = () => {
             transform: "translate(-50%, -50%)",
             backgroundColor: "#fff",
             padding: "30px",
-            maxWidth: "900px",
+            maxWidth: "1200px",
             width: "100%",
             borderRadius: "10px",
             boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+            height: "90vh",
           },
           overlay: {
             backgroundColor: "rgba(0,0,0,0.5)",
@@ -358,8 +360,12 @@ const TripHistory = () => {
         }}
       >
         <h2>{modalData?.tourName}</h2>
-        <p>
+        {/* <p>
           <strong>Mã tour:</strong> {modalData?.tourId}
+        </p> */}
+         <img src={modalData?.tourImage} alt={modalData?.tourName} style={{ width: '100%'}} />
+        <p>
+          <strong>Mô tả:</strong> {modalData?.tourDescription}
         </p>
         <p>
           <strong>Giá:</strong>{" "}
@@ -370,17 +376,72 @@ const TripHistory = () => {
         </p>
         <p>
           <strong>Ngày bắt đầu:</strong>{" "}
-          {new Date(modalData?.startDate).toLocaleDateString()}
+          {new Date(modalData?.startDate).toLocaleDateString("vi-VN")}
         </p>
         <p>
           <strong>Ngày kết thúc:</strong>{" "}
-          {new Date(modalData?.endDate).toLocaleDateString()}
+          {new Date(modalData?.endDate).toLocaleDateString("vi-VN")}
+        </p>
+        <p>
+          <strong>Trạng thái phê duyệt:</strong>{" "}
+          {modalData?.approvalStatus === 0
+            ? "Đang xử lý"
+            : modalData?.approvalStatus === 1
+              ? "Đã chấp nhận"
+              : "Đã từ chối"}
+        </p>
+        <p>
+          <strong>Số khách đăng ký:</strong> {modalData?.registeredGuests}
+        </p>
+        <p>
+          <strong>Số khách tối đa:</strong> {modalData?.maxGuests}
         </p>
 
-        <button onClick={closeModal} className="btn btn-primary mt-3">
-          Đóng
-        </button>
+        <h3>Lịch trình chi tiết</h3>
+        {modalData?.itinerary?.$values.map((day) => (
+          <div key={day.day} style={{ marginBottom: "20px" }}>
+            <h4>Ngày {day.day} - {new Date(day.date).toLocaleDateString("vi-VN")}</h4>
+            {day.activities?.$values.map((activity) => (
+              <div key={activity.title} style={{ marginBottom: "10px" }}>
+                <strong>Hoạt động:</strong> {activity.title}
+                <br />
+                <strong>Thời gian:</strong> {activity.startTime} - {activity.endTime}
+                <br />
+                <strong>Địa điểm:</strong> {activity.activityAddress}
+                <br />
+                <strong>Chi phí:</strong>{" "}
+                {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(activity.activityAmount)}
+                <br />
+                <strong>Mô tả:</strong> {activity.description}
+                <br />
+                <strong>Lưu ý:</strong> {activity.note}
+                <br />
+                <img src={activity.activityImage} alt={activity.title} style={{ marginTop: "5px", width: "100%" }} />
+              </div>
+            ))}
+          </div>
+        ))}
+
+        <h3>Chi tiết chi phí</h3>
+        {modalData?.costDetails?.$values.map((cost) => (
+          <p key={cost.title}>
+            <strong>{cost.title}:</strong>{" "}
+            {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(cost.amount)}
+            <br />
+            <strong>Ghi chú:</strong> {cost.notes}
+          </p>
+        ))}
+
+        <h3>Thông tin bổ sung</h3>
+        <p>{modalData?.additionalInfo}</p>
+
+       <div className="d-flex justify-content-end">
+          <button onClick={closeModal} className="btn btn-primary mt-3">
+            Đóng
+          </button>
+       </div>
       </Modal>
+
     </div>
   );
 };
