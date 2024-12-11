@@ -41,6 +41,7 @@ const RoutePath = {
     ADMIN_TRANSACTION: '/admin/transaction',
     ADMIN_TRIP_HISTORY: '/admin/trip-history',
     ADMIN_WALLET_MANAGEMENT: '/admin/wallet-management',
+    ADMIN_DESTINATION_MANAGEMENT: '/admin/destination-management',
 
     // Local routes
     LOCAL_STATICTIS: '/local/statistics',
@@ -76,6 +77,9 @@ const RoutePath = {
 
     //Destination
     DESTINATION: '/destination',
+
+
+    AUTH: '/auth',
 }
 
 export default RoutePath;

@@ -70,24 +70,28 @@
 }
 
 .dropdown-menu-notify {
-  max-height: 500px;
-  /* Giới hạn chiều cao tổng quát */
-  overflow-y: hidden;
-  /* Ban đầu ẩn thanh scroll */
-  padding: 0;
-  /* Xóa padding mặc định */
+  max-height: 530px; /* Chiều cao mặc định */
+  overflow-y: auto; /* Hiển thị thanh cuộn nếu nội dung vượt quá */
+  transition: max-height 0.3s ease; /* Tạo hiệu ứng mượt */
 }
 
-.notification-scroll {
-  max-height: 400px;
-  /* Giới hạn chiều cao */
-  overflow-y: auto;
-  /* Hiển thị thanh scroll nếu nội dung vượt quá */
-  padding: 0 15px;
-  /* Đặt khoảng cách padding nội dung */
-  scrollbar-width: thin;
-  /* Tùy chỉnh thanh cuộn (Firefox) */
+.dropdown-menu-notify.show-more {
+  max-height: 900px; /* Chiều cao khi nhấn "Xem thêm" */
 }
+
+.notification-footer {
+  position: sticky;
+  bottom: 0;
+  background-color: rgb(209, 209, 209);
+  z-index: 1;
+  padding: 10px 0;
+  text-align: center;
+}
+.notification-scroll {
+  max-height: calc(800px - 50px); /* Chiều cao cố định trừ phần footer */
+  overflow-y: auto;
+}
+
 
 .notification-scroll::-webkit-scrollbar {
   width: 6px;

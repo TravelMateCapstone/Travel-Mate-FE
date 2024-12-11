@@ -41,17 +41,18 @@ const Navbar = React.memo(() => {
   const handelShowOffcanvas = useCallback(() => {
     setShowOffcanvas(true);
   });
+  const [navigateTo, setNavigateTo] = useState(RoutePath.DESTINATION);
 
   const handleSearchDestination = useCallback(() => {
-    navigate(RoutePath.DESTINATION); // Điều hướng đến trang "Khách du lịch"
+    setNavigateTo(RoutePath.DESTINATION);
   }, [navigate]);
 
   const handleSearchLocal = useCallback(() => {
-    navigate(RoutePath.SEARCH_LIST_LOCAL); // Điều hướng đến trang "Người địa phương"
+    setNavigateTo(RoutePath.SEARCH_LIST_LOCAL);
   }, [navigate]);
 
   const handleSearchTraveller = useCallback(() => {
-    navigate(RoutePath.SEARCH_LIST_TRAVELLER); // Điều hướng đến trang "Khách du lịch"
+    setNavigateTo(RoutePath.SEARCH_LIST_TRAVELLER);
   }, [navigate]);
 
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
@@ -82,7 +83,7 @@ const Navbar = React.memo(() => {
             const updatedNotifications = response.data.$values.map(notification => {
               return {
                 ...notification,
-                isRequest: notification.message.includes("Bạn đã nhận được một lời mời kết bạn từ "),
+                isRequest: notification.message.includes("Bạn đã nhận được một lời m���i kết bạn từ "),
                 senderId: notification.senderId ? notification.senderId : null
               };
             });
@@ -190,7 +191,8 @@ const Navbar = React.memo(() => {
           console.error("Error stopping SignalR connection:", error);
         });
     }
-  }, [dispatch]);
+    navigate(RoutePath.AUTH); // Navigate to login page after logout
+  }, [dispatch, navigate]);
 
   const handleSelect = useCallback((eventKey) => {
     setSelectedItem(eventKey);
@@ -311,11 +313,16 @@ const Navbar = React.memo(() => {
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchInput(value);
-
-    const filtered = locations.filter((location) =>
-      removeVietnameseTones(location.locationName.toLowerCase()).includes(removeVietnameseTones(value.toLowerCase()))
-    );
-    setFilteredLocations(filtered.slice(0, 5));
+    if (value.trim() === '') {
+      setFilteredLocations([]);
+      return;
+    }
+    if (navigateTo === RoutePath.DESTINATION) {
+      const filtered = locations.filter((location) =>
+        removeVietnameseTones(location.locationName.toLowerCase()).includes(removeVietnameseTones(value.toLowerCase()))
+      );
+      setFilteredLocations(filtered.slice(0, 5));
+    }
   };
 
   const handleLocationSelect = (location) => {
@@ -331,7 +338,7 @@ const Navbar = React.memo(() => {
       navigate(RoutePath.SEARCH_LIST_TRAVELLER, { state: { selectedLocation: location } });
     }
   };
-  
+
 
   // Cập nhật giao diện khi thay đổi `location.pathname`
   useEffect(() => {
@@ -405,7 +412,7 @@ const Navbar = React.memo(() => {
                   >
                     <Dropdown.Item
                       eventKey="Địa điểm du lịch"
-                      className="custom-dropdown-item px-0 d-flex flex-column"
+                      className="custom-dropdown-item px-0 "
                       onClick={handleSearchDestination}
                     >
                       <p className="m-0 fw-medium">Địa điểm du lịch</p>
@@ -414,7 +421,7 @@ const Navbar = React.memo(() => {
 
                     <Dropdown.Item
                       eventKey="Người địa phương"
-                      className="custom-dropdown-item px-0 d-flex flex-column"
+                      className="custom-dropdown-item px-0"
                       onClick={handleSearchLocal} // Gọi hàm điều hướng
                     >
                       <p className="m-0">Người địa phương</p>
@@ -422,7 +429,7 @@ const Navbar = React.memo(() => {
                     </Dropdown.Item>
                     <Dropdown.Item
                       eventKey="Khách du lịch"
-                      className="custom-dropdown-item px-0 d-flex flex-column"
+                      className="custom-dropdown-item px-0"
                       onClick={handleSearchTraveller} // Gọi hàm điều hướng
                     >
                       <p className="m-0">Khách du lịch</p>
@@ -490,7 +497,7 @@ const Navbar = React.memo(() => {
                     )}
                   </Dropdown.Toggle>
 
-                  <Dropdown.Menu className="py-3 dropdown-menu-notify">
+                  <Dropdown.Menu className={`m-0 pt-3 pb-0 dropdown-menu-notify ${showMoreNotifications ? "show-more" : ""}`}>
                     <div className="notification-scroll">
                       {displayedNotifications.map((notification) => (
                         <Dropdown.Item key={notification.notificationId}>
@@ -510,19 +517,22 @@ const Navbar = React.memo(() => {
                         </Dropdown.Item>
                       ))}
                     </div>
-                    <div
-                      className="d-flex align-items-center justify-content-center mt-2 gap-1"
-                      onClick={handleShowMoreNotifications}
-                    >
-                      <p className="m-0 messege-more">
-                        {showMoreNotifications ? "Hiển thị ít hơn" : "Xem thêm thông báo"}
-                      </p>
-                      <ion-icon
-                        name={showMoreNotifications ? "chevron-up-circle-outline" : "chevron-down-circle-outline"}
-                        style={{ fontSize: '20px' }}
-                      ></ion-icon>
+                    <div className="notification-footer">
+                      <div
+                        className="d-flex align-items-center justify-content-center gap-1"
+                        onClick={handleShowMoreNotifications}
+                      >
+                        <p className="m-0 messege-more">
+                          {showMoreNotifications ? "Hiển thị ít hơn" : "Xem thêm thông báo"}
+                        </p>
+                        <ion-icon
+                          name={showMoreNotifications ? "chevron-up-circle-outline" : "chevron-down-circle-outline"}
+                          style={{ fontSize: '20px' }}
+                        ></ion-icon>
+                      </div>
                     </div>
                   </Dropdown.Menu>
+
                 </Dropdown>
 
                 <Dropdown align="end">

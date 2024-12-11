@@ -403,7 +403,7 @@ function ListLayout({ children }) {
                                             </Form.Control.Feedback>
                                         </Form.Group>
                                         <Form.Group id="location" className="mb-3">
-                                            <Form.Label className='fw-medium'>Địa điểm</Form.Label>
+                                            {/* <Form.Label className='fw-medium'>Địa điểm</Form.Label> */}
                                             <ProvinceSelector onSelect={(value) => setGroupLocation(value)} />
                                         </Form.Group>
                                         <Form.Group id="groupImage" className="mb-3 d-flex flex-column">

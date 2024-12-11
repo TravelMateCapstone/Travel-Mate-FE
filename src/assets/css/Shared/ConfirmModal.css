@@ -43,6 +43,7 @@
 .custom-modal_deletPostGroup .custom-modal-body {
   text-align: center;
   padding: 20px;
+  height: 100% !important;
 }
 
 .custom-modal_deletPostGroup .icon-large {

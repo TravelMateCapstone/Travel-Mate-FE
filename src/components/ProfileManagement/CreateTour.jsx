@@ -40,7 +40,7 @@ function CreateTour({ onTourCreated }) {
         if (tourDetails.startDate && tourDetails.endDate) {
             const start = new Date(tourDetails.startDate);
             const end = new Date(tourDetails.endDate);
-            const numberOfDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+            const numberOfDays = Math.floor((end - start) / (1000 * 60 * 60 * 24));
             const numberOfNights = numberOfDays - 1;
             const newActivities = [];
             for (let i = 0; i < numberOfDays; i++) {

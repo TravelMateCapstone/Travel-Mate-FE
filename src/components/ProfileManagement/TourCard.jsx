@@ -44,6 +44,16 @@ function TourCard({ tour, onTourUpdated }) {
     const [isGlobalContract, setIsGlobalContract] = useState(true);
     const [filter, setFilter] = useState('paid');
     const [searchTerm, setSearchTerm] = useState('');
+
+    useEffect(() => {
+        // Calculate price whenever costDetails change
+        const totalCost = costDetails.reduce((acc, cost) => acc + parseFloat(cost.amount || 0), 0);
+        setTourDetails(prevDetails => ({
+            ...prevDetails,
+            price: totalCost,
+        }));
+    }, [costDetails]);
+
     const handleOpenManagementModal = async () => {
         try {
             const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Tour/tourParticipants/${tour.tourId}`, {
@@ -81,8 +91,6 @@ function TourCard({ tour, onTourUpdated }) {
             }
         }
     }, [tourDetails.startDate, tourDetails.endDate]);
-
-
 
     const openModal = async () => {
         console.log(tour.tourId);
@@ -143,8 +151,6 @@ function TourCard({ tour, onTourUpdated }) {
         console.log(isOn);
 
         setIsGlobalContract(isOn);
-
-
     };
 
     const handleDelete = async (tourId) => {
@@ -366,59 +372,55 @@ function TourCard({ tour, onTourUpdated }) {
                     <Col lg={12}>
                         <Row>
                             <Col lg={8}>
-                                <div>
-                                    <div>
-                                        <Form>
+                                <Form>
+                                    <Form.Group className="mb-3 form-group-custom-create-tour">
+                                        <Form.Label>Tên Tour</Form.Label>
+                                        <Form.Control type="text" value={tourDetails.tourName} onChange={(e) => setTourDetails({ ...tourDetails, tourName: e.target.value })} />
+                                    </Form.Group>
+                                    <Row>
+                                        <Col>
                                             <Form.Group className="mb-3 form-group-custom-create-tour">
-                                                <Form.Label>Tên Tour</Form.Label>
-                                                <Form.Control type="text" value={tourDetails.tourName} onChange={(e) => setTourDetails({ ...tourDetails, tourName: e.target.value })} />
+                                                <Form.Label>Ngày Bắt Đầu</Form.Label>
+                                                <Form.Control type="datetime-local" value={tourDetails.startDate} onChange={(e) => setTourDetails({ ...tourDetails, startDate: e.target.value })} />
                                             </Form.Group>
-                                            <Row>
-                                                <Col>
-                                                    <Form.Group className="mb-3 form-group-custom-create-tour">
-                                                        <Form.Label>Ngày Bắt Đầu</Form.Label>
-                                                        <Form.Control type="datetime-local" value={tourDetails.startDate} onChange={(e) => setTourDetails({ ...tourDetails, startDate: e.target.value })} />
-                                                    </Form.Group>
-                                                </Col>
-                                                <Col>
-                                                    <Form.Group className="mb-3 form-group-custom-create-tour">
-                                                        <Form.Label>Ngày Kết Thúc</Form.Label>
-                                                        <Form.Control type="datetime-local" value={tourDetails.endDate} onChange={(e) => setTourDetails({ ...tourDetails, endDate: e.target.value })} />
-                                                    </Form.Group>
-                                                </Col>
-                                            </Row>
-                                            <Form.Group className="mb-3 d-none">
-                                                <Form.Label>Số Ngày</Form.Label>
-                                                <Form.Control type="number" value={tourDetails.numberOfDays} onChange={(e) => setTourDetails({ ...tourDetails, numberOfDays: e.target.value })} />
-                                            </Form.Group>
-                                            <Form.Group className="mb-3 d-none">
-                                                <Form.Label>Số Đêm</Form.Label>
-                                                <Form.Control type="number" value={tourDetails.numberOfNights} onChange={(e) => setTourDetails({ ...tourDetails, numberOfNights: e.target.value })} />
-                                            </Form.Group>
+                                        </Col>
+                                        <Col>
                                             <Form.Group className="mb-3 form-group-custom-create-tour">
-                                                <Form.Label>Địa Điểm</Form.Label>
-                                                <Form.Control type="text" value={tourDetails.location} onChange={(e) => setTourDetails({ ...tourDetails, location: e.target.value })} />
+                                                <Form.Label>Ngày Kết Thúc</Form.Label>
+                                                <Form.Control type="datetime-local" value={tourDetails.endDate} onChange={(e) => setTourDetails({ ...tourDetails, endDate: e.target.value })} />
                                             </Form.Group>
-                                            <Form.Group className="mb-3 form-group-custom-create-tour">
-                                                <Form.Label>Số Khách Tối Đa</Form.Label>
-                                                <Form.Control type="number" value={tourDetails.maxGuests} onChange={(e) => setTourDetails({ ...tourDetails, maxGuests: e.target.value })} />
-                                            </Form.Group>
-                                            <Form.Group className="mb-3 form-group-custom-create-tour">
-                                                <Form.Label>Chữ ký cho toàn bộ</Form.Label>
-                                                <Switch isOn={isGlobalContract} handleToggle={handleSwitchToggle} />
-                                            </Form.Group>
-                                            <Form.Group className="mb-3 form-group-custom-create-tour align-items-start">
-                                                <Form.Label>Mô Tả Tour</Form.Label>
-                                                <TextareaAutosize
-                                                    minRows={3}
-                                                    value={tourDetails.tourDescription}
-                                                    onChange={(e) => setTourDetails({ ...tourDetails, tourDescription: e.target.value })}
-                                                    className="form-control"
-                                                />
-                                            </Form.Group>
-                                        </Form>
-                                    </div>
-                                </div>
+                                        </Col>
+                                    </Row>
+                                    <Form.Group className="mb-3 d-none">
+                                        <Form.Label>Số Ngày</Form.Label>
+                                        <Form.Control type="number" value={tourDetails.numberOfDays} onChange={(e) => setTourDetails({ ...tourDetails, numberOfDays: e.target.value })} />
+                                    </Form.Group>
+                                    <Form.Group className="mb-3 d-none">
+                                        <Form.Label>Số Đêm</Form.Label>
+                                        <Form.Control type="number" value={tourDetails.numberOfNights} onChange={(e) => setTourDetails({ ...tourDetails, numberOfNights: e.target.value })} />
+                                    </Form.Group>
+                                    <Form.Group className="mb-3 form-group-custom-create-tour">
+                                        <Form.Label>Địa Điểm</Form.Label>
+                                        <Form.Control type="text" value={tourDetails.location} onChange={(e) => setTourDetails({ ...tourDetails, location: e.target.value })} />
+                                    </Form.Group>
+                                    <Form.Group className="mb-3 form-group-custom-create-tour">
+                                        <Form.Label>Số Khách Tối Đa</Form.Label>
+                                        <Form.Control type="number" value={tourDetails.maxGuests} onChange={(e) => setTourDetails({ ...tourDetails, maxGuests: e.target.value })} />
+                                    </Form.Group>
+                                    <Form.Group className="mb-3 form-group-custom-create-tour">
+                                        <Form.Label>Chữ ký cho toàn bộ</Form.Label>
+                                        <Switch isOn={isGlobalContract} handleToggle={handleSwitchToggle} />
+                                    </Form.Group>
+                                    <Form.Group className="mb-3 form-group-custom-create-tour align-items-start">
+                                        <Form.Label>Mô Tả Tour</Form.Label>
+                                        <TextareaAutosize
+                                            minRows={3}
+                                            value={tourDetails.tourDescription}
+                                            onChange={(e) => setTourDetails({ ...tourDetails, tourDescription: e.target.value })}
+                                            className="form-control"
+                                        />
+                                    </Form.Group>
+                                </Form>
                             </Col>
                             <Col lg={4}>
                                 <Form.Group className="mt-4 form-group-custom-create-tour">
@@ -644,7 +646,7 @@ function TourCard({ tour, onTourUpdated }) {
                                         <td>{participant.gender}</td>
                                         <td>{participant.address}</td>
                                         <td>{participant.phone}</td>
-                                        <td>{participant.paymentStatus? 'Đã thanh toán' : 'Chưa thanh toán'}</td>
+                                        <td>{participant.paymentStatus ? 'Đã thanh toán' : 'Chưa thanh toán'}</td>
                                         <td>{participant.discount}</td>
                                         <td>{participant.totalAmount}</td>
                                         <td><ion-icon name="ellipsis-horizontal-outline"></ion-icon></td>

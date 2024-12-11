@@ -8,19 +8,17 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
-import VerirySignature from "../../components/Shared/VerirySignature";
+import VerifySignatureRSA from "../../components/Tour/VerifySignatureRSA";
 
 function CreateContract() {
   const user = useSelector((state) => state.auth.user);
   const [profile, setProfile] = useState(null);
   const tourInfo = useSelector((state) => state.tour.tour);
   const navigate = useNavigate();
-  console.log(tourInfo);
-  
+  const travlerrSignature = useSelector((state) => state.signature.signature);
   const formatDate = (date) => {
     return format(new Date(date), "dd/MM/yyyy", { locale: vi });
   };
-
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -39,19 +37,18 @@ function CreateContract() {
 
   const handleCreateContractAndPayment = async () => {
     const contractInfo = {
-      travelerId: user.id,
+      travelerId: parseInt(user.id),
       localId: tourInfo.creator.id,
       tourId: tourInfo.tourId,
       location: tourInfo.location,
       details: JSON.stringify(tourInfo),
-      travelerSignature: "chuky9",
-      localSignature: "chuky8",
+      travelerSignature: travlerrSignature,
+      // localSignature: "chuky8",
     };
     console.log(contractInfo);
-
     try {
       const response = await axios.post(
-        "https://travelmateapp.azurewebsites.net/api/BlockContract/create-contract",
+        "https://travelmateapp.azurewebsites.net/api/BlockContract/create-contract-local-pass",
         contractInfo
       );
       if (response.data.data.isCompleted) {
@@ -60,7 +57,8 @@ function CreateContract() {
           tourId: tourInfo.tourId,
           localId: tourInfo.creator.id,
           travelerId: user.id,
-          amount: 2000, // Fixed amount
+          // amount: tourInfo.price,
+          amount: 2000,
         };
         // Redirect to payment form submission
         const form = document.createElement("form");
@@ -78,11 +76,15 @@ function CreateContract() {
         document.body.appendChild(form);
         form.submit();
       }
-      toast.success("Contract created successfully");
+      toast.success("Tạo hơp đồng thành công");
       console.log("Contract created successfully:", response.data);
     } catch (error) {
-      toast.error("Error creating contract");
       console.error("Error creating contract:", error);
+      toast.error(error.response.data?.message);
+      if(error.response.data?.message == 'Chữ ký số không tồn tại hoặc người dùng chưa tạo chữ ký số.'){
+        toast.error('Vui lòng tạo chữ ký số trước khi tiếp tục');
+        navigate(RoutePath.SETTING);
+      }
     }
   };
 
@@ -122,10 +124,10 @@ function CreateContract() {
                 <sub className="fw-medium">{profile?.address}</sub>
               </div>
             </div>
-            <VerirySignature publickey={'chuky8'}/>
-            <Button variant="outline-warning" className="rounded-5">
+            <VerifySignatureRSA />
+            {/* <Button variant="outline-warning" className="rounded-5">
               Chưa đồng ý
-            </Button>
+            </Button> */}
           </div>
         </Col>
         <Col
@@ -152,9 +154,6 @@ function CreateContract() {
                 <sub className="fw-medium">{tourInfo.creator.address}</sub>
               </div>
             </div>
-            <Button variant="outline-success" className="rounded-5">
-              Đồng ý
-            </Button>
           </div>
         </Col>
       </Row>

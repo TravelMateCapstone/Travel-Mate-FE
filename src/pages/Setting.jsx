@@ -8,7 +8,8 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../firebaseConfig';
 import { useDispatch, useSelector } from 'react-redux';
 import { viewProfile } from '../redux/actions/profileActions';
-import Signature from '../components/Signature';
+import SaveSignature from '../components/Tour/SaveSignature';
+import VerifySignatureRSA from '../components/Tour/VerifySignatureRSA';
 
 function Setting() {
   const [frontImage, setFrontImage] = useState(null);
@@ -79,7 +80,7 @@ function Setting() {
         address: profileData.address || '',
       });
       setPhone(profileData.phone || "Không có dữ liệu");
-      return profileData; // Trả về dữ liệu để dùng khi cần
+      return profileData; 
     } catch (error) {
       console.error("Lỗi khi lấy thông tin Profile:", error);
       toast.error('Lỗi khi lấy thông tin Profile.');
@@ -503,7 +504,7 @@ function Setting() {
               <Col md={12}>
                 <Form.Group className="d-flex align-items-center">
                   <Form.Label>Chữ ký số</Form.Label>
-                  <Signature />
+                  <SaveSignature/>
                 </Form.Group>
               </Col>
             </Row>

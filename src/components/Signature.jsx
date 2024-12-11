@@ -59,21 +59,23 @@ const Signature = () => {
         link.download = "signature.png";
         link.click();
     };
+    const user = useSelector((state) => state.auth.user);
 
     const saveSignature = async () => {
         const canvas = canvasRef.current;
-        const name = nameInputRef.current.value.trim();
+        if (!canvas) {
+            alert("Không tìm thấy canvas.");
+            return;
+        }
+    
+        const name = user.username; 
         if (!name) {
             alert("Vui lòng nhập tên cho chữ ký.");
             return;
         }
-
-        const imageDataURL = canvas.toDataURL("image/png");
-        const encoder = new TextEncoder();
-        const imageData = encoder.encode(imageDataURL);
-
+    
         try {
-            // Generate RSA Keypair
+            // Tạo cặp khóa RSA
             const keyPair = await window.crypto.subtle.generateKey(
                 {
                     name: "RSA-PSS",
@@ -84,71 +86,56 @@ const Signature = () => {
                 true,
                 ["sign", "verify"]
             );
-
-            const privateKey = keyPair.privateKey;
+    
             const publicKey = keyPair.publicKey;
-
-            // Create signature
-            const hashBuffer = await window.crypto.subtle.digest("SHA-256", imageData);
-            const signature = await window.crypto.subtle.sign(
-                {
-                    name: "RSA-PSS",
-                    saltLength: 32,
-                },
-                privateKey,
-                hashBuffer
-            );
-
-            // Export public key
+    
+            // Xuất khóa công khai thành định dạng JWK
             const exportedPublicKey = await window.crypto.subtle.exportKey("jwk", publicKey);
-
-            const signatureData = {
-                name,
-                image: imageDataURL,
-                signature: btoa(String.fromCharCode(...new Uint8Array(signature))),
-                publicKey: exportedPublicKey,
-            };
-
-            // Send publicKey to API with Bearer Token
-            console.log("public key", publicKey);
+    
+            // Chuyển đổi khóa công khai thành chuỗi JSON
+            const publicSignature = JSON.stringify(exportedPublicKey);
+            console.log("Public key:", publicSignature);
+    
+            // Lưu ảnh chữ ký
+            const image = canvas.toDataURL("image/png");
+    
+            // Gửi khóa công khai và ảnh chữ ký tới API
             const response = await fetch(
                 "https://travelmateapp.azurewebsites.net/api/CCCD/add-publicKey",
                 {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
+                        Authorization: `${token}`,
                     },
-                    body: JSON.stringify({ publicSignature: JSON.stringify(exportedPublicKey) }),
+                    body: JSON.stringify({ publicSignature, image }),
                 }
             );
-
+    
             if (!response.ok) {
-                alert("Lỗi khi gửi publicKey tới API");
+                const errorMessage = await response.text();
+                console.error("API Error:", errorMessage);
+                alert(`Lỗi từ API: ${errorMessage}`);
                 return;
             }
-
-            alert("Public key đã được gửi thành công!");
-
-            // Update signatures
-            const updatedSignatures = [...signatures];
-            const existingIndex = updatedSignatures.findIndex((sig) => sig.name === name);
-
-            if (existingIndex !== -1) {
-                updatedSignatures[existingIndex] = signatureData;
-            } else {
-                updatedSignatures.push(signatureData);
-            }
-
-            setSignatures(updatedSignatures);
-            localStorage.setItem("signatures", JSON.stringify(updatedSignatures));
+    
+            alert("Chữ ký đã được lưu thành công!");
+    
+            // Cập nhật danh sách chữ ký (chỉ lưu một chữ ký)
+            const signatureData = {
+                publicKey: exportedPublicKey,
+                image: image,
+                name: name
+            };
+            setSignatures([signatureData]);
+            localStorage.setItem("signatures", JSON.stringify([signatureData])); // Save to local storage
             clearCanvas();
-            nameInputRef.current.value = "";
         } catch (error) {
             console.error("Lỗi khi tạo chữ ký:", error);
-            alert("Đã xảy ra lỗi trong quá trình tạo chữ ký.");
+            alert("Đã xảy ra lỗi trong quá trình lưu chữ ký.");
         }
     };
+    
 
     const verifySignature = async () => {
         if (!uploadedSignatureImage) {
@@ -227,14 +214,12 @@ const Signature = () => {
 
     const loadSignatures = () => {
         const storedSignatures = JSON.parse(localStorage.getItem("signatures")) || [];
-        setSignatures(storedSignatures);
+        setSignatures(storedSignatures.slice(0, 1)); // Load only one signature
     };
 
-    const deleteSignature = (index) => {
-        const updatedSignatures = [...signatures];
-        updatedSignatures.splice(index, 1);
-        setSignatures(updatedSignatures);
-        localStorage.setItem("signatures", JSON.stringify(updatedSignatures));
+    const deleteSignature = () => {
+        setSignatures([]);
+        localStorage.removeItem("signatures");
     };
 
     const handleFileUpload = (event) => {
@@ -274,23 +259,25 @@ const Signature = () => {
                 onMouseUp={stopDrawing}
             ></canvas>
             <br />
-            <input ref={nameInputRef} placeholder="Tên chữ ký" className="name-input" />
             <div className="actions">
                 <button onClick={saveSignature}>Lưu Chữ Ký</button>
                 <button onClick={clearCanvas}>Xóa Canvas</button>
                 <button onClick={downloadCanvas}>Tải Xuống</button>
             </div>
-            <div className="upload-section">
+            {/* <div className="upload-section">
                 <input type="file" onChange={handleFileUpload} />
                 <button onClick={verifySignature}>Xác Thực Chữ Ký</button>
-            </div>
+            </div> */}
             <div>
-                <h3>Danh Sách Chữ Ký</h3>
+                {/* <h3>Danh Sách Chữ Ký</h3> */}
                 {signatures.map((signature, index) => (
                     <div key={index} className="signature-item">
                         <img src={signature.image} alt={signature.name} />
                         <p>{signature.name}</p>
-                        <button onClick={() => deleteSignature(index)}>Xóa</button>
+                        <button onClick={deleteSignature}>Xóa</button>
+                        <a href={signature.image} download={`${signature.name}.png`}>
+                            <button>Tải Xuống</button>
+                        </a>
                     </div>
                 ))}
             </div>

@@ -18,6 +18,12 @@ export default defineConfig({
     },
   },
 
+  build: {
+    rollupOptions: {
+      // Do not mark ag-charts-react as external
+    },
+  },
+
   test: {
     globals: true,
     environment: 'jsdom',

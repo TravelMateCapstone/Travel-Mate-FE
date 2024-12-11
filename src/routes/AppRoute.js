@@ -44,14 +44,17 @@ import TourDetail from "../pages/Tour/TourDetail"
 import Regulation from "../pages/Regulation"
 import FailContract from "../pages/Contracts/FailContract"
 import SearchListTraveller from "../pages/Search/SearchListTraveller"
+import Login from "../pages/Auth/Auth"
+import Destinationmanagement from "../pages/Admin/Destinationmanagement"
 
 const publishRoutes = [
-    { path: RoutePath.HOMEPAGE, component: Home, layout: HomeFeedLayout },
-    { path: RoutePath.EVENT, component: EventList, layout: ListLayout },
-    { path: RoutePath.GROUP, component: GroupList, layout: ListLayout },
+    { path: RoutePath.AUTH, component: Login, layout: null },
 ]
 
 const privateRoutes = [
+    { path: RoutePath.HOMEPAGE, component: Home, layout: HomeFeedLayout },
+    { path: RoutePath.EVENT, component: EventList, layout: ListLayout },
+    { path: RoutePath.GROUP, component: GroupList, layout: ListLayout },
     { path: RoutePath.GROUP_DETAILS, component: GroupDetail, layout: DetailLayout },
     { path: RoutePath.ADMIN, component: IncomeStatistic, layout: AdminLayout },
     { path: RoutePath.ADMIN_ACCOUNT_LIST, component: AccountList, layout: AdminLayout },
@@ -59,6 +62,7 @@ const privateRoutes = [
     { path: RoutePath.ADMIN_WALLET_MANAGEMENT, component: WalletManagement, layout: AdminLayout },
     { path: RoutePath.ADMIN_TRIP_HISTORY, component: TripHistory, layout: AdminLayout },
     { path: RoutePath.ADMIN_TRANSACTION, component: Transaction, layout: AdminLayout },
+    { path: RoutePath.ADMIN_DESTINATION_MANAGEMENT, component: Destinationmanagement, layout: AdminLayout },
 
     { path: RoutePath.GROUP_CREATED, component: GroupCreated, layout: ListLayout },
     { path: RoutePath.Group_Management, component: GroupManagement, layout: DetailLayout },
