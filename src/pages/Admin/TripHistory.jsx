@@ -34,7 +34,7 @@ const TripHistory = () => {
   const token = useSelector((state) => state.auth.token);
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const gridStyle = useMemo(() => ({ height: "500px", width: "100%" }), []);
-  const chartStyle = useMemo(() => ({ height: "400px", width: "100%" }), []);
+  const chartStyle = useMemo(() => ({ width: "100%" }), []);
   const [quickFilterText, setQuickFilterText] = useState("");
   const queryClient = useQueryClient();
 
@@ -300,6 +300,22 @@ const TripHistory = () => {
   }, []);
   return (
     <div style={containerStyle}>
+     
+
+      <Row>
+        <Col lg={4}>
+          <div style={chartStyle}>
+            <AgCharts options={options} />
+          </div>
+        </Col>
+
+        <Col lg={8}>
+          <div style={chartStyle}>
+            <AgCharts options={barChartOptions} />
+          </div>
+        </Col>
+      </Row>
+      
       <div className="d-flex justify-content-between mb-3">
         <input
           type="text"
@@ -322,20 +338,6 @@ const TripHistory = () => {
           paginationPageSize={20}
         />
       </div>
-
-      <Row>
-        <Col lg={4}>
-          <div style={chartStyle}>
-            <AgCharts options={options} />
-          </div>
-        </Col>
-
-        <Col lg={8}>
-          <div style={chartStyle}>
-            <AgCharts options={barChartOptions} />
-          </div>
-        </Col>
-      </Row>
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}

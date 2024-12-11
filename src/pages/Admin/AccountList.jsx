@@ -31,7 +31,7 @@ const AccountList = () => {
 
   const { data, isLoading, isError, error } = useQuery("users", fetchUserData, {
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    cacheTime: 20 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
@@ -231,7 +231,7 @@ const AccountList = () => {
 
   return (
     <div style={containerStyle}>
-       <Row className="mb-3">
+       <Row className="mb-2">
           <Col lg={8}>
             <div style={{ width: "100%", }}>
               <AgCharts options={options} />

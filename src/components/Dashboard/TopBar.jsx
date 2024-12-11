@@ -22,7 +22,10 @@ function TopBar() {
     setShowUserDropdown((prev) => !prev);
   }, []);
   return (
-    <nav className="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow z-0">
+    <nav className="navbar mb-2 navbar-expand navbar-light bg-white topbar static-top shadow z-0" style={{
+      height: '15px',
+      padding: '30px 0'
+    }}>
       <button
         id="sidebarToggleTop"
         className="btn btn-link d-md-none rounded-circle mr-3"
@@ -65,7 +68,7 @@ function TopBar() {
             </form>
           </div>
         </li>
-        <li className="nav-item dropdown no-arrow mx-1">
+        {/* <li className="nav-item dropdown no-arrow mx-1">
           <a
             className="nav-link dropdown-toggle"
             href="javascript:void(0)"
@@ -220,7 +223,7 @@ function TopBar() {
               Read More Messages
             </a>
           </div>
-        </li>
+        </li> */}
         <div className="topbar-divider d-none d-sm-block" />
         {/* Nav Item - User Information */}
         <li className="nav-item dropdown no-arrow">
