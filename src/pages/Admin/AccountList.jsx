@@ -29,11 +29,7 @@ const AccountList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [quickFilter, setQuickFilter] = useState("");
 
-  const { data, isLoading, isError, error } = useQuery("users", fetchUserData, {
-    staleTime: 5 * 60 * 1000,
-    cacheTime: 20 * 60 * 1000,
-    refetchOnWindowFocus: false,
-  });
+  const { data, isLoading, isError, error } = useQuery("users", fetchUserData);
 
   const handleExportToExcel = () => {
     if (!data || !data.value) return;

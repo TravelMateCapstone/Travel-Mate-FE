@@ -33,7 +33,7 @@ const fetchTours = async (token) => {
 const TripHistory = () => {
   const token = useSelector((state) => state.auth.token);
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
-  const gridStyle = useMemo(() => ({ height: "500px", width: "100%" }), []);
+  const gridStyle = useMemo(() => ({ height: "470px", width: "100%" }), []);
   const chartStyle = useMemo(() => ({ width: "100%" }), []);
   const [quickFilterText, setQuickFilterText] = useState("");
   const queryClient = useQueryClient();

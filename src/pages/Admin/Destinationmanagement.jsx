@@ -14,6 +14,7 @@ function DestinationManagement() {
   const [showModal, setShowModal] = useState(false);
   const [tempData, setTempData] = useState(null); // Lưu dữ liệu tạm thời khi chỉnh sửa
   const [changeInfo, setChangeInfo] = useState(""); // Thông tin thay đổi (giá trị cũ -> giá trị mới)
+  const [quickFilterText, setQuickFilterText] = useState(""); // Lưu giá trị của quick filter
 
   const fetchLocations = async () => {
     const response = await axios.get("https://travelmateapp.azurewebsites.net/api/Locations");
@@ -35,13 +36,13 @@ function DestinationManagement() {
   };
 
   const { data: rowData = [], isLoading, error } = useQuery(
-    "locations", 
+    "locations",
     fetchLocations
   );
 
   const [columnDefs] = React.useState([
-    { field: "locationId", headerName: "ID", sortable: true, filter: true },
-    { field: "locationName", headerName: "Tên địa điểm", sortable: true, filter: true, editable: true },
+    { field: "locationId", headerName: "ID", sortable: true },
+    { field: "locationName", headerName: "Tên địa điểm", sortable: true, filter: true },
     { field: "title", headerName: "Tiêu đề", sortable: true, filter: true, editable: true },
     { field: "description", headerName: "Mô tả", flex: 2, editable: true },
     {
@@ -87,15 +88,27 @@ function DestinationManagement() {
 
   return (
     <>
+      <div>
+        {/* Ô tìm kiếm Quick Filter */}
+        <input
+          type="text"
+          className="form-control mb-2 w-25"
+          placeholder="Tìm kiếm nhanh..."
+          onChange={(e) => setQuickFilterText(e.target.value)} // Cập nhật giá trị của quickFilterText
+        />
+      </div>
       <div
         className="ag-theme-alpine"
-        style={{ height: 500, width: "100%" }}
+        style={{ height: '85vh', width: "100%" }}
       >
         <AgGridReact
           rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={{ flex: 1, resizable: true }}
           onCellValueChanged={handleCellValueChanged} // Lắng nghe sự kiện chỉnh sửa
+          pagination={true}
+          paginationPageSize={20}
+          quickFilterText={quickFilterText} // Áp dụng quick filter
         />
       </div>
 
