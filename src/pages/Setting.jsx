@@ -21,6 +21,15 @@ function Setting() {
 
   const dispatch = useDispatch();
 
+  const capitalizeWords = (str) => {
+    if (!str) return '';
+    return str
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+  
+
   const [profile, setProfile] = useState({
     firstName: '',
     lastName: '',
@@ -156,12 +165,12 @@ function Setting() {
   const handleSaveInfo = async () => {
     try {
       const updatedData = {
-        firstName: profile.firstName || "Không có dữ liệu",
-        lastName: profile.lastName || "Không có dữ liệu",
-        address: profile.address || "Không có dữ liệu",
+        firstName: capitalizeWords(profile.firstName || "Không có dữ liệu"),
+        lastName: capitalizeWords(profile.lastName || "Không có dữ liệu"),
+        address: capitalizeWords(profile.address || "Không có dữ liệu"),
         phone: phone || "Không có dữ liệu",
         gender: profile.gender || "Không có dữ liệu",
-        city: profile.city || "Không có dữ liệu",
+        city: capitalizeWords(profile.city || "Không có dữ liệu"),
         description: profile.description || "Không có dữ liệu",
         hostingAvailability: profile.hostingAvailability || "Không có dữ liệu",
         whyUseTravelMate: profile.whyUseTravelMate || "Không có dữ liệu",

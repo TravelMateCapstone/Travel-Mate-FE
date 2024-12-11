@@ -1,229 +1,362 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
+import { useQuery } from "react-query";
 import { AgGridReact } from "@ag-grid-community/react";
 import { ModuleRegistry } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
-import * as XLSX from "xlsx";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { Button, Modal, Form } from "react-bootstrap";
-import ConfirmModal from "../../components/Shared/ConfirmModal";
+import ReactModal from "react-modal";
+import { Button, FormControl, Row, Col } from "react-bootstrap";
+import { utils, writeFile } from "xlsx";
+import { AgCharts } from "ag-charts-react";
 
-// Chỉ Đăng ký các mô-đun của Community
+// Đăng ký module
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
+
+ReactModal.setAppElement("#root"); // Đặt phần tử gốc của ứng dụng
+
+const fetchUserData = async () => {
+  const response = await fetch("https://travelmateapp.azurewebsites.net/odata/ApplicationUsers");
+  if (!response.ok) {
+    throw new Error("Error fetching data");
+  }
+  return response.json();
+};
 
 const AccountList = () => {
   const gridRef = useRef();
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [quickFilter, setQuickFilter] = useState("");
+
+  const { data, isLoading, isError, error } = useQuery("users", fetchUserData, {
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  const handleExportToExcel = () => {
+    if (!data || !data.value) return;
+
+    // Chuẩn bị dữ liệu cho Excel
+    const formattedData = data.value.map((row) => ({
+      ID: row.UserId || "Chưa cập nhật",
+      "Tên người dùng": row.FullName || "Chưa cập nhật",
+      Email: row.Email || "Chưa cập nhật",
+      "Địa chỉ": row.Profile?.Address || "Chưa cập nhật",
+      "Số sao": row.Star !== undefined ? row.Star : "Chưa cập nhật",
+      "Số kết nối": row.CountConnect !== undefined ? row.CountConnect : "Chưa cập nhật",
+      "Vai trò": row.Roles?.join(", ") || "Chưa cập nhật",
+      "Ngày sinh": row.CCCD?.Dob || "Chưa cập nhật",
+      "Giới tính": row.CCCD?.Sex || "Chưa cập nhật",
+      "Tuổi": row.CCCD?.Age !== undefined ? row.CCCD.Age : "Chưa cập nhật",
+      "Ảnh đại diện": row.Profile?.ImageUser || "Chưa cập nhật",
+    }));
+
+    // Tạo workbook và worksheet
+    const worksheet = utils.json_to_sheet(formattedData);
+    const workbook = utils.book_new();
+    utils.book_append_sheet(workbook, worksheet, "Danh sách người dùng");
+
+    // Xuất file Excel
+    writeFile(workbook, "Danh_sach_nguoi_dung.xlsx");
+  };
 
   const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
 
-  const [rowData, setRowData] = useState([
-    { id: 1, name: "John Doe", address: "123 Main St", phone: "123456789", email: "john@example.com" },
-    { id: 2, name: "Jane Smith", address: "456 Oak Ave", phone: "987654321", email: "jane@example.com" },
-    { id: 3, name: "Alice Johnson", address: "789 Pine Rd", phone: "555123456", email: "alice@example.com" },
-    { id: 4, name: "Robert Brown", address: "321 Maple Ln", phone: "444555666", email: "robert@example.com" },
-    { id: 5, name: "Michael Miller", address: "654 Elm St", phone: "333777888", email: "michael@example.com" },
-  ]);
-
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [rowToDelete, setRowToDelete] = useState(null);
-  const [editedRow, setEditedRow] = useState(null);
-  const [showConfirmUpdateModal, setShowConfirmUpdateModal] = useState(false);
-  const [updateRow, setUpdateRow] = useState(null);
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const renderCell = (value) => {
+    return value ? (
+      value
+    ) : (
+      <span style={{ color: "red" }}>Chưa cập nhật</span>
+    );
+  };
 
   const columnDefs = [
-    { headerName: "Người dùng", field: "name", editable: true, filter: true, sortable: true },
-    { headerName: "Địa chỉ", field: "address", editable: true, filter: true, sortable: true },
-    { headerName: "Số điện thoại", field: "phone", editable: true, filter: true, sortable: true },
-    { headerName: "Email", field: "email", editable: true, filter: true, sortable: true },
+    {
+      headerName: "ID",
+      field: "UserId",
+      cellRenderer: (params) => renderCell(params.value),
+      filter: true,
+      sortable: true,
+    },
+    {
+      headerName: "Tên người dùng",
+      field: "FullName",
+      cellRenderer: (params) => renderCell(params.value),
+      filter: true,
+      sortable: true,
+    },
+    {
+      headerName: "Email",
+      field: "Email",
+      cellRenderer: (params) => renderCell(params.value),
+      filter: true,
+      sortable: true,
+    },
+    {
+      headerName: "Địa chỉ",
+      field: "Profile.Address",
+      cellRenderer: (params) => renderCell(params.value),
+      filter: true,
+      sortable: true,
+    },
+    {
+      headerName: "Số sao",
+      field: "Star",
+      cellRenderer: (params) => renderCell(params.value !== undefined ? params.value : null),
+      filter: true,
+      sortable: true,
+    },
+    {
+      headerName: "Số kết nối",
+      field: "CountConnect",
+      cellRenderer: (params) => renderCell(params.value !== undefined ? params.value : null),
+      filter: true,
+      sortable: true,
+    },
+    {
+      headerName: "Vai trò",
+      field: "Roles",
+      cellRenderer: (params) => renderCell(params.value?.join(", ") || null),
+      filter: true,
+      sortable: true,
+    },
     {
       headerName: "Actions",
       field: "actions",
       cellRenderer: (params) => (
-        <div>
-          <Button variant="info" size="sm" onClick={() => handleView(params.data)}>
-            View
-          </Button>{" "}
-          <Button variant="warning" size="sm" onClick={() => handleUpdate(params.data)}>
-            Update
-          </Button>{" "}
-          <Button variant="danger" size="sm" onClick={() => handleDelete(params.data)}>
-            Delete
+        <div className="d-flex gap-2 align-items-center">
+          <Button variant="primary" size="sm" onClick={() => handleView(params.data)}>
+            <ion-icon name="information-circle-outline"></ion-icon>
+          </Button>
+          <Button variant="danger" size="sm" >
+            Ban
           </Button>
         </div>
       ),
-      editable: false,
-      filter: false,
-      sortable: false,
-      width: 200,
     },
   ];
 
-  const resetFilters = useCallback(() => {
-    gridRef.current.api.setFilterModel(null);
-  }, []);
+  const getLocationCounts = (data) => {
+    const counts = {};
+    data.value.forEach((user) => {
+      const address = user.Profile?.Address || "Chưa cập nhật";
+      // Trích xuất thành phố (phần cuối cùng của địa chỉ sau dấu phẩy cuối cùng)
+      const city = address.split(",").pop().trim() || "Chưa cập nhật";
+      counts[city] = (counts[city] || 0) + 1;
+    });
+    return Object.entries(counts).map(([label, count]) => ({ label, count }));
+  };
 
-  const onExportClick = () => {
-    const worksheet = XLSX.utils.json_to_sheet(rowData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "AccountList");
-    XLSX.writeFile(workbook, "AccountList.xlsx");
+
+  const chartData = useMemo(() => {
+    if (data && data.value) {
+      return getLocationCounts(data);
+    }
+    return [];
+  }, [data]);
+
+  const options = {
+    data: chartData,
+    series: [
+      {
+        type: "pie",
+        angleKey: "count",
+        labelKey: "label",
+        innerRadiusRatio: 0.5,
+        calloutLabelKey: "label",
+        calloutLabel: {
+          enabled: true,
+        },
+        sectorLabelKey: "count",
+        sectorLabel: {
+          enabled: true,
+          formatter: ({ datum }) => `${datum.count}`,
+        },
+      },
+    ],
+    title: {
+      text: "Số lượng người dùng theo địa điểm",
+    },
+  };
+
+  const getRoleCounts = (data) => {
+    const counts = {};
+    data.value.forEach((user) => {
+      const roles = user.Roles || ["Chưa cập nhật"];
+      roles.forEach((role) => {
+        if (role.toLowerCase() !== "admin") {
+          counts[role] = (counts[role] || 0) + 1;
+        }
+      });
+    });
+    return Object.entries(counts).map(([label, count]) => ({ label, count }));
+  };
+
+  const chartDataRoles = useMemo(() => {
+    if (data && data.value) {
+      return getRoleCounts(data);
+    }
+    return [];
+  }, [data]);
+
+  const optionsRoles = {
+    data: chartDataRoles,
+    series: [
+      {
+        type: "bar",
+        xKey: "label",
+        yKey: "count",
+      },
+    ],
+    title: {
+      text: "Số lượng người dùng theo vai trò",
+    },
   };
 
   const handleView = (row) => {
-    console.log("Viewing row:", row);
+    setSelectedRow(row);
+    setIsModalOpen(true);
   };
 
-  const handleDelete = (row) => {
-    setRowToDelete(row);
-    setShowDeleteModal(true);
+  const closeModal = () => {
+    setSelectedRow(null);
+    setIsModalOpen(false);
   };
 
-  const confirmDelete = () => {
-    setRowData((prevData) => prevData.filter((item) => item.id !== rowToDelete.id));
-    setRowToDelete(null);
-    setShowDeleteModal(false);
-  };
-
-  const handleUpdate = (row) => {
-    setUpdateRow(row);
-    setShowUpdateModal(true);
-  };
-
-  const confirmUpdate = () => {
-    setRowData((prevData) =>
-      prevData.map((row) => (row.id === updateRow.id ? updateRow : row))
-    );
-    setShowUpdateModal(false);
-  };
-
-  const handleUpdateChange = (e) => {
-    const { name, value } = e.target;
-    setUpdateRow((prevRow) => ({ ...prevRow, [name]: value }));
-  };
-
-  const handleCellEditingStopped = (event) => {
-    const updatedRow = event.data;
-    setEditedRow(updatedRow);
-    setShowConfirmUpdateModal(true);
-  };
-
-  const handleConfirmUpdate = () => {
-    setRowData((prevData) =>
-      prevData.map((row) => (row.id === editedRow.id ? editedRow : row))
-    );
-    setEditedRow(null);
-    setShowConfirmUpdateModal(false);
-  };
+  if (isLoading) return <p>Loading...</p>;
+  if (isError) return <p>Error: {error.message}</p>;
 
   return (
     <div style={containerStyle}>
+       <Row className="mb-3">
+          <Col lg={8}>
+            <div style={{ width: "100%", }}>
+              <AgCharts options={options} />
+            </div>
+          </Col>
+  
+          <Col lg={4}>
+            <div style={{ width: "100%",}}>
+              <AgCharts options={optionsRoles} />
+            </div>
+          </Col>
+       </Row>
       <div className="example-wrapper">
-        <div className="d-flex justify-content-between">
-          <div>
-            <Button variant="primary">Thêm mới +</Button>
-          </div>
-          <div className="d-flex gap-3">
-            <Button variant="success" onClick={onExportClick} style={{ marginBottom: "10px", padding: "5px" }}>
-              Export to CSV
-            </Button>
-            <Button variant="warning" onClick={resetFilters} style={{ marginBottom: "10px", padding: "5px" }}>
-              Reset Filters
+        <div className="d-flex justify-content-between mb-2">
+          <FormControl
+            type="text"
+            placeholder="Tìm kiếm nhanh..."
+            className="w-25"
+            value={quickFilter}
+            onChange={(e) => setQuickFilter(e.target.value)}
+          />
+          <div className="d-flex gap-2">
+            <Button variant="success" className="text-nowrap">Thêm mới +</Button>
+            <Button variant="warning" className="text-nowrap" onClick={handleExportToExcel}>
+              Xuất file excel
             </Button>
           </div>
         </div>
         <div style={gridStyle} className={"ag-theme-alpine"}>
           <AgGridReact
             ref={gridRef}
-            rowData={rowData}
+            rowData={data.value}
             columnDefs={columnDefs}
             defaultColDef={{
               sortable: true,
               filter: true,
               resizable: true,
             }}
+            quickFilterText={quickFilter}
             pagination={true}
             paginationPageSize={10}
             rowSelection="multiple"
             suppressRowClickSelection={true}
             domLayout="autoHeight"
             animateRows={true}
-            onCellEditingStopped={handleCellEditingStopped}
+            enableCellTextSelection={true}
           />
         </div>
+
+      
       </div>
 
-      {/* Modal cập nhật */}
-      <Modal show={showUpdateModal} onHide={() => setShowUpdateModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Cập nhật dữ liệu</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group controlId="formName">
-              <Form.Label>Người dùng</Form.Label>
-              <Form.Control
-                type="text"
-                name="name"
-                value={updateRow?.name || ""}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formAddress" className="mt-2">
-              <Form.Label>Địa chỉ</Form.Label>
-              <Form.Control
-                type="text"
-                name="address"
-                value={updateRow?.address || ""}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formPhone" className="mt-2">
-              <Form.Label>Số điện thoại</Form.Label>
-              <Form.Control
-                type="text"
-                name="phone"
-                value={updateRow?.phone || ""}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formEmail" className="mt-2">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                type="email"
-                name="email"
-                value={updateRow?.email || ""}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowUpdateModal(false)}>
-            Hủy
-          </Button>
-          <Button variant="primary" onClick={confirmUpdate}>
-            Cập nhật
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      {/* Modal chi tiết */}
+      <ReactModal
+        isOpen={isModalOpen}
+        onRequestClose={closeModal}
+        contentLabel="Chi tiết người dùng"
+        style={{
+          content: {
+            top: "50%",
+            left: "50%",
+            right: "auto",
+            bottom: "auto",
+            marginRight: "-50%",
+            transform: "translate(-50%, -50%)",
+            width: "500px",
+            padding: "20px",
+          },
+          overlay: {
+            backgroundColor: "rgba(0, 0, 0, 0.75)",
+          },
+        }}
+      >
+        <h4 className="mb-4">Chi tiết người dùng</h4>
+        {selectedRow && (
+          <Row>
+            <Col xs={6} className="mb-2">
+              <strong>ID:</strong> {selectedRow.UserId || <span style={{ color: "red" }}>Chưa cập nhật</span>}
+            </Col>
+            <Col xs={6} className="mb-2">
+              <strong>Tên:</strong> {selectedRow.FullName || <span style={{ color: "red" }}>Chưa cập nhật</span>}
+            </Col>
+            <Col xs={6} className="mb-2">
+              <strong>Email:</strong> {selectedRow.Email || <span style={{ color: "red" }}>Chưa cập nhật</span>}
+            </Col>
+            <Col xs={6} className="mb-2">
+              <strong>Số sao:</strong> {selectedRow.Star ?? <span style={{ color: "red" }}>Chưa cập nhật</span>}
+            </Col>
+            <Col xs={6} className="mb-2">
+              <strong>Số kết nối:</strong> {selectedRow.CountConnect ?? <span style={{ color: "red" }}>Chưa cập nhật</span>}
+            </Col>
+            <Col xs={6} className="mb-2">
+              <strong>Địa chỉ:</strong> {selectedRow.Profile?.Address || <span style={{ color: "red" }}>Chưa cập nhật</span>}
+            </Col>
+            <Col xs={6} className="mb-2">
+              <strong>Vai trò:</strong> {selectedRow.Roles?.join(", ") || <span style={{ color: "red" }}>Chưa cập nhật</span>}
+            </Col>
+            <Col xs={6} className="mb-2">
+              <strong>Ngày sinh:</strong> {selectedRow.CCCD?.Dob || <span style={{ color: "red" }}>Chưa cập nhật</span>}
+            </Col>
+            <Col xs={6} className="mb-2">
+              <strong>Giới tính:</strong> {selectedRow.CCCD?.Sex || <span style={{ color: "red" }}>Chưa cập nhật</span>}
+            </Col>
+            <Col xs={6} className="mb-2">
+              <strong>Tuổi:</strong> {selectedRow.CCCD?.Age ?? <span style={{ color: "red" }}>Chưa cập nhật</span>}
+            </Col>
+            {selectedRow.Profile?.ImageUser && (
+              <Col xs={12} className="mt-3">
+                <strong>Ảnh đại diện:</strong>
+                <div className="mt-2">
+                  <img
+                    src={selectedRow.Profile.ImageUser}
+                    alt="User Avatar"
+                    style={{ maxWidth: "100%", maxHeight: "200px", borderRadius: "5px" }}
+                  />
+                </div>
+              </Col>
+            )}
+          </Row>
+        )}
 
-      <ConfirmModal
-        show={showDeleteModal}
-        onHide={() => setShowDeleteModal(false)}
-        onConfirm={confirmDelete}
-        title="Xác nhận xóa"
-        message="Bạn có chắc chắn muốn xóa hàng này không?"
-      />
-
-      <ConfirmModal
-        show={showConfirmUpdateModal}
-        onHide={() => setShowConfirmUpdateModal(false)}
-        onConfirm={confirmUpdate}
-        title="Xác nhận cập nhật"
-        message="Bạn có muốn cập nhật hàng này không?"
-      />
+        <Button variant="danger" onClick={closeModal} className="mt-4">
+          Đóng
+        </Button>
+      </ReactModal>
     </div>
   );
 };
