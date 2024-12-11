@@ -23,7 +23,7 @@
     content: counter(test);
     width: 50px;
     height: 50px;
-    border: 3px solid #E65C00;
+    border: 3px solid #198754;
     border-radius: 50%;
     display: block;
     text-align: center;
@@ -54,17 +54,17 @@
     color: #555555;
   }
   .timeline_contract li.active-tl:before{
-    background: #E65C00;
+    background: #198754;
     color: #F1F1F1;
   }
   
   .timeline_contract li.active-tl + li:after{
-    background: #E65C00;
+    background: #198754;
   }
 
 /* Định dạng cho trạng thái active */
 .timeline_contract li.active-tl {
-  color: #E65C00; /* Màu chữ cho bước active */
+  color: #198754; /* Màu chữ cho bước active */
 }
 
 

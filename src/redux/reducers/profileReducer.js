@@ -1,4 +1,4 @@
-import { VIEW_PROFILE, VIEW_PROFILE_LOADING, VIEW_PROFILE_ERROR, CLEAR_TRIP } from "../actionTypes";
+import { VIEW_PROFILE, VIEW_PROFILE_LOADING, VIEW_PROFILE_ERROR, CLEAR_TRIP, DELETE_POST } from "../actionTypes";
 
 const initialState = {
   profile: null,
@@ -80,6 +80,14 @@ const profileReducer = (state = initialState, action) => {
         error: {
           ...state.error,
           trip: null,
+        }
+      };
+    case DELETE_POST:
+      return {
+        ...state,
+        trip: {
+          ...state.trip,
+          $values: state.trip.$values.filter(post => post.pastTripPostId !== action.payload.postId)
         }
       };
     default:

@@ -6,6 +6,7 @@ import RoutePath from '../../routes/RoutePath';
 
 function FinishContract() {
   const user = useSelector((state) => state.auth.user);
+  
   return (
     <div className="">
       <Row>

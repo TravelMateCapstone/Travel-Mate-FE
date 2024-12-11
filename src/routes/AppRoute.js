@@ -46,6 +46,7 @@ import Regulation from "../pages/Regulation"
 import FailContract from "../pages/Contracts/FailContract"
 import Login from "../pages/Auth/Auth"
 import Destinationmanagement from "../pages/Admin/Destinationmanagement"
+import FinishContractTraveller from "../pages/Contracts/FinishContractTraveller"
 
 const publishRoutes = [
     { path: RoutePath.AUTH, component: Login, layout: null },
@@ -91,6 +92,7 @@ const privateRoutes = [
     { path: RoutePath.ONGOING_CONTRACT, component: OngoingContract, layout: ContractLayout },
     { path: RoutePath.PAYMENT_CONTRACT, component: PaymentContract, layout: ContractLayout },
     { path: RoutePath.PAYMENT_FAILED_CONTRACT, component: FailContract, layout: ContractLayout },
+    { path: RoutePath.FINISH_CONTRACT_TRAVELLER, component: FinishContractTraveller, layout: ContractLayout },
 
     { path: RoutePath.LOCAL_STATICTIS, component: LocalIncomeStaticstic, layout: AdminLayout },
     { path: RoutePath.LOCAL_CALENDAR_MANAGEMENT, component: CalendarManagement, layout: AdminLayout },

@@ -1,4 +1,4 @@
-import { VIEW_PROFILE, VIEW_PROFILE_LOADING, VIEW_PROFILE_ERROR, CLEAR_TRIP } from "../actionTypes";
+import { VIEW_PROFILE, VIEW_PROFILE_LOADING, VIEW_PROFILE_ERROR, CLEAR_TRIP, DELETE_POST } from "../actionTypes";
 import axios from 'axios';
 
 // Action creator for viewing profile
@@ -48,4 +48,11 @@ export const viewProfile = (userId, token) => async (dispatch) => {
       console.error(`Error fetching ${prop} data`, error);
     }
   }
+};
+
+export const deletePost = (postId) => (dispatch) => {
+  dispatch({
+    type: DELETE_POST,
+    payload: { postId }
+  });
 };

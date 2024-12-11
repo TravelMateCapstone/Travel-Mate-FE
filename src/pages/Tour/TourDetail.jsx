@@ -15,6 +15,9 @@ function TourDetail() {
     const tourData = useSelector((state) => state.tour?.tour);
     const navigate = useNavigate();
     const token = useSelector((state) => state.auth.token);
+
+    console.log(tourData);
+
     
     const handelJointTour = async (tourId) => {
         try {
@@ -27,7 +30,7 @@ function TourDetail() {
                     },
                 }
             );
-            console.log(response.data);
+     
             navigate(RoutePath.CREATE_CONTRACT);
         } catch (error) {
             console.error("Error joining tour:", error);
@@ -36,6 +39,7 @@ function TourDetail() {
             }
         }
     };
+
 
     if (!tourData) {
         return (
@@ -209,7 +213,11 @@ function TourDetail() {
                                     </div>
                                     <div className="d-flex gap-3">
                                         <Button variant="outline-secondary">🔥 Nhắn tin!</Button>
-                                        <Button variant="outline-success" onClick={() => handelJointTour(tourData.tourId)}>🚀 Đặt chỗ ngay</Button>
+                                        {(tourData.registeredGuests < tourData.maxGuests) ? (
+                                            <Button variant="outline-success" onClick={() => handelJointTour(tourData.tourId)}>🚀 Đặt chỗ ngay</Button>
+                                        ) : (
+                                            <Button variant="outline-dark" disabled><ion-icon name="sad-outline"></ion-icon> Đã đủ số lượng</Button>
+                                        )}
                                     </div>
                                 </div>
                             </div>

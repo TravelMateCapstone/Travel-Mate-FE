@@ -47,3 +47,5 @@ export const FETCH_TOUR_ERROR = 'FETCH_TOUR_ERROR';
 export const SEARCH_TOUR = 'SEARCH_TOUR';
 
 export const SAVE_SIGNATURE = 'SAVE_SIGNATURE';
+
+export const DELETE_POST = 'DELETE_POST';

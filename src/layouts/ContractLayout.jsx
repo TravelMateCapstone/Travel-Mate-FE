@@ -60,7 +60,9 @@ function ContractLayout({ children }) {
                                     fontWeight: 'bold',
                                 }}>Hợp đồng</p>
                             </div>
-                            {/* <p>Hiện tại không có hợp đồng nào được tạo cho chuyến đi.  Hãy tìm và kết nối với người bạn thích hợp để trải nghiệm</p> */}
+                           {location.pathname !== RoutePath.CREATE_CONTRACT && (
+                            <p>Hợp đồng kết nối giữa khách du lịch và người địa phương đảm bảo cam kết hỗ trợ lưu trú ngắn hạn và trải nghiệm văn hóa địa phương, với các điều khoản rõ ràng về an toàn và tôn trọng lẫn nhau.</p>
+                           )}
                         </div>
                         {rightContent}
                     </div>
