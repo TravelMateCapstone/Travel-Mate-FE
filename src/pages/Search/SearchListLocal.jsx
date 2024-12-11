@@ -47,25 +47,27 @@ function SearchListLocal() {
 
   const fetchLocals = async () => {
     try {
-      const response = await axios.get('https://travelmateapp.azurewebsites.net/odata/ApplicationUsers');
-      const profiles = response.data.value.map((user) => ({
-        id: user.UserId,
-        avatar: user.Profile?.ImageUser || 'https://img.freepik.com/premium-vector/default-avatar-profile-icon_561158-3467.jpg',
-        name: user.FullName || 'Chưa xác định',
-        age: user.CCCD?.Age || 'Chưa xác định',
-        gender: user.CCCD?.Sex || 'Chưa xác định',
-        address: user.Profile?.Address || 'Chưa xác định',
+      const response = await axios.get('https://travelmateapp.azurewebsites.net/GetUsersWithDetail-byRole/local');
+      const profiles = response.data.$values.map((user) => ({
+        id: user.userId,
+        avatar: user.profile?.imageUser || 'https://img.freepik.com/premium-vector/default-avatar-profile-icon_561158-3467.jpg',
+        name: user.fullName || 'Chưa xác định',
+        age: user.cccd?.age || 'Chưa xác định',
+        gender: user.cccd?.sex || 'Chưa xác định',
+        address: user.profile?.address || 'Chưa xác định',
         description: '',
-        rating: user.Star,
-        connections: user.CountConnect,
+        rating: user.star || 0,
+        connections: user.countConnect || 0,
         activeTime: 'Chưa xác định',
-        hobbies: allHobbies.filter((hobby) => user.ActivityIds.includes(hobby.id)).map((hobby) => hobby.name),
+        hobbies: user.activityIds.$values || [],
+        locations: user.locationIds.$values || []
       }));
       setLocals(profiles);
     } catch (error) {
       console.error('Error fetching locals:', error);
     }
   };
+
   const token = useSelector((state) => state.auth.token);
 
   const fetchLocations = async () => {
@@ -92,7 +94,7 @@ function SearchListLocal() {
     const matchesGender = !gender || local.gender.toLowerCase() === gender.toLowerCase();
     const matchesAge = local.age === 'Chưa xác định' || (local.age >= ageRange[0] && local.age <= ageRange[1]);
     const matchesHobby = selectedHobbies.length === 0 || selectedHobbies.every((hobby) => local.hobbies.includes(hobby));
-    const matchesLocation = !selectedLocation || local.address.includes(selectedLocation);
+    const matchesLocation = !selectedLocation || local.locations.includes(selectedLocation);
 
     return matchesName && matchesAddress && matchesGender && matchesAge && matchesHobby && matchesLocation;
   });
@@ -135,8 +137,8 @@ function SearchListLocal() {
               onChange={(e) => setGender(e.target.value)}
             >
               <option value="">Tất cả</option>
-              <option value="Nam">Nam</option>
-              <option value="Nữ">Nữ</option>
+              <option value="Male">Nam</option>
+              <option value="Female">Nữ</option>
             </Form.Select>
           </Form.Group>
 

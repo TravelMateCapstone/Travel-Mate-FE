@@ -110,24 +110,25 @@ const Signature = () => {
             };
 
             // Send publicKey to API with Bearer Token
-            // const response = await fetch(
-            //     "https://travelmateapp.azurewebsites.net/api/CCCD/add-publicKey",
-            //     {
-            //         method: "PUT",
-            //         headers: {
-            //             "Content-Type": "application/json",
-            //             Authorization: `Bearer ${token}`,
-            //         },
-            //         body: JSON.stringify({ publicSignature: JSON.stringify(exportedPublicKey) }),
-            //     }
-            // );
+            console.log("public key", publicKey);
+            const response = await fetch(
+                "https://travelmateapp.azurewebsites.net/api/CCCD/add-publicKey",
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ publicSignature: JSON.stringify(exportedPublicKey) }),
+                }
+            );
 
-            // if (!response.ok) {
-            //     alert("Lỗi khi gửi publicKey tới API");
-            //     return;
-            // }
+            if (!response.ok) {
+                alert("Lỗi khi gửi publicKey tới API");
+                return;
+            }
 
-            // alert("Public key đã được gửi thành công!");
+            alert("Public key đã được gửi thành công!");
 
             // Update signatures
             const updatedSignatures = [...signatures];
