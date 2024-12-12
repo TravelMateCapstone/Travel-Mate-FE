@@ -27,6 +27,8 @@ function TourCard({ tour, onTourUpdated }) {
     const [costDetails, setCostDetails] = useState([]);
     const [managementModalIsOpen, setManagementModalIsOpen] = useState(false);
     const [participants, setParticipants] = useState([]);
+    const [locations, setLocations] = useState([]);
+
     const [tourDetails, setTourDetails] = useState({
         tourName: '',
         price: 0,
@@ -46,13 +48,43 @@ function TourCard({ tour, onTourUpdated }) {
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
-        // Calculate price whenever costDetails change
-        const totalCost = costDetails.reduce((acc, cost) => acc + parseFloat(cost.amount || 0), 0);
-        setTourDetails(prevDetails => ({
+        const fetchLocations = async () => {
+            try {
+                const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Locations');
+                if (response.data && response.data.$values) {
+                    setLocations(response.data.$values); // Lưu danh sách địa điểm vào state
+                }
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu địa điểm:', error);
+            }
+        };
+
+        fetchLocations();
+    }, []);
+
+    useEffect(() => {
+        // Tính tổng giá trị của các hoạt động
+        const totalActivityCost = activities.reduce((activitySum, activity) => {
+            const activityDayCost = activity.activities.reduce(
+                (daySum, act) => daySum + parseFloat(act.activityAmount || 0),
+                0
+            );
+            return activitySum + activityDayCost;
+        }, 0);
+
+        // Tính tổng chi phí khác
+        const totalCostDetail = costDetails.reduce(
+            (costSum, cost) => costSum + parseFloat(cost.amount || 0),
+            0
+        );
+
+        // Cập nhật giá tour
+        setTourDetails((prevDetails) => ({
             ...prevDetails,
-            price: totalCost,
+            price: totalActivityCost + totalCostDetail,
         }));
-    }, [costDetails]);
+    }, [activities, costDetails]);
+
 
     const handleOpenManagementModal = async () => {
         try {
@@ -400,8 +432,16 @@ function TourCard({ tour, onTourUpdated }) {
                                         <Form.Control type="number" value={tourDetails.numberOfNights} onChange={(e) => setTourDetails({ ...tourDetails, numberOfNights: e.target.value })} />
                                     </Form.Group>
                                     <Form.Group className="mb-3 form-group-custom-create-tour">
-                                        <Form.Label>Địa Điểm</Form.Label>
-                                        <Form.Control type="text" value={tourDetails.location} onChange={(e) => setTourDetails({ ...tourDetails, location: e.target.value })} />
+                                        <Form.Label style={{
+                                            width: '180px',
+                                        }}>Chọn địa điểm</Form.Label>
+                                        <Form.Select aria-label="Default select example">
+                                            {locations.map((location) => (
+                                                <option key={location.locationId} value={location.locationName}>
+                                                    {location.locationName}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
                                     </Form.Group>
                                     <Form.Group className="mb-3 form-group-custom-create-tour">
                                         <Form.Label>Số Khách Tối Đa</Form.Label>

@@ -114,7 +114,7 @@ function TourDetail() {
                                 id="controlled-tab-example"
                                 activeKey={key}
                                 onSelect={(k) => setKey(k)}
-                                className="my-3 no-border-radius"
+                                className="my-3 no-border-radius fixed-size-tabs"
                             >
                                 <Tab eventKey="home" title="Lịch trình">
                                     <Placeholder as="div" animation="glow">
@@ -164,10 +164,10 @@ function TourDetail() {
                                     alt="thumbnail"
                                     loading="lazy"
                                     width={793}
-                                    height={415}
+                                    height={'100%'}
                                     decoding="async"
                                     data-nimg={1}
-                                    className="tour-detail_mainImg___iF_K"
+                                    className="rounded-4"
                                     style={{ color: "transparent" }}
                                     src={tourData.tourImage}
                                 />
@@ -185,8 +185,8 @@ function TourDetail() {
                                             <ion-icon key={i} name="star-outline"></ion-icon>
                                         ))}
                                     </div>
-                                    <p>{tourData.creator.totalTrips} chuyến đi</p>
-                                    <p>Tham gia từ {new Date(tourData.creator.joinedAt).getFullYear()}</p>
+                                    <p className="mb-0">{tourData.creator.totalTrips} chuyến đi</p>
+                                    <p className="mb-0">Tham gia từ {new Date(tourData.creator.joinedAt).getFullYear()}</p>
                                 </div>
                                 <div className="border-1 p-3 rounded-4 mt-3">
                                     <div className="flex flex-col tour-form_gap__N_UmA ">
@@ -226,9 +226,9 @@ function TourDetail() {
                             id="controlled-tab-example"
                             activeKey={key}
                             onSelect={(k) => setKey(k)}
-                            className="my-3 no-border-radius"
+                            className="my-3 no-border-radius "
                         >
-                            <Tab eventKey="home" title="Lịch trình">
+                            <Tab className="fixed-size-tabs" eventKey="home" title="Lịch trình">
                                 <Accordion defaultActiveKey="0">
                                     {tourData.itinerary.$values.map((day, index) => (
                                         <Accordion.Item eventKey={index.toString()} key={index}>
@@ -247,14 +247,14 @@ function TourDetail() {
                                     ))}
                                 </Accordion>
                             </Tab>
-                            <Tab eventKey="profile" title="Chi phí">
+                            <Tab className="fixed-size-tabs" eventKey="profile" title="Chi phí">
                                 <ul>
                                     {tourData.costDetails.$values.map((cost, index) => (
                                         <li key={index}>{cost.title}: {cost.amount.toLocaleString()}₫ - {cost.notes}</li>
                                     ))}
                                 </ul>
                             </Tab>
-                            <Tab eventKey="contact" title="Quy định">
+                            <Tab className="fixed-size-tabs" eventKey="contact" title="Quy định">
                                 <div dangerouslySetInnerHTML={{ __html: tourData.additionalInfo }} />
                             </Tab>
                         </Tabs>

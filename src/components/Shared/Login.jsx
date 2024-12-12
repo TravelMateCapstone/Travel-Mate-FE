@@ -51,15 +51,13 @@ const Login = ({ show, handleClose }) => {
           FullName: claim.FullName,
           emailaddress: claim["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"]
         }
-
         // Lưu token vào localStorage
         localStorage.setItem('token', token);
 
+        
+
         // Dispatch dữ liệu người dùng vào store
         dispatch(loginSuccess({ user, token }));
-
-
-
         // Kiểm tra role và chuyển hướng nếu là admin
         if (user.role === 'admin') {
           navigate(RoutePath.ADMIN); // Chuyển hướng đến trang admin
