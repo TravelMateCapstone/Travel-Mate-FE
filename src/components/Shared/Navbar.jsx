@@ -44,16 +44,17 @@ const Navbar = React.memo(() => {
   const [navigateTo, setNavigateTo] = useState(RoutePath.DESTINATION);
 
   const handleSearchDestination = useCallback(() => {
-    setNavigateTo(RoutePath.DESTINATION);
+    navigate(RoutePath.DESTINATION);
   }, [navigate]);
 
   const handleSearchLocal = useCallback(() => {
-    setNavigateTo(RoutePath.SEARCH_LIST_LOCAL);
+    navigate(RoutePath.SEARCH_LIST_LOCAL);
   }, [navigate]);
 
   const handleSearchTraveller = useCallback(() => {
-    setNavigateTo(RoutePath.SEARCH_LIST_TRAVELLER);
+    navigate(RoutePath.SEARCH_LIST_TRAVELLER);
   }, [navigate]);
+
 
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
@@ -259,7 +260,6 @@ const Navbar = React.memo(() => {
   }, [notifications]);
 
   // search
-
   const [locations, setLocations] = useState([]);
   const [filteredLocations, setFilteredLocations] = useState([]);
   const [searchInput, setSearchInput] = useState('');
@@ -313,16 +313,11 @@ const Navbar = React.memo(() => {
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchInput(value);
-    if (value.trim() === '') {
-      setFilteredLocations([]);
-      return;
-    }
-    if (navigateTo === RoutePath.DESTINATION) {
-      const filtered = locations.filter((location) =>
-        removeVietnameseTones(location.locationName.toLowerCase()).includes(removeVietnameseTones(value.toLowerCase()))
-      );
-      setFilteredLocations(filtered.slice(0, 5));
-    }
+
+    const filtered = locations.filter((location) =>
+      removeVietnameseTones(location.locationName.toLowerCase()).includes(removeVietnameseTones(value.toLowerCase()))
+    );
+    setFilteredLocations(filtered.slice(0, 5));
   };
 
   const handleLocationSelect = (location) => {
@@ -338,7 +333,6 @@ const Navbar = React.memo(() => {
       navigate(RoutePath.SEARCH_LIST_TRAVELLER, { state: { selectedLocation: location } });
     }
   };
-
 
   // Cập nhật giao diện khi thay đổi `location.pathname`
   useEffect(() => {
