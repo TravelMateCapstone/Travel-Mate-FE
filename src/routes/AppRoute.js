@@ -46,7 +46,7 @@ import FailContract from "../pages/Contracts/FailContract"
 import Login from "../pages/Auth/Auth"
 import Destinationmanagement from "../pages/Admin/Destinationmanagement"
 import FinishContractTraveller from "../pages/Contracts/FinishContractTraveller"
-
+import SearchListTraveller from "../pages/Search/SearchListTraveller"
 const publishRoutes = [
     { path: RoutePath.AUTH, component: Login, layout: null },
 ]
