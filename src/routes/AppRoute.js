@@ -39,7 +39,6 @@ import LocalWalletManagement from "../pages/Local/LocalWalletManagement"
 import PlanManagemnet from "../pages/Local/PlanManagemnet"
 import Destination from "../pages/Destination/Destination"
 import SearchListLocal from "../pages/Search/SearchListLocal"
-import SearchListTraveller from "../pages/Search/SearchListTraveller"
 import MyProfile from "../pages/ProfileManagement/MyProfile"
 import TourDetail from "../pages/Tour/TourDetail"
 import Regulation from "../pages/Regulation"
@@ -72,7 +71,7 @@ const privateRoutes = [
     { path: RoutePath.EVENT_CREATED, component: EventList, layout: ListLayout },
     { path: RoutePath.EVENT_JOINED, component: EventList, layout: ListLayout },
     { path: RoutePath.SEARCH_LIST_LOCAL, component: SearchListLocal, layout: NavBarLayout },
-    { path: RoutePath.SEARCH_LIST_TRAVELLER, component: SearchListTraveller, layout: ListLayout },
+    { path: RoutePath.SEARCH_LIST_TRAVELLER, component: SearchListTraveller, layout: NavBarLayout },
     { path: RoutePath.EVENT_DETAILS, component: EventJoined, layout: DetailLayout },
     { path: RoutePath.EVENT_MANAGEMENT, component: EventCreated, layout: DetailLayout },
 

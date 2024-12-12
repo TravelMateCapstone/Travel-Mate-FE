@@ -192,7 +192,6 @@ function AboutMe() {
         }
     };
 
-
     const handleDeleteHobby = async (hobbyId) => {
         try {
             await axios.delete(`https://travelmateapp.azurewebsites.net/api/UserActivitiesWOO/current-user/${hobbyId}`, {

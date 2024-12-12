@@ -124,11 +124,41 @@ const Signature = () => {
             // Cập nhật danh sách chữ ký (chỉ lưu một chữ ký)
             const signatureData = {
                 publicKey: exportedPublicKey,
-                image: image,
-                name: name
             };
-            setSignatures([signatureData]);
-            localStorage.setItem("signatures", JSON.stringify([signatureData])); // Save to local storage
+
+            // Send publicKey to API with Bearer Token
+            console.log("public key", publicKey);
+            const response = await fetch(
+                "https://travelmateapp.azurewebsites.net/api/CCCD/add-publicKey",
+                {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({ publicSignature: JSON.stringify(exportedPublicKey) }),
+                }
+            );
+
+            if (!response.ok) {
+                alert("Lỗi khi gửi publicKey tới API");
+                return;
+            }
+
+            alert("Public key đã được gửi thành công!");
+
+            // Update signatures
+            const updatedSignatures = [...signatures];
+            const existingIndex = updatedSignatures.findIndex((sig) => sig.name === name);
+
+            if (existingIndex !== -1) {
+                updatedSignatures[existingIndex] = signatureData;
+            } else {
+                updatedSignatures.push(signatureData);
+            }
+
+            setSignatures(updatedSignatures);
+            localStorage.setItem("signatures", JSON.stringify(updatedSignatures));
             clearCanvas();
         } catch (error) {
             console.error("Lỗi khi tạo chữ ký:", error);
