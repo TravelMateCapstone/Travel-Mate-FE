@@ -9,6 +9,8 @@ import ReactModal from "react-modal";
 import { Button, FormControl, Row, Col } from "react-bootstrap";
 import { utils, writeFile } from "xlsx";
 import { AgCharts } from "ag-charts-react";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 // Đăng ký module
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
@@ -28,8 +30,20 @@ const AccountList = () => {
   const [selectedRow, setSelectedRow] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [quickFilter, setQuickFilter] = useState("");
+  const [bannedUsers, setBannedUsers] = useState({}); // Lưu trạng thái "Cấm" theo userId
+
 
   const { data, isLoading, isError, error } = useQuery("users", fetchUserData);
+
+  const handleToggleBan = (userId) => {
+    setBannedUsers((prevState) => {
+      const isBanned = prevState[userId];
+      const updatedState = { ...prevState, [userId]: !isBanned };
+      // Hiển thị toast thông báo
+      toast.success(isBanned ? "Mở cấm người dùng thành công" : "Cấm người dùng thành công");
+      return updatedState;
+    });
+  };
 
   const handleExportToExcel = () => {
     if (!data || !data.value) return;
@@ -69,71 +83,107 @@ const AccountList = () => {
     );
   };
 
+  const handleBanUser = (userId) => {
+    // Logic to ban the user
+    toast.success("Cấm người dùng thành công");
+  };
+
   const columnDefs = [
     {
       headerName: "ID",
       field: "UserId",
       cellRenderer: (params) => renderCell(params.value),
-      filter: true,
+      filter: "agTextColumnFilter", // Text filter
       sortable: true,
     },
     {
       headerName: "Tên người dùng",
       field: "FullName",
       cellRenderer: (params) => renderCell(params.value),
-      filter: true,
+      filter: "agTextColumnFilter", // Text filter
       sortable: true,
     },
     {
       headerName: "Email",
       field: "Email",
       cellRenderer: (params) => renderCell(params.value),
-      filter: true,
+      filter: "agTextColumnFilter", // Text filter
       sortable: true,
     },
     {
       headerName: "Địa chỉ",
       field: "Profile.Address",
       cellRenderer: (params) => renderCell(params.value),
-      filter: true,
+      filter: "agTextColumnFilter", // Text filter
       sortable: true,
     },
     {
       headerName: "Số sao",
       field: "Star",
       cellRenderer: (params) => renderCell(params.value !== undefined ? params.value : null),
-      filter: true,
+      filter: "agNumberColumnFilter", // Number filter
       sortable: true,
     },
     {
       headerName: "Số kết nối",
       field: "CountConnect",
       cellRenderer: (params) => renderCell(params.value !== undefined ? params.value : null),
-      filter: true,
+      filter: "agNumberColumnFilter", // Number filter
       sortable: true,
     },
     {
       headerName: "Vai trò",
       field: "Roles",
       cellRenderer: (params) => renderCell(params.value?.join(", ") || null),
-      filter: true,
+      filter: "agSetColumnFilter", // Set filter
+      sortable: true,
+    },
+    {
+      headerName: "Ngày sinh",
+      field: "CCCD.Dob",
+      cellRenderer: (params) => renderCell(params.value),
+      filter: "agDateColumnFilter", // Date filter
+      sortable: true,
+    },
+    {
+      headerName: "Giới tính",
+      field: "CCCD.Sex",
+      cellRenderer: (params) => renderCell(params.value),
+      filter: "agSetColumnFilter", // Set filter
+      sortable: true,
+    },
+    {
+      headerName: "Tuổi",
+      field: "CCCD.Age",
+      cellRenderer: (params) => renderCell(params.value !== undefined ? params.value : null),
+      filter: "agNumberColumnFilter", // Number filter
       sortable: true,
     },
     {
       headerName: "Hành động",
       field: "actions",
-      cellRenderer: (params) => (
-        <div className="d-flex gap-2 align-items-center">
-          <Button variant="primary" size="sm" onClick={() => handleView(params.data)}>
-            <ion-icon name="information-circle-outline"></ion-icon>
-          </Button>
-          <Button variant="danger" size="sm" >
-            Cấm
-          </Button>
-        </div>
-      ),
+      cellRenderer: (params) => {
+        const userId = params.data.UserId;
+        const isBanned = bannedUsers[userId];
+        return (
+          <div className="d-flex gap-2 align-items-center">
+            <Button variant="primary" size="sm" onClick={() => handleView(params.data)}>
+              <ion-icon name="information-circle-outline"></ion-icon>
+            </Button>
+            <Button
+              variant={isBanned ? "success" : "danger"}
+              size="sm"
+              onClick={() => handleToggleBan(userId)}
+            >
+              {isBanned ? "Mở cấm" : "Cấm"}
+            </Button>
+          </div>
+        );
+      },
     },
+    
   ];
+  
 
   const getLocationCounts = (data) => {
     const counts = {};
@@ -353,6 +403,7 @@ const AccountList = () => {
           Đóng
         </Button>
       </ReactModal>
+      <ToastContainer />
     </div>
   );
 };

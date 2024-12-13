@@ -7,6 +7,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Button, Modal, Form } from "react-bootstrap";
 import ConfirmModal from "../../components/Shared/ConfirmModal";
+import { toast } from "react-toastify";
 
 // Chỉ Đăng ký các mô-đun từ Community
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
@@ -48,7 +49,7 @@ const Transaction = () => {
       valueGetter: (params) => params.data.sender.name,
       cellRenderer: (params) => <div>{params.value}</div>,
       editable: false,
-      filter: true,
+      filter: "agTextColumnFilter",
     },
     {
       headerName: "Người nhận",
@@ -56,7 +57,7 @@ const Transaction = () => {
       valueGetter: (params) => params.data.receiver.name,
       cellRenderer: (params) => <div>{params.value}</div>,
       editable: false,
-      filter: true,
+      filter: "agTextColumnFilter",
     },
     {
       headerName: "Tình trạng",
@@ -66,31 +67,30 @@ const Transaction = () => {
       cellEditorParams: {
         values: ["Đã hoàn thành", "Đang giao dịch"],
       },
+      filter: "agSetColumnFilter",
     },
     {
       headerName: "Thời gian giao dịch",
       field: "transactionTime",
       editable: false,
-      filter: true,
+      filter: "agDateColumnFilter",
     },
     {
       headerName: "Số tiền",
       field: "amount",
       editable: false,
+      filter: "agNumberColumnFilter",
     },
     {
-      headerName: "Actions",
+      headerName: "Hành động",
       field: "actions",
       cellRenderer: (params) => (
         <div>
           <Button variant="info" size="sm" onClick={() => handleView(params.data)}>
             View
           </Button>{" "}
-          <Button variant="warning" size="sm" onClick={() => handleUpdate(params.data)}>
-            Update
-          </Button>{" "}
-          <Button variant="danger" size="sm" onClick={() => handleDelete(params.data)}>
-            Delete
+          <Button variant="success" size="sm" onClick={() => handleRefund(params.data)}>
+            Hoàn tiền
           </Button>
         </div>
       ),
@@ -155,12 +155,16 @@ const Transaction = () => {
     setUpdateRow((prevRow) => ({ ...prevRow, [name]: value }));
   };
 
+  const handleRefund = (row) => {
+    toast.success("Đã hoàn tiền thành công!");
+    console.log("Refunding row:", row);
+  };
+
   return (
     <div style={containerStyle}>
       <div className="example-wrapper">
         <div className="d-flex justify-content-between">
           <div>
-            <Button variant="primary">Thêm mới +</Button>
           </div>
           <div className="d-flex gap-3">
             <Button
@@ -177,8 +181,16 @@ const Transaction = () => {
             >
               Reset Filters
             </Button>
+            
           </div>
         </div>
+        <input
+            className="form-control"
+              type="text"
+              placeholder="Tìm kiếm"
+              onInput={(e) => gridRef.current.api.setQuickFilter(e.target.value)}
+              style={{ marginBottom: "10px", padding: "5px" }}
+            />
         <div style={gridStyle} className={"ag-theme-alpine"}>
           <AgGridReact
             ref={gridRef}

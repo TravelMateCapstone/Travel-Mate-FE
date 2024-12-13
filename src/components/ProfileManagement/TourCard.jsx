@@ -16,6 +16,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import TextareaAutosize from 'react-textarea-autosize';
 import Switch from '../Shared/Switch';
+import ConfirmModal from '../Shared/ConfirmModal';
 Modal.setAppElement('#root');
 
 function TourCard({ tour, onTourUpdated }) {
@@ -28,6 +29,8 @@ function TourCard({ tour, onTourUpdated }) {
     const [managementModalIsOpen, setManagementModalIsOpen] = useState(false);
     const [participants, setParticipants] = useState([]);
     const [locations, setLocations] = useState([]);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [tourToDelete, setTourToDelete] = useState(null);
 
     const [tourDetails, setTourDetails] = useState({
         tourName: '',
@@ -185,17 +188,24 @@ function TourCard({ tour, onTourUpdated }) {
         setIsGlobalContract(isOn);
     };
 
-    const handleDelete = async (tourId) => {
+    const handleDelete = async () => {
         try {
-            await axios.delete(`https://travelmateapp.azurewebsites.net/api/Tour/${tourId}`, {
+            await axios.delete(`https://travelmateapp.azurewebsites.net/api/Tour/${tourToDelete}`, {
                 headers: {
                     Authorization: `${token}`
                 }
             });
-            alert("Xóa tour thành công!");
+            toast.success('Xóa tour thành công !');
+            setShowConfirmModal(false);
+            onTourUpdated();
         } catch (error) {
             console.error("There was an error deleting the tour!", error);
         }
+    };
+
+    const confirmDelete = (tourId) => {
+        setTourToDelete(tourId);
+        setShowConfirmModal(true);
     };
 
     const handleView = (tourId) => {
@@ -319,7 +329,7 @@ function TourCard({ tour, onTourUpdated }) {
                     Authorization: `${token}`,
                 },
             });
-            toast.success('Tour updated successfully!');
+            toast.success('Cập nhật tour thành công !');
             closeModal();
             onTourUpdated(); // Call the prop function to update the tour list
         } catch (error) {
@@ -369,9 +379,7 @@ function TourCard({ tour, onTourUpdated }) {
                         <Dropdown.Item onClick={() => handleView(tour.tourId)}>Xem thêm</Dropdown.Item>
                         <Dropdown.Item onClick={openModal}>Chỉnh sửa</Dropdown.Item>
                         <Dropdown.Item onClick={handleOpenManagementModal}>Quản lí</Dropdown.Item>
-                        <Dropdown.Item onClick={() => {
-                            handleDelete(tour.tourId);
-                        }}>Xóa</Dropdown.Item>
+                        <Dropdown.Item onClick={() => confirmDelete(tour.tourId)}>Xóa</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </td>
@@ -585,8 +593,8 @@ function TourCard({ tour, onTourUpdated }) {
                     </Col>
                 </Row>
                 <div className="d-flex justify-content-end gap-3">
-                    <Button variant="secondary" onClick={closeModal}>Close Modal</Button>
-                    <Button variant="success" onClick={() => handleSaveChanges(tour.tourId)}>Save Changes</Button>
+                    <Button variant="secondary" onClick={closeModal}>Đóng</Button>
+                    <Button variant="success" onClick={() => handleSaveChanges(tour.tourId)}>Lưu thay đổi</Button>
                 </div>
             </Modal>
             <Modal isOpen={managementModalIsOpen}
@@ -700,6 +708,13 @@ function TourCard({ tour, onTourUpdated }) {
                     <Button variant="secondary" onClick={handleCloseManagementModal}>Close Modal</Button>
                 </div>
             </Modal>
+            <ConfirmModal
+                show={showConfirmModal}
+                onHide={() => setShowConfirmModal(false)}
+                onConfirm={handleDelete}
+                title="Xác nhận xóa"
+                message="Bạn có chắc chắn muốn xóa tour này không?"
+            />
         </tr>
     );
 }

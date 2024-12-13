@@ -50,10 +50,13 @@ const AdminReport = () => {
       cellRenderer: (params) => (
         <div className="d-flex gap-2">
           <Button variant="info" size="sm" onClick={() => handleView(params.data)}>
-            View
+            Xem thêm
           </Button>{" "}
           <Button variant="warning" size="sm" onClick={() => handleUpdate(params.data)}>
             Trả lời
+          </Button>{" "}
+          <Button variant="danger" size="sm" onClick={() => handleUpdate(params.data)}>
+            Cấm
           </Button>{" "}
         </div>
       ),
@@ -130,10 +133,10 @@ const AdminReport = () => {
           </div>
           <div className="d-flex gap-3">
             <Button variant="success" onClick={onExportClick} style={{ marginBottom: "10px", padding: "5px" }}>
-              Export to CSV
+              Xuất sang exel
             </Button>
             <Button variant="warning" onClick={resetFilters} style={{ marginBottom: "10px", padding: "5px" }}>
-              Reset Filters
+              Làm lại bộ lọc
             </Button>
           </div>
         </div>
