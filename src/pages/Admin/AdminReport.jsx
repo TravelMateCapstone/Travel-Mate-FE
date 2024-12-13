@@ -7,7 +7,7 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Button, Modal, Form } from "react-bootstrap";
 import ConfirmModal from "../../components/Shared/ConfirmModal";
-
+import TextareaAutosize from 'react-textarea-autosize';
 // Đăng ký chỉ các mô-đun của Community
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
@@ -18,11 +18,11 @@ const AdminReport = () => {
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
 
   const [rowData, setRowData] = useState([
-    { id: 1, user: "John Doe", address: "123 Main St", type: "Fraud", reportDate: "2023-10-12", status: "Pending" },
-    { id: 2, user: "Jane Smith", address: "456 Oak Ave", type: "Abuse", reportDate: "2023-09-25", status: "Resolved" },
-    { id: 3, user: "Alice Johnson", address: "789 Pine Rd", type: "Spam", reportDate: "2023-11-01", status: "Under Review" },
-    { id: 4, user: "Robert Brown", address: "321 Maple Ln", type: "Harassment", reportDate: "2023-10-05", status: "Pending" },
-    { id: 5, user: "Michael Miller", address: "654 Elm St", type: "Fraud", reportDate: "2023-08-18", status: "Resolved" },
+    { id: 1, user: "John Doe", address: "123 Main St", type: "Fraud", reportDate: "2023-10-12", status: "Đang xử lí", content: "Report content 1" },
+    { id: 2, user: "Jane Smith", address: "456 Oak Ave", type: "Abuse", reportDate: "2023-09-25", status: "Đã xử lí", content: "Report content 2" },
+    { id: 3, user: "Alice Johnson", address: "789 Pine Rd", type: "Spam", reportDate: "2023-11-01", status: "Đã phản hồi", content: "Report content 3" },
+    { id: 4, user: "Robert Brown", address: "321 Maple Ln", type: "Harassment", reportDate: "2023-10-05", status: "Đã phản hồi", content: "Report content 4" },
+    { id: 5, user: "Michael Miller", address: "654 Elm St", type: "Fraud", reportDate: "2023-08-18", status: "Đã phản hồi", content: "Report content 5" },
   ]);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -33,25 +33,28 @@ const AdminReport = () => {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
 
   const columnDefs = [
-    { headerName: "Người dùng", field: "user", editable: true, filter: true, sortable: true },
-    { headerName: "Địa chỉ", field: "address", editable: true, filter: true, sortable: true },
-    { headerName: "Loại", field: "type", editable: true, filter: true, sortable: true },
-    { headerName: "Ngày tố cáo", field: "reportDate", editable: true, filter: true, sortable: true },
-    { headerName: "Trạng thái", field: "status", editable: true, filter: true, sortable: true },
+    { headerName: "Người dùng", field: "user", filter: true, sortable: true },
+    { headerName: "Địa chỉ", field: "address", filter: true, sortable: true },
+    { headerName: "Loại", field: "type", filter: true, sortable: true },
+    { headerName: "Ngày tố cáo", field: "reportDate", filter: true, sortable: true },
+    { headerName: "Nội dung báo cáo", field: "content", filter: true, sortable: true },
+    {
+      headerName: "Trạng thái", field: "status", editable: true, filter: true, sortable: true, cellEditor: 'agSelectCellEditor',
+      cellEditorParams: {
+        values: ['Đang xử lí', 'Đã xử lí', 'Đã phản hồi',],
+      }
+    },
     {
       headerName: "Actions",
       field: "actions",
       cellRenderer: (params) => (
-        <div>
+        <div className="d-flex gap-2">
           <Button variant="info" size="sm" onClick={() => handleView(params.data)}>
             View
           </Button>{" "}
           <Button variant="warning" size="sm" onClick={() => handleUpdate(params.data)}>
-            Update
+            Trả lời
           </Button>{" "}
-          <Button variant="danger" size="sm" onClick={() => handleDelete(params.data)}>
-            Delete
-          </Button>
         </div>
       ),
       editable: false,
@@ -157,56 +160,11 @@ const AdminReport = () => {
 
       <Modal show={showUpdateModal} onHide={() => setShowUpdateModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Cập nhật dữ liệu</Modal.Title>
+          <Modal.Title>Trả lời báo cáo</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
-            <Form.Group controlId="formUser">
-              <Form.Label>Người dùng</Form.Label>
-              <Form.Control
-                type="text"
-                name="user"
-                value={updateRow?.user || ""}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formAddress" className="mt-2">
-              <Form.Label>Địa chỉ</Form.Label>
-              <Form.Control
-                type="text"
-                name="address"
-                value={updateRow?.address || ""}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formType" className="mt-2">
-              <Form.Label>Loại</Form.Label>
-              <Form.Control
-                type="text"
-                name="type"
-                value={updateRow?.type || ""}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formReportDate" className="mt-2">
-              <Form.Label>Ngày tố cáo</Form.Label>
-              <Form.Control
-                type="date"
-                name="reportDate"
-                value={updateRow?.reportDate || ""}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formStatus" className="mt-2">
-              <Form.Label>Trạng thái</Form.Label>
-              <Form.Control
-                type="text"
-                name="status"
-                value={updateRow?.status || ""}
-                onChange={handleUpdateChange}
-              />
-            </Form.Group>
-          </Form>
+          <input type="text" className="form-control" placeholder="Tiêu đề" name="title" value={updateRow?.title || ''} onChange={handleUpdateChange} />
+          <TextareaAutosize className="form-control mt-2" minRows={10} placeholder="Nội dung" name="content" value={updateRow?.content || ''} onChange={handleUpdateChange} />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowUpdateModal(false)}>

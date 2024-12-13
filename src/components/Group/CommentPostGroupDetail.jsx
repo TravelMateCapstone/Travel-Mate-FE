@@ -53,7 +53,7 @@ const CommentPostGroupDetail = ({ comment, groupId, groupPostId }) => {
                 <TextareaAutosize
                   value={editedComment}
                   onChange={(e) => setEditedComment(e.target.value)}
-                  className='w-100 rounded-3 p-2'
+                  className='w-100 rounded-3 p-2 form-control'
                 />
                 <div className='d-flex gap-2 align-items-center'>
                   <Button size='sm' onClick={handleSaveEdit}>Lưu</Button>

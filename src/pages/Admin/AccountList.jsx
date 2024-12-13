@@ -120,7 +120,7 @@ const AccountList = () => {
       sortable: true,
     },
     {
-      headerName: "Actions",
+      headerName: "Hành động",
       field: "actions",
       cellRenderer: (params) => (
         <div className="d-flex gap-2 align-items-center">
@@ -128,7 +128,7 @@ const AccountList = () => {
             <ion-icon name="information-circle-outline"></ion-icon>
           </Button>
           <Button variant="danger" size="sm" >
-            Ban
+            Cấm
           </Button>
         </div>
       ),

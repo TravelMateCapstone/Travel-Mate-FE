@@ -67,6 +67,7 @@ const RoutePath = {
     PAYMENT_CONTRACT: '/contract/payment',
     PAYMENT_FAILED_CONTRACT: '/contract/payment-failed',
     FINISH_CONTRACT_TRAVELLER: '/contract/finish-traveller',
+    FINISH_CONTRACT_LOCAL: '/contract/finish-local',
 
     TOUR_DETAIL: '/tour-detail',
     TOUR_DETAIL_EDIT: '/tour-detail/edit',

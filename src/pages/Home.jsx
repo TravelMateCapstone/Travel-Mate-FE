@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import MapComponent from '../components/Shared/MapComponent';
 import '../assets/css/Home/Home.css';
 import { Button, Col, Container, Row } from 'react-bootstrap';
@@ -7,7 +7,21 @@ import DestinationCard from '../components/Home/DestinationCard';
 import ImageAccordionSlider from '../components/Home/ImageAccordionSlider';
 
 function Home() {
-  
+  const [destinations, setDestinations] = useState([]);
+
+  useEffect(() => {
+    fetch('https://travelmateapp.azurewebsites.net/api/Locations')
+      .then(response => response.json())
+      .then(data => {
+        const randomDestinations = data.$values.sort(() => 0.5 - Math.random()).slice(0, 8);
+        setDestinations(randomDestinations.map(location => ({
+          locationName: location.locationName,
+          tours: Math.floor(Math.random() * 50) + 1, // Random number of tours
+          imageUrl: location.image
+        })));
+      })
+      .catch(error => console.error('Error fetching destinations:', error));
+  }, []);
 
   return (
     <>
@@ -68,14 +82,9 @@ function Home() {
         <Container>
           <h2 className='text-center fw-bold'>Các địa điểm nổi bật</h2>
           <Row>
-            <DestinationCard />
-            <DestinationCard />
-            <DestinationCard />
-            <DestinationCard />
-            <DestinationCard />
-            <DestinationCard />
-            <DestinationCard />
-            <DestinationCard />
+            {destinations.map((destination, index) => (
+              <DestinationCard key={index} destination={destination} />
+            ))}
           </Row>
         </Container>
       </div>

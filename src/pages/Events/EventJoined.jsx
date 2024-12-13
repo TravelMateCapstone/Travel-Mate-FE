@@ -165,7 +165,7 @@ function EventJoined() {
                 <div className="section-right my-4">
                     <div className='d-flex justify-content-between align-items-center'>
                         <h4 className='m-3 title'>Người tham gia</h4>
-                        <a href="#" className='view-all-link m-3' onClick={handleShowModal}>Xem tất cả</a>
+                        <a className='view-all-link m-3' onClick={handleShowModal}>Xem tất cả</a>
                     </div>
                     <div className='members-list m-3'>
                         {members.map((member, index) => (

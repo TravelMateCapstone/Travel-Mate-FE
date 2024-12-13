@@ -17,10 +17,9 @@ function AdminLayout({ children }) {
   ];
   const sidebarItemsLocal = [
     { icon: 'pie-chart', title: 'Thống kê', route: RoutePath.LOCAL_STATICTIS },
-    { icon: 'mail-open', title: 'Ví tiền', route: RoutePath.LOCAL_WALLET_MANAGEMENT },
+    { icon: 'mail-open', title: 'Lịch sử giao dịch', route: RoutePath.LOCAL_WALLET_MANAGEMENT },
     { icon: 'accessibility', title: 'Chuyến đi', route: RoutePath.LOCAL_TRIP_HISTORY },
     { icon: 'cash', title: 'Lịch trình', route: RoutePath.LOCAL_CALENDAR_MANAGEMENT },
-    { icon: 'airplane', title: 'Kế hoạch', route: RoutePath.LOCAL_PLAN_MANAGEMENT },
   ];
   const isAdmin = (location.pathname === RoutePath.ADMIN || location.pathname === RoutePath.ADMIN_ACCOUNT_LIST || location.pathname === RoutePath.ADMIN_REPORT || location.pathname === RoutePath.ADMIN_TRANSACTION || location.pathname === RoutePath.ADMIN_WALLET_MANAGEMENT || location.pathname === RoutePath.ADMIN_TRIP_HISTORY || location.pathname === RoutePath.ADMIN_DESTINATION_MANAGEMENT);
   return (

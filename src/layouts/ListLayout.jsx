@@ -532,23 +532,31 @@ function ListLayout({ children }) {
                                                 </Placeholder>
                                             ) : (
                                                 uploadedEventUrl && (
-                                                    <div className="position-relative mt-3">
-                                                        <img
-                                                            src={uploadedEventUrl || eventImage}
-                                                            alt="Ảnh đại diện sự kiện"
-                                                            className="ms-3 mt-3 event-image"
-                                                        />
-                                                        <ion-icon
-                                                            name="eye-outline"
-                                                            className="view-icon"
-                                                            onClick={() => handleView(uploadedEventUrl || eventImage)}
-                                                        ></ion-icon>
-
-                                                        <ion-icon
-                                                            name="trash-outline"
-                                                            className="delete-icon"
-                                                            onClick={handleDeleteImage}
-                                                        ></ion-icon>
+                                                    <div className="position-relative mt-3" style={{
+                                                        zIndex: '1',
+                                                    }}>
+                                                        <div className="">
+                                                            <img
+                                                                src={uploadedEventUrl || eventImage}
+                                                                alt="Ảnh đại diện sự kiện"
+                                                                className="ms-3 mt-3 event-image"
+                                                                style={{
+                                                                    filter: 'brightness(0.5)',
+                                                                }}
+                                                            />
+                                                            <ion-icon
+                                                                name="eye-outline"
+                                                                className="view-icon"
+                                                                onClick={() => handleView(uploadedEventUrl || eventImage)}
+                                                                style={{ position: 'absolute', top: '50%', left: '80%', transform: 'translate(-50%, -50%)', fontSize: '24px', color: 'white' }}
+                                                            ></ion-icon>
+                                                            <ion-icon
+                                                                name="trash-outline"
+                                                                className="delete-icon"
+                                                                onClick={handleDeleteImage}
+                                                                style={{ position: 'absolute', top: '50%', left: '30%', transform: 'translate(-50%, -50%)', fontSize: '24px', color: 'white' }}
+                                                            ></ion-icon>
+                                                        </div>
                                                     </div>
                                                 )
                                             )}
@@ -566,11 +574,14 @@ function ListLayout({ children }) {
                     {children}
                 </Col>
                 <Col lg={3} className='p-0 d-none d-lg-block'>
-                    {isEventRoute ? (
+                    {isEventRoute && (
                         <ProposeEvent />
-                    ) : (
-                        <ProposeGroup />
                     )}
+                    {
+                        isGroupRoutebtn && (
+                            <ProposeGroup />
+                        )
+                    }
                 </Col>
 
                 <Col lg={12} className='p-0'>

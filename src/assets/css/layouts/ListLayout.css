@@ -203,6 +203,29 @@
     right: 25%;
 }
 
+.image-overlay {
+    position: relative;
+    display: inline-block;
+}
+
+.image-overlay img {
+    display: block;
+}
+
+.image-overlay ion-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 24px;
+    color: white;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.image-overlay:hover ion-icon {
+    opacity: 1;
+}
+
 @media (max-width: 1024px) {
     .container-list {
         padding: 0 30px;

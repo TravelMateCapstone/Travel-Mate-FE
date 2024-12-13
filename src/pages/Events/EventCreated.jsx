@@ -11,6 +11,7 @@ import { storage } from '../../../firebaseConfig';
 import { toast } from 'react-toastify';
 import FormSubmit from '../../components/Shared/FormSubmit';
 import { viewProfile } from '../../redux/actions/profileActions';
+import ConfirmModal from '../../components/Shared/ConfirmModal';
 
 function EventCreated() {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -28,6 +29,7 @@ function EventCreated() {
   const user = useSelector((state) => state.auth.user);
 
   const [showModal, setShowModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -164,33 +166,36 @@ function EventCreated() {
       );
 
       console.log("Response từ server:", response.data);
-
       // Cập nhật lại trạng thái của selectedEvent và eventImage
       const updatedEvent = { ...selectedEvent, ...updatedEventData };
       setSelectedEvent(updatedEvent);
       setEventImage(imageToUpdate); // Cập nhật lại eventImage để hiển thị ảnh mới
       localStorage.setItem('selectedEvent', JSON.stringify(updatedEvent));
 
-      alert('Lưu thay đổi thành công!');
+      toast.success('Cập nhật sự kiện thành công!');
       toggleEditForm();
     } catch (error) {
       console.error('Lỗi khi cập nhật sự kiện:', error);
-      alert('Lỗi khi lưu thay đổi.');
+      toast.error('Lỗi khi cập nhật sự kiện. Vui lòng thử lại sau.');
     }
   };
 
   const handleDeleteEvent = async () => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa sự kiện này không?')) {
-      try {
-        await axios.delete(`${import.meta.env.VITE_BASE_API_URL}/api/EventControllerWOO/current-user-delete-event/${selectedEvent.id}`, {
-          headers: { Authorization: `${token}` },
-        });
-        alert('Xóa sự kiện thành công!');
-        navigate(RoutePath.EVENT_CREATED);
-      } catch (error) {
-        console.error('Lỗi khi xóa sự kiện:', error);
-        alert('Lỗi khi xóa sự kiện. Vui lòng thử lại sau.');
-      }
+    setShowConfirmModal(true);
+  };
+
+  const confirmDeleteEvent = async () => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_BASE_API_URL}/api/EventControllerWOO/current-user-delete-event/${selectedEvent.id}`, {
+        headers: { Authorization: `${token}` },
+      });
+      alert('Xóa sự kiện thành công!');
+      navigate(RoutePath.EVENT_CREATED);
+    } catch (error) {
+      console.error('Lỗi khi xóa sự kiện:', error);
+      alert('Lỗi khi xóa sự kiện. Vui lòng thử lại sau.');
+    } finally {
+      setShowConfirmModal(false);
     }
   };
 
@@ -331,23 +336,17 @@ function EventCreated() {
             </div>
           </div>
         </div>
-        <div className='event-setting' onClick={toggleDropdown} style={{ position: 'relative' }}>
-          <ion-icon name="settings-outline"></ion-icon>
-          {showDropdown && (
-            <div className='dropdown-menu show' style={{
-              position: 'absolute',
-              top: '100%',
-              right: 0,
-              zIndex: 1000,
-              backgroundColor: '#fff',
-              boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.1)',
-              borderRadius: '8px',
-              padding: '10px',
-            }}>
-              <a href="#" className="dropdown-item" onClick={toggleEditForm}>Chỉnh sửa thông tin</a>
-              <a href="#" className="dropdown-item" onClick={handleDeleteEvent}>Xóa sự kiện</a>
-            </div>
-          )}
+        <div className='event-setting' style={{ position: 'relative' }}>
+          <Dropdown show={showDropdown} onToggle={toggleDropdown}>
+            <Dropdown.Toggle variant="light" >
+              <ion-icon name="settings-outline"></ion-icon>
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu align={'end'}>
+              <Dropdown.Item onClick={toggleEditForm}>Chỉnh sửa thông tin</Dropdown.Item>
+              <Dropdown.Item onClick={handleDeleteEvent}>Xóa sự kiện</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
         </div>
       </div>
       <div className="section-container">
@@ -358,7 +357,7 @@ function EventCreated() {
         <div className="section-right my-4">
           <div className='d-flex justify-content-between align-items-center'>
             <h4 className='m-3 title'>Người tham gia</h4>
-            <a href="#" className='view-all-link m-3' onClick={handleShowModal}>Xem tất cả</a>
+            <a  className='view-all-link m-3' onClick={handleShowModal}>Xem tất cả</a>
           </div>
           <div className='members-list m-3'>
             {members.map((member, index) => (
@@ -404,7 +403,7 @@ function EventCreated() {
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="dropdown-menu">
                   <Dropdown.Item onClick={() => handleViewProfile(member.userId, token)}>Xem hồ sơ</Dropdown.Item>
-                  <Dropdown.Item href="#" onClick={() => handleRemoveMember(member.userId)}>Gỡ</Dropdown.Item>
+                  <Dropdown.Item  onClick={() => handleRemoveMember(member.userId)}>Gỡ</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </div>
@@ -560,7 +559,13 @@ function EventCreated() {
           />
         </div>
       )}
-
+      <ConfirmModal
+        show={showConfirmModal}
+        onHide={() => setShowConfirmModal(false)}
+        onConfirm={confirmDeleteEvent}
+        title="Xác nhận xóa sự kiện"
+        message="Bạn có chắc chắn muốn xóa sự kiện này không?"
+      />
     </div>
   );
 }

@@ -277,7 +277,12 @@ const PostGroupDetail = ({ post }) => {
         {error && <div className="alert alert-danger">{error}</div>}
         <Form.Group controlId="formTitle">
           <Form.Label>Nội dung</Form.Label>
-          <Form.Control type="text" name="title" value={formValues.title} onChange={handleInputChange} />
+          <TextareaAutosize
+            name="title"
+            className="form-control"
+            value={formValues.title}
+            onChange={handleInputChange}
+          />
         </Form.Group>
         <Form.Group controlId="formContent">
           <Form.Label>Ảnh bài viết</Form.Label>

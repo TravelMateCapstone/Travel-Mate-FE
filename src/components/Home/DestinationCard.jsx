@@ -1,15 +1,29 @@
 import React from 'react'
+import { use } from 'react'
 import { Button, Col } from 'react-bootstrap'
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom'
+import RoutePath from '../../routes/RoutePath';
 
-function DestinationCard() {
+function DestinationCard({ destination }) {
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const user = useSelector(state => state.auth.user);
+    const handleDestinationClick = () => {
+        console.log('Destination clicked:', destination); // Add this line
+        localStorage.setItem('selectedLocation', JSON.stringify(destination));
+        console.log('Selected location set in localStorage:', localStorage.getItem('selectedLocation')); // Add this line
+        navigate(RoutePath.DESTINATION);
+    }
     return (
-        <Col lg={3} className='mb-4'>
+        <Col lg={3} className='mb-4' onClick={handleDestinationClick}>
             <div className='p-3 d-flex border-1 rounded-4 gap-3 justify-content-between'>
                 <div className='d-flex gap-3'>
-                    <img className='rounded-circle object-fit-cover' src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRiWF6CBGjG8QKH94YY1heXH3X-XrzTUEqohZZDJdHP0xhZOwdcRt8b2zu4HLyPH-Pk00HuYMk589GqzYQzx6OkCA" alt="" height={100} width={100} />
+                    <img className='rounded-circle object-fit-cover' src={destination.imageUrl} alt={destination.name} height={100} width={100} />
                     <div className='d-flex flex-column justify-content-center gap-3'>
-                        <label className='fw-semibold m-0'>Hà Nội</label>
-                        <small className='m-0 text-muted'><ion-icon name="flag"></ion-icon> 35 tours</small>
+                        <label className='fw-semibold m-0'>{destination.locationName}</label>
+                        <small className='m-0 text-muted'><ion-icon name="flag"></ion-icon> {destination.tours} tours</small>
                     </div>
                 </div>
                 <div className='d-flex align-items-end'>

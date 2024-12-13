@@ -92,6 +92,7 @@ const privateRoutes = [
     { path: RoutePath.PAYMENT_CONTRACT, component: PaymentContract, layout: ContractLayout },
     { path: RoutePath.PAYMENT_FAILED_CONTRACT, component: FailContract, layout: ContractLayout },
     { path: RoutePath.FINISH_CONTRACT_TRAVELLER, component: FinishContractTraveller, layout: ContractLayout },
+    { path: RoutePath.FINISH_CONTRACT_LOCAL, component: FinishContractTraveller, layout: ContractLayout },
 
     { path: RoutePath.LOCAL_STATICTIS, component: LocalIncomeStaticstic, layout: AdminLayout },
     { path: RoutePath.LOCAL_CALENDAR_MANAGEMENT, component: CalendarManagement, layout: AdminLayout },

@@ -24,7 +24,7 @@ function FormModal({ show, handleClose, children, title, saveButtonText, handleS
       </Modal.Body>
       <Modal.Footer className="custom-modal-footer">
         <Button variant='secondary' className="rounded-5" onClick={handleClose}>
-          Close
+          Đóng
         </Button>
         <Button variant='success' className="rounded-5" type="button" onClick={handleSave} disabled={isSubmitting}>
           {isSubmitting ? <><Spinner size='sm'/></> : saveButtonText}
