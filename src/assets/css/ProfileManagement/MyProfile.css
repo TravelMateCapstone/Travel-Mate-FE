@@ -15,6 +15,7 @@
     position: relative;
     width: 150px;
     height: 150px;
+    z-index: 0 !important;
 }
 
 .profile-image-wrapper img {

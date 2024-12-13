@@ -49,3 +49,5 @@ export const SEARCH_TOUR = 'SEARCH_TOUR';
 export const SAVE_SIGNATURE = 'SAVE_SIGNATURE';
 
 export const DELETE_POST = 'DELETE_POST';
+
+export const UPDATE_POST = 'UPDATE_POST';

@@ -82,7 +82,7 @@ function FinishContract() {
                 width={60}
               />
               <div>
-                <p className="m-0 fw-bold">{"Tào tháo"}</p>
+                <p className="m-0 fw-bold">{"NGUYỄN MINH QUÂN"}</p>
                 <sub className="fw-medium">Quảng Nam</sub>
               </div>
             </div>

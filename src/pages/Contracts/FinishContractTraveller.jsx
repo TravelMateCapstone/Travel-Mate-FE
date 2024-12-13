@@ -38,7 +38,7 @@ function FinishContractTraveller() {
             location: "Đà Lạt, Việt Nam",
             isPublic: true,
             caption: caption,
-            review: caption, // Dùng cùng nội dung cho review
+            review: 'Bạn thật là một người đồng hành tuyệt vời chuyến đi rất vui.', // Dùng cùng nội dung cho review
             star: star,
             postPhotos: postPhotos,
         };
@@ -128,7 +128,7 @@ function FinishContractTraveller() {
                         <div className="d-flex gap-2">
                             <img
                                 src={
-                                    "https://thanhnien.mediacdn.vn/Uploaded/game/st.game.thanhnien.com.vn/image/phaquan123/tao-thao.jpg"
+                                    "https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/329970312_896924391503385_2352475357586137104_n.jpg?stp=c0.169.1536.1536a_dst-jpg_s206x206_tt6&_nc_cat=101&ccb=1-7&_nc_sid=fe5ecc&_nc_ohc=zb9TW46mvTMQ7kNvgGeCyrB&_nc_zt=23&_nc_ht=scontent.fdad3-6.fna&_nc_gid=ACPCAcNUTB0nTIZvBDzPLhP&oh=00_AYCJfBTypoMb0NT920bkOi6sqvj6igNb3GfMSNufoKknvg&oe=676134E3"
                                 }
                                 alt="avatar"
                                 className="rounded-circle object-fit-cover"
@@ -136,7 +136,7 @@ function FinishContractTraveller() {
                                 width={60}
                             />
                             <div>
-                                <p className="m-0 fw-bold">{"Tào tháo"}</p>
+                                <p className="m-0 fw-bold">{"NGUYỄN MINH QUÂN"}</p>
                                 <sub className="fw-medium">Quảng Nam</sub>
                             </div>
                         </div>
