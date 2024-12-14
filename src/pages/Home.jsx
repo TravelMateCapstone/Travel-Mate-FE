@@ -16,21 +16,35 @@ function Home() {
         const randomDestinations = data.$values.sort(() => 0.5 - Math.random()).slice(0, 8);
         setDestinations(randomDestinations.map(location => ({
           locationName: location.locationName,
-          tours: Math.floor(Math.random() * 50) + 1, // Random number of tours
+          tours: Math.floor(Math.random() * 50) + 1,
           imageUrl: location.image
         })));
       })
       .catch(error => console.error('Error fetching destinations:', error));
   }, []);
 
+  const explore_now = () => {
+    
+  }
+
+
   return (
     <>
       <div className="home-background">
-        {/* Phần header chứa tiêu đề */}
       </div>
       <div className="home-header">
-        <h1>Khám phá Việt Nam qua góc nhìn người địa phương</h1>
-        <h1>Trải nghiệm chân thật, kỷ niệm đáng nhớ!</h1>
+        <h1 style={{
+          fontSize: '36px',
+          fontWeight: '500',
+          marginTop: '28px',
+          fontFamily: 'Play fair Display',
+          letterSpacing: '-0.5%',
+        }}>Khám phá Việt Nam qua góc nhìn người địa phương</h1>
+        <h1 style={{
+          fontSize: '36px',
+          fontWeight: '400',
+          letterSpacing: '-0.5%',
+        }}>Trải nghiệm chân thật, kỷ niệm đáng nhớ!</h1>
         <div className="home-map-container">
           <MapComponent />
           <div className="home-statistics">
@@ -76,11 +90,18 @@ function Home() {
         </Row>
 
       </div>
-      <div className='py-5 mt-5' style={{
+      <div className='' style={{
         backgroundColor: '#F9F9F9',
+        height: '619px',
+        paddingTop: '100px',
+        marginTop: '51px',
       }}>
-        <Container>
-          <h2 className='text-center fw-bold'>Các địa điểm nổi bật</h2>
+        <h2 className='text-center fw-bold'>Các địa điểm nổi bật</h2>
+        <p className='text-center'>Địa điểm ưa thích bởi khách du lịch.</p>
+        <Container style={{
+          marginTop: '40px',
+        }}>
+          <h2 className='text-center fw-bold'></h2>
           <Row>
             {destinations.map((destination, index) => (
               <DestinationCard key={index} destination={destination} />

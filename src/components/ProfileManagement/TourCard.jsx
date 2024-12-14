@@ -142,8 +142,8 @@ function TourCard({ tour, onTourUpdated }) {
             setTourDetails({
                 tourName: tourData.tourName,
                 price: tourData.price,
-                startDate: format(new Date(tourData.startDate), "yyyy-MM-dd'T'HH:mm", { locale: vi }),
-                endDate: format(new Date(tourData.endDate), "yyyy-MM-dd'T'HH:mm", { locale: vi }),
+                startDate: format(new Date(tourData.startDate), "dd/MM/yyyy HH:mm", { locale: vi }),
+                endDate: format(new Date(tourData.endDate), "dd/MM/yyyy HH:mm", { locale: vi }),
                 numberOfDays: tourData.numberOfDays,
                 numberOfNights: tourData.numberOfNights,
                 tourDescription: tourData.tourDescription,
@@ -154,7 +154,7 @@ function TourCard({ tour, onTourUpdated }) {
             });
             setActivities(tourData.itinerary.$values.map((item) => ({
                 day: item.day,
-                date: format(new Date(item.date), "yyyy-MM-dd'T'HH:mm", { locale: vi }),
+                date: format(new Date(item.date), "dd/MM/yyyy HH:mm", { locale: vi }),
                 activities: item.activities.$values.map(act => ({
                     startTime: act.startTime,
                     endTime: act.endTime,
@@ -611,7 +611,7 @@ function TourCard({ tour, onTourUpdated }) {
                         width: '75%',
                         height: '800px',
                         overflowY: 'auto',
-                        backgroundColor: '#f0f0f0',
+                        backgroundColor: 'white',
                         display: 'flex',
                         flexDirection: 'column',
                     },
@@ -633,13 +633,14 @@ function TourCard({ tour, onTourUpdated }) {
                                     <p className='m-0'>{tour.tourName}</p>
                                 </div>
                                 <div className='d-flex gap-5'>
-                                    <p className='w-25 m-0'>Ngày bắt đầu</p>
-                                    <p className='m-0'>{tour.startDate}</p>
-                                </div>
-                                <div className='d-flex gap-5'>
-                                    <p className='w-25 m-0'>Ngày kết thúc</p>
-                                    <p className='m-0'>{tour.endDate}</p>
-                                </div>
+    <p className='w-25 m-0'>Ngày bắt đầu</p>
+    <p className='m-0'>{format(new Date(tour.startDate), 'dd/MM/yyyy HH:mm', { locale: vi })}</p>
+</div>
+<div className='d-flex gap-5'>
+    <p className='w-25 m-0'>Ngày kết thúc</p>
+    <p className='m-0'>{format(new Date(tour.endDate), 'dd/MM/yyyy HH:mm', { locale: vi })}</p>
+</div>
+
                                 <div className='d-flex gap-5'>
                                     <p className='w-25 m-0'>Địa điểm</p>
                                     <p className='m-0'>{tour.location}</p>
@@ -667,7 +668,9 @@ function TourCard({ tour, onTourUpdated }) {
                         Danh sách người tham gia
                         <div className='d-flex justify-content-between my-4'>
                             <Form.Control type='text' className='w-25' placeholder='Tìm kiếm người tham gia' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-                            <div className='py-2 px-2 rounded-5 bg-black'>
+                            <div className='py-2 px-2 rounded-5' style={{
+                                backgroundColor: '#d9d9d9',
+                            }}>
                                 <Button variant='success' className='rounded-5 border-0' onClick={() => setFilter('paid')}>Đã thanh toán</Button>
                                 <Button variant='success' className='rounded-5 border-0' onClick={() => setFilter('unpaid')}>Chưa thanh toán</Button>
                             </div>
@@ -681,7 +684,6 @@ function TourCard({ tour, onTourUpdated }) {
                                     <td>Địa chỉ</td>
                                     <td>Điện thoại</td>
                                     <td>Trạng thái</td>
-                                    <td>Chiết khấu</td>
                                     <td>Số tiền</td>
                                     <td>Hành động</td>
                                 </tr>
@@ -689,15 +691,18 @@ function TourCard({ tour, onTourUpdated }) {
                             <tbody>
                                 {filteredParticipants.map((participant) => (
                                     <tr key={participant.id}>
-                                        <td>{participant.registeredAt}</td>
+                                        <td>{format(new Date(participant.registeredAt), 'dd/MM/yyyy HH:mm', { locale: vi })}</td>
                                         <td>{participant.fullName}</td>
                                         <td>{participant.gender}</td>
                                         <td>{participant.address}</td>
                                         <td>{participant.phone}</td>
                                         <td>{participant.paymentStatus ? 'Đã thanh toán' : 'Chưa thanh toán'}</td>
-                                        <td>{participant.discount}</td>
-                                        <td>{participant.totalAmount}</td>
-                                        <td><ion-icon name="ellipsis-horizontal-outline"></ion-icon></td>
+                                        <td>{participant.totalAmount?.toLocaleString('vi', { style: 'currency', currency: 'VND' })}</td>
+                                        <td>
+                                            <Button onClick={() => { navigate(RoutePath.ONGOING_CONTRACT) }}>
+                                                Xem hợp đồng
+                                            </Button>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -705,7 +710,7 @@ function TourCard({ tour, onTourUpdated }) {
                     </Row>
                 </div>
                 <div className="d-flex justify-content-end gap-3">
-                    <Button variant="secondary" onClick={handleCloseManagementModal}>Close Modal</Button>
+                    <Button variant="secondary" onClick={handleCloseManagementModal}>Đóng</Button>
                 </div>
             </Modal>
             <ConfirmModal

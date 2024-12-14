@@ -13,7 +13,7 @@ const queryClient = new QueryClient();
 const RouteWrapper = ({ component: Component, layout: Layout, path }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const isAuthenticated = useSelector((state) => state.auth.token);
   const userRole = useSelector((state) => state.auth.user?.role);
   console.log(userRole);
   
@@ -23,18 +23,6 @@ const RouteWrapper = ({ component: Component, layout: Layout, path }) => {
       toast.error("Bạn không có quyền truy cập trang này. Vui lòng đăng nhập để tiếp tục.");
       navigate(RoutePath.AUTH);
     }
-    // if(userRole === 'user' && (path === RoutePath.ADMIN || path === RoutePath.ADMIN_ACCOUNT_LIST || path === RoutePath.ADMIN_DESTINATION_MANAGEMENT || path === RoutePath.ADMIN_REPORT || path === RoutePath.ADMIN_TRANSACTION || path === RoutePath.ADMIN_TRIP_HISTORY)) {
-    //   navigate(RoutePath.HOMEPAGE);
-    //   toast.error("Bạn không có quyền truy cập trang này.");
-    // }
-    // if(userRole === 'admin' && (path !== RoutePath.ADMIN && path !== RoutePath.ADMIN_ACCOUNT_LIST && path !== RoutePath.ADMIN_DESTINATION_MANAGEMENT && path !== RoutePath.ADMIN_REPORT && path !== RoutePath.ADMIN_TRANSACTION && path !== RoutePath.ADMIN_TRIP_HISTORY && path !== RoutePath.AUTH)) {
-    //   navigate(RoutePath.ADMIN);
-    //   toast.error("Bạn không có quyền truy cập trang này. Vui lòng đăng nhập để tiếp tục");
-    // } 
-    // if(userRole === 'local' && (path !== RoutePath.LOCAL_CALENDAR_MANAGEMENT && path !== RoutePath.LOCAL_PLAN_MANAGEMENT && path !== RoutePath.LOCAL_STATICTIS && path !== RoutePath.LOCAL_TRIP_HISTORY && path !== RoutePath.LOCAL_WALLET_MANAGEMENT && path !== RoutePath.AUTH)) {
-    //   navigate(RoutePath.LOCAL);
-    //   toast.error("Bạn không có quyền truy cập trang này. Vui lòng đăng nhập để tiếp tục");
-    // }
    
   }, [dispatch, isAuthenticated, path, userRole]);
 

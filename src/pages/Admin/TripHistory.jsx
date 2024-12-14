@@ -13,6 +13,9 @@ import { useSelector } from "react-redux";
 import { AgCharts } from "ag-charts-react";
 import { Col, Row } from "react-bootstrap";
 import { useQuery, useMutation, useQueryClient } from "react-query";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
 
 ModuleRegistry.registerModules([
   ClientSideRowModelModule,
@@ -37,6 +40,20 @@ const TripHistory = () => {
   const chartStyle = useMemo(() => ({ width: "100%" }), []);
   const [quickFilterText, setQuickFilterText] = useState("");
   const queryClient = useQueryClient();
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(rowData); // Chuyển dữ liệu thành worksheet
+    const workbook = XLSX.utils.book_new(); // Tạo workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Tour Data"); // Thêm worksheet vào workbook
+
+    // Tạo tệp Excel
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+
+    // Lưu tệp
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "TourData.xlsx");
+  };
+
 
   const [columnDefs] = useState([
     {
@@ -99,6 +116,25 @@ const TripHistory = () => {
       width: 100,
       chartDataType: "category",
       filter: "agSetColumnFilter",
+      valueFormatter: (params) => {
+        switch (params.value) {
+          case 0: return "Đang xử lý";
+          case 1: return "Đã chấp nhận";
+          case 2: return "Đã từ chối";
+          default: return "Không xác định";
+        }
+      },
+      filterParams: {
+        valueFormatter: (params) => {
+          switch (params.value) {
+            case 0: return "Đang xử lý";
+            case 1: return "Đã chấp nhận";
+            case 2: return "Đã từ chối";
+            default: return "Không xác định";
+          }
+        },
+        values: [0, 1, 2], // Giá trị số để lọc
+      },
       cellRenderer: (params) => {
         switch (params.value) {
           case 0:
@@ -300,7 +336,7 @@ const TripHistory = () => {
   }, []);
   return (
     <div style={containerStyle}>
-     
+
 
       <Row>
         <Col lg={4}>
@@ -315,14 +351,19 @@ const TripHistory = () => {
           </div>
         </Col>
       </Row>
-      
-      <div className="d-flex justify-content-between mb-3">
+
+      <div className="d-flex justify-content-between align-items-center mb-3">
         <input
           type="text"
           className="form-control"
           placeholder="Tìm kiếm nhanh..."
           onChange={(e) => setQuickFilterText(e.target.value)}
         />
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <button className="btn btn-success ml-2 text-nowrap" onClick={exportToExcel}>
+            Xuất Excel
+          </button>
+        </div>
       </div>
 
       <div style={gridStyle} className="ag-theme-quartz">
@@ -365,7 +406,7 @@ const TripHistory = () => {
         {/* <p>
           <strong>Mã tour:</strong> {modalData?.tourId}
         </p> */}
-         <img src={modalData?.tourImage} alt={modalData?.tourName} style={{ width: '100%'}} />
+        <img src={modalData?.tourImage} alt={modalData?.tourName} style={{ width: '100%' }} />
         <p>
           <strong>Mô tả:</strong> {modalData?.tourDescription}
         </p>
@@ -437,12 +478,12 @@ const TripHistory = () => {
         <h3>Thông tin bổ sung</h3>
         <p>{modalData?.additionalInfo}</p>
 
-       <div className="d-flex justify-content-end">
+        <div className="d-flex justify-content-end">
           <button onClick={closeModal} className="btn btn-primary mt-3">
             Đóng
           </button>
-       </div>
-       
+        </div>
+
       </Modal>
 
     </div>

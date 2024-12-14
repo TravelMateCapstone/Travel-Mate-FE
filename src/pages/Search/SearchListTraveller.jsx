@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Container, Row, Col, Form, Button, Spinner } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
 import { ToastContainer } from 'react-toastify';
 import axios from 'axios';
@@ -9,6 +9,7 @@ import RoutePath from '../../routes/RoutePath';
 import { useNavigate } from 'react-router-dom';
 import '../../assets/css/Search/Search.css';
 import { useSelector } from 'react-redux';
+import { useQuery } from 'react-query';
 
 function SearchListTraveller() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,70 +19,67 @@ function SearchListTraveller() {
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedHobbies, setSelectedHobbies] = useState([]);
-  const [locations, setLocations] = useState([]);
-  const [locals, setLocals] = useState([]);
-  const [allHobbies, setAllHobbies] = useState([]);
   const itemsPerPage = 4;
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchActivities();
-    fetchTravellers();
-    fetchLocations();
-  }, []);
-
   const fetchActivities = async () => {
-    try {
-      const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Activity');
-      const hobbiesData = response.data.$values.map((activity) => ({
-        id: activity.activityId,
-        name: activity.activityName,
-      }));
-      setAllHobbies(hobbiesData);
-    } catch (error) {
-      console.error('Error fetching activities:', error);
-    }
+    const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Activity');
+    return response.data.$values.map((activity) => ({
+      id: activity.activityId,
+      name: activity.activityName,
+    }));
   };
 
   const fetchTravellers = async () => {
-    try {
-      const response = await axios.get('https://travelmateapp.azurewebsites.net/GetUsersWithDetail-byRole/traveler');
-      const profiles = response.data.$values.map((user) => ({
-        id: user.userId,
-        avatar: user.profile?.imageUser || 'https://img.freepik.com/premium-vector/default-avatar-profile-icon_561158-3467.jpg',
-        name: user.fullName || 'Chưa xác định',
-        age: user.cccd?.age || 'Chưa xác định',
-        gender: user.cccd?.sex || 'Chưa xác định',
-        address: user.profile?.address || 'Chưa xác định',
-        description: '',
-        rating: user.star || 0,
-        connections: user.countConnect || 0,
-        activeTime: 'Chưa xác định',
-        hobbies: user.activityIds.$values || [],
-        locations: user.locationIds.$values || []
-      }));
-      setLocals(profiles);
-    } catch (error) {
-      console.error('Error fetching locals:', error);
-    }
+    const response = await axios.get('https://travelmateapp.azurewebsites.net/GetUsersWithDetail-byRole/traveler');
+    return response.data.$values.map((user) => ({
+      id: user.userId,
+      avatar: user.profile?.imageUser || 'https://img.freepik.com/premium-vector/default-avatar-profile-icon_561158-3467.jpg',
+      name: user.fullName || 'Chưa xác định',
+      age: user.cccd?.age || 'Chưa xác định',
+      gender: user.cccd?.sex || 'Chưa xác định',
+      address: user.profile?.address || 'Chưa xác định',
+      description: '',
+      rating: user.star || 0,
+      connections: user.countConnect || 0,
+      activeTime: 'Chưa xác định',
+      hobbies: user.activityIds.$values || [],
+      locations: user.locationIds.$values || []
+    }));
   };
+
+  const fetchLocations = async () => {
+    const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Locations');
+    return response.data.$values.map((location) => ({
+      code: location.locationId,
+      name: location.locationName,
+    }));
+  };
+
+  const { data: allHobbies = [] } = useQuery('activities', fetchActivities);
+  const { data: locals = [], isLoading: isLoadingTravellers } = useQuery('travellers', fetchTravellers);
+  const { data: locations = [] } = useQuery('locations', fetchLocations);
 
   const token = useSelector((state) => state.auth.token);
 
-  const fetchLocations = async () => {
-    try {
-      const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Locations');
-      const locationData = response.data.$values.map((location) => ({
-        code: location.locationId,
-        name: location.locationName,
-      }));
-      setLocations(locationData);
-    } catch (error) {
-      console.error('Error fetching locations:', error);
-    }
-  };
+  const renderPlaceholder = () => (
+    <Row className="border-bottom p-3">
+      <Col md={2}>
+        <div className="placeholder-avatar" style={{ width: '100%', height: '150px', backgroundColor: '#e0e0e0' }}></div>
+      </Col>
+      <Col md={8}>
+        <div className="placeholder-text" style={{ width: '50%', height: '20px', backgroundColor: '#e0e0e0', marginBottom: '10px' }}></div>
+        <div className="placeholder-text" style={{ width: '80%', height: '15px', backgroundColor: '#e0e0e0', marginBottom: '10px' }}></div>
+        <div className="placeholder-text" style={{ width: '60%', height: '15px', backgroundColor: '#e0e0e0' }}></div>
+      </Col>
+      <Col md={2}>
+        <div className="placeholder-stars" style={{ width: '100%', height: '20px', backgroundColor: '#e0e0e0', marginBottom: '10px' }}></div>
+        <div className="placeholder-text" style={{ width: '50%', height: '15px', backgroundColor: '#e0e0e0' }}></div>
+      </Col>
+    </Row>
+  );
 
   const handleUserClick = (userId) => {
     dispatch(viewProfile(userId, token));
@@ -102,22 +100,30 @@ function SearchListTraveller() {
   const displayedLocals = filteredLocals.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
 
   return (
-    <Container fluid style={{ padding: '10px', width: '90%' }}>
+    <Container fluid style={{ padding: '0 70px' }}>
       <ToastContainer />
       <Row>
-        <Col md={3} className="border-end">
-          <Form.Group className="mb-3">
+        <Col md={3} style={{
+          borderRadius: '20px',
+          borderColor: '#e0e0e0',
+          padding: '20px',
+          height: 'fit-content',
+          border: '1px solid #e0e0e0',
+        }}>
+          <Form.Group className="mb-4">
             <Form.Label>Tên</Form.Label>
             <Form.Control
+              className='rounded-3'
               type="text"
-              placeholder="Nhập tên"
+              placeholder="Nhập tên người dùng"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </Form.Group>
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-4">
             <Form.Label>Địa điểm</Form.Label>
             <Form.Select
+              className='rounded-3'
               value={selectedLocation}
               onChange={(e) => setSelectedLocation(e.target.value)}
             >
@@ -130,9 +136,10 @@ function SearchListTraveller() {
             </Form.Select>
           </Form.Group>
 
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-4">
             <Form.Label>Giới tính</Form.Label>
             <Form.Select
+              className='rounded-3'
               value={gender}
               onChange={(e) => setGender(e.target.value)}
             >
@@ -155,11 +162,11 @@ function SearchListTraveller() {
 
           <Form.Group className="mb-3">
             <Form.Label>Sở thích</Form.Label>
-            <div style={{ maxHeight: '100px', overflowY: 'auto' }}>
+            <div>
               {allHobbies.map((hobby) => (
                 <Button
                   key={hobby.id}
-                  variant={selectedHobbies.includes(hobby.name) ? 'primary' : 'outline-secondary'}
+                  variant={selectedHobbies.includes(hobby.name) ? 'success' : 'outline-secondary'}
                   onClick={() => {
                     setSelectedHobbies((prev) =>
                       prev.includes(hobby.name)
@@ -176,7 +183,15 @@ function SearchListTraveller() {
           </Form.Group>
         </Col>
         <Col md={9}>
-          {filteredLocals.length === 0 ? (
+          {isLoadingTravellers ? (
+            <div className="">
+              {Array.from({ length: itemsPerPage }).map((_, index) => (
+                <React.Fragment key={index}>
+                  {renderPlaceholder()}
+                </React.Fragment>
+              ))}
+            </div>
+          ) : filteredLocals.length === 0 ? (
             <div className="text-center">Không tìm thấy kết quả.</div>
           ) : (
             displayedLocals.map((local) => (

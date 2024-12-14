@@ -1,0 +1,12 @@
+.destination_card {
+    border-color: #d9d9d9 !important;
+}
+
+.destination_card_button {
+    width: 30px;
+    height: 30px;
+}
+
+.destination_card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

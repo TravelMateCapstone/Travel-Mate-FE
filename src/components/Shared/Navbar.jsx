@@ -59,12 +59,7 @@ const Navbar = React.memo(() => {
 
   const fetchChats = async () => {
     try {
-      // const response = await axios.get('https://travelmateapp.azurewebsites.net/api/ExtraFormDetails/Chats', {
-      //   headers: {
-      //     Authorization: `${token}`
-      //   }
-      // });
-      // setChats(response.data?.$values);
+    
     } catch (error) {
       console.error('Error fetching chats:', error);
     }
@@ -88,10 +83,8 @@ const Navbar = React.memo(() => {
               };
             });
             setNotifications(updatedNotifications);
-            // Đếm số lượng thông báo chưa đọc
             const unreadCount = updatedNotifications.filter(notification => !notification.isRead).length;
-            setUnreadNotificationsCount(unreadCount); // Cập nhật số lượng thông báo chưa đọc
-            // console.log("Notifications data: ", updatedNotifications);
+            setUnreadNotificationsCount(unreadCount);
           }
         })
         .catch(error => {
@@ -103,8 +96,8 @@ const Navbar = React.memo(() => {
   const setupSignalRConnection = () => {
     const connection = new signalR.HubConnectionBuilder()
       .withUrl('https://travelmateapp.azurewebsites.net/serviceHub', {
-        skipNegotiation: true,  // Optional: You can try skipping the negotiation if you're having issues with CORS
-        transport: signalR.HttpTransportType.WebSockets // Use WebSockets if available
+        skipNegotiation: true,  
+        transport: signalR.HttpTransportType.WebSockets 
       })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
@@ -114,14 +107,12 @@ const Navbar = React.memo(() => {
       .start()
       .then(() => {
         console.log('SignalR connected successfully.');
-        // Lắng nghe sự kiện "NotificationReceived"
         connection.on('NotificationCreated', (newNotification) => {
           setNotifications((prevNotifications) => [
             newNotification,
             ...prevNotifications,
           ]);
         });
-        // Lắng nghe sự kiện "ReadNotification"
         connection.on('ReadNotification', (updatedNotification) => {
           console.log(updatedNotification);
           setNotifications((prevNotifications) =>
@@ -143,13 +134,9 @@ const Navbar = React.memo(() => {
     setupSignalRConnection();
     fetchChats();
     fetchNotifications();
-    // Cleanup on unmount or logout
     return () => {
       if (connectionRef.current) {
         connectionRef.current.stop()
-          // .then(() => {
-          //   console.log("SignalR connection stopped on unmount.");
-          // })
           .catch((error) => {
             console.error("Error stopping SignalR connection on unmount:", error);
           });
@@ -179,9 +166,6 @@ const Navbar = React.memo(() => {
 
   const handleLogout = useCallback(() => {
     dispatch(logout());
-    // Clear token from state
-    dispatch(logout());
-    // Stop SignalR connection
     if (connectionRef.current) {
       connectionRef.current.stop()
         .then(() => {
@@ -191,7 +175,7 @@ const Navbar = React.memo(() => {
           console.error("Error stopping SignalR connection:", error);
         });
     }
-    navigate(RoutePath.AUTH); // Navigate to login page after logout
+    navigate(RoutePath.AUTH); 
   }, [dispatch, navigate]);
 
   const handleSelect = useCallback((eventKey) => {
@@ -252,22 +236,17 @@ const Navbar = React.memo(() => {
       setShowMoreNotifications(true);
     }
   };
-
   useEffect(() => {
     const initialNotifications = notifications.slice(0, 5);
     setDisplayedNotifications(initialNotifications);
   }, [notifications]);
-
-  // search
-
   const [locations, setLocations] = useState([]);
   const [filteredLocations, setFilteredLocations] = useState([]);
   const [searchInput, setSearchInput] = useState('');
   const [selectedItem, setSelectedItem] = useState('Địa điểm du lịch');
 
-  const location = useLocation(); // Lấy Route hiện tại
+  const location = useLocation();
 
-  // Hàm chuyển chuỗi thành không dấu
   const removeVietnameseTones = (str) => {
     return str
       .normalize('NFD')
@@ -276,7 +255,6 @@ const Navbar = React.memo(() => {
       .replace(/Đ/g, 'D');
   };
 
-  // Gọi API để lấy danh sách địa điểm
   const fetchLocations = useCallback(async () => {
     try {
       const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Locations');
@@ -285,18 +263,13 @@ const Navbar = React.memo(() => {
       console.error('Error fetching locations:', error);
     }
   }, []);
-
   useEffect(() => {
     fetchLocations();
   }, [fetchLocations]);
-
   useEffect(() => {
     const savedLocations = JSON.parse(localStorage.getItem('selectedLocations')) || [];
     console.log('Địa điểm đã lưu:', savedLocations);
   }, []);
-
-
-  // Hàm xử lý tìm kiếm theo từng loại
   const handleEnterSearch = (e) => {
     if (e.key === 'Enter') {
       if (selectedItem === 'Địa điểm du lịch') {
@@ -309,7 +282,6 @@ const Navbar = React.memo(() => {
     }
     dispatch(searchTour(searchInput));
   };
-
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchInput(value);
@@ -317,18 +289,16 @@ const Navbar = React.memo(() => {
       setFilteredLocations([]);
       return;
     }
-    if (navigateTo === RoutePath.DESTINATION) {
-      const filtered = locations.filter((location) =>
-        removeVietnameseTones(location.locationName.toLowerCase()).includes(removeVietnameseTones(value.toLowerCase()))
-      );
-      setFilteredLocations(filtered.slice(0, 5));
-    }
+    const filtered = locations.filter((location) =>
+      removeVietnameseTones(location.locationName.toLowerCase()).includes(removeVietnameseTones(value.toLowerCase()))
+    );
+    setFilteredLocations(filtered.slice(0, 5));
   };
 
   const handleLocationSelect = (location) => {
     setSearchInput(location.locationName);
     setFilteredLocations([]);
-    localStorage.setItem('selectedLocation', JSON.stringify(location)); // Lưu vào localStorage
+    localStorage.setItem('selectedLocation', JSON.stringify(location)); 
 
     if (selectedItem === "Địa điểm du lịch") {
       navigate(RoutePath.DESTINATION, { state: { selectedLocation: location } });
@@ -338,9 +308,6 @@ const Navbar = React.memo(() => {
       navigate(RoutePath.SEARCH_LIST_TRAVELLER, { state: { selectedLocation: location } });
     }
   };
-
-
-  // Cập nhật giao diện khi thay đổi `location.pathname`
   useEffect(() => {
     if (location.pathname.includes(RoutePath.SEARCH_LIST_LOCAL)) {
       localStorage.removeItem('selectedLocation');
@@ -381,10 +348,13 @@ const Navbar = React.memo(() => {
                   style={{ border: 'none', outline: 'none', flex: 1, fontSize: '12px' }}
                 />
                 {filteredLocations.length > 0 && (
-                  <Dropdown.Menu show className="w-100">
+                  <Dropdown.Menu show  style={{
+                    marginLeft: '175px',
+                    width: '405px',
+                  }}>
                     {filteredLocations.map((location) => (
                       <Dropdown.Item key={location.locationId} onClick={() => handleLocationSelect(location)}>
-                        {location.locationName}
+                        <p className='mb-1 fw-medium'>{location.locationName}</p>
                       </Dropdown.Item>
                     ))}
                   </Dropdown.Menu>

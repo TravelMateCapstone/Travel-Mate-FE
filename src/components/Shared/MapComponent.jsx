@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from "react";
 import vnMap from "../../assets/vn.svg";
+import { useSelector } from "react-redux";
 
 const MapComponent = () => {
+  const user = useSelector((state) => state.auth.user);
+
   const selectedNames = ["Hải Dương", "Hà Nam", "Nghệ An",];
-  // Hàm kiểm tra và trả về màu
+
+  
+
+
   const getFillColor = (name) => {
     return selectedNames.includes(name) ? "#ED6542" : "#979797";
   };
@@ -73,7 +79,7 @@ const MapComponent = () => {
         viewBox="0 0 1000 1000"
         width="1000"
         xmlns="http://www.w3.org/2000/svg"
-        transform="scale(0.8)"
+        transform="scale(0.75)"
         style={{
           display: "block",
           margin: "auto",
