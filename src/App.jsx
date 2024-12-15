@@ -19,7 +19,7 @@ const RouteWrapper = ({ component: Component, layout: Layout, path }) => {
   
 
   useEffect(() => {
-    if (privateRoutes.some(route => route.path === path) && !isAuthenticated) {
+    if (privateRoutes.some(route => route.path === path && route.path === RoutePath.AUTH) && !isAuthenticated) {
       toast.error("Bạn không có quyền truy cập trang này. Vui lòng đăng nhập để tiếp tục.");
       navigate(RoutePath.AUTH);
     }
@@ -27,7 +27,7 @@ const RouteWrapper = ({ component: Component, layout: Layout, path }) => {
   }, [dispatch, isAuthenticated, path, userRole]);
 
   if (privateRoutes.some(route => route.path === path) && !isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={RoutePath.AUTH} replace />;
   }
 
   if (Layout === null) {
