@@ -75,13 +75,11 @@ function TourCard({ tour, onTourUpdated }) {
             return activitySum + activityDayCost;
         }, 0);
 
-        // Tính tổng chi phí khác
         const totalCostDetail = costDetails.reduce(
             (costSum, cost) => costSum + parseFloat(cost.amount || 0),
             0
         );
 
-        // Cập nhật giá tour
         setTourDetails((prevDetails) => ({
             ...prevDetails,
             price: totalActivityCost + totalCostDetail,
@@ -97,7 +95,7 @@ function TourCard({ tour, onTourUpdated }) {
                 }
             });
             setParticipants(response.data.$values);
-            console.log(response.data.$values);
+            console.log('participants', response.data.$values);
         } catch (error) {
             console.error("There was an error fetching the participants!", error);
         }
@@ -702,6 +700,9 @@ function TourCard({ tour, onTourUpdated }) {
                                             <Button onClick={() => {
                                                 localStorage.setItem('isLocal', 'local');
                                                 localStorage.setItem('participant', JSON.stringify(participant));
+                                                localStorage.setItem('tourSelected', JSON.stringify(tour));
+                                                console.log(participant);
+                                                
                                                 navigate(RoutePath.ONGOING_CONTRACT)
                                             }}>
                                                 Xem hợp đồng

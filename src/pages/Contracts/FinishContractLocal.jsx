@@ -16,6 +16,7 @@ function FinishContractLocal() {
     const [review, setReview] = useState('');
     const [star, setStar] = useState(0);
     const participant = JSON.parse(localStorage.getItem('participant'));
+    
     const [postParticipant, setPostParticipant] = useState();
     const handleImageUpload = async (event) => {
         const files = Array.from(event.target.files);
@@ -39,21 +40,13 @@ function FinishContractLocal() {
             toast.error("Đánh giá không được để trống.");
             return;
         }
-        const postPhotos = images.map(image => ({ photoUrl: image }));
         const formData = {
-            location: "Đà Lạt, Việt Nam",
-            isPublic: postParticipant.isPublic,
-            caption: postParticipant.caption, 
-            review: review,
-            star: star,
-            postPhotos: postPhotos,
+            localId: user.id,
+            comment: review
         };
-        console.log(formData);
-        
-
         try {
             const response = await axios.put(
-                `https://travelmateapp.azurewebsites.net/api/PastTripPosts/${postParticipant.pastTripPostId}/LocalUpdate`,
+                `https://travelmateapp.azurewebsites.net/api/PastTripPost/local?postId=675ff2c0ab63b9f9701288da`,
                 formData,
                 {
                     headers: {
@@ -62,8 +55,6 @@ function FinishContractLocal() {
                     },
                 }
             );
-
-
             toast.success("Phản hồi bài viết khách du lịch thành công.");
             console.log(response.data);
         } catch (error) {
@@ -75,7 +66,6 @@ function FinishContractLocal() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                console.log('participant', participant);
                 const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/PastTripPosts/UserTrips/${participant.participantId}`, {
                     headers: {
                         Authorization: `${token}`,

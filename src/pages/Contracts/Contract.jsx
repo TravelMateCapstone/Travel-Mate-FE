@@ -14,6 +14,8 @@ function Contract() {
   const [contracts, setContracts] = useState([]);
   const [timeLeft, setTimeLeft] = useState({});
   const user = useSelector(state => state.auth.user);
+  console.log(contracts);
+  
   const navigate = useNavigate();
   useEffect(() => {
     axios.get(`https://travelmateapp.azurewebsites.net/api/BlockContract/contracts-by-traveler/${user.id}`)

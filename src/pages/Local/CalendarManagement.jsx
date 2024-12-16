@@ -104,7 +104,7 @@ function CalendarManagement() {
         defaultDate={new Date()}
         defaultView="month"
         events={eventsData}
-        style={{ height: '88vh' }}
+        style={{ height: '88vh', width: '1670px' }}
         onSelectEvent={handleEventSelect}
         onSelectSlot={handleSelect}
       />

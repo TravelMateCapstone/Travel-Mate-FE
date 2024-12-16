@@ -1,22 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { useSelector } from 'react-redux';
+import MonthlySpendingChart from '../../components/Local/MonthlySpendingChart';
 
 function WalletManagement() {
-  const [rowData, setRowData] = useState([
-    { name: 'Chợ Tesco', status: 'Thành công', date: '13 Tháng 12 2020', amount: 756700 },
-    { name: 'Chợ ElectroMen', status: 'Đang chờ', date: '14 Tháng 12 2020', amount: 2500000 },
-    { name: 'Nhà hàng Fiorgio', status: 'Thất bại', date: '07 Tháng 12 2020', amount: 195000 },
-    { name: 'John Mathew Kayne', status: 'Thành công', date: '06 Tháng 12 2020', amount: 3500000 },
-    { name: 'Ann Marlin', status: 'Thành công', date: '31 Tháng 11 2020', amount: 4300000 },
-  ]);
-
+  const [rowData, setRowData] = useState([]);
   const [quickFilterText, setQuickFilterText] = useState('');
+  const user = useSelector(state => state.auth.user);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await fetch(`https://travelmateapp.azurewebsites.net/api/Transaction/traveler/${user.id}`);
+        const data = await response.json();
+        const transactions = data.$values.map(transaction => ({
+          name: transaction.travelerName,
+          tourName: transaction.tourName,
+          localName: transaction.localName,
+          date: new Date(transaction.transactionTime).toLocaleDateString('vi-VN'),
+          amount: transaction.price,
+          transactionTime: transaction.transactionTime // Add this line
+        }));
+        setRowData(transactions);
+      } catch (error) {
+        console.error('Error fetching transactions:', error);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
 
   const columnDefs = [
     { headerName: 'Khách Du Lịch', field: 'name', filter: 'agTextColumnFilter', sortable: true },
-    { headerName: 'Trạng Thái', field: 'status', filter: 'agSetColumnFilter', sortable: true },
+    { headerName: 'Tên Tour', field: 'tourName', filter: 'agTextColumnFilter', sortable: true },
+    { headerName: 'Tên Địa Phương', field: 'localName', filter: 'agTextColumnFilter', sortable: true },
     { headerName: 'Thời Gian Giao Dịch', field: 'date', filter: 'agDateColumnFilter', sortable: true },
     { 
       headerName: 'Số Tiền (VND)', 
@@ -32,10 +52,18 @@ function WalletManagement() {
     filter: true,
     resizable: true,
   };
+  console.log(rowData);
+  
 
   return (
     <div>
       <div>
+      <select value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))}>
+        {[2021, 2022, 2023, 2024, 2025].map(year => (
+          <option key={year} value={year}>{year}</option>
+        ))}
+      </select>
+      <MonthlySpendingChart transactions={rowData} selectedYear={selectedYear} />
         <input
           type="text"
           className='form-control'
