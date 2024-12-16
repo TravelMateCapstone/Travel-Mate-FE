@@ -1,25 +1,25 @@
 import React, { useState } from 'react';
 import { Dropdown } from 'react-bootstrap';
 import Modal from 'react-modal';
-import { useMutation, useQueryClient } from 'react-query'; // Import useMutation and useQueryClient from react-query
+import { useMutation, useQueryClient } from 'react-query';
 import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
-import { deletePost, updatePost, viewProfile } from '../../redux/actions/profileActions'; // Import deletePost and updatePost actions
+import { deletePost, updatePost, viewProfile } from '../../redux/actions/profileActions';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import ConfirmModal from '../Shared/ConfirmModal'; // Import ConfirmModal
+import ConfirmModal from '../Shared/ConfirmModal';
 
-Modal.setAppElement('#root'); // Thiết lập root element cho modal
+Modal.setAppElement('#root');
 
-function PostProfile({ postPhotos, travelerAvatar, travelerName, location, createdAt, caption, localAvatar, localName, review, star, pastTripPostId }) {
+function PostProfile({ travelerAvatar, travelerName, location, createdAt, caption, localAvatar, localName, comment, star, id, localId, travelerId, isCaptionEdit, tripImages, isCommentEdited }) {
     const [showModal, setShowModal] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false); // State for edit modal
-    const [editData, setEditData] = useState({ location, caption, star, postPhotos: [] }); // State for edit data
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editData, setEditData] = useState({ location, caption, star, postPhotos: [] });
     const [selectedFiles, setSelectedFiles] = useState([]);
-    const [showConfirmModal, setShowConfirmModal] = useState(false); // State for confirm modal
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
     const token = useSelector(state => state.auth.token);
-    const queryClient = useQueryClient(); // Initialize queryClient
+    const queryClient = useQueryClient();
     const dispatch = useDispatch();
     const storage = getStorage();
     const user = useSelector(state => state.auth.user);
@@ -36,7 +36,7 @@ function PostProfile({ postPhotos, travelerAvatar, travelerName, location, creat
 
     const deletePostMutation = useMutation(
         async () => {
-            const response = await fetch(`https://travelmateapp.azurewebsites.net/api/PastTripPosts/${pastTripPostId}`, {
+            const response = await fetch(`https://travelmateapp.azurewebsites.net/api/PastTripPost/${id}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `${token}`
@@ -49,10 +49,11 @@ function PostProfile({ postPhotos, travelerAvatar, travelerName, location, creat
         {
             onSuccess: () => {
                 toast.success('Xóa bài viết thành công');
-                queryClient.invalidateQueries('pastTrips'); // Invalidate and refetch posts
-                dispatch(deletePost(pastTripPostId)); // Dispatch deletePost action
+                queryClient.invalidateQueries('pastTrips');
+                dispatch(deletePost(id));
             },
             onError: (error) => {
+                toast.error('Bạn không có quyền xoá bài viết này');
                 console.error('Error deleting post:', error);
             }
         }
@@ -60,13 +61,18 @@ function PostProfile({ postPhotos, travelerAvatar, travelerName, location, creat
 
     const updatePostMutation = useMutation(
         async (updatedData) => {
-            const response = await fetch(`https://travelmateapp.azurewebsites.net/api/PastTripPosts/${pastTripPostId}/TravelerUpdate`, {
+            const response = await fetch(`https://travelmateapp.azurewebsites.net/api/PastTripPost/traveler?postId=${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `${token}`
                 },
-                body: JSON.stringify(updatedData)
+                body: JSON.stringify({
+                    travelerId: travelerId,
+                    caption: updatedData.caption,
+                    star: updatedData.star,
+                    tripImages: updatedData.postPhotos.map(photo => photo.photoUrl)
+                })
             });
             if (!response.ok) {
                 throw new Error('Error updating post');
@@ -77,10 +83,9 @@ function PostProfile({ postPhotos, travelerAvatar, travelerName, location, creat
                 toast.success('Cập nhật bài viết thành công');
                 dispatch(viewProfile(user.id, token));
                 handleCloseEditModal();
-                dispatch(updatePost(pastTripPostId, data)); // Dispatch updatePost action
+                dispatch(updatePost(id, data));
                 queryClient.invalidateQueries('pastTrips');
                 queryClient.refetchQueries('pastTrips');
-
             },
             onError: (error) => {
                 console.error('Error updating post:', error);
@@ -135,56 +140,6 @@ function PostProfile({ postPhotos, travelerAvatar, travelerName, location, creat
         return format(date, 'dd/MM/yyyy HH:mm', { locale: vi });
     };
 
-    const renderPhotos = () => {
-        const photos = postPhotos.$values;
-        if (photos.length === 1) {
-            return <img src={photos[0].photoUrl} alt="Post" style={{ width: '100%', height: '300px', objectFit: 'cover', marginBottom: '10px' }} />;
-        } else if (photos.length === 2) {
-            return photos.map(photo => (
-                <img key={photo.postPhotoId} src={photo.photoUrl} alt="Post" style={{ width: '50%', height: '300px', objectFit: 'cover', marginBottom: '10px' }} />
-            ));
-        } else if (photos.length === 3) {
-            return (
-                <div className='d-flex flex-wrap position-relative' style={{ gap: '10px' }}>
-                    {photos.slice(0, 2).map(photo => (
-                        <img key={photo.postPhotoId} src={photo.photoUrl} alt="Post" style={{ width: 'calc(50% - 5px)', height: '300px', objectFit: 'cover' }} />
-                    ))}
-                    <div style={{ width: 'calc(50% - 5px)', height: '300px' }}>
-                        <img src={photos[2].photoUrl} alt="Post" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                </div>
-            );
-        } else if (photos.length === 4) {
-            return (
-                <div className='d-flex flex-wrap' style={{ gap: '10px' }}>
-                    {photos.map((photo, index) => (
-                        <img
-                            key={photo.postPhotoId}
-                            src={photo.photoUrl}
-                            alt="Post"
-                            style={{ width: 'calc(50% - 5px)', height: '200px', objectFit: 'cover', cursor: index === 3 ? 'pointer' : 'default' }}
-                            onClick={index === 3 ? handleShowModal : undefined}
-                        />
-                    ))}
-                </div>
-            );
-        } else if (photos.length > 4) {
-            return (
-                <div className='d-flex flex-wrap position-relative' style={{ gap: '10px' }}>
-                    {photos.slice(0, 3).map(photo => (
-                        <img key={photo.postPhotoId} src={photo.photoUrl} alt="Post" style={{ width: 'calc(50% - 5px)', height: '300px', objectFit: 'cover' }} />
-                    ))}
-                    <div className='position-relative' style={{ width: 'calc(50% - 5px)', height: '300px' }}>
-                        <img src={photos[3].photoUrl} alt="Post" style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'pointer' }} />
-                        <div className='position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center' onClick={handleShowModal} style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', color: 'white', fontSize: '24px', cursor: 'pointer' }}>
-                            +{photos.length - 4}
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-    };
-
     const handleStarClick = (starValue) => {
         setEditData(prevState => ({ ...prevState, star: starValue }));
     };
@@ -201,20 +156,34 @@ function PostProfile({ postPhotos, travelerAvatar, travelerName, location, creat
                         </div>
                         <small className='m-0'>{formatDate(createdAt)}</small>
                     </div>
+                    
                 </div>
-                <Dropdown>
-                    <Dropdown.Toggle variant="" >
-                        <ion-icon name="ellipsis-vertical-outline"></ion-icon>
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu align={'end'}>
-                        <Dropdown.Item onClick={handleShowConfirmModal}>Xóa bài viếts</Dropdown.Item>
-                        <Dropdown.Item onClick={handleShowEditModal}>Sửa bài viết</Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
+                {user.id == travelerId && (
+                    <Dropdown>
+                        <Dropdown.Toggle variant="" >
+                            <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu align={'end'}>
+                            <Dropdown.Item onClick={handleShowConfirmModal}>Xóa bài viết</Dropdown.Item>
+                            <Dropdown.Item onClick={handleShowEditModal}>Sửa bài viết</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                )}
             </div>
-            <p>{caption}</p>
-            <div className='d-flex flex-wrap mb-2'>
-                {renderPhotos()}
+            <p>{caption} {isCaptionEdit && <span>(đã chỉnh sửa)</span>}</p>
+            <div>
+                {tripImages.$values.map((image, index) => (
+                    <img
+                        key={index}
+                        src={image}
+                        alt="Trip"
+                        width={100}
+                        height={100}
+                        className='object-fit-cover rounded-3'
+                        style={{ margin: '5px' }}
+                        onClick={handleShowModal}
+                    />
+                ))}
             </div>
             <div className='d-flex gap-2'>
                 <img src={localAvatar} alt={localName} width={60} height={60} className='object-fit-cover rounded-circle' />
@@ -227,7 +196,7 @@ function PostProfile({ postPhotos, travelerAvatar, travelerName, location, creat
                             ))}
                         </p>
                     </div>
-                    <p>{review}</p>
+                    <p>{comment} {isCommentEdited && <span>(đã chỉnh sửa)</span>}</p>
                 </div>
             </div>
             <Modal
@@ -241,8 +210,16 @@ function PostProfile({ postPhotos, travelerAvatar, travelerName, location, creat
             >
                 <div className='d-flex justify-content-end'><button className='btn btn-danger' onClick={handleCloseModal}><ion-icon name="close-outline"></ion-icon></button></div>
                 <div className='d-flex flex-wrap'>
-                    {postPhotos.$values.map(photo => (
-                        <img key={photo.postPhotoId} src={photo.photoUrl} alt="Post" style={{ width: 'calc(33.33% - 10px)', margin: '5px', height: '200px', objectFit: 'cover' }} />
+                    {tripImages.$values.map((image, index) => (
+                        <img
+                            key={index}
+                            src={image}
+                            alt="Trip"
+                            width={200}
+                            height={200}
+                            className='object-fit-cover rounded-3'
+                            style={{ margin: '5px' }}
+                        />
                     ))}
                 </div>
             </Modal>
@@ -252,15 +229,15 @@ function PostProfile({ postPhotos, travelerAvatar, travelerName, location, creat
                 contentLabel="Edit Post"
                 style={{
                     overlay: { backgroundColor: 'rgba(0, 0, 0, 0.75)' },
-                    content: { inset: '5%', padding: '20px', borderRadius: '10px', overflow: 'auto', maxWidth: '600px', height: '520px', margin: 'auto' } // Adjusted size
+                    content: { inset: '5%', padding: '20px', borderRadius: '10px', overflow: 'auto', maxWidth: '600px', height: '520px', margin: 'auto' }
                 }}
             >
                 <div className='d-flex justify-content-end'><button className='btn btn-danger' onClick={handleCloseEditModal}><ion-icon name="close-outline"></ion-icon></button></div>
                 <div className='overflow-auto'>
-                    <div className='mb-3'>
+                    {/* <div className='mb-3'>
                         <label>Địa điểm</label>
                         <input type="text" name="location" value={editData.location} onChange={handleEditChange} className='form-control' />
-                    </div>
+                    </div> */}
                     <div className='mb-3'>
                         <label>Nội dung bài viết</label>
                         <input type="text" name="caption" value={editData.caption} onChange={handleEditChange} className='form-control' />
@@ -283,9 +260,9 @@ function PostProfile({ postPhotos, travelerAvatar, travelerName, location, creat
                         <input type="file" id='upload_img_pastrip' multiple onChange={handlePhotoChange} className='form-control d-none' />
                     </div>
                     <div className='d-flex flex-wrap'>
-                        {editData.postPhotos.map((photo, index) => (
+                        {tripImages.$values.map((photo, index) => (
                             <div key={index} style={{ position: 'relative', margin: '5px' }}>
-                                <img src={photo.photoUrl} alt="Selected" style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
+                                <img src={photo} alt="Selected" style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
                                 <button
                                     type="button"
                                     className="btn btn-danger btn-sm"
@@ -307,7 +284,6 @@ function PostProfile({ postPhotos, travelerAvatar, travelerName, location, creat
                 title="Xác nhận xóa bài viết"
                 message="Bạn có chắc chắn muốn xóa bài viết này không?"
             />
-
         </div>
     );
 }

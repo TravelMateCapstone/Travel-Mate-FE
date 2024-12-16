@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import VerifySignatureRSA from "../../components/Tour/VerifySignatureRSA";
+import TimeLine from "../../components/Contracts/TimeLine";
 
 function CreateContract() {
   const user = useSelector((state) => state.auth.user);
@@ -16,6 +17,7 @@ function CreateContract() {
   const tourInfo = useSelector((state) => state.tour.tour);
   const navigate = useNavigate();
   const travlerrSignature = useSelector((state) => state.signature.signature);
+  const [isValidSignature, setIsValidSignature] = useState(false);
   const formatDate = (date) => {
     return format(new Date(date), "dd/MM/yyyy", { locale: vi });
   };
@@ -36,6 +38,10 @@ function CreateContract() {
   }, [user.id]);
 
   const handleCreateContractAndPayment = async () => {
+    if (!isValidSignature) {
+      toast.error("Vui lòng tải chữ ký hợp lệ trước khi tiếp tục");
+      return;
+    }
     const contractInfo = {
       travelerId: parseInt(user.id),
       localId: tourInfo.creator.id,
@@ -90,6 +96,7 @@ function CreateContract() {
 
   return (
     <div className="">
+      <TimeLine activeStep={1} />
       <Row
         className="rounded-top-4"
         style={{
@@ -124,7 +131,7 @@ function CreateContract() {
                 <sub className="fw-medium">{profile?.address}</sub>
               </div>
             </div>
-            <VerifySignatureRSA />
+            <VerifySignatureRSA setIsValidSignature={setIsValidSignature} />
             {/* <Button variant="outline-warning" className="rounded-5">
               Chưa đồng ý
             </Button> */}

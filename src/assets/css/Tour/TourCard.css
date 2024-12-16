@@ -29,3 +29,15 @@
 .info_tour_container{
     gap: 5px;
 }
+
+.tour_card_component{
+   
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 4px rgba(217, 217, 217, 0.8), 0 -4px 4px rgba(217, 217, 217, 0.8), 4px 0 4px rgba(217, 217, 217, 0.8), -4px 0 4px rgba(217, 217, 217, 0.8);
+}
+.tour_card_component:hover {
+    background: rgba(217, 217, 217, 0.5);
+    box-shadow: 0 4px 2px rgba(0, 0, 0, 0.1), 0 -4px 2px rgba(0, 0, 0, 0.1), 4px 0 2px rgba(0, 0, 0, 0.1), -4px 0 2px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+}

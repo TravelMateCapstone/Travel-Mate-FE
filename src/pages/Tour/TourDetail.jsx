@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import RoutePath from "../../routes/RoutePath";
 import axios from "axios";
 import { toast } from "react-toastify";
+import Table from 'react-bootstrap/Table';
 
 function TourDetail() {
     const [key, setKey] = useState("home");
@@ -18,7 +19,14 @@ function TourDetail() {
 
     console.log(tourData);
 
-    
+    const formatDateToVietnamese = (date) => {
+        return new Date(date).toLocaleString('vi-VN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+        });
+    };
+
     const handelJointTour = async (tourId) => {
         try {
             const response = await axios.post(
@@ -30,12 +38,14 @@ function TourDetail() {
                     },
                 }
             );
-     
+
             navigate(RoutePath.CREATE_CONTRACT);
         } catch (error) {
             console.error("Error joining tour:", error);
             if (error.response && error.response.data === "You have joined this tour") {
-                toast.error("You have already joined this tour");
+                toast.error("Bạn đã tham gia tour này. Vui lòng kiểm tra hợp đồng của bạn.");
+            } else if(error.response && error.response.data === "Access Denied! You are creator of this tour") {
+                toast.error("Bạn đã tạo tour này. Vui lòng kiểm tra hợp đồng của bạn trong phần quản lí chuyến đi.");
             }
         }
     };
@@ -46,7 +56,7 @@ function TourDetail() {
             <div>
                 <main className="__className_843922">
                     <div>
-                        <div className="py-0 container">
+                        <div className="py-0 container-fluid">
                             <section className="flex flex-col py-4">
                                 <Placeholder as="h1" animation="glow">
                                     <Placeholder xs={6} />
@@ -152,32 +162,36 @@ function TourDetail() {
         <div>
             <main className="__className_843922">
                 <div>
-                    <div className="py-0 container">
+                    <div className="py-0 container-fluid" style={{
+                        padding: "0 150px",
+                    }}>
                         <section className="flex flex-col py-4">
-                            <h1 className="text-purple fw-semibold">
-                                {tourData.tourName}
-                            </h1>
+                          <div className="d-flex gap-2 align-items-end">
+                               <h1>Tour/</h1>
+                               <h2 >
+                                    {tourData.tourName}
+                                </h2>
+                          </div>
                         </section>
-                        <div className="row">
-                            <div className="col-md-8">
+                        <div className="row" style={{}}>
+                            <div className="col-md-9 ">
                                 <img
                                     alt="thumbnail"
                                     loading="lazy"
-                                    width={793}
-                                    height={'100%'}
+                                    width={'100%'}
+                                    height={600}
                                     decoding="async"
                                     data-nimg={1}
-                                    className="rounded-4"
-                                    style={{ color: "transparent" }}
+                                    className="rounded-4 object-fit-cover"
                                     src={tourData.tourImage}
                                 />
                             </div>
-                            <div className="hidden lg:block col-md-4">
-                                <div className="border-1 p-3 rounded-4 d-flex flex-column align-items-center">
-                                    <img src={tourData.creator.avatarUrl} alt="" width={50} height={50} className="rounded-circle object-fit-cover" />
-                                    <h5>{tourData.creator.fullname}</h5>
-                                    <h6>{tourData.creator.address}</h6>
-                                    <div className="start_container">
+                            <div className="hidden lg:block col-md-3">
+                                <div className="tour_card_component bg-white p-3 rounded-4 d-flex flex-column align-items-center">
+                                    <img src={tourData.creator.avatarUrl} alt="" width={50} height={50} className="rounded-circle object-fit-cover mb-2" />
+                                    <h5 className="mb-0">{tourData.creator.fullname}</h5>
+                                    <h6 className="">{tourData.creator.address}</h6>
+                                    <div className="start_container mt-2 mb-0">
                                         {[...Array(tourData.creator.rating)].map((_, i) => (
                                             <ion-icon key={i} name="star"></ion-icon>
                                         ))}
@@ -185,34 +199,54 @@ function TourDetail() {
                                             <ion-icon key={i} name="star-outline"></ion-icon>
                                         ))}
                                     </div>
-                                    <p className="mb-0">{tourData.creator.totalTrips} chuyến đi</p>
+                                    <p className="mb-2">{tourData.creator.totalTrips} chuyến đi</p>
                                     <p className="mb-0">Tham gia từ {new Date(tourData.creator.joinedAt).getFullYear()}</p>
                                 </div>
-                                <div className="border-1 p-3 rounded-4 mt-3">
+                                <div className=" p-3 rounded-4 mt-3 tour_card_component bg-white">
                                     <div className="flex flex-col tour-form_gap__N_UmA ">
-                                        <h5>Thông tin cơ bản</h5>
-                                        <div>
-                                            <span className="fw-semibold">Khởi hành từ: </span>
-                                            {tourData.location}
-                                        </div>
-                                        <div>
-                                            <span className="fw-semibold">Thời gian: </span>{tourData.numberOfDays} ngày {tourData.numberOfNights} đêm
-                                        </div>
-                                        <div>
-                                            <span className="fw-semibold">Ngày khởi hành: </span>
-                                            {new Date(tourData.startDate).toLocaleString()}
-                                        </div>
-                                        <div>
-                                            <span className="fw-semibold">Ngày kết thúc: </span>
-                                            {new Date(tourData.endDate).toLocaleString()}
-                                        </div>
-                                        <div className="flex flex-wrap gap-[10px]" />
+                                        <h5 className="fw-bold mb-3 text-center">Thông tin cơ bản</h5>
+                                        <Table borderless hover>
+                                            <tbody>
+                                                <tr>
+                                                    <td className="fw-medium">Khởi hành từ</td>
+                                                    <td>{tourData.location}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="fw-medium">Thời gian</td>
+                                                    <td>{tourData.numberOfDays} ngày, {tourData.numberOfNights} đêm</td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="fw-medium">Ngày khởi hành</td>
+                                                    <td><div className="border-1 p-2" style={{
+                                                        width: "fit-content",
+                                                        borderRadius: "10px",
+                                                    }}>
+                                                        {formatDateToVietnamese(tourData.startDate)}</div></td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="fw-medium">Ngày kết thúc</td>
+                                                    <td>  <div
+                                                        className="border-1 p-2"
+                                                        style={{
+                                                            width: "fit-content",
+                                                            borderRadius: "10px",
+                                                        }}
+                                                    >
+                                                        {formatDateToVietnamese(tourData.endDate)}
+                                                    </div></td>
+                                                </tr>
+                                                <tr>
+                                                
+                                                    <td className="p-0 ps-2"><h4 className="fw-bold text-success mb-0">{tourData.price.toLocaleString()}&nbsp;₫</h4></td>
+                                                    <td></td>
+                                                </tr>
+                                            </tbody>
+                                        </Table>
+                                        <div />
                                     </div>
-                                    <div>
-                                        <span>{tourData.price.toLocaleString()}&nbsp;₫</span>
-                                    </div>
-                                    <div className="d-flex gap-3">
-                                        <Button variant="outline-secondary">🔥 Nhắn tin!</Button>
+
+                                    <div className="d-flex gap-5 justify-content-center">
+                                        <Button variant="outline-secondary">🔥 Nhắn tin</Button>
                                         {(tourData.registeredGuests < tourData.maxGuests) ? (
                                             <Button variant="outline-success" onClick={() => handelJointTour(tourData.tourId)}>🚀 Đặt chỗ ngay</Button>
                                         ) : (
@@ -232,16 +266,36 @@ function TourDetail() {
                                 <Accordion defaultActiveKey="0">
                                     {tourData.itinerary.$values.map((day, index) => (
                                         <Accordion.Item eventKey={index.toString()} key={index}>
-                                            <Accordion.Header>Ngày {day.day} - {new Date(day.date).toLocaleDateString()}</Accordion.Header>
+                                            <Accordion.Header><div className="d-flex flex-column"><strong>Ngày {day.day}</strong> <small className="mb-0 mt-2">{formatDateToVietnamese(day.date)}</small></div></Accordion.Header>
                                             <Accordion.Body>
-                                                {day.activities.$values.map((activity, idx) => (
-                                                    <div key={idx} className="timeline-activity">
-                                                        <p><strong>{activity.startTime} - {activity.endTime}</strong> - {activity.title}</p>
-                                                        <p>Địa chỉ: {activity.activityAddress}</p>
-                                                        <p>Chi phí: {activity.activityAmount.toLocaleString()}₫</p>
-                                                        {activity.activityImage && <img src={activity.activityImage} alt="" className="activity-image fixed-size" />}
-                                                    </div>
-                                                ))}
+                                                <Table bordered hover>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Thời gian</th>
+                                                            <th>Hoạt động</th>
+                                                            <th>Địa chỉ</th>
+                                                            <th>Chi phí</th>
+                                                            <th>Ghi chú</th>
+                                                            <th>Mô tả</th>
+                                                            <th>Hình ảnh</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {day.activities.$values.map((activity, idx) => (
+                                                            <tr key={idx}>
+                                                                <td>
+                                                                    <strong>{activity.startTime} {activity.endTime}</strong>
+                                                                </td>
+                                                                <td>{activity.title}</td>
+                                                                <td>{activity.activityAddress}</td>
+                                                                <td className="fw-bold text-success">{activity.activityAmount.toLocaleString()}₫</td>
+                                                                <td>{activity.note}</td>
+                                                                <td>{activity.description}</td>
+                                                                <td>{activity.activityImage && <img src={activity.activityImage} alt="" className="activity-image fixed-size rounded-3" />}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </Table>
                                             </Accordion.Body>
                                         </Accordion.Item>
                                     ))}

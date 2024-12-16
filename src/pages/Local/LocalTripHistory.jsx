@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from 'react-query'
 import { Form, Table, Placeholder, Dropdown } from 'react-bootstrap';
 
 function LocalTripHistory() {
-  const [approvalStatus, setApprovalStatus] = useState(0)
+  const [approvalStatus, setApprovalStatus] = useState(1)
   const token = useSelector(state => state.auth.token)
   const queryClient = useQueryClient()
 

@@ -12,7 +12,6 @@ function DestinationCard({ destination }) {
     const dispatch = useDispatch();
     const user = useSelector(state => state.auth.user);
     const handleDestinationClick = () => {
-        console.log('Destination clicked:', destination); 
         localStorage.setItem('selectedLocation', JSON.stringify(destination));
         console.log('Selected location set in localStorage:', localStorage.getItem('selectedLocation')); 
         navigate(RoutePath.DESTINATION);

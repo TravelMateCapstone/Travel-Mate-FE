@@ -33,19 +33,18 @@ function FinishContractTraveller() {
     };
 
     const handleFinishContract = async () => {
-        const postPhotos = images.map(image => ({ photoUrl: image }));
+        const tripImages = images.map(image => image);
         const formData = {
-            location: "Đà Lạt, Việt Nam",
-            isPublic: true,
+            tourId: "", // Add the appropriate tourId if available
+            travelerId: 9,
             caption: caption,
-            review: 'Bạn thật là một người đồng hành tuyệt vời chuyến đi rất vui.', // Dùng cùng nội dung cho review
             star: star,
-            postPhotos: postPhotos,
+            tripImages: tripImages,
         };
 
         try {
             const response = await axios.post(
-                "https://travelmateapp.azurewebsites.net/api/PastTripPosts?travelerId=8&localId=9",
+                "https://travelmateapp.azurewebsites.net/api/PastTripPost",
                 formData,
                 {
                     headers: {
@@ -112,7 +111,7 @@ function FinishContractTraveller() {
                             width={60}
                         />
                         <div>
-                            <p className="m-0 fw-bold">{user.username}</p>
+                            <p className="m-0 fw-bold">{user.FullName}</p>
                             <sub className="fw-medium">Quảng Nam</sub>
                         </div>
                     </div>
@@ -140,19 +139,7 @@ function FinishContractTraveller() {
                                 <sub className="fw-medium">Quảng Nam</sub>
                             </div>
                         </div>
-                        <div className='d-flex gap-4 flex-column align-items-end'>
-                            <sub>Đánh giá người địa phương</sub>
-                            <div className='d-flex gap-4' style={{ color: '#FFD600' }}>
-                                {[1, 2, 3, 4, 5].map(i => (
-                                    <ion-icon
-                                        key={i}
-                                        name={i <= star ? "star" : "star-outline"}
-                                        style={{ cursor: "pointer" }}
-                                        onClick={() => setStar(i)}
-                                    ></ion-icon>
-                                ))}
-                            </div>
-                        </div>
+
                     </div>
                 </Col>
             </Row>
@@ -170,6 +157,19 @@ function FinishContractTraveller() {
                         padding: "10px 25px",
                     }}
                 >
+                     <div className='d-flex gap-4'>
+                        <h5 className='m-0'>Đánh giá người địa phương</h5>
+                        <div className='d-flex gap-4' style={{ color: '#FFD600' }}>
+                            {[1, 2, 3, 4, 5].map(i => (
+                                <ion-icon
+                                    key={i}
+                                    name={i <= star ? "star" : "star-outline"}
+                                    style={{ cursor: "pointer" }}
+                                    onClick={() => setStar(i)}
+                                ></ion-icon>
+                            ))}
+                        </div>
+                    </div>
                     <h5 className="">Nội dung bài viết</h5>
                     <TextareaAutosize
                         className='w-100 p-2 rounded-3'
@@ -177,6 +177,7 @@ function FinishContractTraveller() {
                         value={caption}
                         onChange={(e) => setCaption(e.target.value)}
                     />
+                   
                     <h5>Ảnh chuyến đi</h5>
                     <Button variant='outline-secondary' className='rounded-5' onClick={() => document.getElementById('upload_img_traveller').click()}>Nhấn vào đây để upload</Button>
                     <input type="file" className='d-none' id='upload_img_traveller' multiple onChange={handleImageUpload} />
@@ -201,10 +202,8 @@ function FinishContractTraveller() {
                     }}
                 >
                     <h5 className="">Đánh giá của người địa phương</h5>
-                    <p>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Tincidunt curabitur in ornare natoque adipiscing pretium conubia fusce sociosqu morbi. Facilisi tincidunt magnis laoreet nunc ullamcorper ultricies lobortis quis aliquam leo.
-                    </p>
-                    <div className='d-flex justify-content-end'>
+                    <div className='h-75'></div>
+                    <div className='d-flex justify-content-end align-items-end'>
                         <Button variant='success' className='rounded-5' onClick={handleFinishContract}>
                             Hoàn thành
                         </Button>

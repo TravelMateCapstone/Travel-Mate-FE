@@ -1,4 +1,4 @@
-import { SEARCH_TOUR } from "../actionTypes";
+import { SEARCH } from "../actionTypes";
 
 const initialState = {
     searchKey: '',
@@ -6,12 +6,11 @@ const initialState = {
 
 const searchReducer = (state = initialState, action) => {
     switch (action.type) {
-        case SEARCH_TOUR:
+        case SEARCH:
             return {
                 ...state,
                 searchKey: action.payload,
             };
-        // ...existing code...
         default:
             return state;
     }

@@ -74,7 +74,8 @@
 }
 
 .fixed-size {
-  width: 60%; /* Set your desired width */
+  height: auto;
+  width: 600px; /* Set your desired width */
   height: auto; /* Set your desired height */
   object-fit: cover;
 }

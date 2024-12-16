@@ -9,6 +9,8 @@ function MyPastTrips() {
     const [posts, setPosts] = useState([]);
 
     const dataProfile = useSelector(state => state.profile);
+    console.log('posts', posts);
+    
 
     // Chỉ setPosts khi dataProfile.trip có dữ liệu hợp lệ
     useEffect(() => {
@@ -21,7 +23,7 @@ function MyPastTrips() {
         <Container className='border-0 rounded-5'>
             {posts.length > 0 ? (
                 posts.map(post => (
-                    <PostProfileMemo key={post.pastTripPostId} {...post} />
+                    <PostProfileMemo key={post.id} {...post} />
                 ))
             ) : (
                 <div className=''>

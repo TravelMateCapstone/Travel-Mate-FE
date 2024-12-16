@@ -7,11 +7,14 @@ import axios from 'axios';
 import { useSelector } from 'react-redux';
 import CountdownTimer from '../../components/Contracts/CountdownTimer';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import RoutePath from '../../routes/RoutePath';
 
 function Contract() {
   const [contracts, setContracts] = useState([]);
   const [timeLeft, setTimeLeft] = useState({});
   const user = useSelector(state => state.auth.user);
+  const navigate = useNavigate();
   useEffect(() => {
     axios.get(`https://travelmateapp.azurewebsites.net/api/BlockContract/contracts-by-traveler/${user.id}`)
       .then(response => {
@@ -52,18 +55,16 @@ function Contract() {
     });
     document.body.appendChild(form);
     form.submit();
-
   }
-
   const viewCoptract = (contract) => {
     if (contract.status === 'Created') {
       creactPayment(JSON.parse(contract.details));
     } else if (contract.status === 'Completed') {
+      navigate(RoutePath.FINISH_CONTRACT_TRAVELLER);
       alert('Hợp đồng đã hoàn thành');
       return;
     }
   }
-
   const verifyContract = async (contract) => {
     console.log(user.id);
     
@@ -100,17 +101,17 @@ function Contract() {
             <td>{contract.location}</td>
             <td>{new Date(JSON.parse(contract.details).startDate).toLocaleDateString()}</td>
             <td>{new Date(JSON.parse(contract.details).endDate).toLocaleDateString()}</td>
-            <td>
+            <td className={`text-nowrap ${contract.status === 'Created' ? 'text-warning' : contract.status === 'Completed' ? 'text-success' : 'text-secondary'}`}>
               {contract.status === 'Created' ? 'chưa thanh toán' : contract.status === 'Completed' ? 'Đã thanh toán' : contract.status}
             </td>
             <td>
               {contract.status !== 'Completed' && <CountdownTimer createdAt={contract.createdAt} />}
             </td>
             <td className='d-flex gap-2'>
-              <Button variant='primary' onClick={() => viewCoptract(contract)}>
-                Xem
+              <Button variant='primary' className='text-nowrap' onClick={() => viewCoptract(contract)}>
+                {contract.status === 'Created' ? 'Thanh toán' : 'Xem'}
               </Button>
-              <Button onClick={() => verifyContract(contract)}>
+              <Button className='text-nowrap' onClick={() => verifyContract(contract)}>
                 Xác nhận hợp đồng
               </Button>
             </td>

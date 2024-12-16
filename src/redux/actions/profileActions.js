@@ -14,11 +14,7 @@ export const viewProfile = (userId, token) => async (dispatch) => {
     education: () => axios.get(`https://travelmateapp.azurewebsites.net/api/UserEducation/user/${userId}`),
     languages: () => axios.get(`https://travelmateapp.azurewebsites.net/api/SpokenLanguages/user/${userId}`),
     trip: () => {
-      return axios.get(`https://travelmateapp.azurewebsites.net/api/PastTripPosts/UserTrips/${userId}`, {
-        headers: {
-          Authorization: `${token}`,
-        },
-      });
+      return axios.get(`https://travelmateapp.azurewebsites.net/api/PastTripPost?userId=${userId}`);
     },
     tour: () => {
       return axios.get(`https://travelmateapp.azurewebsites.net/api/Tour/local/${userId}`, {

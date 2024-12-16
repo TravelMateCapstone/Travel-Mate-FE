@@ -142,8 +142,8 @@ function TourCard({ tour, onTourUpdated }) {
             setTourDetails({
                 tourName: tourData.tourName,
                 price: tourData.price,
-                startDate: format(new Date(tourData.startDate), "dd/MM/yyyy HH:mm", { locale: vi }),
-                endDate: format(new Date(tourData.endDate), "dd/MM/yyyy HH:mm", { locale: vi }),
+                startDate: format(new Date(tourData.startDate), "yyyy-MM-dd'T'HH:mm", { locale: vi }),
+                endDate: format(new Date(tourData.endDate), "yyyy-MM-dd'T'HH:mm", { locale: vi }),
                 numberOfDays: tourData.numberOfDays,
                 numberOfNights: tourData.numberOfNights,
                 tourDescription: tourData.tourDescription,
@@ -154,7 +154,7 @@ function TourCard({ tour, onTourUpdated }) {
             });
             setActivities(tourData.itinerary.$values.map((item) => ({
                 day: item.day,
-                date: format(new Date(item.date), "dd/MM/yyyy HH:mm", { locale: vi }),
+                date: format(new Date(item.date), "yyyy-MM-dd'T'HH:mm", { locale: vi }),
                 activities: item.activities.$values.map(act => ({
                     startTime: act.startTime,
                     endTime: act.endTime,
@@ -344,7 +344,7 @@ function TourCard({ tour, onTourUpdated }) {
         return matchesFilter && matchesSearch;
     });
 
-    const totalIncome = participants.reduce((sum, participant) => sum + participant.totalAmount, 0);
+    const totalIncome = participants.reduce((sum, participant) => sum + (participant.totalAmount || 0), 0);
 
     return (
         <tr>
@@ -633,13 +633,13 @@ function TourCard({ tour, onTourUpdated }) {
                                     <p className='m-0'>{tour.tourName}</p>
                                 </div>
                                 <div className='d-flex gap-5'>
-    <p className='w-25 m-0'>Ngày bắt đầu</p>
-    <p className='m-0'>{format(new Date(tour.startDate), 'dd/MM/yyyy HH:mm', { locale: vi })}</p>
-</div>
-<div className='d-flex gap-5'>
-    <p className='w-25 m-0'>Ngày kết thúc</p>
-    <p className='m-0'>{format(new Date(tour.endDate), 'dd/MM/yyyy HH:mm', { locale: vi })}</p>
-</div>
+                                    <p className='w-25 m-0'>Ngày bắt đầu</p>
+                                    <p className='m-0'>{format(new Date(tour.startDate), 'dd/MM/yyyy HH:mm', { locale: vi })}</p>
+                                </div>
+                                <div className='d-flex gap-5'>
+                                    <p className='w-25 m-0'>Ngày kết thúc</p>
+                                    <p className='m-0'>{format(new Date(tour.endDate), 'dd/MM/yyyy HH:mm', { locale: vi })}</p>
+                                </div>
 
                                 <div className='d-flex gap-5'>
                                     <p className='w-25 m-0'>Địa điểm</p>
@@ -699,7 +699,11 @@ function TourCard({ tour, onTourUpdated }) {
                                         <td>{participant.paymentStatus ? 'Đã thanh toán' : 'Chưa thanh toán'}</td>
                                         <td>{participant.totalAmount?.toLocaleString('vi', { style: 'currency', currency: 'VND' })}</td>
                                         <td>
-                                            <Button onClick={() => { navigate(RoutePath.ONGOING_CONTRACT) }}>
+                                            <Button onClick={() => {
+                                                localStorage.setItem('isLocal', 'local');
+                                                localStorage.setItem('participant', JSON.stringify(participant));
+                                                navigate(RoutePath.ONGOING_CONTRACT)
+                                            }}>
                                                 Xem hợp đồng
                                             </Button>
                                         </td>

@@ -45,32 +45,6 @@ function ContractLayout({ children }) {
     return (
         <div>
             <Navbar />
-            {location.pathname !== RoutePath.DONE_CONTRACT && (
-                <div className='header_payment'>
-                    <div className='container d-flex justify-content-between' style={{
-                        paddingTop: '100px',
-                    }}>
-                        <div>
-                            <div className='d-flex gap-2'>
-                                <ion-icon name="document-outline" style={{
-                                    fontSize: '50px',
-                                }}></ion-icon>
-                                <p style={{
-                                    fontSize: '30px',
-                                    fontWeight: 'bold',
-                                }}>Hợp đồng</p>
-                            </div>
-                           {location.pathname !== RoutePath.CREATE_CONTRACT && (
-                            <p>Hợp đồng kết nối giữa khách du lịch và người địa phương đảm bảo cam kết hỗ trợ lưu trú ngắn hạn và trải nghiệm văn hóa địa phương, với các điều khoản rõ ràng về an toàn và tôn trọng lẫn nhau.</p>
-                           )}
-                        </div>
-                        {rightContent}
-                    </div>
-                </div>
-            )}
-            <div className=''>
-                {timeLineStep}
-            </div>
             <div className='container' style={{
                 paddingTop: '130px',
             }}>{children}</div>

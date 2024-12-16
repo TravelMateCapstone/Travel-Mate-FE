@@ -73,6 +73,8 @@ function Destination() {
     const [error, setError] = useState(null);
     const searchkey = useSelector(state => state.search.searchKey);
 
+
+
     useEffect(() => {
         const fetchTours = async () => {
             try {
@@ -105,7 +107,7 @@ function Destination() {
                     backgroundColor: '#f5f5f5',
                 }} className='p-5'>
                     <Col lg={6}>
-                        <h2 className='fw-bold'>{selectedLocation ? selectedLocation?.locationName + ", chào đón bạn" : "Chào mừng bạn khám phá Việt Nam"}</h2>
+                        <h1 className='fw-bold'>{selectedLocation?.title ||  'Xin chào' }</h1>
                         <div className='d-flex gap-3'>
                         <p className='fw-bold'>{tours.length} tour</p> 
                         </div>
@@ -124,20 +126,18 @@ function Destination() {
                     </Col>
                 </Row>
 
-              <div className='p-5'>
+              <div className='px-5 pt-3'>
                     <div className='d-flex justify-content-between align-items-center'>
-                        <h5 className='fw-bold mt-4 mb-4'>Danh sách tour du lịch</h5>
+                        <h3 className='fw-bold mt-4 mb-5'>Danh sách tour du lịch</h3>
                         <Dropdown show={showDropdown} onToggle={handleToggleDropdown}>
                             <Dropdown.Toggle variant='outline-dark' className='rounded-5'>
                                 Bộ lọc
                             </Dropdown.Toggle>
-                            <Dropdown.Menu style={{
+                            <Dropdown.Menu align={'end'} style={{
                                 padding: '25px 20px',
+                                marginTop: '10px',
                             }}>
-                                <Form.Control type='text' placeholder='Nhập điểm đến...' style={{
-                                    width: '377px',
-                                    marginBottom: '20px',
-                                }} />
+                              
                                 <h6>Giới tính</h6>
                                 <Form.Select aria-label="Default select example" className='mb-2'>
                                     <option>Chọn giới tính</option>
@@ -145,14 +145,14 @@ function Destination() {
                                     <option value="2">Nữ</option>
                                     <option value="3">Khác</option>
                                 </Form.Select>
-                                <h6>Số sao <span>{rating}</span></h6>
+                                <h6>Số sao <span>({rating})</span></h6>
                                 <Form.Range min={1} max={5} value={rating} onChange={(e) => setRating(e.target.value)} className='star-range' />
-                                <h6>Độ tuổi <span>{minAge} - {maxAge}</span></h6>
+                                {/* <h6>Độ tuổi <span>({minAge} - {maxAge})</span></h6>
                                 <div className="range-container">
                                     <Form.Range min={18} max={100} value={minAge} onChange={handleMinAgeChange} className="custom-range" />
                                     <Form.Range min={18} max={100} value={maxAge} onChange={handleMaxAgeChange} className="custom-range" />
-                                </div>
-                                <h6>Số lượng kết nối <span>{minConnections} - {maxConnections}</span></h6>
+                                </div> */}
+                                <h6>Số lượng kết nối <span>({minConnections} - {maxConnections})</span></h6>
                                 <div className="range-container">
                                     <Form.Range min={1} max={10000} value={minConnections} onChange={handleMinConnectionsChange} className="custom-range" />
                                     <Form.Range min={1} max={10000} value={maxConnections} onChange={handleMaxConnectionsChange} className="custom-range" />

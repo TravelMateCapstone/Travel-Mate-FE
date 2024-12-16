@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Form, InputGroup } from 'react-bootstrap';
+import { search } from '../../redux/actions/searchAction';
 import '../../assets/css/Shared/SearchBar.css';
 
 function SearchBar({ onSearch }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setSearchTerm(e.target.value);
@@ -15,6 +18,7 @@ function SearchBar({ onSearch }) {
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && searchTerm) {
+      dispatch(search(searchTerm));
       onSearch(searchTerm);
     }
   };
@@ -36,7 +40,6 @@ function SearchBar({ onSearch }) {
           onKeyPress={handleKeyPress}
         />
       </InputGroup>
-     
     </div>
   );
 }

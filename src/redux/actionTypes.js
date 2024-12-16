@@ -44,7 +44,7 @@ export const UPDATE_CHAT_HEADER = 'UPDATE_CHAT_HEADER';
 export const FETCH_TOUR_SUCCESS = 'FETCH_TOUR_SUCCESS';
 export const FETCH_TOUR_ERROR = 'FETCH_TOUR_ERROR';
 
-export const SEARCH_TOUR = 'SEARCH_TOUR';
+export const SEARCH = 'SEARCH';
 
 export const SAVE_SIGNATURE = 'SAVE_SIGNATURE';
 

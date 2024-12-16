@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import RoutePath from '../../routes/RoutePath';
 
 const Sidebar = React.memo(({ items }) => {
   const location = useLocation();
@@ -18,11 +19,11 @@ const Sidebar = React.memo(({ items }) => {
 
   return (
     <ul className={`navbar-nav ${sidebarClass} sidebar sidebar-dark accordion`} id="accordionSidebar">
-      <Link to="/" className="sidebar-brand d-flex align-items-center justify-content-center">
+      <Link to={location.pathname.includes('admin') ? RoutePath.ADMIN : RoutePath.LOCAL_STATICTIS} className="sidebar-brand d-flex align-items-center justify-content-center">
         <div className="sidebar-brand-text mx-3">{location.pathname.includes('admin') ? (
           <>Admin Dashboard</>
         ) : (
-          <>User Dashboard</>
+          <>Người dùng quản lí</>
         )}</div>
       </Link>
       <hr className="sidebar-divider my-0" />

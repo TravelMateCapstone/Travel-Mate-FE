@@ -1,6 +1,6 @@
-import { SEARCH_TOUR } from "../actionTypes";
+import { SEARCH } from "../actionTypes";
 
-export const searchTour = (searchKey) => ({
-    type: SEARCH_TOUR,
+export const search = (searchKey) => ({
+    type: SEARCH,
     payload: searchKey,
 });

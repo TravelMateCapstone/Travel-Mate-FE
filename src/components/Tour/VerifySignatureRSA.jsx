@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import { saveSignature } from '../../redux/actions/signatureAction';
 
-function VerifySignatureRSA() {
+function VerifySignatureRSA({ setIsValidSignature }) {
     const [image, setImage] = useState(null);
     const [encryptedImage, setEncryptedImage] = useState(null);
     const [verificationResult, setVerificationResult] = useState(null);
@@ -14,7 +14,7 @@ function VerifySignatureRSA() {
     const user = useSelector((state) => state.auth.user);
     const token = useSelector((state) => state.auth.token);
     const [responeSignature, setResponeSignature] = useState(null);
-    const [isValidSignature, setIsValidSignature] = useState(false);
+    const [isValidSignature, setLocalIsValidSignature] = useState(false);
     const dispatch = useDispatch();
 
     const handleImageUpload = async (event) => {
@@ -40,6 +40,7 @@ function VerifySignatureRSA() {
                     toast.success('Chữ kí hợp lệ');
                     setVerificationResult('Chữ kí hợp lệ');
                     setIsValidSignature(true);
+                    setLocalIsValidSignature(true);
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -47,6 +48,7 @@ function VerifySignatureRSA() {
                     toast.error('Chữ kí không hợp lệ');
                     setVerificationResult('Chữ kí không hợp lệ');
                     setIsValidSignature(false);
+                    setLocalIsValidSignature(false);
                 }
             }
         };

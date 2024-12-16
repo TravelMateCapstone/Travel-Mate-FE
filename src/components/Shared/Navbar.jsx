@@ -16,7 +16,6 @@ import { logout } from "../../redux/actions/authActions";
 import { toast } from 'react-toastify';
 import { viewProfile } from '../../redux/actions/profileActions';
 import * as signalR from '@microsoft/signalr';
-import { searchTour } from '../../redux/actions/searchAction';
 
 const Navbar = React.memo(() => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
@@ -59,7 +58,7 @@ const Navbar = React.memo(() => {
 
   const fetchChats = async () => {
     try {
-    
+
     } catch (error) {
       console.error('Error fetching chats:', error);
     }
@@ -96,8 +95,8 @@ const Navbar = React.memo(() => {
   const setupSignalRConnection = () => {
     const connection = new signalR.HubConnectionBuilder()
       .withUrl('https://travelmateapp.azurewebsites.net/serviceHub', {
-        skipNegotiation: true,  
-        transport: signalR.HttpTransportType.WebSockets 
+        skipNegotiation: true,
+        transport: signalR.HttpTransportType.WebSockets
       })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Information)
@@ -175,7 +174,7 @@ const Navbar = React.memo(() => {
           console.error("Error stopping SignalR connection:", error);
         });
     }
-    navigate(RoutePath.AUTH); 
+    navigate(RoutePath.AUTH);
   }, [dispatch, navigate]);
 
   const handleSelect = useCallback((eventKey) => {
@@ -272,15 +271,22 @@ const Navbar = React.memo(() => {
   }, []);
   const handleEnterSearch = (e) => {
     if (e.key === 'Enter') {
-      if (selectedItem === 'Địa điểm du lịch') {
-        navigate(RoutePath.DESTINATION, { state: { searchInput } });
-      } else if (selectedItem === 'Người địa phương') {
-        navigate(RoutePath.SEARCH_LIST_LOCAL, { state: { searchInput } });
-      } else if (selectedItem === 'Khách du lịch') {
-        navigate(RoutePath.SEARCH_LIST_TRAVELLER, { state: { searchInput } });
+      if (searchInput.trim() === '') {
+        toast.error("Vui lòng nhập nội dung tìm kiếm!");
+        return;
+      }
+      if (filteredLocations.length > 0) {
+        handleLocationSelect(filteredLocations[0]);
+      } else {
+        if (selectedItem === 'Địa điểm du lịch') {
+          navigate(RoutePath.DESTINATION, { state: { searchInput } });
+        } else if (selectedItem === 'Người địa phương') {
+          navigate(RoutePath.SEARCH_LIST_LOCAL, { state: { searchInput } });
+        } else if (selectedItem === 'Khách du lịch') {
+          navigate(RoutePath.SEARCH_LIST_TRAVELLER, { state: { searchInput } });
+        }
       }
     }
-    dispatch(searchTour(searchInput));
   };
   const handleInputChange = (e) => {
     const value = e.target.value;
@@ -298,7 +304,7 @@ const Navbar = React.memo(() => {
   const handleLocationSelect = (location) => {
     setSearchInput(location.locationName);
     setFilteredLocations([]);
-    localStorage.setItem('selectedLocation', JSON.stringify(location)); 
+    localStorage.setItem('selectedLocation', JSON.stringify(location));
 
     if (selectedItem === "Địa điểm du lịch") {
       navigate(RoutePath.DESTINATION, { state: { selectedLocation: location } });
@@ -348,7 +354,7 @@ const Navbar = React.memo(() => {
                   style={{ border: 'none', outline: 'none', flex: 1, fontSize: '12px' }}
                 />
                 {filteredLocations.length > 0 && (
-                  <Dropdown.Menu show  style={{
+                  <Dropdown.Menu show style={{
                     marginLeft: '175px',
                     width: '405px',
                   }}>
@@ -363,8 +369,11 @@ const Navbar = React.memo(() => {
 
               <div className='d-flex'>
                 <Dropdown onSelect={handleSelect} align="end">
-                  <Dropdown.Toggle variant="success" id="dropdown-basic-Navbar" style={{
-                    fontSize: '12px'
+                  <Dropdown.Toggle variant="outline-dark" id="" style={{
+                    fontSize: '12px',
+                    boxShadow: '0px',
+                    height: '38px',
+                    border: '1px solid #ccc',
                   }} className='rounded-start-0 rounded-end-5 border-start-0 d-flex align-items-center gap-2'>
                     <p className='m-0 fw-semibold'>{selectedItem}</p>
                     <ion-icon name="chevron-down-outline" style={{
@@ -589,16 +598,18 @@ const Navbar = React.memo(() => {
                 borderBottomRightRadius: '20px',
                 width: '120px',
                 fontSize: '10px',
-                height: '38px'
+                height: '38px',
+                boxShadow: 'none',
               }} />
-              <Dropdown.Toggle variant="success" id="" style={{
+              <Dropdown.Toggle variant="" id="" style={{
                 borderTopLeftRadius: '0',
                 borderBottomLeftRadius: '0',
                 borderTopRightRadius: '20px',
                 borderBottomRightRadius: '20px',
                 width: '120px',
                 fontSize: '10px',
-                height: '38px'
+                height: '38px',
+                boxShadow: 'none',
               }}>
                 {selectedItem}
               </Dropdown.Toggle>
