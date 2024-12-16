@@ -14,6 +14,7 @@ function FinishContractTraveller() {
     const [images, setImages] = useState([]);
     const [caption, setCaption] = useState('');
     const [star, setStar] = useState(0);
+    const contract_selected = JSON.parse(localStorage.getItem('contract_selected'));
 
     const handleImageUpload = async (event) => {
         const files = Array.from(event.target.files);
@@ -35,12 +36,14 @@ function FinishContractTraveller() {
     const handleFinishContract = async () => {
         const tripImages = images.map(image => image);
         const formData = {
-            tourId: "", // Add the appropriate tourId if available
+            tourId: contract_selected.tourId,
             travelerId: 9,
             caption: caption,
             star: star,
             tripImages: tripImages,
         };
+        console.log(formData);
+        
 
         try {
             const response = await axios.post(

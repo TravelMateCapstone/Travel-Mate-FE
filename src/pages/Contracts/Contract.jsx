@@ -25,6 +25,8 @@ function Contract() {
             return 0;
           });
           setContracts(sortedContracts);
+          console.log(sortedContracts);
+          
         }
       })
       .catch(error => {
@@ -60,6 +62,7 @@ function Contract() {
     if (contract.status === 'Created') {
       creactPayment(JSON.parse(contract.details));
     } else if (contract.status === 'Completed') {
+      localStorage.setItem('contract_selected', JSON.stringify(contract));
       navigate(RoutePath.FINISH_CONTRACT_TRAVELLER);
       alert('Hợp đồng đã hoàn thành');
       return;
