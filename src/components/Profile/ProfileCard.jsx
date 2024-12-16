@@ -13,6 +13,7 @@ import { updateUserAvatar } from "../../redux/actions/authActions";
 import { toast } from "react-toastify";
 import FormModal from '../../components/Shared/FormModal'
 import AnswerQuestion from '../../components/Profile/FormBuilder/AnswerQuestion'
+import TextareaAutosize from 'react-textarea-autosize';
 function ProfileCard() {
   const [profile, setProfile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -31,9 +32,11 @@ function ProfileCard() {
   const [services, setServices] = useState([]);
 
   const profileViewId = useSelector((state) => state.profile.profile?.userId);
-
-
-
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportImage, setReportImage] = useState(null);
+  const [reportType, setReportType] = useState("User");
+  const [reportStatus, setReportStatus] = useState("Created");
 
   useEffect(() => {
     setIsLoadingFormData(true);
@@ -109,6 +112,51 @@ function ProfileCard() {
   const handelCloseFormRequest = () => {
     setIsShowFormRequest(false);
   }
+
+  const handleOpenReportModal = () => {
+    setIsReportModalOpen(true);
+  };
+
+  const handleCloseReportModal = () => {
+    setIsReportModalOpen(false);
+  };
+
+  const handleReportSubmit = async () => {
+    try {
+      let imageReportUrl = "";
+      if (reportImage) {
+        const storageRef = ref(storage, `report-images/${reportImage.name}`);
+        await uploadBytes(storageRef, reportImage);
+        imageReportUrl = await getDownloadURL(storageRef);
+      }
+
+      const payload = {
+        detail: reportReason,
+        imageReport: imageReportUrl,
+        reportType: reportType,
+        status: 'Created',
+      };
+
+      const response = await axios.post(
+        `${url}/api/UserReport/Send-Report`,
+        payload,
+        {
+          headers: {
+            Authorization: `${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success("Báo cáo đã được gửi thành công!");
+        handleCloseReportModal();
+      }
+    } catch (error) {
+      console.error("Lỗi khi gửi báo cáo:", error);
+      toast.error("Lỗi khi gửi báo cáo. Vui lòng thử lại sau.");
+    }
+  };
 
   const dispatch = useDispatch();
   const dataProfile = useSelector(state => state.profile);
@@ -314,12 +362,20 @@ function ProfileCard() {
         );
       default:
         return (
-          <Dropdown.Item onClick={handleSendFriendRequest}>
-            <span className="icon-option">
-              <ion-icon name="person-add-outline"></ion-icon>
-            </span>
-            Kết bạn
-          </Dropdown.Item>
+          <>
+            <Dropdown.Item onClick={handleSendFriendRequest}>
+              <span className="icon-option">
+                <ion-icon name="person-add-outline"></ion-icon>
+              </span>
+              Kết bạn
+            </Dropdown.Item>
+            <Dropdown.Item onClick={handleOpenReportModal}>
+              <span className="icon-option">
+                <ion-icon name="warning-outline"></ion-icon>
+              </span>
+              Báo cáo
+            </Dropdown.Item>
+          </>
         );
     }
   };
@@ -420,12 +476,6 @@ function ProfileCard() {
                   }
                 >
                   {renderFriendshipActions()}
-                  <Dropdown.Item onClick={() => alert("Bạn đã báo cáo người dùng này!")}>
-                    <span className="icon-option">
-                      <ion-icon name="warning-outline"></ion-icon>
-                    </span>
-                    Báo cáo
-                  </Dropdown.Item>
                 </DropdownButton>
               </>
             )}
@@ -604,6 +654,33 @@ function ProfileCard() {
             </Container>
           </>
         )}
+      </FormModal>
+      <FormModal show={isReportModalOpen} saveButtonText={'Gửi báo cáo'} title={'Báo cáo người dùng'} handleClose={handleCloseReportModal} handleSave={handleReportSubmit}>
+        <Container>
+          <Form.Group>
+            <Form.Label>Chi tiết</Form.Label>
+            <TextareaAutosize className="form-control" minRows={5} value={reportReason} onChange={(e) => setReportReason(e.target.value)} />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Ảnh báo cáo</Form.Label>
+            <Form.Control type="file" onChange={(e) => setReportImage(e.target.files[0])} />
+            {reportImage && (
+              <div className="mt-2">
+                <img src={URL.createObjectURL(reportImage)} alt="Report" style={{ maxWidth: '100%', height: 'auto' }} />
+              </div>
+            )}
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Loại báo cáo</Form.Label>
+            <Form.Control as="select" value={reportType} onChange={(e) => setReportType(e.target.value)}>
+              <option value="User">Khiêu dâm</option>
+              <option value="Content">Đả kích</option>
+              <option value="Content">Lời nói xúc phạm</option>
+              <option value="Content">Gian dối</option>
+              <option value="Other">Khác</option>
+            </Form.Control>
+          </Form.Group>
+        </Container>
       </FormModal>
     </div>
   );

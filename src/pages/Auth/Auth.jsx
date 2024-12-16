@@ -223,7 +223,7 @@ const Auth = () => {
       <div className="custom-panels-container">
         <div className="custom-panel custom-left-panel">
           <div className="custom-content">
-            <h3>Bạn mới đến?</h3>
+            <h3>Bạn mới đến TravelMate?</h3>
             <p>
               Hãy tham gia ngay để trải nghiệm những tính năng tuyệt vời của chúng tôi.
             </p>
