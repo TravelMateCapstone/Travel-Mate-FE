@@ -80,82 +80,86 @@ function FinishContractTraveller() {
     return (
         <div>
             <TimeLine activeStep={3} />
-            <Row>
-                <Col
-                    className='rounded-top-4'
-                    lg={12}
-                    style={{
-                        borderLeft: "1px solid #CCCCCC",
-                        borderRight: "1px solid #CCCCCC",
-                        borderTop: "1px solid #CCCCCC",
-                        padding: "15px 25px",
-                        display: "flex",
-                        alignContent: "center",
-                        gap: "15px",
-                    }}
-                >
-                    <ion-icon
-                        name="location-outline"
+          <div style={{
+            paddingTop: '150px',
+          }}>
+                <Row>
+                    <Col
+                        className='rounded-top-4'
+                        lg={12}
                         style={{
-                            fontSize: "24px",
+                            borderLeft: "1px solid #CCCCCC",
+                            borderRight: "1px solid #CCCCCC",
+                            borderTop: "1px solid #CCCCCC",
+                            padding: "15px 25px",
+                            display: "flex",
+                            alignContent: "center",
+                            gap: "15px",
                         }}
-                    ></ion-icon>{" "}
-                    <p className="m-0">Địa điểm</p>
-                    <p className="m-0 fw-medium">Quảng Trị</p>
-                </Col>
-            </Row>
-            <Row
-                style={{
-                    border: "1px solid #CCCCCC",
-                }}
-            >
-                <Col
-                    lg={6}
+                    >
+                        <ion-icon
+                            name="location-outline"
+                            style={{
+                                fontSize: "24px",
+                            }}
+                        ></ion-icon>{" "}
+                        <p className="m-0">Địa điểm</p>
+                        <p className="m-0 fw-medium">Quảng Trị</p>
+                    </Col>
+                </Row>
+                <Row
                     style={{
-                        borderRight: "1px solid #CCCCCC",
-                        padding: "25px",
+                        border: "1px solid #CCCCCC",
                     }}
                 >
-                    <h6>Khách du lịch</h6>
-                    <div className="d-flex gap-2">
-                        <img
-                            src={user.avatarUrl || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw'}
-                            alt="avatar"
-                            className="rounded-circle object-fit-cover"
-                            height={60}
-                            width={60}
-                        />
-                        <div>
-                            <p className="m-0 fw-bold">{user.FullName}</p>
-                            <sub className="fw-medium">{profile.profile?.address|| 'Quảng Nam'}</sub>
-                        </div>
-                    </div>
-                </Col>
-                <Col
-                    lg={6}
-                    style={{
-                        padding: "25px",
-                    }}
-                >
-                    <h6>Người địa phương</h6>
-                    <div className="d-flex justify-content-between align-items-center">
-                        <div className="d-flex gap-2">
+                    <Col
+                        lg={6}
+                        style={{
+                            borderRight: "1px solid #CCCCCC",
+                            padding: "15px 25px",
+                        }}
+                    >
+                        <h6 className='mb-3'>Khách du lịch</h6>
+                        <div className="d-flex gap-3">
                             <img
-                                src={contract_selected.localProfile.imageUser}
+                                src={user.avatarUrl || 'https://i.ytimg.com/vi/o2vTHtPuLzY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDNfIoZ06P2icz2VCTX_0bZUiewiw'}
                                 alt="avatar"
                                 className="rounded-circle object-fit-cover"
                                 height={60}
                                 width={60}
                             />
-                            <div>
-                                <p className="m-0 fw-bold">{"NGUYỄN MINH QUÂN"}</p>
-                                <sub className="fw-medium">{contract_selected.location}</sub>
+                            <div className='d-flex flex-column justify-content-center'>
+                                <p className="mb-2 fw-bold">{user.FullName}</p>
+                                <small className="fw-medium">{profile.profile?.address|| 'Quảng Nam'}</small>
                             </div>
                         </div>
-
-                    </div>
-                </Col>
-            </Row>
+                    </Col>
+                    <Col
+                        lg={6}
+                        style={{
+                            padding: "15px 25px",
+                        }}
+                    >
+                        <h6 className='mb-3'>Người địa phương</h6>
+                        <div className="d-flex justify-content-between align-items-center">
+                            <div className="d-flex gap-3">
+                                <img
+                                    src={contract_selected.localProfile.imageUser}
+                                    alt="avatar"
+                                    className="rounded-circle object-fit-cover"
+                                    height={60}
+                                    width={60}
+                                />
+                                <div className='d-flex flex-column justify-content-center'>
+                                    <p className="mb-2 fw-bold">{"NGUYỄN MINH QUÂN"}</p>
+                                    <small className="fw-medium">{contract_selected.location}</small>
+                                </div>
+                            </div>
+    
+                        </div>
+                    </Col>
+                </Row>
+        
             <Row
                 className="rounded-bottom-4"
                 style={{
@@ -168,11 +172,16 @@ function FinishContractTraveller() {
                     style={{
                         borderRight: "1px solid #CCCCCC",
                         padding: "10px 25px",
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "15px",
                     }}
                 >
-                     <div className='d-flex gap-4'>
-                        <h5 className='m-0'>Đánh giá người địa phương</h5>
-                        <div className='d-flex gap-4' style={{ color: '#FFD600' }}>
+                     <div className=''>
+                        <h6 className='fw-semibold' style={{
+                            paddingBottom: '10px',
+                        }}>Đánh giá người địa phương</h6>
+                        <div className='d-flex gap-2 mb-3' style={{ color: '#ebc600' }}>
                             {[1, 2, 3, 4, 5].map(i => (
                                 <ion-icon
                                     key={i}
@@ -183,29 +192,33 @@ function FinishContractTraveller() {
                             ))}
                         </div>
                     </div>
-                    <h5 className="">Nội dung bài viết</h5>
-                    <TextareaAutosize
-                        className='w-100 p-2 rounded-3'
-                        minRows={5}
-                        value={caption}
-                        onChange={(e) => setCaption(e.target.value)}
-                    />
+                   <div>
+                        <h6 className='fw-semibold'>Nội dung bài viết</h6>
+                        <TextareaAutosize
+                            className='w-100 p-2 rounded-3 form-control mb-2'
+                            minRows={5}
+                            value={caption}
+                            onChange={(e) => setCaption(e.target.value)}
+                        />
+                   </div>
                    
-                    <h5>Ảnh chuyến đi</h5>
-                    <Button variant='outline-secondary' className='rounded-5' onClick={() => document.getElementById('upload_img_traveller').click()}>Nhấn vào đây để upload</Button>
-                    <input type="file" className='d-none' id='upload_img_traveller' multiple onChange={handleImageUpload} />
-                    <div className='row mt-3'>
-                        {images.map((image, index) => (
-                            <div className='col col-lg-4 mb-4 position-relative' key={index}>
-                                <img src={image} alt='' className='w-100 rounded-4 object-fit-cover' />
-                                <button
-                                    className='btn btn-danger position-absolute top-0 end-0 m-1'
-                                    onClick={() => handleRemoveImage(index)}
-                                >
-                                    X
-                                </button>
-                            </div>
-                        ))}
+                    <div>
+                        <h6 className='fw-semibold'>Ảnh chuyến đi</h6>
+                        <Button variant='outline-dark' className='rounded-5' onClick={() => document.getElementById('upload_img_traveller').click()}>Nhấn vào đây để upload</Button>
+                        <input type="file" className='d-none' id='upload_img_traveller' multiple onChange={handleImageUpload} />
+                        <div className='row mt-3'>
+                            {images.map((image, index) => (
+                                <div className='col col-lg-4 mb-4 position-relative' key={index}>
+                                    <img src={image} alt='' className='w-100 rounded-4 object-fit-cover' />
+                                    <button
+                                        className='btn btn-danger position-absolute top-0 end-0 m-1'
+                                        onClick={() => handleRemoveImage(index)}
+                                    >
+                                        X
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </Col>
                 <Col
@@ -214,15 +227,15 @@ function FinishContractTraveller() {
                         padding: "25px",
                     }}
                 >
-                    <h5 className="">Đánh giá của người địa phương</h5>
                     <div className='h-75'></div>
-                    <div className='d-flex justify-content-end align-items-end'>
+                    <div className='d-flex justify-content-end align-items-end mt-4'>
                         <Button variant='success' className='rounded-5' onClick={handleFinishContract}>
                             Hoàn thành
                         </Button>
                     </div>
                 </Col>
             </Row>
+            </div>
         </div>
     );
 }

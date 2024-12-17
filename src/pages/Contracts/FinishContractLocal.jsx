@@ -17,7 +17,6 @@ function FinishContractLocal() {
     const [star, setStar] = useState(0);
     const participant = JSON.parse(localStorage.getItem('participant'));
     const [additional, setAdditional] = useState();
-
     const [postParticipant, setPostParticipant] = useState();
     const handleImageUpload = async (event) => {
         const files = Array.from(event.target.files);
@@ -45,8 +44,6 @@ function FinishContractLocal() {
             localId: parseInt(user.id),
             comment: review
         };
-        console.log('formData', formData);
-
         try {
             const response = await axios.put(
                 `https://travelmateapp.azurewebsites.net/api/PastTripPost/local?postId=${participant.postId}`,
@@ -59,7 +56,6 @@ function FinishContractLocal() {
                 }
             );
             toast.success("Phản hồi bài viết khách du lịch thành công.");
-            console.log(response.data);
         } catch (error) {
             alert("Đã xảy ra lỗi trong quá trình kết nối.");
             console.error("Error:", error);
@@ -74,7 +70,6 @@ function FinishContractLocal() {
                         Authorization: `${token}`,
                     },
                 });
-                console.log('response', response.data.$values[response.data.$values.length - 1]);
                 setPostParticipant(response.data.$values[response.data.$values.length - 1]);
                 setStar(response.data.$values[response.data.$values.length - 1].star);
             } catch (error) {
@@ -87,7 +82,6 @@ function FinishContractLocal() {
                         Authorization: `${token}`,
                     },
                 });
-                console.log('additionalResponse', additionalResponse.data);
                 setAdditional(additionalResponse.data);
                 // Handle additional data as needed
             } catch (error) {
@@ -148,7 +142,7 @@ function FinishContractLocal() {
                         />
                         <div>
                             <p className="m-0 fw-bold">{participant.fullName}</p>
-                            <sub className="fw-medium">Quảng Nam</sub>
+                            <sub className="fw-medium">{participant.address || 'Chưa cập nhật'}</sub>
                         </div>
                     </div>
                 </Col>
@@ -170,7 +164,7 @@ function FinishContractLocal() {
                             />
                             <div>
                                 <p className="m-0 fw-bold">{user.FullName}</p>
-                                <sub className="fw-medium">Quảng Nam</sub>
+                                <sub className="fw-medium">{additional?.location || 'Đà Nẵng' }</sub>
                             </div>
                         </div>
 
@@ -191,12 +185,9 @@ function FinishContractLocal() {
                         padding: "10px 25px",
                     }}
                 >
-                    <h5 className="">Nội dung bài viết</h5>
-                    <p>
-                        {additional?.caption}
-                    </p>
+                   
                     <div className='d-flex gap-4 flex-column mb-3'>
-                        <div className='d-flex gap-4' style={{ color: '#FFD600' }}>
+                        <div className='d-flex gap-2' style={{ color: '#FFD600' }}>
                             {[1, 2, 3, 4, 5].map(i => (
                                 <ion-icon
                                     key={i}
@@ -206,7 +197,9 @@ function FinishContractLocal() {
                             ))}
                         </div>
                     </div>
-                    <h5>Ảnh chuyến đi</h5>
+                    <p>
+                        {additional?.caption}
+                    </p>
                     <input type="file" className='d-none' id='upload_img_traveller' multiple onChange={handleImageUpload} />
                     <div className='row mt-3'>
                         {additional?.tripImages.$values.map((image, index) => (
@@ -222,14 +215,14 @@ function FinishContractLocal() {
                         padding: "25px",
                     }}
                 >
-                    <h5 className="">Đánh giá của người địa phương</h5>
+                    <h6 className="">Đánh giá của người địa phương</h6>
                     <TextareaAutosize
-                        className='w-100 p-2 rounded-3'
+                        className='w-100 p-2 rounded-3 form-control'
                         minRows={5}
                         value={review}
                         onChange={(e) => setReview(e.target.value)}
                     />
-                    <div className='d-flex justify-content-end'>
+                    <div className='d-flex justify-content-end mt-4'>
                         <Button variant='success' className='rounded-5' onClick={handleFinishContract}>
                             Hoàn thành
                         </Button>

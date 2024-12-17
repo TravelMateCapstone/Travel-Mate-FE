@@ -8,45 +8,13 @@ import contract_glass from '../assets/images/contact_glass.png'
 
 function ContractLayout({ children }) {
     const location = useLocation();
-
-    let rightContent;
-    if (location.pathname === RoutePath.CONTRACT) {
-        rightContent = <img src={contract_glass} alt="Contract glass" />;
-    } else if (location.pathname === RoutePath.CREATE_CONTRACT) {
-        rightContent = (
-            <Button
-                style={{ height: '44px' }}
-                className='rounded-5 d-flex justify-content-center align-items-center gap-2 fw-medium'
-                variant='outline-danger'
-            >
-                Hủy hợp đồng
-                <ion-icon name="close-outline" style={{ fontSize: '20px' }}></ion-icon>
-            </Button>
-        );
-    } else if (location.pathname === RoutePath.ONGOING_CONTRACT) {
-        rightContent = <></>
-    } else if (location.pathname === RoutePath.PAYMENT_FAILED_CONTRACT) {
-        rightContent = <></>
-    }
-    else {
-        rightContent = <img src={contract_glass} alt='icon search' />
-    }
-    let timeLineStep;
-    if (location.pathname === RoutePath.CONTRACT) {
-        timeLineStep = <></>
-    } else if (location.pathname === RoutePath.CREATE_CONTRACT) {
-        timeLineStep = <TimeLine activeStep={1} />
-    } else if (location.pathname === RoutePath.PAYMENT_CONTRACT) {
-        timeLineStep = <TimeLine activeStep={2} />
-    } else if (location.pathname === RoutePath.ONGOING_CONTRACT) {
-        timeLineStep = <TimeLine activeStep={3} />
-    }
-
+    
     return (
         <div>
             <Navbar />
             <div className='container' style={{
                 paddingTop: '130px',
+                marginBottom: '50px'
             }}>{children}</div>
         </div>
     )

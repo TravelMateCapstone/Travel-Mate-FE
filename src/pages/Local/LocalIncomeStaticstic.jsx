@@ -20,8 +20,18 @@ function LocalIncomeStatistics() {
   
   // Lấy dữ liệu từ API
   useEffect(() => {
-    setEventsData(tours);
-  }, [token]);
+    if (tours.length > 0) {
+      setEventsData(tours);
+    }
+  }, [token, tours]);
+
+  useEffect(() => {
+    if (transactions.length > 0 || tours.length > 0) {
+      // Logic to recalculate results
+      console.log('Recalculating results due to changes in transactions or tours');
+      // Add your recalculation logic here
+    }
+  }, [transactions, tours]);
 
   const handleSelect = ({ start, end }) => {
     const title = window.prompt('Nhập tên sự kiện mới');
