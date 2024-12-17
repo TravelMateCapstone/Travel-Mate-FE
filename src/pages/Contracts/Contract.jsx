@@ -15,7 +15,7 @@ function Contract() {
   const [timeLeft, setTimeLeft] = useState({});
   const user = useSelector(state => state.auth.user);
   console.log(contracts);
-  
+
   const navigate = useNavigate();
   useEffect(() => {
     axios.get(`https://travelmateapp.azurewebsites.net/api/BlockContract/contracts-by-traveler/${user.id}`)
@@ -28,7 +28,7 @@ function Contract() {
           });
           setContracts(sortedContracts);
           console.log(sortedContracts);
-          
+
         }
       })
       .catch(error => {
@@ -61,7 +61,11 @@ function Contract() {
     form.submit();
   }
   const viewCoptract = (contract) => {
-    if (contract.status === 'Created') {
+    const createdAt = new Date(contract.createdAt);
+    const now = new Date();
+    const timeDifference = (now - createdAt) / 1000 / 60; // time difference in minutes
+
+    if (contract.status === 'Created' && timeDifference <= 3) {
       creactPayment(JSON.parse(contract.details));
     } else if (contract.status === 'Completed') {
       localStorage.setItem('contract_selected', JSON.stringify(contract));
@@ -71,21 +75,17 @@ function Contract() {
     }
   }
   const verifyContract = async (contract) => {
-    console.log(user.id);
-    
-    console.log(contract);
     try {
       const response = await axios.get(
         `https://travelmateapp.azurewebsites.net/api/BlockContract/verify-contract?travelerId=${user.id}&localId=${contract.localId}&tourId=${contract.tourId}`);
       if (response.data.isValid) {
         toast.success('Hợp đồng đã được xác nhận');
-      } 
+      }
     } catch (error) {
       toast.error(error.response && error.response.data.error);
       console.error('Error verifying contract:', error);
     }
   }
-
   return (
     <Table striped bordered hover>
       <thead>
@@ -113,12 +113,23 @@ function Contract() {
               {contract.status !== 'Completed' && <CountdownTimer createdAt={contract.createdAt} />}
             </td>
             <td className='d-flex gap-2'>
-              <Button variant='primary' className='text-nowrap' onClick={() => viewCoptract(contract)}>
-                {contract.status === 'Created' ? 'Thanh toán' : 'Xem'}
+              <Button variant='success' className='text-nowrap d-flex justify-content-center align-items-center' onClick={() => verifyContract(contract)}>
+                <ion-icon name="shield-checkmark-outline" style={{
+                  fontSize: '24px',
+                }}></ion-icon>
               </Button>
-              <Button className='text-nowrap' onClick={() => verifyContract(contract)}>
-                Xác nhận hợp đồng
-              </Button>
+              {contract.status === 'Created' && (new Date() - new Date(contract.createdAt)) / 1000 / 60 <= 1 && (
+                <Button variant='primary' className='text-nowrap' onClick={() => viewCoptract(contract)}>
+                  Thanh toán
+                </Button>
+              )}
+              {contract.status !== 'Created' && (
+                <Button variant='primary' className='text-nowrap'>
+                  <ion-icon name="cloud-download-outline" style={{
+                    fontSize: '24px',
+                  }}></ion-icon>
+                </Button>
+              )}
             </td>
           </tr>
         ))}
