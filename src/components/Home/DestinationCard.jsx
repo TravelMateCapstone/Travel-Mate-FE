@@ -16,8 +16,6 @@ function DestinationCard({ destination }) {
         console.log('Selected location set in localStorage:', localStorage.getItem('selectedLocation'));
         navigate(RoutePath.DESTINATION);
     }
-
-    
     return (
         <Col lg={3} className='mb-4' onClick={handleDestinationClick}>
             <div style={{

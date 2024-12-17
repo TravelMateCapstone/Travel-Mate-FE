@@ -46,12 +46,16 @@ function Home() {
           <MapComponent />
           <div className="home-statistics">
             <div className="stat-item">
-              <h3>{JSON.parse(localStorage.getItem('selectedNames')).length}/63</h3>
+              <h3>
+                {localStorage.getItem('selectedNames') ? JSON.parse(localStorage.getItem('selectedNames')).length : 0}/63
+              </h3>
               <h3>Tỉnh thành</h3>
             </div>
             <div className="border-1"></div>
             <div className="stat-item">
-              <h3>{(JSON.parse(localStorage.getItem('selectedNames')).length/63*100).toFixed(2)} %</h3>
+              <h3>
+                {localStorage.getItem('selectedNames') ? (JSON.parse(localStorage.getItem('selectedNames')).length / 63 * 100).toFixed(2) : 0} %
+              </h3>
               <h3>Việt Nam</h3>
             </div>
           </div>
