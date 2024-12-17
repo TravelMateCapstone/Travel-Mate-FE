@@ -470,13 +470,23 @@ function TourCard({ tour, onTourUpdated }) {
                                 </Form>
                             </Col>
                             <Col lg={4}>
-                                <Form.Group className="mt-4 form-group-custom-create-tour">
+                                <Form.Group className="mb-3 form-group-custom-create-tour">
                                     <Form.Control type="file" onChange={handleImageUpload} />
                                 </Form.Group>
                                 {tourDetails.tourImage && (
-                                    <img src={tourDetails.tourImage} alt="Tour" style={{ width: '100%', height: 'auto' }} />
+                                    <img
+                                        src={tourDetails.tourImage}
+                                        alt="Tour"
+                                        style={{
+                                            width: '100%',
+                                            height: 'auto',
+                                            border: '1px solid #ddd',
+                                            borderRadius: '5px',
+                                            padding: '5px'
+                                        }}
+                                    />
                                 )}
-                                <h4 className='text-success'>{tourDetails.price} VNĐ</h4>
+                                <h4 className='text-success mt-2'>{tourDetails.price} VNĐ</h4>
                             </Col>
                         </Row>
                     </Col>
@@ -616,36 +626,70 @@ function TourCard({ tour, onTourUpdated }) {
                                 </div>
                             </Tab>
                             <Tab eventKey="cost" title="Chi phí">
-                                <div>
-                                    <Card.Body>
-                                        <Card.Title>Cost Details</Card.Title>
+                                <div style={{
+                                    width: '100%',
+                                    height: 'auto',
+                                    border: '1px solid #ddd',
+                                    backgroundColor: 'white',
+                                    borderRadius: '5px',
+                                    padding: '5px'
+                                }}>
+                                    <Card.Body className='m-4'>
+                                        <Card.Title className='my-2'>Chi phí chi tiết</Card.Title>
                                         {costDetails.map((costDetail, index) => (
                                             <div key={index} className="mb-3">
-                                                <Form.Group className="mb-3">
-                                                    <Form.Label>Tiêu Đề</Form.Label>
-                                                    <Form.Control type="text" value={costDetail.title} onChange={(e) => {
-                                                        const updatedCostDetails = [...costDetails];
-                                                        updatedCostDetails[index].title = e.target.value;
-                                                        setCostDetails(updatedCostDetails);
-                                                    }} />
-                                                </Form.Group>
-                                                <Form.Group className="mb-3">
-                                                    <Form.Label>Số Tiền</Form.Label>
-                                                    <Form.Control type="number" value={costDetail.amount} onChange={(e) => {
-                                                        const updatedCostDetails = [...costDetails];
-                                                        updatedCostDetails[index].amount = e.target.value;
-                                                        setCostDetails(updatedCostDetails);
-                                                    }} />
-                                                </Form.Group>
-                                                <Form.Group className="mb-3">
-                                                    <Form.Label>Ghi Chú</Form.Label>
-                                                    <Form.Control type="text" value={costDetail.notes} onChange={(e) => {
-                                                        const updatedCostDetails = [...costDetails];
-                                                        updatedCostDetails[index].notes = e.target.value;
-                                                        setCostDetails(updatedCostDetails);
-                                                    }} />
-                                                </Form.Group>
-                                                <Button variant="outline-danger" className='d-flex align-items-center gap-2' onClick={() => removeCostDetail(index)}><ion-icon name="trash-outline"></ion-icon> Loại bỏ chi phí</Button>
+                                                <Row>
+                                                    <Col lg={10}>
+
+                                                        <Form.Group className="mb-3">
+                                                            <Form.Label>Tiêu Đề</Form.Label>
+                                                            <Form.Control type="text" value={costDetail.title} onChange={(e) => {
+                                                                const updatedCostDetails = [...costDetails];
+                                                                updatedCostDetails[index].title = e.target.value;
+                                                                setCostDetails(updatedCostDetails);
+                                                            }} />
+                                                        </Form.Group>
+                                                    </Col>
+                                                    <Col lg={2}>
+
+                                                        <Form.Group className="mb-3">
+                                                            <Form.Label>Số Tiền</Form.Label>
+                                                            <Form.Control type="number" value={costDetail.amount} onChange={(e) => {
+                                                                const updatedCostDetails = [...costDetails];
+                                                                updatedCostDetails[index].amount = e.target.value;
+                                                                setCostDetails(updatedCostDetails);
+                                                            }} />
+                                                        </Form.Group>
+                                                    </Col>
+                                                    <Col lg={10}>
+                                                        <Form.Group className="mb-3">
+                                                            <Form.Label>Ghi Chú</Form.Label>
+                                                            <Form.Control
+                                                                as="textarea"
+                                                                rows={5}
+                                                                type="text"
+                                                                style={{
+                                                                    resize: 'vertical', // Cho phép thay đổi kích thước theo chiều dọc
+                                                                    height: '150px', // Chiều cao ban đầu
+                                                                }}
+                                                                value={costDetail.notes}
+                                                                onChange={(e) => {
+                                                                    const updatedCostDetails = [...costDetails];
+                                                                    updatedCostDetails[index].notes = e.target.value;
+                                                                    setCostDetails(updatedCostDetails);
+                                                                }} />
+                                                        </Form.Group>
+                                                    </Col>
+                                                    <Col lg={2}>
+                                                        <Button
+                                                            variant="outline-danger"
+                                                            // className='d-flex align-items-center '
+                                                            onClick={() => removeCostDetail(index)}
+                                                            style={{ marginTop: '40px' }}
+                                                        ><ion-icon name="trash-outline"></ion-icon> Loại bỏ chi phí</Button>
+                                                    </Col>
+                                                </Row>
+                                                <hr style={{ height: '5px', backgroundColor: 'black', border: 'none' }} />
                                             </div>
                                         ))}
                                         <Button className='d-flex align-items-center gap-2' variant="outline-primary" onClick={addCostDetail}> <ion-icon name="add-circle-outline"></ion-icon>Thêm chi phí</Button>
