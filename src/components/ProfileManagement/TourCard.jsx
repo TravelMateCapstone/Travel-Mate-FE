@@ -354,24 +354,24 @@ function TourCard({ tour, onTourUpdated }) {
                     <p className='m-0'>{tour.numberOfDays} ngày {tour.numberOfNights} đêm</p>
                 </div>
             </td>
-            <td>
-                <p className='m-0 fw-medium'>{(tour.price).toLocaleString('vi', { style: 'currency', currency: 'VND' })}</p>
+            <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                <p className='m-0 fw-medium'>
+                    {(tour.price).toLocaleString('vi', { style: 'currency', currency: 'VND' })}
+                </p>
             </td>
-            <td>
-                <div className='d-flex align-items-center gap-5'>
-                    <div className='d-flex flex-column align-items-center'>
-                        <small className='fw-medium'>{format(new Date(tour.startDate), 'dd/MM/yyyy', { locale: vi })}</small>
-                        <small className='fw-medium'>{format(new Date(tour.endDate), 'dd/MM/yyyy', { locale: vi })}</small>
-                    </div>
+            <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                <div className='d-flex align-items-center gap-5' style={{ justifyContent: 'center' }} >
+                    <small className='fw-medium'>{format(new Date(tour.startDate), 'dd/MM/yyyy', { locale: vi })}</small> -
+                    <small className='fw-medium'>{format(new Date(tour.endDate), 'dd/MM/yyyy', { locale: vi })}</small>
                 </div>
             </td>
-            <td>
+            <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
                 <small>{tour.registeredGuests}/{tour.maxGuests}</small>
             </td>
-            <td>
+            <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
                 <Dropdown>
-                    <Dropdown.Toggle variant="success" >
-                        <ion-icon name="settings-outline"></ion-icon>
+                    <Dropdown.Toggle variant="success">
+                        <ion-icon name="settings-outline" style={{ textAlign: 'center', verticalAlign: 'middle' }}></ion-icon>
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                         <Dropdown.Item onClick={() => handleView(tour.tourId)}>Xem thêm</Dropdown.Item>
@@ -381,6 +381,7 @@ function TourCard({ tour, onTourUpdated }) {
                     </Dropdown.Menu>
                 </Dropdown>
             </td>
+            {/* Update tour */}
             <Modal
                 isOpen={modalIsOpen}
                 onRequestClose={closeModal}
@@ -487,50 +488,127 @@ function TourCard({ tour, onTourUpdated }) {
                                         <Accordion defaultActiveKey="0">
                                             {activities.map((activity, dayIndex) => (
                                                 <Accordion.Item eventKey={dayIndex.toString()} key={dayIndex}>
-                                                    <Accordion.Header>Day {activity.day}: {format(new Date(activity.date), 'dd/MM/yyyy')}</Accordion.Header>
+                                                    <Accordion.Header>Ngày {activity.day}: {format(new Date(activity.date), 'dd/MM/yyyy')}</Accordion.Header>
                                                     <Accordion.Body>
-                                                        <Button variant="primary" onClick={() => addActivity(dayIndex)}>Add Activity</Button>
+
                                                         {activity.activities.map((act, actIndex) => (
                                                             <div key={actIndex} className="ml-4 mt-3">
-                                                                <Form.Group className="mb-3">
-                                                                    <Form.Label>Tiêu Đề</Form.Label>
-                                                                    <Form.Control type="text" value={act.title} onChange={(e) => updateActivity(dayIndex, actIndex, 'title', e.target.value)} />
-                                                                </Form.Group>
-                                                                <Form.Group className="mb-3">
-                                                                    <Form.Label>Thời Gian Bắt Đầu</Form.Label>
-                                                                    <Form.Control type="time" step="1" value={act.startTime} onChange={(e) => updateActivity(dayIndex, actIndex, 'startTime', e.target.value)} />
-                                                                </Form.Group>
-                                                                <Form.Group className="mb-3">
-                                                                    <Form.Label>Thời Gian Kết Thúc</Form.Label>
-                                                                    <Form.Control type="time" step="1" value={act.endTime} onChange={(e) => updateActivity(dayIndex, actIndex, 'endTime', e.target.value)} />
-                                                                </Form.Group>
-                                                                <Form.Group className="mb-3">
-                                                                    <Form.Label>Ghi Chú</Form.Label>
-                                                                    <Form.Control type="text" value={act.note} onChange={(e) => updateActivity(dayIndex, actIndex, 'note', e.target.value)} />
-                                                                </Form.Group>
-                                                                <Form.Group className="mb-3">
-                                                                    <Form.Label>Mô Tả</Form.Label>
-                                                                    <Form.Control type="text" value={act.description} onChange={(e) => updateActivity(dayIndex, actIndex, 'description', e.target.value)} />
-                                                                </Form.Group>
-                                                                <Form.Group className="mb-3">
-                                                                    <Form.Label>Địa Chỉ</Form.Label>
-                                                                    <Form.Control type="text" value={act.activityAddress} onChange={(e) => updateActivity(dayIndex, actIndex, 'activityAddress', e.target.value)} />
-                                                                </Form.Group>
-                                                                <Form.Group className="mb-3">
-                                                                    <Form.Label>Số Tiền</Form.Label>
-                                                                    <Form.Control type="number" value={act.activityAmount} onChange={(e) => updateActivity(dayIndex, actIndex, 'activityAmount', e.target.value)} />
-                                                                </Form.Group>
-                                                                <Form.Group className="mb-3">
-                                                                    <Form.Label>Hình Ảnh</Form.Label>
-                                                                    <Form.Control type="file" onChange={(e) => handleActivityImageUpload(e, dayIndex, actIndex)} />
-                                                                </Form.Group>
-                                                                {act.activityImage && (
-                                                                    <img src={act.activityImage} alt="Activity" style={{ width: '100%', height: 'auto' }} />
-                                                                )}
-                                                                <Button variant="danger" onClick={() => removeActivity(dayIndex, actIndex)}>Xóa hoạt động</Button>
+                                                                <Row>
+                                                                    <Col lg={8}>
+                                                                        <div className='d-flex align-items-center'>
+                                                                            <Col lg={6} className='px-0' >
+                                                                                <Form.Group className="mb-3" style={{ marginRight: '5px' }}>
+                                                                                    <Form.Label>Tiêu Đề</Form.Label>
+                                                                                    <Form.Control type="text" value={act.title} onChange={(e) => updateActivity(dayIndex, actIndex, 'title', e.target.value)} />
+                                                                                </Form.Group>
+                                                                            </Col>
+                                                                            <Col lg={6} className='px-0' >
+                                                                                <Form.Group className="mb-3" style={{ marginRight: '5px' }}>
+                                                                                    <Form.Label>Địa Chỉ</Form.Label>
+                                                                                    <Form.Control type="text" value={act.activityAddress} onChange={(e) => updateActivity(dayIndex, actIndex, 'activityAddress', e.target.value)} />
+                                                                                </Form.Group>
+                                                                            </Col>
+                                                                        </div>
+                                                                        <div className='d-flex align-items-center'>
+                                                                            <Col lg={6} className='px-0' >
+                                                                                <Form.Group className="mb-3" style={{ marginRight: '5px' }}>
+                                                                                    <Form.Label>Thời Gian Bắt Đầu</Form.Label>
+                                                                                    <Form.Control type="time" step="1" value={act.startTime} onChange={(e) => updateActivity(dayIndex, actIndex, 'startTime', e.target.value)} />
+                                                                                </Form.Group>
+                                                                            </Col>
+                                                                            <Col lg={6} className='px-0'>
+                                                                                <Form.Group className="mb-3" style={{ marginRight: '5px' }}>
+                                                                                    <Form.Label>Thời Gian Kết Thúc</Form.Label>
+                                                                                    <Form.Control type="time" step="1" value={act.endTime} onChange={(e) => updateActivity(dayIndex, actIndex, 'endTime', e.target.value)} />
+                                                                                </Form.Group>
+                                                                            </Col>
+                                                                        </div>
+
+                                                                        <div className="d-flex align-items-center">
+                                                                            <Col lg={6} className="px-0">
+                                                                                <Form.Group className="mb-3" style={{ marginRight: '5px' }}>
+                                                                                    <Form.Label>Ghi Chú</Form.Label>
+                                                                                    <Form.Control
+                                                                                        as="textarea"
+                                                                                        rows={5} // Tăng số dòng hiển thị
+                                                                                        value={act.note}
+                                                                                        onChange={(e) => updateActivity(dayIndex, actIndex, 'note', e.target.value)}
+                                                                                        style={{
+                                                                                            resize: 'vertical', // Cho phép thay đổi kích thước theo chiều dọc
+                                                                                            height: '150px', // Chiều cao ban đầu
+                                                                                        }}
+                                                                                    />
+                                                                                </Form.Group>
+                                                                            </Col>
+                                                                            <Col lg={6} className="px-0">
+                                                                                <Form.Group className="mb-3" style={{ marginRight: '5px' }}>
+                                                                                    <Form.Label>Mô Tả</Form.Label>
+                                                                                    <Form.Control
+                                                                                        as="textarea"
+                                                                                        rows={5} // Tăng số dòng hiển thị
+                                                                                        value={act.description}
+                                                                                        onChange={(e) => updateActivity(dayIndex, actIndex, 'description', e.target.value)}
+                                                                                        style={{
+                                                                                            resize: 'vertical', // Cho phép thay đổi kích thước theo chiều dọc
+                                                                                            height: '150px', // Chiều cao ban đầu
+                                                                                        }}
+                                                                                    />
+                                                                                </Form.Group>
+                                                                            </Col>
+                                                                        </div>
+
+                                                                        <Form.Group className="mb-3">
+                                                                            <Form.Label>Số Tiền</Form.Label>
+                                                                            <Form.Control type="number" value={act.activityAmount} onChange={(e) => updateActivity(dayIndex, actIndex, 'activityAmount', e.target.value)} />
+                                                                        </Form.Group>
+                                                                    </Col>
+                                                                    <Col lg={4}>
+                                                                        <Form.Group className="mb-3">
+                                                                            <Form.Label className="fw-bold">Tải lên hình ảnh</Form.Label>
+                                                                            <Form.Control
+                                                                                id='uploadImgActivity'
+                                                                                type="file"
+                                                                                accept="image/*"
+                                                                                onChange={(e) => handleActivityImageUpload(e, dayIndex, actIndex)}
+                                                                            />
+                                                                            <Button onClick={() => document.getElementById('uploadImgActivity').click()}>
+                                                                                Tải lên ảnh hoạt động
+                                                                            </Button>
+                                                                        </Form.Group>
+
+                                                                        {/* Hiển thị hình ảnh nếu có */}
+                                                                        {act.activityImage && (
+                                                                            <div style={{ marginTop: '10px', textAlign: 'center' }}>
+                                                                                <img
+                                                                                    src={act.activityImage}
+                                                                                    alt="Hoạt động"
+                                                                                    style={{
+                                                                                        width: '100%',
+                                                                                        height: 'auto',
+                                                                                        border: '1px solid #ddd',
+                                                                                        borderRadius: '5px',
+                                                                                        padding: '5px'
+                                                                                    }}
+                                                                                />
+                                                                            </div>
+                                                                        )}
+
+                                                                        {/* Nút xóa hoạt động */}
+                                                                        <Button
+                                                                            variant="danger"
+                                                                            style={{ marginTop: '10px' }}
+                                                                            onClick={() => removeActivity(dayIndex, actIndex)}
+                                                                        >
+                                                                            Xóa hoạt động
+                                                                        </Button>
+                                                                    </Col>
+
+                                                                </Row>
+                                                                <hr style={{ height: '5px', backgroundColor: 'black', border: 'none' }} />
                                                             </div>
                                                         ))}
                                                     </Accordion.Body>
+                                                    <Button variant="primary" className='my-3 mx-5' onClick={() => addActivity(dayIndex)}>Thêm hoạt động</Button>
                                                 </Accordion.Item>
                                             ))}
                                         </Accordion>
@@ -595,6 +673,7 @@ function TourCard({ tour, onTourUpdated }) {
                     <Button variant="success" onClick={() => handleSaveChanges(tour.tourId)}>Lưu thay đổi</Button>
                 </div>
             </Modal>
+            {/* Tour Management */}
             <Modal isOpen={managementModalIsOpen}
                 onRequestClose={handleCloseManagementModal}
                 contentLabel="Update Tour Modal"
@@ -618,6 +697,7 @@ function TourCard({ tour, onTourUpdated }) {
                     },
                 }}
             >
+
                 <h4>Quản lí tour</h4>
                 <div className='h-100'>
                     <Row style={{
@@ -647,30 +727,72 @@ function TourCard({ tour, onTourUpdated }) {
                             </div>
                         </Col>
                         <Col lg={6}>
-                            <div className='d-flex gap-5'>
-                                <div className='p-3 border-1'>
+                            <div className="d-flex gap-5">
+                                {/* Tổng thu nhập */}
+                                <div
+                                    className="p-3 border-1"
+                                    style={{
+                                        borderRadius: '20px',
+                                        backgroundColor: '#DCFAED',
+                                        border: '1px solid #DCFAED'
+                                    }}
+                                >
                                     <h5>Tổng thu nhập</h5>
-                                    <p>{totalIncome.toLocaleString('vi', { style: 'currency', currency: 'VND' })}</p>
+                                    <p style={{ fontSize: '24px', color: '#0EAD69', }}>{totalIncome.toLocaleString('vi', { style: 'currency', currency: 'VND' })}</p>
                                 </div>
-                                <div className='d-flex align-items-center gap-3 p-3 border-1'>
-                                    <div>
-                                        <ion-icon name="person-outline"></ion-icon>
+
+                                {/* Số lượng khách */}
+                                <div
+                                    className="gap-3 p-3 border-1"
+                                    style={{
+                                        borderRadius: '20px',
+                                        border: '1px solid #ccc'
+                                    }}
+                                >
+                                    <div className="d-flex align-items-center">
+                                        <ion-icon
+                                            name="person-outline"
+                                            style={{
+                                                marginBottom: '8px',
+                                                marginRight: '8px'
+                                            }}
+                                        ></ion-icon>
                                         <h5>Số lượng khách</h5>
                                     </div>
-                                    <h5>{participants.length}/{tour.maxGuests}</h5>
+                                    <h5 style={{ fontSize: '24px' }}>{participants.length}/{tour.maxGuests}</h5>
                                 </div>
                             </div>
                         </Col>
+
                     </Row>
                     <Row>
-                        Danh sách người tham gia
+                        <h3 className='my-2'>Danh sách người tham gia</h3>
                         <div className='d-flex justify-content-between my-4'>
                             <Form.Control type='text' className='w-25' placeholder='Tìm kiếm người tham gia' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                             <div className='py-2 px-2 rounded-5' style={{
                                 backgroundColor: '#d9d9d9',
                             }}>
-                                <Button variant='success' className='rounded-5 border-0' onClick={() => setFilter('paid')}>Đã thanh toán</Button>
-                                <Button variant='success' className='rounded-5 border-0' onClick={() => setFilter('unpaid')}>Chưa thanh toán</Button>
+                                <Button
+                                    className="rounded-5 border-0 mx-1"
+                                    onClick={() => setFilter('paid')}
+                                    style={{
+                                        backgroundColor: filter === 'paid' ? 'white' : '#d9d9d9',
+                                        color: filter === 'paid' ? 'black' : 'black'
+                                    }}
+                                >
+                                    Đã thanh toán
+                                </Button>
+                                {/* Nút Chưa thanh toán */}
+                                <Button
+                                    className="rounded-5 border-0 mx-1"
+                                    onClick={() => setFilter('unpaid')}
+                                    style={{
+                                        backgroundColor: filter === 'unpaid' ? 'white' : '#d9d9d9',
+                                        color: filter === 'unpaid' ? 'black' : 'black'
+                                    }}
+                                >
+                                    Chưa thanh toán
+                                </Button>
                             </div>
                         </div>
                         <Table striped bordered hover>
@@ -696,19 +818,14 @@ function TourCard({ tour, onTourUpdated }) {
                                         <td>{participant.phone}</td>
                                         <td>{participant.paymentStatus ? 'Đã thanh toán' : 'Chưa thanh toán'}</td>
                                         <td>{participant.totalAmount?.toLocaleString('vi', { style: 'currency', currency: 'VND' })}</td>
-                                        <td>
+                                        <td style={{ textAlign: 'center' }}>
                                             <Button onClick={() => {
                                                 localStorage.setItem('isLocal', 'local');
                                                 localStorage.setItem('participant', JSON.stringify(participant));
                                                 localStorage.setItem('tourSelected', JSON.stringify(tour));
-                                                console.log('participant', participant);
-                                                if (participant.postId === "") {
-                                                    toast.error('Người dùng chưa đánh giá tour này');
-                                                    return;
-                                                }
-                                                else{
-                                                    navigate(RoutePath.ONGOING_CONTRACT)
-                                                }
+                                                console.log(participant);
+
+                                                navigate(RoutePath.ONGOING_CONTRACT)
                                             }}>
                                                 Xem hợp đồng
                                             </Button>

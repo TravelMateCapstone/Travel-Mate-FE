@@ -31,7 +31,7 @@ function LocalTripHistory() {
   };
 
   return (
-    <div>
+    <div className='mt-3'>
       <div className='mb-4 d-flex justify-content-between align-items-center'>
         <CreateTour onTourCreated={() => queryClient.invalidateQueries('tours')} />
         <div>
@@ -44,7 +44,7 @@ function LocalTripHistory() {
       </div>
       <Table striped bordered hover>
         <thead>
-          <tr>
+          <tr style={{ textAlign: 'center', verticalAlign: 'middle' }}>
             <th>Thông tin</th>
             <th>Kinh phí</th>
             <th>Thời gian</th>
@@ -56,50 +56,50 @@ function LocalTripHistory() {
           {isLoading ? (
             Array.from({ length: 5 }).map((_, index) => (
               <tr key={index}>
-              <td className='d-flex gap-3 align-items-center'>
-                <Placeholder as="div" animation="wave" style={{ width: '150px', height: '100px' }}>
-                  <Placeholder className="rounded-3 w-100 h-100" />
-                </Placeholder>
-                <div className='d-flex flex-column justify-content-center'>
-                  <Placeholder as="h6" animation="wave" className="mb-2">
-                    <Placeholder xs={6} />
+                <td className='d-flex gap-3 align-items-center'>
+                  <Placeholder as="div" animation="wave" style={{ width: '150px', height: '100px' }}>
+                    <Placeholder className="rounded-3 w-100 h-100" />
                   </Placeholder>
-                  <Placeholder as="p" animation="wave" className="mb-1">
-                    <Placeholder xs={4} />
+                  <div className='d-flex flex-column justify-content-center'>
+                    <Placeholder as="h6" animation="wave" className="mb-2">
+                      <Placeholder xs={6} />
+                    </Placeholder>
+                    <Placeholder as="p" animation="wave" className="mb-1">
+                      <Placeholder xs={4} />
+                    </Placeholder>
+                    <Placeholder as="p" animation="wave" className="mb-0">
+                      <Placeholder xs={3} />
+                    </Placeholder>
+                  </div>
+                </td>
+                <td>
+                  <Placeholder as="p" animation="wave" className="m-0">
+                    <Placeholder xs={5} />
                   </Placeholder>
-                  <Placeholder as="p" animation="wave" className="mb-0">
+                </td>
+                <td>
+                  <Placeholder as="div" animation="wave" className="d-flex align-items-center gap-5">
+                    <div className='d-flex flex-column align-items-center'>
+                      <Placeholder xs={4} className="mb-1" />
+                      <Placeholder xs={4} />
+                    </div>
+                  </Placeholder>
+                </td>
+                <td>
+                  <Placeholder as="small" animation="wave">
                     <Placeholder xs={3} />
                   </Placeholder>
-                </div>
-              </td>
-              <td>
-                <Placeholder as="p" animation="wave" className="m-0">
-                  <Placeholder xs={5} />
-                </Placeholder>
-              </td>
-              <td>
-                <Placeholder as="div" animation="wave" className="d-flex align-items-center gap-5">
-                  <div className='d-flex flex-column align-items-center'>
-                    <Placeholder xs={4} className="mb-1" />
-                    <Placeholder xs={4} />
-                  </div>
-                </Placeholder>
-              </td>
-              <td>
-                <Placeholder as="small" animation="wave">
-                  <Placeholder xs={3} />
-                </Placeholder>
-              </td>
-              <td>
-                <Dropdown>
-                  <Dropdown.Toggle variant="success" disabled>
-                    <Placeholder as="div" animation="wave" style={{ width: '20px', height: '20px' }}>
-                      <Placeholder className="w-100 h-100" />
-                    </Placeholder>
-                  </Dropdown.Toggle>
-                </Dropdown>
-              </td>
-            </tr>
+                </td>
+                <td>
+                  <Dropdown>
+                    <Dropdown.Toggle variant="success" disabled>
+                      <Placeholder as="div" animation="wave" style={{ width: '20px', height: '20px' }}>
+                        <Placeholder className="w-100 h-100" />
+                      </Placeholder>
+                    </Dropdown.Toggle>
+                  </Dropdown>
+                </td>
+              </tr>
             ))
           ) : (
             tours?.map((tour) => (
