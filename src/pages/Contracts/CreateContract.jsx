@@ -52,6 +52,8 @@ function CreateContract() {
       // localSignature: "chuky8",
     };
     console.log(contractInfo);
+    localStorage.setItem("contractInfo", JSON.stringify(contractInfo));
+    localStorage.setItem("isLocal", 'traveler');
     try {
       const response = await axios.post(
         "https://travelmateapp.azurewebsites.net/api/BlockContract/create-contract-local-pass",
