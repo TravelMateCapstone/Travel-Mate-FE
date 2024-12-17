@@ -471,8 +471,14 @@ function TourCard({ tour, onTourUpdated }) {
                             </Col>
                             <Col lg={4}>
                                 <Form.Group className="mb-3 form-group-custom-create-tour">
-                                    <Form.Control type="file" onChange={handleImageUpload} />
+                                    <Form.Control
+                                        id='uploadImgTour'
+                                        type="file"
+                                        onChange={handleImageUpload} />
                                 </Form.Group>
+                                <Button className='my-2' onClick={() => document.getElementById('uploadImgTour').click()}>
+                                    Tải lên ảnh hoạt động
+                                </Button>
                                 {tourDetails.tourImage && (
                                     <img
                                         src={tourDetails.tourImage}
@@ -538,30 +544,22 @@ function TourCard({ tour, onTourUpdated }) {
                                                                             <Col lg={6} className="px-0">
                                                                                 <Form.Group className="mb-3" style={{ marginRight: '5px' }}>
                                                                                     <Form.Label>Ghi Chú</Form.Label>
-                                                                                    <Form.Control
-                                                                                        as="textarea"
-                                                                                        rows={5} // Tăng số dòng hiển thị
+                                                                                    <TextareaAutosize
+                                                                                        minRows={5}
+                                                                                        className='form-control'
                                                                                         value={act.note}
                                                                                         onChange={(e) => updateActivity(dayIndex, actIndex, 'note', e.target.value)}
-                                                                                        style={{
-                                                                                            resize: 'vertical', // Cho phép thay đổi kích thước theo chiều dọc
-                                                                                            height: '150px', // Chiều cao ban đầu
-                                                                                        }}
                                                                                     />
                                                                                 </Form.Group>
                                                                             </Col>
                                                                             <Col lg={6} className="px-0">
                                                                                 <Form.Group className="mb-3" style={{ marginRight: '5px' }}>
                                                                                     <Form.Label>Mô Tả</Form.Label>
-                                                                                    <Form.Control
-                                                                                        as="textarea"
-                                                                                        rows={5} // Tăng số dòng hiển thị
+                                                                                    <TextareaAutosize
+                                                                                        minRows={5}
+                                                                                        className='form-control'
                                                                                         value={act.description}
                                                                                         onChange={(e) => updateActivity(dayIndex, actIndex, 'description', e.target.value)}
-                                                                                        style={{
-                                                                                            resize: 'vertical', // Cho phép thay đổi kích thước theo chiều dọc
-                                                                                            height: '150px', // Chiều cao ban đầu
-                                                                                        }}
                                                                                     />
                                                                                 </Form.Group>
                                                                             </Col>
@@ -581,7 +579,7 @@ function TourCard({ tour, onTourUpdated }) {
                                                                                 accept="image/*"
                                                                                 onChange={(e) => handleActivityImageUpload(e, dayIndex, actIndex)}
                                                                             />
-                                                                            <Button onClick={() => document.getElementById('uploadImgActivity').click()}>
+                                                                            <Button className='my-2' onClick={() => document.getElementById('uploadImgActivity').click()}>
                                                                                 Tải lên ảnh hoạt động
                                                                             </Button>
                                                                         </Form.Group>
@@ -664,14 +662,9 @@ function TourCard({ tour, onTourUpdated }) {
                                                     <Col lg={10}>
                                                         <Form.Group className="mb-3">
                                                             <Form.Label>Ghi Chú</Form.Label>
-                                                            <Form.Control
-                                                                as="textarea"
-                                                                rows={5}
-                                                                type="text"
-                                                                style={{
-                                                                    resize: 'vertical', // Cho phép thay đổi kích thước theo chiều dọc
-                                                                    height: '150px', // Chiều cao ban đầu
-                                                                }}
+                                                            <TextareaAutosize
+                                                                minRows={3}
+                                                                className='form-control'
                                                                 value={costDetail.notes}
                                                                 onChange={(e) => {
                                                                     const updatedCostDetails = [...costDetails];
@@ -685,7 +678,7 @@ function TourCard({ tour, onTourUpdated }) {
                                                             variant="outline-danger"
                                                             // className='d-flex align-items-center '
                                                             onClick={() => removeCostDetail(index)}
-                                                            style={{ marginTop: '40px' }}
+                                                            style={{ marginTop: '60px' }}
                                                         ><ion-icon name="trash-outline"></ion-icon> Loại bỏ chi phí</Button>
                                                     </Col>
                                                 </Row>
@@ -863,14 +856,19 @@ function TourCard({ tour, onTourUpdated }) {
                                         <td>{participant.paymentStatus ? 'Đã thanh toán' : 'Chưa thanh toán'}</td>
                                         <td>{participant.totalAmount?.toLocaleString('vi', { style: 'currency', currency: 'VND' })}</td>
                                         <td style={{ textAlign: 'center' }}>
-                                            <Button onClick={() => {
-                                                localStorage.setItem('isLocal', 'local');
-                                                localStorage.setItem('participant', JSON.stringify(participant));
-                                                localStorage.setItem('tourSelected', JSON.stringify(tour));
-                                                console.log(participant);
+                                            <Button
+                                                style={{
+                                                    backgroundColor: 'green',
+                                                    fontSize: '12px'
+                                                }}
+                                                onClick={() => {
+                                                    localStorage.setItem('isLocal', 'local');
+                                                    localStorage.setItem('participant', JSON.stringify(participant));
+                                                    localStorage.setItem('tourSelected', JSON.stringify(tour));
+                                                    console.log(participant);
 
-                                                navigate(RoutePath.ONGOING_CONTRACT)
-                                            }}>
+                                                    navigate(RoutePath.ONGOING_CONTRACT)
+                                                }}>
                                                 Xem hợp đồng
                                             </Button>
                                         </td>
