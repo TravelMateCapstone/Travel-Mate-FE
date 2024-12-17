@@ -17,6 +17,7 @@ function FinishContractTraveller() {
     const [images, setImages] = useState([]);
     const [caption, setCaption] = useState('');
     const [star, setStar] = useState(0);
+    const contractInfo = JSON.parse(localStorage.getItem('contractInfo'));
     const contract_selected = JSON.parse(localStorage.getItem('contract_selected'));
     const profile = useSelector((state) => state.profile);
     const handleImageUpload = async (event) => {
@@ -37,7 +38,7 @@ function FinishContractTraveller() {
         console.log(user.id)
         const tripImages = images.map(image => image);
         const formData = {
-            tourId: contract_selected.tourId,
+            tourId: contract_selected.tourId || contractInfo.tourId,
             travelerId: user.id,
             caption: caption,
             star: star,

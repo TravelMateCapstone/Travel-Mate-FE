@@ -113,23 +113,21 @@ function Contract() {
               {contract.status !== 'Completed' && <CountdownTimer createdAt={contract.createdAt} />}
             </td>
             <td className='d-flex gap-2'>
-              <Button variant='success' className='text-nowrap d-flex justify-content-center align-items-center' onClick={() => verifyContract(contract)}>
-                <ion-icon name="shield-checkmark-outline" style={{
-                  fontSize: '24px',
-                }}></ion-icon>
-              </Button>
-              {contract.status === 'Created' && (new Date() - new Date(contract.createdAt)) / 1000 / 60 <= 1 && (
+              {contract.status === 'Created' && (new Date() - new Date(contract.createdAt)) / 1000 / 60 <= 3 && (
                 <Button variant='primary' className='text-nowrap' onClick={() => viewCoptract(contract)}>
                   Thanh toán
                 </Button>
               )}
               {contract.status !== 'Created' && (
-                <Button variant='primary' className='text-nowrap'>
-                  <ion-icon name="cloud-download-outline" style={{
-                    fontSize: '24px',
-                  }}></ion-icon>
+                <Button variant='primary' className='text-nowrap' onClick={() => viewCoptract(contract)}>
+                  Xem 
                 </Button>
               )}
+              <Button variant='success' className='text-nowrap d-flex justify-content-center align-items-center' onClick={() => verifyContract(contract)}>
+                <ion-icon name="shield-checkmark-outline" style={{
+                  fontSize: '24px',
+                }}></ion-icon>
+              </Button>
             </td>
           </tr>
         ))}
