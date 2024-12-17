@@ -41,12 +41,14 @@ function FinishContractLocal() {
             return;
         }
         const formData = {
-            localId: user.id,
+            localId: parseInt(user.id),
             comment: review
         };
+        console.log('formData', formData);
+        
         try {
             const response = await axios.put(
-                `https://travelmateapp.azurewebsites.net/api/PastTripPost/local?postId=675ff2c0ab63b9f9701288da`,
+                `https://travelmateapp.azurewebsites.net/api/PastTripPost/local?postId=${participant.postId}`,
                 formData,
                 {
                     headers: {

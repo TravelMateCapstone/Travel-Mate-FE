@@ -1,11 +1,29 @@
 import React, { useEffect, useState } from "react";
 import vnMap from "../../assets/vn.svg";
 import { useSelector } from "react-redux";
+import { use } from "react";
+import axios from "axios";
 
 const MapComponent = () => {
   const user = useSelector((state) => state.auth.user);
+  const [selectedNames, setSelectedNames] = useState([]);
+  const token = useSelector((state) => state.auth.token);
 
-  const selectedNames = ["Hải Dương", "Hà Nam", "Nghệ An",];
+  useEffect(() => {
+    // Define an async function inside useEffect
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          `https://travelmateapp.azurewebsites.net/api/BlockContract/get-Locations-History/${user.id}`,
+        );
+        setSelectedNames(response.data.data.$values);
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+    };
+
+    fetchData(); // Call the async function
+  }, [token, user]); 
 
   
 

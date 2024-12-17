@@ -74,14 +74,13 @@ function CreateTour({ onTourCreated }) {
     useEffect(() => {
         const fetchLocations = async () => {
             try {
-                const response = await axios.get('https://travelmateapp.azurewebsites.net/api/UserLocationsWOO/get-current-user', {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `${token}`,
-                    },
-                });
-                console.log('Location:', response.data.$values);
-                setLocations(response.data.$values || []);
+                const response = await axios.get('https://provinces.open-api.vn/api/');
+                console.log('Location:', response.data);
+                const cleanedLocations = response.data.map(location => ({
+                    ...location,
+                    name: location.name.replace(/Tỉnh|Thành phố/g, '').trim()
+                }));
+                setLocations(cleanedLocations || []);
             } catch (error) {
                 console.error('Error fetching locations:', error);
             }
@@ -304,8 +303,8 @@ function CreateTour({ onTourCreated }) {
                                                 <Form.Control as="select" value={tourDetails.location} onChange={(e) => setTourDetails({ ...tourDetails, location: e.target.value })}>
                                                     <option value="">Chọn địa điểm</option>
                                                     {locations.map((location) => (
-                                                        <option key={location.locationId} value={location.location.locationName}>
-                                                            {location.location.locationName}
+                                                        <option key={location.code} value={location.name}>
+                                                            {location.name}
                                                         </option>
                                                     ))}
                                                 </Form.Control>

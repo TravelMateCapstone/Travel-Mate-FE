@@ -701,9 +701,14 @@ function TourCard({ tour, onTourUpdated }) {
                                                 localStorage.setItem('isLocal', 'local');
                                                 localStorage.setItem('participant', JSON.stringify(participant));
                                                 localStorage.setItem('tourSelected', JSON.stringify(tour));
-                                                console.log(participant);
-                                                
-                                                navigate(RoutePath.ONGOING_CONTRACT)
+                                                console.log('participant', participant);
+                                                if (participant.postId === "") {
+                                                    toast.error('Người dùng chưa đánh giá tour này');
+                                                    return;
+                                                }
+                                                else{
+                                                    navigate(RoutePath.ONGOING_CONTRACT)
+                                                }
                                             }}>
                                                 Xem hợp đồng
                                             </Button>

@@ -471,7 +471,7 @@ function MyFavorites() {
                 <div className="d-flex gap-2 mt-3">
                   <input type="checkbox" />
                   <div className="m-0">
-                    Bằng cách tạo tour này, bạn xác nhận rằng đã đọc, hiểu và đồng ý với các{" "}
+                     Bằng cách tạo tour này, bạn xác nhận rằng đã đọc, hiểu và đồng ý với các{" "}
                     <Link to={RoutePath.HOMEPAGE} className="m-0 text-decoration-underline">Điều khoản và Quy định</Link>{" "}của chúng tôi
                   </div>
                 </div>

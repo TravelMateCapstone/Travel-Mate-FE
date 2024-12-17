@@ -7,15 +7,18 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { storage } from '../../../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useNavigate } from 'react-router-dom';
+import RoutePath from '../../routes/RoutePath'
 
 function FinishContractTraveller() {
     const user = useSelector((state) => state.auth.user);
+    const navigate = useNavigate();
     const token = useSelector((state) => state.auth.token);
     const [images, setImages] = useState([]);
     const [caption, setCaption] = useState('');
     const [star, setStar] = useState(0);
     const contract_selected = JSON.parse(localStorage.getItem('contract_selected'));
-
+    const profile = useSelector((state) => state.profile);
     const handleImageUpload = async (event) => {
         const files = Array.from(event.target.files);
         const uploadPromises = files.map(async (file) => {
@@ -23,28 +26,23 @@ function FinishContractTraveller() {
             await uploadBytes(storageRef, file);
             return getDownloadURL(storageRef);
         });
-
         const imageUrls = await Promise.all(uploadPromises);
         setImages(prevImages => [...prevImages, ...imageUrls]);
     };
-
     const handleRemoveImage = (index) => {
         URL.revokeObjectURL(images[index]);
         setImages(images.filter((_, i) => i !== index));
     };
-
     const handleFinishContract = async () => {
+        console.log(user.id)
         const tripImages = images.map(image => image);
         const formData = {
             tourId: contract_selected.tourId,
-            travelerId: 9,
+            travelerId: user.id,
             caption: caption,
             star: star,
             tripImages: tripImages,
         };
-        console.log(formData);
-        
-
         try {
             const response = await axios.post(
                 "https://travelmateapp.azurewebsites.net/api/PastTripPost",
@@ -60,8 +58,11 @@ function FinishContractTraveller() {
             toast.success("Tạo bài viết thành công.");
             console.log(response.data);
         } catch (error) {
-            alert("Đã xảy ra lỗi trong quá trình kết nối.");
             console.error("Error:", error);
+            if (error.response.data == 'You have already create post about this tour') {
+                toast.error('Bạn đã tạo bài viết về chuyến đi này rồi.');
+                navigate(RoutePath.DONE_CONTRACT)
+            }
         }
     };
 
@@ -115,7 +116,7 @@ function FinishContractTraveller() {
                         />
                         <div>
                             <p className="m-0 fw-bold">{user.FullName}</p>
-                            <sub className="fw-medium">Quảng Nam</sub>
+                            <sub className="fw-medium">{profile.profile?.address|| 'Quảng Nam'}</sub>
                         </div>
                     </div>
                 </Col>
@@ -129,9 +130,7 @@ function FinishContractTraveller() {
                     <div className="d-flex justify-content-between align-items-center">
                         <div className="d-flex gap-2">
                             <img
-                                src={
-                                    "https://scontent.fdad3-6.fna.fbcdn.net/v/t39.30808-6/329970312_896924391503385_2352475357586137104_n.jpg?stp=c0.169.1536.1536a_dst-jpg_s206x206_tt6&_nc_cat=101&ccb=1-7&_nc_sid=fe5ecc&_nc_ohc=zb9TW46mvTMQ7kNvgGeCyrB&_nc_zt=23&_nc_ht=scontent.fdad3-6.fna&_nc_gid=ACPCAcNUTB0nTIZvBDzPLhP&oh=00_AYCJfBTypoMb0NT920bkOi6sqvj6igNb3GfMSNufoKknvg&oe=676134E3"
-                                }
+                                src={contract_selected.localProfile.imageUser}
                                 alt="avatar"
                                 className="rounded-circle object-fit-cover"
                                 height={60}
@@ -139,7 +138,7 @@ function FinishContractTraveller() {
                             />
                             <div>
                                 <p className="m-0 fw-bold">{"NGUYỄN MINH QUÂN"}</p>
-                                <sub className="fw-medium">Quảng Nam</sub>
+                                <sub className="fw-medium">{contract_selected.location}</sub>
                             </div>
                         </div>
 
