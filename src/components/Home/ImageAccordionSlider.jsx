@@ -10,7 +10,7 @@ import 'swiper/css/navigation';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 function ImageAccordionSlider() {
     return (
-        <>
+        <div>
             <Swiper
                 slidesPerView={7}
                 spaceBetween={0}
@@ -50,7 +50,7 @@ function ImageAccordionSlider() {
                     <img src="https://trivietagency.com/wp-content/uploads/2024/09/cac-khu-du-lich-viet-nam.jpg" alt="" />
                 </SwiperSlide>
             </Swiper>
-        </>
+        </div>
     );
 }
 

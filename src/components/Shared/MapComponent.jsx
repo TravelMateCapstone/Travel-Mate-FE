@@ -17,6 +17,7 @@ const MapComponent = () => {
           `https://travelmateapp.azurewebsites.net/api/BlockContract/get-Locations-History/${user.id}`,
         );
         setSelectedNames(response.data.data.$values);
+        localStorage.setItem("selectedNames", JSON.stringify(response.data.data.$values));
       } catch (error) {
         console.error("Error fetching data: ", error);
       }

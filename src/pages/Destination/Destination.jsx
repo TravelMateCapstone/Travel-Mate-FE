@@ -107,7 +107,7 @@ function Destination() {
                     backgroundColor: '#f5f5f5',
                 }} className='p-5'>
                     <Col lg={6}>
-                        <h1 className='fw-bold'>{selectedLocation?.title ||  'Xin chào' }</h1>
+                        <h1 className='fw-bold'>{selectedLocation?.title ||  selectedLocation?.locationName || 'Xin chào' }</h1>
                         <div className='d-flex gap-3'>
                         <p className='fw-bold'>{tours.length} tour</p> 
                         </div>

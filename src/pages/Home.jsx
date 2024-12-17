@@ -23,9 +23,6 @@ function Home() {
       .catch(error => console.error('Error fetching destinations:', error));
   }, []);
 
-  const explore_now = () => {
-    
-  }
 
 
   return (
@@ -49,12 +46,12 @@ function Home() {
           <MapComponent />
           <div className="home-statistics">
             <div className="stat-item">
-              <h3>2/63</h3>
+              <h3>{JSON.parse(localStorage.getItem('selectedNames')).length}/63</h3>
               <h3>Tỉnh thành</h3>
             </div>
             <div className="border-1"></div>
             <div className="stat-item">
-              <h3>3.17%</h3>
+              <h3>{(JSON.parse(localStorage.getItem('selectedNames')).length/63*100).toFixed(2)} %</h3>
               <h3>Việt Nam</h3>
             </div>
           </div>
@@ -92,7 +89,7 @@ function Home() {
       </div>
       <div className='' style={{
         backgroundColor: '#F9F9F9',
-        height: '619px',
+        height: '740px',
         paddingTop: '100px',
         marginTop: '51px',
       }}>
@@ -110,7 +107,9 @@ function Home() {
         </Container>
       </div>
 
-      <ImageAccordionSlider />
+     <div style={{
+      marginBottom: '50px',
+     }}> <ImageAccordionSlider /></div>
     </>
   );
 }
