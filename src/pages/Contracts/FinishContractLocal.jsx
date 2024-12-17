@@ -95,140 +95,146 @@ function FinishContractLocal() {
     return (
         <div>
             <TimeLine activeStep={3} />
-            <Row>
-                <Col
-                    className='rounded-top-4'
-                    lg={12}
-                    style={{
-                        borderLeft: "1px solid #CCCCCC",
-                        borderRight: "1px solid #CCCCCC",
-                        borderTop: "1px solid #CCCCCC",
-                        padding: "15px 25px",
-                        display: "flex",
-                        alignContent: "center",
-                        gap: "15px",
-                    }}
-                >
-                    <ion-icon
-                        name="location-outline"
+          <div style={{
+              paddingTop: '150px',
+          }}>
+                <Row>
+                    <Col
+                        className='rounded-top-4'
+                        lg={12}
                         style={{
-                            fontSize: "24px",
+                            borderLeft: "1px solid #CCCCCC",
+                            borderRight: "1px solid #CCCCCC",
+                            borderTop: "1px solid #CCCCCC",
+                            padding: "15px 25px",
+                            display: "flex",
+                            alignContent: "center",
+                            gap: "15px",
                         }}
-                    ></ion-icon>{" "}
-                    <p className="m-0">Địa điểm</p>
-                    <p className="m-0 fw-medium">Quảng Trị</p>
-                </Col>
-            </Row>
-            <Row
-                style={{
-                    border: "1px solid #CCCCCC",
-                }}
-            >
-                <Col
-                    lg={6}
+                    >
+                        <ion-icon
+                            name="location-outline"
+                            style={{
+                                fontSize: "24px",
+                            }}
+                        ></ion-icon>{" "}
+                        <p className="m-0">Địa điểm</p>
+                        <p className="m-0 fw-medium">Quảng Trị</p>
+                    </Col>
+                </Row>
+                <Row
                     style={{
-                        borderRight: "1px solid #CCCCCC",
-                        padding: "25px",
+                        border: "1px solid #CCCCCC",
                     }}
                 >
-                    <h6>Khách du lịch</h6>
-                    <div className="d-flex gap-2">
-                        <img
-                            src={'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'}
-                            alt="avatar"
-                            className="rounded-circle object-fit-cover"
-                            height={60}
-                            width={60}
-                        />
-                        <div>
-                            <p className="m-0 fw-bold">{participant.fullName}</p>
-                            <sub className="fw-medium">{participant.address || 'Chưa cập nhật'}</sub>
-                        </div>
-                    </div>
-                </Col>
-                <Col
-                    lg={6}
-                    style={{
-                        padding: "25px",
-                    }}
-                >
-                    <h6>Người địa phương</h6>
-                    <div className="d-flex justify-content-between align-items-center">
+                    <Col
+                        lg={6}
+                        style={{
+                            borderRight: "1px solid #CCCCCC",
+                            padding: "15px 25px",
+                        }}
+                    >
+                        <h6 className='mb-3'>Khách du lịch</h6>
                         <div className="d-flex gap-2">
                             <img
-                                src={user.avatarUrl}
+                                src={'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'}
                                 alt="avatar"
                                 className="rounded-circle object-fit-cover"
                                 height={60}
                                 width={60}
                             />
-                            <div>
-                                <p className="m-0 fw-bold">{user.FullName}</p>
-                                <sub className="fw-medium">{additional?.location || 'Đà Nẵng' }</sub>
+                            <div className='d-flex flex-column justify-content-center'>
+                                <p className="mb-2 fw-bold">{participant.fullName}</p>
+                                <small className="fw-medium">{participant.address || 'Chưa cập nhật'}</small>
                             </div>
                         </div>
-
-                    </div>
-                </Col>
-            </Row>
-            <Row
-                className="rounded-bottom-4"
-                style={{
-                    border: "1px solid #CCCCCC",
-                    borderTop: '0px'
-                }}
-            >
-                <Col
-                    lg={6}
+                    </Col>
+                    <Col
+                        lg={6}
+                        style={{
+                            padding: "15px 25px",
+                        }}
+                    >
+                        <h6 className='mb-3'>Người địa phương</h6>
+                        <div className="d-flex justify-content-between align-items-center">
+                            <div className="d-flex gap-2">
+                                <img
+                                    src={user.avatarUrl}
+                                    alt="avatar"
+                                    className="rounded-circle object-fit-cover"
+                                    height={60}
+                                    width={60}
+                                />
+                                <div  className='d-flex flex-column justify-content-center'>
+                                    <p className="mb-2 fw-bold">{user.FullName}</p>
+                                    <small className="fw-medium">{additional?.location || 'Đà Nẵng' }</small>
+                                </div>
+                            </div>
+    
+                        </div>
+                    </Col>
+                </Row>
+                <Row
+                    className="rounded-bottom-4"
                     style={{
-                        borderRight: "1px solid #CCCCCC",
-                        padding: "10px 25px",
+                        border: "1px solid #CCCCCC",
+                        borderTop: '0px'
                     }}
                 >
-                   
-                    <div className='d-flex gap-4 flex-column mb-3'>
-                        <div className='d-flex gap-2' style={{ color: '#FFD600' }}>
-                            {[1, 2, 3, 4, 5].map(i => (
-                                <ion-icon
-                                    key={i}
-                                    name={i <= additional?.star ? "star" : "star-outline"}
-                                    style={{ cursor: "pointer" }}
-                                ></ion-icon>
+                    <Col
+                        lg={6}
+                        style={{
+                            borderRight: "1px solid #CCCCCC",
+                            padding: "15px 25px",
+                        }}
+                    >
+                       
+                        <div className='d-flex gap-2 flex-column mb-3'>
+                        <h6 className='m-0'>Đánh giá người địa phương</h6>
+                            <div className='d-flex gap-2' style={{ color: '#FFD600' }}>
+                                {[1, 2, 3, 4, 5].map(i => (
+                                    <ion-icon
+                                        key={i}
+                                        name={i <= additional?.star ? "star" : "star-outline"}
+                                        style={{ cursor: "pointer" }}
+                                    ></ion-icon>
+                                ))}
+                            </div>
+                        </div>
+                        <h6>Nội dung bài viết</h6>
+                        <p>
+                            {additional?.caption}
+                        </p>
+                        <input type="file" className='d-none' id='upload_img_traveller' multiple onChange={handleImageUpload} />
+                        <div className='row mt-3'>
+                            {additional?.tripImages.$values.map((image, index) => (
+                                <div className='col col-lg-4 mb-4 position-relative' key={index}>
+                                    <img src={image} alt='' className='w-100 rounded-4 object-fit-cover' />
+                                </div>
                             ))}
                         </div>
-                    </div>
-                    <p>
-                        {additional?.caption}
-                    </p>
-                    <input type="file" className='d-none' id='upload_img_traveller' multiple onChange={handleImageUpload} />
-                    <div className='row mt-3'>
-                        {additional?.tripImages.$values.map((image, index) => (
-                            <div className='col col-lg-4 mb-4 position-relative' key={index}>
-                                <img src={image} alt='' className='w-100 rounded-4 object-fit-cover' />
-                            </div>
-                        ))}
-                    </div>
-                </Col>
-                <Col
-                    lg={6}
-                    style={{
-                        padding: "25px",
-                    }}
-                >
-                    <h6 className="">Đánh giá của người địa phương</h6>
-                    <TextareaAutosize
-                        className='w-100 p-2 rounded-3 form-control'
-                        minRows={5}
-                        value={review}
-                        onChange={(e) => setReview(e.target.value)}
-                    />
-                    <div className='d-flex justify-content-end mt-4'>
-                        <Button variant='success' className='rounded-5' onClick={handleFinishContract}>
-                            Hoàn thành
-                        </Button>
-                    </div>
-                </Col>
-            </Row>
+                    </Col>
+                    <Col
+                        lg={6}
+                        style={{
+                            padding: "15px 25px",
+                        }}
+                    >
+                        <h6 className="">Đánh giá của người địa phương</h6>
+                        <TextareaAutosize
+                            className='w-100 p-2 rounded-3 form-control'
+                            minRows={5}
+                            value={review}
+                            onChange={(e) => setReview(e.target.value)}
+                        />
+                        <div className='d-flex justify-content-end mt-4'>
+                            <Button variant='success' className='rounded-5' onClick={handleFinishContract}>
+                                Hoàn thành
+                            </Button>
+                        </div>
+                    </Col>
+                </Row>
+          </div>
         </div>
     );
 }

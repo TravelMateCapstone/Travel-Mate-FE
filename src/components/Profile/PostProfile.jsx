@@ -9,6 +9,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import ConfirmModal from '../Shared/ConfirmModal';
+import TextareaAutosize from 'react-textarea-autosize';
 
 Modal.setAppElement('#root');
 
@@ -29,7 +30,6 @@ function PostProfile({ travelerAvatar, travelerName, location, createdAt, captio
     const handleShowEditModal = () => setShowEditModal(true);
     const handleCloseEditModal = () => setShowEditModal(false);
     const handleShowConfirmModal = () => {
-        console.log("Confirm modal opened");
         setShowConfirmModal(true);
     };
     const handleCloseConfirmModal = () => setShowConfirmModal(false);
@@ -233,14 +233,20 @@ function PostProfile({ travelerAvatar, travelerName, location, createdAt, captio
                 }}
             >
                 <div className='d-flex justify-content-end'><button className='btn btn-danger' onClick={handleCloseEditModal}><ion-icon name="close-outline"></ion-icon></button></div>
-                <div className='overflow-auto'>
+                <div className='overflow-auto' style={{ height: 'calc(100% - 50px)' }}>
                     {/* <div className='mb-3'>
                         <label>Địa điểm</label>
                         <input type="text" name="location" value={editData.location} onChange={handleEditChange} className='form-control' />
                     </div> */}
                     <div className='mb-3'>
                         <label>Nội dung bài viết</label>
-                        <input type="text" name="caption" value={editData.caption} onChange={handleEditChange} className='form-control' />
+                        <TextareaAutosize
+                            name="caption"
+                            value={editData.caption}
+                            onChange={handleEditChange}
+                            className='form-control'
+                            minRows={5}
+                        />
                     </div>
                     <div className='mb-3'>
                         <label>Đánh giá</label>
@@ -256,13 +262,13 @@ function PostProfile({ travelerAvatar, travelerName, location, createdAt, captio
                         </div>
                     </div>
                     <div className='mb-3'>
-                        <button className='btn btn-outline-primary rounded-5' onClick={() => document.getElementById('upload_img_pastrip').click()}>Vui lòng chọn ảnh để upload</button>
+                        <button className='btn btn-outline-dark rounded-5' onClick={() => document.getElementById('upload_img_pastrip').click()}>Vui lòng chọn ảnh để upload</button>
                         <input type="file" id='upload_img_pastrip' multiple onChange={handlePhotoChange} className='form-control d-none' />
                     </div>
                     <div className='d-flex flex-wrap'>
-                        {tripImages.$values.map((photo, index) => (
+                        {editData.postPhotos.map((photo, index) => (
                             <div key={index} style={{ position: 'relative', margin: '5px' }}>
-                                <img src={photo} alt="Selected" style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
+                                <img src={photo.photoUrl} alt="Selected" style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
                                 <button
                                     type="button"
                                     className="btn btn-danger btn-sm"
@@ -274,7 +280,9 @@ function PostProfile({ travelerAvatar, travelerName, location, createdAt, captio
                             </div>
                         ))}
                     </div>
-                    <div className='d-flex justify-content-end'><button className='btn btn-success rounded-5' onClick={handleEditPost}>Lưu thay đổi</button></div>
+                </div>
+                <div className='d-flex justify-content-end' style={{ position: 'absolute', bottom: '20px', right: '20px' }}>
+                    <button className='btn btn-success rounded-5' onClick={handleEditPost}>Lưu thay đổi</button>
                 </div>
             </Modal>
             <ConfirmModal

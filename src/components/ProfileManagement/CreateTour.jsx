@@ -19,6 +19,7 @@ function CreateTour({ onTourCreated }) {
     const [costDetails, setCostDetails] = useState([]);
     const [locationCurent, setLocationCurent] = useState('');
     const [isGlobalContract, setIsGlobalContract] = useState(true);
+    const [termsAccepted, setTermsAccepted] = useState(false);
 
     const [tourDetails, setTourDetails] = useState({
         tourName: '',
@@ -150,6 +151,16 @@ function CreateTour({ onTourCreated }) {
                 ...updatedActivities[dayIndex].activities[actIndex],
                 [field]: field === 'activityAmount' ? parseFloat(value) || 0 : value,
             };
+
+            // Validate activity time
+            if (field === 'startTime' || field === 'endTime') {
+                const startTime = updatedActivities[dayIndex].activities[actIndex].startTime;
+                const endTime = updatedActivities[dayIndex].activities[actIndex].endTime;
+                if (startTime && endTime && startTime >= endTime) {
+                    toast.error('Thời gian bắt đầu phải trước thời gian kết thúc.');
+                }
+            }
+
             return updatedActivities;
         });
     };
@@ -175,6 +186,25 @@ function CreateTour({ onTourCreated }) {
     };
 
     const handleSaveChanges = async () => {
+        if (new Date(tourDetails.startDate) >= new Date(tourDetails.endDate)) {
+            toast.error('Ngày bắt đầu phải trước ngày kết thúc.');
+            return;
+        }
+
+        for (const activity of activities) {
+            for (const act of activity.activities) {
+                if (act.startTime >= act.endTime) {
+                    toast.error('Thời gian bắt đầu phải trước thời gian kết thúc.');
+                    return;
+                }
+            }
+        }
+
+        if (!termsAccepted) {
+            toast.error('Bạn phải chấp nhận các điều khoản và quy định.');
+            return;
+        }
+
         const tourData = {
             tourName: tourDetails.tourName,
             price: parseFloat(tourDetails.price),
@@ -521,9 +551,14 @@ function CreateTour({ onTourCreated }) {
                         </Tabs>
                     </Col>
                 </Row>
+
+                <div className='d-flex gap-2 align-items-center'>
+                    <input type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
+                    <label className='m-0'>Bằng cách tạo tour này, bạn xác nhận rằng đã đọc, hiểu và đồng ý với các <a href='https://travelmatefe.netlify.app/regulation' className='text-decoration-underline' target="_blank" rel="noopener noreferrer">Điều khoản và Quy định</a> của chúng tôi</label>
+                </div>
                 <div className="d-flex justify-content-end gap-3">
                     <Button variant="secondary" onClick={closeModal}>Đóng</Button>
-                    <Button variant="success" onClick={handleSaveChanges}>Lưu thay đổi</Button>
+                    <Button variant="success" onClick={handleSaveChanges}>Tạo tour</Button>
                 </div>
             </Modal>
         </div>
