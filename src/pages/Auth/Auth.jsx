@@ -152,7 +152,7 @@ const Auth = () => {
             <p className="custom-social-text">Hoặc đăng nhập bằng các nền tảng xã hội</p>
             <div className="custom-social-media">
               <GoogleOAuthProvider clientId="641114959725-q7732vhl0ssi5ip4il9uard2qv92aigf.apps.googleusercontent.com">
-                <GoogleLogin onSuccess={handleLoginSuccess} onError={handleLoginFailure} />
+                <GoogleLogin size="medium" shape="pill" locale="vi" width={'300px'} onSuccess={handleLoginSuccess} onError={handleLoginFailure} />
               </GoogleOAuthProvider>
             </div>
           </form>
@@ -212,8 +212,8 @@ const Auth = () => {
             <input type="submit" className="custom-btn" value="Đăng ký" />
             <p className="custom-social-text">Hoặc đăng ký bằng các nền tảng xã hội</p>
             <div className="custom-social-media">
-              <GoogleOAuthProvider clientId="641114959725-q7732vhl0ssi5ip4il9uard2qv92aigf.apps.googleusercontent.com">
-                <GoogleLogin onSuccess={handleLoginSuccess} onError={handleLoginFailure} />
+              <GoogleOAuthProvider  clientId="641114959725-q7732vhl0ssi5ip4il9uard2qv92aigf.apps.googleusercontent.com">
+                <GoogleLogin size="medium" shape="pill" text="signup_with" context="signup" locale="vi" width={'300px'} onSuccess={handleLoginSuccess} onError={handleLoginFailure} />
               </GoogleOAuthProvider>
             </div>
           </form>

@@ -177,7 +177,7 @@ const Login = ({ show, handleClose }) => {
             </div>
             <div className="text-center d-flex flex-column gap-3">
               <GoogleOAuthProvider clientId="641114959725-q7732vhl0ssi5ip4il9uard2qv92aigf.apps.googleusercontent.com">
-                <GoogleLogin
+                <GoogleLogin type="standard" size="large"
                   onSuccess={handleLoginSuccess}
                   onError={handleLoginFailure}
                 />
