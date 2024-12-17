@@ -16,7 +16,8 @@ function FinishContractLocal() {
     const [review, setReview] = useState('');
     const [star, setStar] = useState(0);
     const participant = JSON.parse(localStorage.getItem('participant'));
-    
+    const [additional, setAdditional] = useState();
+
     const [postParticipant, setPostParticipant] = useState();
     const handleImageUpload = async (event) => {
         const files = Array.from(event.target.files);
@@ -45,7 +46,7 @@ function FinishContractLocal() {
             comment: review
         };
         console.log('formData', formData);
-        
+
         try {
             const response = await axios.put(
                 `https://travelmateapp.azurewebsites.net/api/PastTripPost/local?postId=${participant.postId}`,
@@ -78,6 +79,19 @@ function FinishContractLocal() {
                 setStar(response.data.$values[response.data.$values.length - 1].star);
             } catch (error) {
                 console.error("Error fetching data:", error);
+            }
+
+            try {
+                const additionalResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/PastTripPost/${participant.postId}`, {
+                    headers: {
+                        Authorization: `${token}`,
+                    },
+                });
+                console.log('additionalResponse', additionalResponse.data);
+                setAdditional(additionalResponse.data);
+                // Handle additional data as needed
+            } catch (error) {
+                console.error("Error fetching additional data:", error);
             }
         };
 
@@ -159,19 +173,7 @@ function FinishContractLocal() {
                                 <sub className="fw-medium">Quảng Nam</sub>
                             </div>
                         </div>
-                        <div className='d-flex gap-4 flex-column align-items-end'>
-                            <sub>Đánh giá của khách du lịch</sub>
-                            <div className='d-flex gap-4' style={{ color: '#FFD600' }}>
-                                {[1, 2, 3, 4, 5].map(i => (
-                                    <ion-icon
-                                        key={i}
-                                        name={i <= star ? "star" : "star-outline"}
-                                        style={{ cursor: "pointer" }}
-                  
-                                    ></ion-icon>
-                                ))}
-                            </div>
-                        </div>
+
                     </div>
                 </Col>
             </Row>
@@ -191,14 +193,25 @@ function FinishContractLocal() {
                 >
                     <h5 className="">Nội dung bài viết</h5>
                     <p>
-                        {postParticipant?.caption}
+                        {additional?.caption}
                     </p>
+                    <div className='d-flex gap-4 flex-column mb-3'>
+                        <div className='d-flex gap-4' style={{ color: '#FFD600' }}>
+                            {[1, 2, 3, 4, 5].map(i => (
+                                <ion-icon
+                                    key={i}
+                                    name={i <= additional?.star ? "star" : "star-outline"}
+                                    style={{ cursor: "pointer" }}
+                                ></ion-icon>
+                            ))}
+                        </div>
+                    </div>
                     <h5>Ảnh chuyến đi</h5>
                     <input type="file" className='d-none' id='upload_img_traveller' multiple onChange={handleImageUpload} />
                     <div className='row mt-3'>
-                        {postParticipant?.postPhotos.$values.map((image, index) => (
-                            <div className='col col-lg-4 mb-4 position-relative'>
-                                <img src={image.photoUrl} alt='' className='w-100 rounded-4 object-fit-cover' />
+                        {additional?.tripImages.$values.map((image, index) => (
+                            <div className='col col-lg-4 mb-4 position-relative' key={index}>
+                                <img src={image} alt='' className='w-100 rounded-4 object-fit-cover' />
                             </div>
                         ))}
                     </div>

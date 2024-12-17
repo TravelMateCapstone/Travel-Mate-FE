@@ -35,6 +35,16 @@ function FinishContractTraveller() {
         setImages(images.filter((_, i) => i !== index));
     };
     const handleFinishContract = async () => {
+        if (!caption) {
+            toast.error("Vui lòng nhập nội dung bài viết.");
+        }
+        if (star === 0) {
+            toast.error("Vui lòng đánh giá người địa phương.");
+        }
+        if (images.length === 0) {
+            toast.error("Vui lòng upload ít nhất một ảnh chuyến đi.");
+            return;
+        }
         console.log(user.id)
         const tripImages = images.map(image => image);
         const formData = {
