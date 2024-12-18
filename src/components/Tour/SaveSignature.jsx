@@ -132,7 +132,7 @@ const SaveSignature = () => {
                         </small>
                         <div className="mt-2">
                             <Button variant="success" onClick={saveSignature} className="mx-2">Lưu chữ ký</Button>
-                            <Button variant="secondary" onClick={clearCanvas} className="mx-2">Xóa canvas</Button>
+                            <Button variant="secondary" onClick={clearCanvas} className="mx-2">Hoàn tác</Button>
                         </div>
                     </div>
 

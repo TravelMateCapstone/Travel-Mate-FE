@@ -67,13 +67,13 @@ const Signature = () => {
             alert("Không tìm thấy canvas.");
             return;
         }
-    
-        const name = user.username; 
+
+        const name = user.username;
         if (!name) {
             alert("Vui lòng nhập tên cho chữ ký.");
             return;
         }
-    
+
         try {
             // Tạo cặp khóa RSA
             const keyPair = await window.crypto.subtle.generateKey(
@@ -86,19 +86,19 @@ const Signature = () => {
                 true,
                 ["sign", "verify"]
             );
-    
+
             const publicKey = keyPair.publicKey;
-    
+
             // Xuất khóa công khai thành định dạng JWK
             const exportedPublicKey = await window.crypto.subtle.exportKey("jwk", publicKey);
-    
+
             // Chuyển đổi khóa công khai thành chuỗi JSON
             const publicSignature = JSON.stringify(exportedPublicKey);
             console.log("Public key:", publicSignature);
-    
+
             // Lưu ảnh chữ ký
             const image = canvas.toDataURL("image/png");
-    
+
             // Gửi khóa công khai và ảnh chữ ký tới API
             const response = await fetch(
                 "https://travelmateapp.azurewebsites.net/api/CCCD/add-publicKey",
@@ -111,16 +111,16 @@ const Signature = () => {
                     body: JSON.stringify({ publicSignature, image }),
                 }
             );
-    
+
             if (!response.ok) {
                 const errorMessage = await response.text();
                 console.error("API Error:", errorMessage);
                 alert(`Lỗi từ API: ${errorMessage}`);
                 return;
             }
-    
+
             alert("Chữ ký đã được lưu thành công!");
-    
+
             // Cập nhật danh sách chữ ký (chỉ lưu một chữ ký)
             const signatureData = {
                 publicKey: exportedPublicKey,
@@ -165,7 +165,7 @@ const Signature = () => {
             alert("Đã xảy ra lỗi trong quá trình lưu chữ ký.");
         }
     };
-    
+
 
     const verifySignature = async () => {
         if (!uploadedSignatureImage) {
