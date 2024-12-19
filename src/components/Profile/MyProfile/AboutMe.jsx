@@ -14,6 +14,7 @@ function AboutMe() {
     const [hobbies, setHobbies] = useState([]);
     const [educations, setEducations] = useState([]);
     const [locations, setLocations] = useState([]);
+    const [userLocations, setUserLocations] = useState([]);
     const [citys, setCitys] = useState([]);
 
     const [profileData, setProfileData] = useState({
@@ -47,6 +48,7 @@ function AboutMe() {
     };
 
     useEffect(() => {
+        fetchUserLocations();
         fetchLocations();
         fetchLanguages();
         fetchHobbies();
@@ -80,6 +82,28 @@ function AboutMe() {
         }
     };
 
+    const fetchUserLocations = async () => {
+        try {
+
+            const response = await axios.get(
+                'https://travelmateapp.azurewebsites.net/api/UserLocationsWOO/get-current-user',
+                {
+                    headers: {
+                        Authorization: `${token}`,
+                    },
+                }
+            );
+            const values = response.data?.$values || [];
+            const locationData = values.map(item => ({
+                id: item.location?.locationId,
+                name: item.location?.locationName,
+            }));
+            setUserLocations(locationData);
+            console.log("data", locationData);
+        } catch (error) {
+            console.error("Error fetching locations:", error);
+        }
+    };
 
     const fetchLanguages = async () => {
         try {
@@ -181,6 +205,20 @@ function AboutMe() {
                 }
             }
 
+            // Cập nhật Địa phương đăng ký
+            const selectedLocation = locations.find(loc => loc.name === profileData.city);
+            if (selectedLocation) {
+                const isLocationExist = userLocations.some(loc => loc.id === selectedLocation.code);
+
+                if (!isLocationExist) {
+                    await axios.post(
+                        'https://travelmateapp.azurewebsites.net/api/UserLocationsWOO/post-curent-user',
+                        { locationId: selectedLocation.code },
+                        { headers: { Authorization: `${token}` } }
+                    );
+                }
+            }
+            await fetchUserLocations();
             dispatch(viewProfile(user.id));
             toast.success('Cập nhật hồ sơ thành công!');
 
@@ -191,6 +229,7 @@ function AboutMe() {
             setIsEditing(false); // Đóng chế độ chỉnh sửa
         }
     };
+
 
     const handleDeleteHobby = async (hobbyId) => {
         try {
@@ -245,6 +284,7 @@ function AboutMe() {
             </Row>
 
             <hr />
+
             {/* Giáo dục */}
             <Row className="mb-3">
                 <Col lg={4} className="d-flex align-items-center">
@@ -271,7 +311,6 @@ function AboutMe() {
                     ) : (
                         renderDataOrFallback(
                             dataProfile.education?.$values?.map((edu) => `${edu.university.universityName}`).join(", ")
-                            // dataProfile.education?.$values?.map((edu) => `${edu.university.universityName} (${new Date(edu.graduationYear).getFullYear()})`).join(", ")
                         )
                     )}
                 </Col>
@@ -348,17 +387,26 @@ function AboutMe() {
                         >
                             <option value="">Chọn địa phương</option>
                             {locations.map(location => (
-                                <option key={location.code} value={location.name}>
+                                <option key={location.id} value={location.name}>
                                     {location.name}
                                 </option>
                             ))}
                         </Form.Select>
                     ) : (
-                        dataProfile.profile?.city || <span style={{ fontStyle: 'italic', color: '#6c757d' }}>Chưa cập nhật</span>
+                        userLocations.length > 0 ? (
+                            <p>
+                                {userLocations.map(location => (
+                                    <span key={location.id}>{location.name}, </span>
+                                ))}
+                            </p>
+                        ) : (
+                            <span style={{ fontStyle: 'italic', color: '#6c757d' }}>
+                                Chưa cập nhật
+                            </span>
+                        )
                     )}
                 </Col>
             </Row>
-
             <hr />
 
             {/* Sở thích */}
