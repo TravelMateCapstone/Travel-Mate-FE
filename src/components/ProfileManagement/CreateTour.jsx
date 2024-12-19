@@ -15,6 +15,8 @@ import Switch from '../Shared/Switch';
 import checkProfileCompletion from '../../utils/Profile/checkProfileCompletion';
 import { Link } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
+import { useDispatch } from 'react-redux';
+import { viewProfile } from '../../redux/actions/profileActions';
 Modal.setAppElement('#root');
 function CreateTour({ onTourCreated }) {
     const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -23,18 +25,17 @@ function CreateTour({ onTourCreated }) {
     const [locationCurent, setLocationCurent] = useState('');
     const [isGlobalContract, setIsGlobalContract] = useState(true);
     const [termsAccepted, setTermsAccepted] = useState(false);
-
-
+    const userProfile = useSelector((state) => state.profile);
+    const user = useSelector((state) => state.auth.user);
+    const dispatch = useDispatch();
     const [incompleteModels, setIncompleteModels] = useState([]);
     const [isModalOpenIncompleteModels, setIsModalOpenIncompleteModels] = useState(false);
-
     const openModalIncompleteModels = () => {
         setIsModalOpenIncompleteModels(true);
     };
     const closeModalIncompleteModels = () => {
         setIsModalOpenIncompleteModels(false);
     };
-
     const [tourDetails, setTourDetails] = useState({
         tourName: '',
         price: 0,
@@ -92,18 +93,20 @@ function CreateTour({ onTourCreated }) {
     useEffect(() => {
         const fetchLocations = async () => {
             try {
-                const response = await axios.get('https://provinces.open-api.vn/api/');
-                console.log('Location:', response.data);
-                const cleanedLocations = response.data.map(location => ({
-                    ...location,
-                    name: location.name.replace(/Tỉnh|Thành phố/g, '').trim()
-                }));
-                setLocations(cleanedLocations || []);
+                const response = await axios.get('https://travelmateapp.azurewebsites.net/api/UserLocationsWOO/get-current-user', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `${token}`,
+                    },
+                });
+                setLocations(response.data.$values || []);
             } catch (error) {
                 console.error('Error fetching locations:', error);
             }
         };
         fetchLocations();
+
+        dispatch(viewProfile(user.id, token));
     }, [token]);
 
 
@@ -112,6 +115,7 @@ function CreateTour({ onTourCreated }) {
     };
 
     const openModal = () => {
+
         setModalIsOpen(true);
     };
 
@@ -206,8 +210,6 @@ function CreateTour({ onTourCreated }) {
         // check total percenttage and incomplete models
         const { totalPercentage, incompleteModels } = await checkProfileCompletion('https://travelmateapp.azurewebsites.net', token);
         if (totalPercentage < 90) {
-            console.log('Incomplete models:', incompleteModels);
-            console.log('Total percentage:', totalPercentage);
             toast.error('Vui lòng hoàn thiện hồ sơ trước khi tạo tour.');
             // Hiển thị danh sách các mục cần hoàn thiện
             setIncompleteModels(incompleteModels.$values);
@@ -267,8 +269,6 @@ function CreateTour({ onTourCreated }) {
             })),
             additionalInfo: tourDetails.additionalInfo,
         };
-        console.log('Tour data:', tourData);
-
         try {
             const response = await axios.post('https://travelmateapp.azurewebsites.net/api/Tour', tourData, {
                 headers: {
@@ -288,7 +288,6 @@ function CreateTour({ onTourCreated }) {
     };
 
     const handleSwitchToggle = (isOn) => {
-        console.log('Switch is now', isOn ? 'ON' : 'OFF');
         setIsGlobalContract(isOn);
     };
 
@@ -359,14 +358,18 @@ function CreateTour({ onTourCreated }) {
                                             </Form.Group>
                                             <Form.Group className="mb-3 form-group-custom-create-tour">
                                                 <Form.Label>Địa điểm</Form.Label>
-                                                <Form.Control as="select" value={tourDetails.location} onChange={(e) => setTourDetails({ ...tourDetails, location: e.target.value })}>
-                                                    <option value="">Chọn địa điểm</option>
+                                                {locations.length > 0 ? <Form.Control as="select" value={tourDetails.location} onChange={(e) => setTourDetails({ ...tourDetails, location: e.target.value })}>
+                                                    <option value="">{userProfile.profile.city}</option>
                                                     {locations.map((location) => (
-                                                        <option key={location.code} value={location.name}>
-                                                            {location.name}
+                                                        <option key={location.locationId} value={location.location.locationName}>
+                                                            {location.location.locationName}
                                                         </option>
                                                     ))}
-                                                </Form.Control>
+                                                </Form.Control> :
+                                                     <Link to="https://travelmatefe.netlify.app/profile/my-profile">
+                                                     Cập nhật địa phương đăng kí
+                                                 </Link>
+                                                    }
                                             </Form.Group>
 
                                             <Form.Group className="mb-3 form-group-custom-create-tour">
@@ -597,13 +600,20 @@ function CreateTour({ onTourCreated }) {
                 </BootstrapModal.Header>
                 <BootstrapModal.Body>
                     <p>Vui lòng hoàn thiện các mục sau trước khi tạo tour:</p>
-                   <div className='w-100'>
+                    <div className='w-100'>
                         <ol>
                             {incompleteModels.map((model, index) => (
-                                <li key={index}>{model} <Link to={RoutePath.SETTING} >link</Link></li>
+                                <li key={index}>{model}
+                                    {
+                                        (model === 'UserHome' || model === 'UserLocation' || model === 'UserEducation' || model === 'SpokenLanguage') ?
+                                            <Link target="_blank" rel="noopener noreferrer" to={RoutePath.PROFILE_MY_PROFILE}> cập nhật</Link> :
+                                            <Link target="_blank" rel="noopener noreferrer" to={RoutePath.SETTING}> cập nhật</Link>
+                                    }
+
+                                </li>
                             ))}
                         </ol>
-                   </div>
+                    </div>
                 </BootstrapModal.Body>
                 <BootstrapModal.Footer>
                     <Button variant="secondary" onClick={closeModalIncompleteModels}>Đóng</Button>
