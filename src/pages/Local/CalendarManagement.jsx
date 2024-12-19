@@ -3,22 +3,62 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import axios from 'axios';
-import 'moment/locale/vi';
+import 'moment/locale/vi'; // Import ngôn ngữ tiếng Việt
 import { useSelector } from 'react-redux';
+  
+import {  parse, startOfWeek, getDay } from 'date-fns';
+import 'date-fns/locale/pt-BR';
+
+  
+
+// Cập nhật locale cho tiếng Việt
 moment.locale('vi');
+moment.updateLocale('vi', {
+  week: {
+    dow: 1, 
+    doy: 4, 
+  },
+  
+});
 const localizer = momentLocalizer(moment);
+
+const formats = {
+  dateFormat: 'dd',
+
+  dayFormat: (date, culture, localizer) =>
+    localizer.format(date, 'DDD', culture),
+
+  dayRangeHeaderFormat: ({ start, end }, culture, localizer) =>
+    localizer.format(start, { date: 'short' }, culture) + ' — ' +
+    localizer.format(end, { date: 'short' }, culture)
+}
+
+const messages = {
+  allDay: 'Cả ngày',
+  previous: 'Trước',
+  next: 'Tiếp',
+  today: 'Hôm nay',
+  month: 'Tháng',
+  week: 'Tuần',
+  day: 'Ngày',
+  agenda: 'Lịch trình',
+  date: 'Ngày',
+  time: 'Thời gian',
+  event: 'Sự kiện',
+  noEventsInRange: 'Không có sự kiện nào trong khoảng thời gian này.',
+  showMore: (count) => `+ xem thêm (${count})`,
+};
 
 function CalendarManagement() {
   const [eventsData, setEventsData] = useState([]);
   const token = useSelector((state) => state.auth.token);
 
-  // Hàm chuẩn hóa dữ liệu lịch trình
   const parseTourDataToEvents = (tours) => {
     const events = [];
     tours.forEach((tour) => {
       const tourName = tour.tourName;
-      const startDate = new Date(tour.startDate);
-      const endDate = new Date(tour.endDate);
+      const startDate = moment(tour.startDate).toDate();
+      const endDate = moment(tour.endDate).toDate();
       events.push({
         id: tour.tourId,
         title: tourName,
@@ -28,7 +68,7 @@ function CalendarManagement() {
         resource: 'tour',
       });
 
-      tour.itinerary.$values.forEach((day) => {
+      tour.itinerary?.$values.forEach((day) => {
         day.activities.$values.forEach((activity, index) => {
           const activityStart = moment(
             `${day.date.split('T')[0]} ${activity.startTime}`,
@@ -60,13 +100,13 @@ function CalendarManagement() {
         headers: {
           Authorization: `${token}`,
         },
-      }) // Thay URL nếu cần
+      })
       .then((response) => {
-        const tours = response.data.$values; // Lấy tất cả các tour
-        const events = parseTourDataToEvents(tours); // Chuẩn hóa dữ liệu
+        const tours = response.data.$values;
+        const events = parseTourDataToEvents(tours);
         setEventsData(events);
       })
-      .catch((error) => console.error('Error fetching tour data:', error));
+      .catch((error) => console.error('Lỗi khi lấy dữ liệu tour:', error));
   }, [token]);
 
   const handleSelect = ({ start, end }) => {
@@ -98,15 +138,15 @@ function CalendarManagement() {
   return (
     <div>
       <Calendar
-        views={['day', 'agenda', 'work_week', 'month']}
-        selectable
-        localizer={localizer}
+        messages={messages} // Thông báo tiếng Việt
+        localizer={localizer} // Cài đặt localizer
         defaultDate={new Date()}
         defaultView="month"
         events={eventsData}
         style={{ height: '88vh', width: '1670px' }}
         onSelectEvent={handleEventSelect}
         onSelectSlot={handleSelect}
+        culture="vi"
       />
     </div>
   );

@@ -285,6 +285,30 @@ function TourCard({ tour, onTourUpdated }) {
     };
 
     const handleSaveChanges = async (tourId) => {
+        // Upload tour image to Firebase if it exists
+        let tourImageUrl = tourDetails.tourImage;
+        if (tourDetails.tourImage && tourDetails.tourImage.startsWith('blob:')) {
+            const tourImageFile = await fetch(tourDetails.tourImage).then(r => r.blob());
+            const tourImageRef = ref(storage, `tourImages/${tourImageFile.name}`);
+            await uploadBytes(tourImageRef, tourImageFile);
+            tourImageUrl = await getDownloadURL(tourImageRef);
+        }
+
+        // Upload activity images to Firebase if they exist
+        const updatedActivities = await Promise.all(activities.map(async (activity) => {
+            const updatedActivityImages = await Promise.all(activity.activities.map(async (act) => {
+                if (act.activityImage && act.activityImage.startsWith('blob:')) {
+                    const activityImageFile = await fetch(act.activityImage).then(r => r.blob());
+                    const activityImageRef = ref(storage, `activityImages/${activityImageFile.name}`);
+                    await uploadBytes(activityImageRef, activityImageFile);
+                    const activityImageUrl = await getDownloadURL(activityImageRef);
+                    return { ...act, activityImage: activityImageUrl };
+                }
+                return act;
+            }));
+            return { ...activity, activities: updatedActivityImages };
+        }));
+
         const tourData = {
             tourName: tourDetails.tourName,
             price: parseFloat(tourDetails.price),
@@ -296,8 +320,8 @@ function TourCard({ tour, onTourUpdated }) {
             tourDescription: tourDetails.tourDescription,
             location: tourDetails.location,
             maxGuests: parseInt(tourDetails.maxGuests),
-            tourImage: tourDetails.tourImage,
-            itinerary: activities.map(activity => ({
+            tourImage: tourImageUrl,
+            itinerary: updatedActivities.map(activity => ({
                 day: activity.day,
                 date: new Date(activity.date),
                 activities: activity.activities.map(act => ({
@@ -472,12 +496,13 @@ function TourCard({ tour, onTourUpdated }) {
                             <Col lg={4}>
                                 <Form.Group className="mb-3 form-group-custom-create-tour">
                                     <Form.Control
+                                    className='d-none'
                                         id='uploadImgTour'
                                         type="file"
                                         onChange={handleImageUpload} />
                                 </Form.Group>
-                                <Button className='my-2' onClick={() => document.getElementById('uploadImgTour').click()}>
-                                    Tải lên ảnh hoạt động
+                                <Button className='my-2 w-100' onClick={() => document.getElementById('uploadImgTour').click()}>
+                                    Tải lên ảnh tour
                                 </Button>
                                 {tourDetails.tourImage && (
                                     <img
@@ -574,12 +599,14 @@ function TourCard({ tour, onTourUpdated }) {
                                                                         <Form.Group className="mb-3">
                                                                             <Form.Label className="fw-bold">Tải lên hình ảnh</Form.Label>
                                                                             <Form.Control
-                                                                                id='uploadImgActivity'
+                                                                            className='d-none'
+                                                                                id={`uploadImgActivity-${dayIndex}-${actIndex}`}
                                                                                 type="file"
                                                                                 accept="image/*"
                                                                                 onChange={(e) => handleActivityImageUpload(e, dayIndex, actIndex)}
                                                                             />
-                                                                            <Button className='my-2' onClick={() => document.getElementById('uploadImgActivity').click()}>
+                                                                            
+                                                                            <Button className='my-2 w-100' onClick={() => document.getElementById(`uploadImgActivity-${dayIndex}-${actIndex}`).click()}>
                                                                                 Tải lên ảnh hoạt động
                                                                             </Button>
                                                                         </Form.Group>

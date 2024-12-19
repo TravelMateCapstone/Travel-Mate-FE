@@ -1,35 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { AgCharts } from 'ag-charts-react';
-import axios from 'axios';
+import { fetchTourData } from '../../utils/UserDashBoard/statistical';
 
 function TourChart({ tours, token }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTourData = async () => {
-      const tourAmounts = await Promise.all(tours.map(async (tour) => {
-        const participantsResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/Tour/tourParticipants/${tour.tourId}`, {
-          headers: { Authorization: `${token}` }
-        });
-
-        const totalPaid = participantsResponse.data.$values.reduce((acc, participant) => {
-          return acc + (participant.totalAmount || 0);
-        }, 0);
-
-        return {
-          tourName: tour.tourName,
-          amount: tour.price * tour.maxGuests,
-          totalPaid,
-        };
-      }));
-
+    const fetchData = async () => {
+      const tourAmounts = await fetchTourData(tours, token);
       setChartData(tourAmounts);
       setLoading(false);
     };
 
     if (tours.length > 0) {
-      fetchTourData();
+      fetchData();
     }
   }, [tours, token]);
 

@@ -23,7 +23,7 @@ function MonthlySpendingChart({ transactions, selectedYear }) {
     }
 
     return Object.keys(monthlySpending).map(month => ({
-      month: `Month ${month}`,
+      month: `Tháng ${month}`,
       spending: monthlySpending[month],
     }));
   }, [transactions, selectedYear]);
@@ -41,7 +41,7 @@ function MonthlySpendingChart({ transactions, selectedYear }) {
       yKey: 'spending',
       yName: 'Spending',
     }],
-    title: { text: 'Monthly Spending' },
+    title: { text: 'Tổng chi hàng háng' },
   };
 
   if (loading) {

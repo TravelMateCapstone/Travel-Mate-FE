@@ -4,33 +4,24 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { useSelector } from 'react-redux';
 import MonthlySpendingChart from '../../components/Local/MonthlySpendingChart';
+import { fetchTransactions } from '../../utils/UserDashBoard/statistical';
 
 function WalletManagement() {
   const [rowData, setRowData] = useState([]);
   const [quickFilterText, setQuickFilterText] = useState('');
   const user = useSelector(state => state.auth.user);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
-    const fetchTransactions = async () => {
+    const getTransactions = async () => {
       try {
-        const response = await fetch(`https://travelmateapp.azurewebsites.net/api/Transaction/traveler/${user.id}`);
-        const data = await response.json();
-        const transactions = data.$values.map(transaction => ({
-          name: transaction.travelerName,
-          tourName: transaction.tourName,
-          localName: transaction.localName,
-          date: new Date(transaction.transactionTime).toLocaleDateString('vi-VN'),
-          amount: transaction.price,
-          transactionTime: transaction.transactionTime // Add this line
-        }));
+        const transactions = await fetchTransactions(user.id);
         setRowData(transactions);
       } catch (error) {
         console.error('Error fetching transactions:', error);
       }
     };
 
-    fetchTransactions();
+    getTransactions();
   }, []);
 
   const columnDefs = [
@@ -38,12 +29,12 @@ function WalletManagement() {
     { headerName: 'Tên Tour', field: 'tourName', filter: 'agTextColumnFilter', sortable: true },
     { headerName: 'Tên Địa Phương', field: 'localName', filter: 'agTextColumnFilter', sortable: true },
     { headerName: 'Thời Gian Giao Dịch', field: 'date', filter: 'agDateColumnFilter', sortable: true },
-    { 
-      headerName: 'Số Tiền (VND)', 
-      field: 'amount', 
-      filter: 'agNumberColumnFilter', 
-      sortable: true, 
-      valueFormatter: (params) => `${params.value.toLocaleString('vi-VN')} VND` 
+    {
+      headerName: 'Số Tiền (VND)',
+      field: 'amount',
+      filter: 'agNumberColumnFilter',
+      sortable: true,
+      valueFormatter: (params) => `${params.value.toLocaleString('vi-VN')} VND`
     },
   ];
 
@@ -53,17 +44,12 @@ function WalletManagement() {
     resizable: true,
   };
   console.log(rowData);
-  
+
 
   return (
     <div>
       <div>
-      <select value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))}>
-        {[2021, 2022, 2023, 2024, 2025].map(year => (
-          <option key={year} value={year}>{year}</option>
-        ))}
-      </select>
-      <MonthlySpendingChart transactions={rowData} selectedYear={selectedYear} />
+       
         <input
           type="text"
           className='form-control'
