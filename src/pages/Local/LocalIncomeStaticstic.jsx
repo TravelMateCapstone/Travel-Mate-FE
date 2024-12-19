@@ -63,7 +63,7 @@ function LocalIncomeStatistics() {
   return (
     <div>
       <h2>Thống kê</h2>
-      <Row>
+      <Row className='mt-5'>
         <Col lg={6}>
           <TourChart tours={tours} token={token} />
         </Col>

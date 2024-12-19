@@ -9,7 +9,6 @@ import { Button, Modal, Form } from "react-bootstrap";
 import ConfirmModal from "../../components/Shared/ConfirmModal";
 import { toast } from "react-toastify";
 
-// Chỉ Đăng ký các mô-đun từ Community
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 const Transaction = () => {
@@ -87,10 +86,7 @@ const Transaction = () => {
       cellRenderer: (params) => (
         <div>
           <Button variant="info" size="sm" onClick={() => handleView(params.data)}>
-            View
-          </Button>{" "}
-          <Button variant="success" size="sm" onClick={() => handleRefund(params.data)}>
-            Hoàn tiền
+            Xem chi tiêt
           </Button>
         </div>
       ),
@@ -162,35 +158,29 @@ const Transaction = () => {
 
   return (
     <div style={containerStyle}>
-      <div className="example-wrapper">
-        <div className="d-flex justify-content-between">
-          <div>
-          </div>
-          <div className="d-flex gap-3">
-            <Button
+      <div className="">
+        <div className="d-flex align-items-center justify-content-between my-3" style={{
+          height: "38px",
+        }}>
+          <input
+            style={{
+              height: "38px",
+            }}
+            className="form-control h-100 w-25"
+            type="text"
+            placeholder="Tìm kiếm"
+            onInput={(e) => gridRef.current.api.setQuickFilter(e.target.value)}
+          />
+          <Button
               variant="success"
+              className="text-nowrap"
               onClick={onExportClick}
-              style={{ marginBottom: "10px", padding: "5px" }}
+              style={{ height: "38px" }}
             >
-              Export to Excel
+              Xuất file excel
             </Button>
-            <Button
-              variant="warning"
-              onClick={resetFilters}
-              style={{ marginBottom: "10px", padding: "5px" }}
-            >
-              Reset Filters
-            </Button>
-            
-          </div>
         </div>
-        <input
-            className="form-control"
-              type="text"
-              placeholder="Tìm kiếm"
-              onInput={(e) => gridRef.current.api.setQuickFilter(e.target.value)}
-              style={{ marginBottom: "10px", padding: "5px" }}
-            />
+
         <div style={gridStyle} className={"ag-theme-alpine"}>
           <AgGridReact
             ref={gridRef}

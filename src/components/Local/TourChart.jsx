@@ -41,7 +41,7 @@ function TourChart({ tours, token }) {
     return <div>Đang tải...</div>;
   }
 
-  return <AgCharts options={options} />;
+  return <AgCharts options={options}/>;
 }
 
 export default TourChart;

@@ -11,17 +11,14 @@ export const fetchTours = async (token) => {
     throw error;
   }
 };
-
 export const fetchTourData = async (tours, token) => {
   const tourAmounts = await Promise.all(tours.map(async (tour) => {
     const participantsResponse = await axios.get(`https://travelmateapp.azurewebsites.net/api/Tour/tourParticipants/${tour.tourId}`, {
       headers: { Authorization: `${token}` }
     });
-
     const totalPaid = participantsResponse.data.$values.reduce((acc, participant) => {
       return acc + (participant.totalAmount || 0);
     }, 0);
-
     return {
       tourName: tour.tourName,
       amount: tour.price * tour.maxGuests,
@@ -31,7 +28,6 @@ export const fetchTourData = async (tours, token) => {
 
   return tourAmounts;
 };
-
 export const fetchTransactions = async (userId) => {
   try {
     const response = await fetch(`https://travelmateapp.azurewebsites.net/api/Transaction/traveler/${userId}`);

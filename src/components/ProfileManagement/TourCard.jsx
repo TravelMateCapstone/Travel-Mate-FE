@@ -365,9 +365,7 @@ function TourCard({ tour, onTourUpdated }) {
         const matchesSearch = participant.fullName.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesFilter && matchesSearch;
     });
-
     const totalIncome = participants.reduce((sum, participant) => sum + (participant.totalAmount || 0), 0);
-
     return (
         <tr>
             <td className='d-flex gap-3 align-items-center'>
@@ -380,7 +378,7 @@ function TourCard({ tour, onTourUpdated }) {
             </td>
             <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
                 <p className='m-0 fw-medium'>
-                    {(tour.price).toLocaleString('vi', { style: 'currency', currency: 'VND' })}
+                    {(tour.price).toLocaleString('vi-VN')} VNĐ
                 </p>
             </td>
             <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
@@ -517,7 +515,7 @@ function TourCard({ tour, onTourUpdated }) {
                                         }}
                                     />
                                 )}
-                                <h4 className='text-success mt-2'>{tourDetails.price} VNĐ</h4>
+                                <h4 className='text-success mt-2'>{tourDetails.price.toLocaleString('vi-VN')} VNĐ</h4>
                             </Col>
                         </Row>
                     </Col>
@@ -642,9 +640,10 @@ function TourCard({ tour, onTourUpdated }) {
                                                                 <hr style={{ height: '5px', backgroundColor: 'black', border: 'none' }} />
                                                             </div>
                                                         ))}
+                                                         <Button variant="primary" className='my-3 mx-5' onClick={() => addActivity(dayIndex)}>Thêm hoạt động</Button>
+                                               
                                                     </Accordion.Body>
-                                                    <Button variant="primary" className='my-3 mx-5' onClick={() => addActivity(dayIndex)}>Thêm hoạt động</Button>
-                                                </Accordion.Item>
+                                                    </Accordion.Item>
                                             ))}
                                         </Accordion>
                                     </div>
@@ -802,7 +801,7 @@ function TourCard({ tour, onTourUpdated }) {
                                     }}
                                 >
                                     <h5>Tổng thu nhập</h5>
-                                    <p style={{ fontSize: '24px', color: '#0EAD69', }}>{totalIncome.toLocaleString('vi', { style: 'currency', currency: 'VND' })}</p>
+                                    <p style={{ fontSize: '24px', color: '#0EAD69', }}>{totalIncome.toLocaleString('vi-VN')} VNĐ</p>
                                 </div>
 
                                 {/* Số lượng khách */}
@@ -881,7 +880,7 @@ function TourCard({ tour, onTourUpdated }) {
                                         <td>{participant.address}</td>
                                         <td>{participant.phone}</td>
                                         <td>{participant.paymentStatus ? 'Đã thanh toán' : 'Chưa thanh toán'}</td>
-                                        <td>{participant.totalAmount?.toLocaleString('vi', { style: 'currency', currency: 'VND' })}</td>
+                                        <td>{participant.totalAmount?.toLocaleString('vi-VN')} VNĐ</td>
                                         <td style={{ textAlign: 'center' }}>
                                             <Button
                                                 style={{
