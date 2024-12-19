@@ -109,7 +109,15 @@ function TourCard({ tour, onTourUpdated }) {
         if (tourDetails.startDate && tourDetails.endDate) {
             const start = new Date(tourDetails.startDate);
             const end = new Date(tourDetails.endDate);
-            const numberOfDays = Math.floor((end - start) / (1000 * 60 * 60 * 24));
+            const numberOfDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+            const numberOfNights = numberOfDays - 1;
+
+            setTourDetails((prevDetails) => ({
+                ...prevDetails,
+                numberOfDays,
+                numberOfNights,
+            }));
+
             if (activities.length !== numberOfDays) {
                 const newActivities = activities.length ? activities : [];
 
@@ -398,7 +406,7 @@ function TourCard({ tour, onTourUpdated }) {
                     <Dropdown.Menu>
                         <Dropdown.Item onClick={() => handleView(tour.tourId)}>Xem thêm</Dropdown.Item>
                         <Dropdown.Item onClick={openModal}>Chỉnh sửa</Dropdown.Item>
-                        <Dropdown.Item onClick={handleOpenManagementModal}>Quản lí</Dropdown.Item>
+                        <Dropdown.Item onClick={handleOpenManagementModal}>Quản lý</Dropdown.Item>
                         <Dropdown.Item onClick={() => confirmDelete(tour.tourId)}>Xóa</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
@@ -761,7 +769,7 @@ function TourCard({ tour, onTourUpdated }) {
                 }}
             >
 
-                <h4>Quản lí tour</h4>
+                <h4>Quản lý tour</h4>
                 <div className='h-100'>
                     <Row style={{
                         borderBottom: '1px solid black',

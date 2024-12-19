@@ -3,15 +3,18 @@ import Modal from 'react-modal';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { addDays, format } from 'date-fns';
+import { addDays, format, set } from 'date-fns';
 import { storage } from '../../../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Button, Form, Row, Col, Tabs, Tab, Card, Accordion } from 'react-bootstrap';
+import { Button, Form, Row, Col, Tabs, Tab, Card, Accordion, Modal as BootstrapModal } from 'react-bootstrap';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import '../../assets/css/Local/CreateTour.css'
 import TextareaAutosize from 'react-textarea-autosize';
 import Switch from '../Shared/Switch';
+import checkProfileCompletion from '../../utils/Profile/checkProfileCompletion';
+import { Link } from 'react-router-dom';
+import RoutePath from '../../routes/RoutePath';
 Modal.setAppElement('#root');
 function CreateTour({ onTourCreated }) {
     const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -20,6 +23,17 @@ function CreateTour({ onTourCreated }) {
     const [locationCurent, setLocationCurent] = useState('');
     const [isGlobalContract, setIsGlobalContract] = useState(true);
     const [termsAccepted, setTermsAccepted] = useState(false);
+
+
+    const [incompleteModels, setIncompleteModels] = useState([]);
+    const [isModalOpenIncompleteModels, setIsModalOpenIncompleteModels] = useState(false);
+
+    const openModalIncompleteModels = () => {
+        setIsModalOpenIncompleteModels(true);
+    };
+    const closeModalIncompleteModels = () => {
+        setIsModalOpenIncompleteModels(false);
+    };
 
     const [tourDetails, setTourDetails] = useState({
         tourName: '',
@@ -35,6 +49,9 @@ function CreateTour({ onTourCreated }) {
         additionalInfo: '',
     });
     const token = useSelector((state) => state.auth.token);
+
+
+
     const [key, setKey] = useState('schedule');
     const [locations, setLocations] = useState([]);
     useEffect(() => {
@@ -186,6 +203,18 @@ function CreateTour({ onTourCreated }) {
     };
 
     const handleSaveChanges = async () => {
+        // check total percenttage and incomplete models
+        const { totalPercentage, incompleteModels } = await checkProfileCompletion('https://travelmateapp.azurewebsites.net', token);
+        if (totalPercentage < 90) {
+            console.log('Incomplete models:', incompleteModels);
+            console.log('Total percentage:', totalPercentage);
+            toast.error('Vui lòng hoàn thiện hồ sơ trước khi tạo tour.');
+            // Hiển thị danh sách các mục cần hoàn thiện
+            setIncompleteModels(incompleteModels.$values);
+            openModalIncompleteModels();
+            return;
+        }
+
         if (new Date(tourDetails.startDate) >= new Date(tourDetails.endDate)) {
             toast.error('Ngày bắt đầu phải trước ngày kết thúc.');
             return;
@@ -561,6 +590,25 @@ function CreateTour({ onTourCreated }) {
                     <Button variant="success" onClick={handleSaveChanges}>Tạo tour</Button>
                 </div>
             </Modal>
+
+            <BootstrapModal show={isModalOpenIncompleteModels} onHide={closeModalIncompleteModels}>
+                <BootstrapModal.Header closeButton>
+                    <BootstrapModal.Title>Hoàn thiện hồ sơ</BootstrapModal.Title>
+                </BootstrapModal.Header>
+                <BootstrapModal.Body>
+                    <p>Vui lòng hoàn thiện các mục sau trước khi tạo tour:</p>
+                   <div className='w-100'>
+                        <ol>
+                            {incompleteModels.map((model, index) => (
+                                <li key={index}>{model} <Link to={RoutePath.SETTING} >link</Link></li>
+                            ))}
+                        </ol>
+                   </div>
+                </BootstrapModal.Body>
+                <BootstrapModal.Footer>
+                    <Button variant="secondary" onClick={closeModalIncompleteModels}>Đóng</Button>
+                </BootstrapModal.Footer>
+            </BootstrapModal>
         </div>
     );
 }

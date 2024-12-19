@@ -62,15 +62,7 @@ function LocalIncomeStatistics() {
 
   return (
     <div>
-      <h2>Thống kê</h2>
-      <Row className='mt-5'>
-        <Col lg={6}>
-          <TourChart tours={tours} token={token} />
-        </Col>
-        <Col lg={6}>
-          <TourPieChart tours={tours} />
-        </Col>
-      </Row>
+      <h4 className='text-uppercase fw-bold'>Thống kê</h4>
       <Row>
         <Col lg={12}>
           <Form.Select value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))} style={{
@@ -83,6 +75,15 @@ function LocalIncomeStatistics() {
           <MonthlySpendingChart transactions={transactions} selectedYear={selectedYear} />
         </Col>
       </Row>
+      <Row className='mt-5'>
+        <Col lg={6}>
+          <TourChart tours={tours} token={token} />
+        </Col>
+        <Col lg={6}>
+          <TourPieChart tours={tours} />
+        </Col>
+      </Row>
+      
     </div>
   );
 }

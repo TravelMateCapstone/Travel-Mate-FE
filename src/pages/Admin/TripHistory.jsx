@@ -336,7 +336,7 @@
     }, []);
     return (
       <div style={containerStyle}>
-        <h2>Quản lí tour</h2>
+        <h2>Quản lý tour</h2>
         <Row >
           <Col lg={4}>
             <div style={chartStyle}>

@@ -36,7 +36,7 @@ function LocalTripHistory() {
         <CreateTour onTourCreated={() => queryClient.invalidateQueries('tours')} />
         <div>
           <Form.Select value={approvalStatus} onChange={(e) => setApprovalStatus(Number(e.target.value))}>
-            <option value={0}>Đang xử lí</option>
+            <option value={0}>Đang xử lý</option>
             <option value={1}>Đã chấp nhận</option>
             <option value={2}>Từ chối</option>
           </Form.Select>

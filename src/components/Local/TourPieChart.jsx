@@ -32,7 +32,7 @@ function TourPieChart({ tours }) {
       sectorLabelKey: 'value',
       sectorLabel: {
         enabled: true,
-        formatter: ({ datum }) => `$${datum.value}`,
+        formatter: ({ datum }) => `${datum.value} VNĐ`,
       },
     }],
     title: { text: 'Tổng doanh thu kiếm được từ tour' },
