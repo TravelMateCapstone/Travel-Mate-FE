@@ -73,6 +73,8 @@ function FinishContractTraveller() {
             if (error.response.data == 'You have already create post about this tour') {
                 toast.error('Bạn đã tạo bài viết về chuyến đi này rồi.');
                 navigate(RoutePath.DONE_CONTRACT)
+            } else if(error.response.data === 'You did not join this tour!') {
+                toast.error('Bạn chưa tham gia chuyến đi này.');
             }
         }
     };

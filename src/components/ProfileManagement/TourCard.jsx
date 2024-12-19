@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTour } from '../../redux/actions/tourActions';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Modal from 'react-modal';
 import { toast } from 'react-toastify';
@@ -31,6 +31,7 @@ function TourCard({ tour, onTourUpdated }) {
     const [locations, setLocations] = useState([]);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [tourToDelete, setTourToDelete] = useState(null);
+    const userProfile = useSelector((state) => state.profile);
 
     const [tourDetails, setTourDetails] = useState({
         tourName: '',
@@ -53,10 +54,13 @@ function TourCard({ tour, onTourUpdated }) {
     useEffect(() => {
         const fetchLocations = async () => {
             try {
-                const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Locations');
-                if (response.data && response.data.$values) {
-                    setLocations(response.data.$values); // Lưu danh sách địa điểm vào state
-                }
+                const response = await axios.get('https://travelmateapp.azurewebsites.net/api/UserLocationsWOO/get-current-user', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `${token}`,
+                    },
+                });
+                setLocations(response.data.$values || []);
             } catch (error) {
                 console.error('Lỗi khi lấy dữ liệu địa điểm:', error);
             }
@@ -109,7 +113,15 @@ function TourCard({ tour, onTourUpdated }) {
         if (tourDetails.startDate && tourDetails.endDate) {
             const start = new Date(tourDetails.startDate);
             const end = new Date(tourDetails.endDate);
-            const numberOfDays = Math.floor((end - start) / (1000 * 60 * 60 * 24));
+            const numberOfDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+            const numberOfNights = numberOfDays - 1;
+
+            setTourDetails((prevDetails) => ({
+                ...prevDetails,
+                numberOfDays,
+                numberOfNights,
+            }));
+
             if (activities.length !== numberOfDays) {
                 const newActivities = activities.length ? activities : [];
 
@@ -285,6 +297,30 @@ function TourCard({ tour, onTourUpdated }) {
     };
 
     const handleSaveChanges = async (tourId) => {
+        // Upload tour image to Firebase if it exists
+        let tourImageUrl = tourDetails.tourImage;
+        if (tourDetails.tourImage && tourDetails.tourImage.startsWith('blob:')) {
+            const tourImageFile = await fetch(tourDetails.tourImage).then(r => r.blob());
+            const tourImageRef = ref(storage, `tourImages/${tourImageFile.name}`);
+            await uploadBytes(tourImageRef, tourImageFile);
+            tourImageUrl = await getDownloadURL(tourImageRef);
+        }
+
+        // Upload activity images to Firebase if they exist
+        const updatedActivities = await Promise.all(activities.map(async (activity) => {
+            const updatedActivityImages = await Promise.all(activity.activities.map(async (act) => {
+                if (act.activityImage && act.activityImage.startsWith('blob:')) {
+                    const activityImageFile = await fetch(act.activityImage).then(r => r.blob());
+                    const activityImageRef = ref(storage, `activityImages/${activityImageFile.name}`);
+                    await uploadBytes(activityImageRef, activityImageFile);
+                    const activityImageUrl = await getDownloadURL(activityImageRef);
+                    return { ...act, activityImage: activityImageUrl };
+                }
+                return act;
+            }));
+            return { ...activity, activities: updatedActivityImages };
+        }));
+
         const tourData = {
             tourName: tourDetails.tourName,
             price: parseFloat(tourDetails.price),
@@ -296,8 +332,8 @@ function TourCard({ tour, onTourUpdated }) {
             tourDescription: tourDetails.tourDescription,
             location: tourDetails.location,
             maxGuests: parseInt(tourDetails.maxGuests),
-            tourImage: tourDetails.tourImage,
-            itinerary: activities.map(activity => ({
+            tourImage: tourImageUrl,
+            itinerary: updatedActivities.map(activity => ({
                 day: activity.day,
                 date: new Date(activity.date),
                 activities: activity.activities.map(act => ({
@@ -341,9 +377,7 @@ function TourCard({ tour, onTourUpdated }) {
         const matchesSearch = participant.fullName.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesFilter && matchesSearch;
     });
-
     const totalIncome = participants.reduce((sum, participant) => sum + (participant.totalAmount || 0), 0);
-
     return (
         <tr>
             <td className='d-flex gap-3 align-items-center'>
@@ -356,7 +390,7 @@ function TourCard({ tour, onTourUpdated }) {
             </td>
             <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
                 <p className='m-0 fw-medium'>
-                    {(tour.price).toLocaleString('vi', { style: 'currency', currency: 'VND' })}
+                    {(tour.price).toLocaleString('vi-VN')} VNĐ
                 </p>
             </td>
             <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
@@ -376,7 +410,7 @@ function TourCard({ tour, onTourUpdated }) {
                     <Dropdown.Menu>
                         <Dropdown.Item onClick={() => handleView(tour.tourId)}>Xem thêm</Dropdown.Item>
                         <Dropdown.Item onClick={openModal}>Chỉnh sửa</Dropdown.Item>
-                        <Dropdown.Item onClick={handleOpenManagementModal}>Quản lí</Dropdown.Item>
+                        <Dropdown.Item onClick={handleOpenManagementModal}>Quản lý</Dropdown.Item>
                         <Dropdown.Item onClick={() => confirmDelete(tour.tourId)}>Xóa</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
@@ -439,16 +473,29 @@ function TourCard({ tour, onTourUpdated }) {
                                         <Form.Control type="number" value={tourDetails.numberOfNights} onChange={(e) => setTourDetails({ ...tourDetails, numberOfNights: e.target.value })} />
                                     </Form.Group>
                                     <Form.Group className="mb-3 form-group-custom-create-tour">
-                                        <Form.Label style={{
-                                            width: '180px',
-                                        }}>Chọn địa điểm</Form.Label>
-                                        <Form.Select aria-label="Default select example">
-                                            {locations.map((location) => (
-                                                <option key={location.locationId} value={location.locationName}>
-                                                    {location.locationName}
-                                                </option>
-                                            ))}
-                                        </Form.Select>
+                                        <Form.Label>Chọn địa điểm</Form.Label>
+                                        {locations.length == 0 ? (
+                                            <Link className='btn btn-primary' to="https://travelmatefe.netlify.app/profile/my-profile">
+                                                Cập nhật địa phương đăng kí
+                                            </Link>
+                                        ) : (
+                                            <Form.Select
+                                                aria-label="Chọn địa điểm"
+                                                value={tourDetails.location}
+                                                onChange={(e) => {
+                                                    setTourDetails({ ...tourDetails, location: e.target.value })
+                                                    console.log('Location:', e.target.value);
+                                                    console.log('Tour details:', tourDetails);
+                                                }}
+                                            >
+                                                <option value={userProfile.profile.city}>{userProfile.profile.city}</option>
+                                                {locations.map((location) => (
+                                                    <option key={location.locationId} value={location.location.locationName}>
+                                                        {location.location.locationName}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
+                                        )}
                                     </Form.Group>
                                     <Form.Group className="mb-3 form-group-custom-create-tour">
                                         <Form.Label>Số Khách Tối Đa</Form.Label>
@@ -472,12 +519,13 @@ function TourCard({ tour, onTourUpdated }) {
                             <Col lg={4}>
                                 <Form.Group className="mb-3 form-group-custom-create-tour">
                                     <Form.Control
+                                        className='d-none'
                                         id='uploadImgTour'
                                         type="file"
                                         onChange={handleImageUpload} />
                                 </Form.Group>
-                                <Button className='my-2' onClick={() => document.getElementById('uploadImgTour').click()}>
-                                    Tải lên ảnh hoạt động
+                                <Button className='my-2 w-100' onClick={() => document.getElementById('uploadImgTour').click()}>
+                                    Tải lên ảnh tour
                                 </Button>
                                 {tourDetails.tourImage && (
                                     <img
@@ -492,7 +540,7 @@ function TourCard({ tour, onTourUpdated }) {
                                         }}
                                     />
                                 )}
-                                <h4 className='text-success mt-2'>{tourDetails.price} VNĐ</h4>
+                                <h4 className='text-success mt-2'>{tourDetails.price.toLocaleString('vi-VN')} VNĐ</h4>
                             </Col>
                         </Row>
                     </Col>
@@ -574,12 +622,14 @@ function TourCard({ tour, onTourUpdated }) {
                                                                         <Form.Group className="mb-3">
                                                                             <Form.Label className="fw-bold">Tải lên hình ảnh</Form.Label>
                                                                             <Form.Control
-                                                                                id='uploadImgActivity'
+                                                                                className='d-none'
+                                                                                id={`uploadImgActivity-${dayIndex}-${actIndex}`}
                                                                                 type="file"
                                                                                 accept="image/*"
                                                                                 onChange={(e) => handleActivityImageUpload(e, dayIndex, actIndex)}
                                                                             />
-                                                                            <Button className='my-2' onClick={() => document.getElementById('uploadImgActivity').click()}>
+
+                                                                            <Button className='my-2 w-100' onClick={() => document.getElementById(`uploadImgActivity-${dayIndex}-${actIndex}`).click()}>
                                                                                 Tải lên ảnh hoạt động
                                                                             </Button>
                                                                         </Form.Group>
@@ -615,8 +665,9 @@ function TourCard({ tour, onTourUpdated }) {
                                                                 <hr style={{ height: '5px', backgroundColor: 'black', border: 'none' }} />
                                                             </div>
                                                         ))}
+                                                        <Button variant="primary" className='my-3 mx-5' onClick={() => addActivity(dayIndex)}>Thêm hoạt động</Button>
+
                                                     </Accordion.Body>
-                                                    <Button variant="primary" className='my-3 mx-5' onClick={() => addActivity(dayIndex)}>Thêm hoạt động</Button>
                                                 </Accordion.Item>
                                             ))}
                                         </Accordion>
@@ -735,7 +786,7 @@ function TourCard({ tour, onTourUpdated }) {
                 }}
             >
 
-                <h4>Quản lí tour</h4>
+                <h4>Quản lý tour</h4>
                 <div className='h-100'>
                     <Row style={{
                         borderBottom: '1px solid black',
@@ -775,7 +826,7 @@ function TourCard({ tour, onTourUpdated }) {
                                     }}
                                 >
                                     <h5>Tổng thu nhập</h5>
-                                    <p style={{ fontSize: '24px', color: '#0EAD69', }}>{totalIncome.toLocaleString('vi', { style: 'currency', currency: 'VND' })}</p>
+                                    <p style={{ fontSize: '24px', color: '#0EAD69', }}>{totalIncome.toLocaleString('vi-VN')} VNĐ</p>
                                 </div>
 
                                 {/* Số lượng khách */}
@@ -854,7 +905,7 @@ function TourCard({ tour, onTourUpdated }) {
                                         <td>{participant.address}</td>
                                         <td>{participant.phone}</td>
                                         <td>{participant.paymentStatus ? 'Đã thanh toán' : 'Chưa thanh toán'}</td>
-                                        <td>{participant.totalAmount?.toLocaleString('vi', { style: 'currency', currency: 'VND' })}</td>
+                                        <td>{participant.totalAmount?.toLocaleString('vi-VN')} VNĐ</td>
                                         <td style={{ textAlign: 'center' }}>
                                             <Button
                                                 style={{

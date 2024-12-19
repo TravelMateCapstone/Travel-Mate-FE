@@ -12,7 +12,7 @@ function AdminLayout({ children }) {
     { icon: 'mail-open', title: 'Quản lý khiếu nại', route: RoutePath.ADMIN_REPORT },
     { icon: 'accessibility', title: 'Quản lý tài khoản', route: RoutePath.ADMIN_ACCOUNT_LIST },
     { icon: 'cash', title: 'Lịch sử giao dịch', route: RoutePath.ADMIN_TRANSACTION },
-    { icon: 'airplane', title: 'Quản lí tour', route: RoutePath.ADMIN_TRIP_HISTORY },
+    { icon: 'airplane', title: 'Quản lý tour', route: RoutePath.ADMIN_TRIP_HISTORY },
     { icon: 'location', title: 'Quản lý địa điểm', route: RoutePath.ADMIN_DESTINATION_MANAGEMENT },
   ];
   const sidebarItemsLocal = [
@@ -35,7 +35,7 @@ function AdminLayout({ children }) {
         <div id="content-wrapper" className="d-flex flex-column flex-grow-1">
           <div id="content">
             <TopBar />
-            <div className="container-fluid">
+            <div className="container-fluid mt-3">
               {children}
             </div>
           </div>

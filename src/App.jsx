@@ -10,6 +10,8 @@ import RoutePath from "./routes/RoutePath";
 
 const queryClient = new QueryClient();
 
+const adminRoutes = [RoutePath.ADMIN, RoutePath.ADMIN_ACCOUNT_LIST, RoutePath.ADMIN_REPORT, RoutePath.ADMIN_DESTINATION_MANAGEMENT, RoutePath.ADMIN_TRANSACTION, RoutePath.ADMIN_TRIP_HISTORY]; // Define admin routes
+
 const RouteWrapper = ({ component: Component, layout: Layout, path }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -19,11 +21,20 @@ const RouteWrapper = ({ component: Component, layout: Layout, path }) => {
   
 
   useEffect(() => {
-    if (privateRoutes.some(route => route.path === path && route.path === RoutePath.AUTH) && !isAuthenticated) {
-      toast.error("Bạn không có quyền truy cập trang này. Vui lòng đăng nhập để tiếp tục.");
-      navigate(RoutePath.AUTH);
+    if (!isAuthenticated) {
+      if (privateRoutes.some(route => route.path === path) && path === RoutePath.AUTH) {
+        toast.error("Bạn không có quyền truy cập trang này. Vui lòng đăng nhập để tiếp tục.");
+        navigate(RoutePath.AUTH);
+      }
+    } else {
+      if (userRole === 'admin' && !adminRoutes.includes(path) && path !== RoutePath.AUTH) {
+        toast.error("Admin không có quyền truy cập trang này.");
+        navigate(RoutePath.ADMIN);
+      } else if (userRole !== 'admin' && adminRoutes.includes(path)) {
+        toast.error("Bạn không có quyền truy cập trang này.");
+        navigate(RoutePath.HOMEPAGE);
+      }
     }
-   
   }, [dispatch, isAuthenticated, path, userRole]);
 
   if (privateRoutes.some(route => route.path === path) && !isAuthenticated) {

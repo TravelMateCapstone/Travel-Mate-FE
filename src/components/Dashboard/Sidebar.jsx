@@ -23,7 +23,7 @@ const Sidebar = React.memo(({ items }) => {
         <div className="sidebar-brand-text mx-3">{location.pathname.includes('admin') ? (
           <>Admin Dashboard</>
         ) : (
-          <>Người dùng quản lí</>
+          <>Người dùng quản lý</>
         )}</div>
       </Link>
       <hr className="sidebar-divider my-0" />

@@ -45,7 +45,7 @@ function TourDetail() {
             if (error.response && error.response.data === "You have joined this tour") {
                 toast.error("Bạn đã tham gia tour này. Vui lòng kiểm tra hợp đồng của bạn.");
             } else if(error.response && error.response.data === "Access Denied! You are creator of this tour") {
-                toast.error("Bạn đã tạo tour này. Vui lòng kiểm tra hợp đồng của bạn trong phần quản lí chuyến đi.");
+                toast.error("Bạn đã tạo tour này. Vui lòng kiểm tra hợp đồng của bạn trong phần quản lý chuyến đi.");
             }
         }
     };

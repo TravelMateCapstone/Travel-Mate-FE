@@ -70,7 +70,6 @@ function Contract() {
     } else if (contract.status === 'Completed') {
       localStorage.setItem('contract_selected', JSON.stringify(contract));
       navigate(RoutePath.FINISH_CONTRACT_TRAVELLER);
-      alert('Hợp đồng đã hoàn thành');
       return;
     }
   }
@@ -119,8 +118,10 @@ function Contract() {
                 </Button>
               )}
               {contract.status !== 'Created' && (
-                <Button variant='primary' className='text-nowrap' onClick={() => viewCoptract(contract)}>
-                  Xem 
+                <Button variant='primary' className='text-nowrap d-flex justify-content-center align-items-center' onClick={() => viewCoptract(contract)}>
+                  <ion-icon name="alert-circle-outline" style={{
+                  fontSize: '24px',
+                }}></ion-icon> 
                 </Button>
               )}
               <Button variant='success' className='text-nowrap d-flex justify-content-center align-items-center' onClick={() => verifyContract(contract)}>

@@ -27,8 +27,15 @@ function CreateContract() {
         const response = await axios.get(
           `https://travelmateapp.azurewebsites.net/api/Profile/${user.id}`
         );
+        console.log("Profile:", response.data);
+        
+        if (response.data.city === "") {
+          console.log("Vui lòng cập nhật địa phương đăng kí");
+          toast.error("Vui lòng cập nhật địa phương đăng kí");
+          navigate(RoutePath.PROFILE_MY_PROFILE);
+        }
         setProfile(response.data);
-        console.log(response.data);
+        
       } catch (error) {
         console.error("Error fetching profile:", error);
       }
@@ -53,6 +60,8 @@ function CreateContract() {
     };
     console.log(contractInfo);
     localStorage.setItem("contractInfo", JSON.stringify(contractInfo));
+    console.log("contractInfo", contractInfo);
+    
     localStorage.setItem("isLocal", 'traveler');
     try {
       const response = await axios.post(
@@ -66,7 +75,7 @@ function CreateContract() {
           localId: tourInfo.creator.id,
           travelerId: user.id,
           // amount: tourInfo.price,
-          amount: 2000,
+          amount: tourInfo.price,
         };
         // Redirect to payment form submission
         const form = document.createElement("form");
@@ -130,7 +139,7 @@ function CreateContract() {
                 <p className="m-0 fw-bold">
                   {profile?.user.fullName || "Không có thông tin"}
                 </p>
-                <sub className="fw-medium">{profile?.address}</sub>
+                <sub className="fw-medium">{profile?.profile.city}</sub>
               </div>
             </div>
             <VerifySignatureRSA setIsValidSignature={setIsValidSignature} />

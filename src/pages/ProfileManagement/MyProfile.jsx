@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Tab, Tabs } from 'react-bootstrap';
 import '../../assets/css/ProfileManagement/MyProfile.css';
 import { useSelector, useDispatch } from 'react-redux';
@@ -14,8 +14,8 @@ import MyFriends from '../../components/Profile/MyProfile/MyFriends';
 import MyFavorites from '../../components/Profile/MyProfile/MyFavorists';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { viewProfile } from '../../redux/actions/profileActions';
-
 import axios from "axios";
+import checkProfileCompletion from '../../utils/Profile/checkProfileCompletion';
 
 function MyProfile() {
     const [key, setKey] = useState('introduce');
@@ -24,6 +24,8 @@ function MyProfile() {
 
     const [profile, setProfile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
+    const [completionPercentage, setCompletionPercentage] = useState(0);
+    const [incompleteModels, setIncompleteModels] = useState([]);
     const token = useSelector((state) => state.auth.token);
     const user = useSelector((state) => state.auth.user);
     const dataProfile = useSelector((state) => state.profile);
@@ -76,6 +78,20 @@ function MyProfile() {
         })
         : "Không rõ";
 
+    useEffect(() => {
+        const fetchProfileCompletion = async () => {
+            try {
+                const { totalPercentage, incompleteModels } = await checkProfileCompletion(url, token);
+                setCompletionPercentage(totalPercentage);
+                setIncompleteModels(incompleteModels.$values);
+            } catch (error) {
+                console.error("Lỗi khi kiểm tra hoàn thành hồ sơ:", error);
+            }
+        };
+
+        fetchProfileCompletion();
+    }, [token, url]);
+
     return (
         <Container>
 
@@ -102,7 +118,15 @@ function MyProfile() {
                         <h4>{dataProfile.profile?.user?.fullName}</h4>
                         <p className='fw-medium d-flex align-items-center gap-2'><ion-icon name="location-outline"></ion-icon> {dataProfile.profile?.city}</p>
                         <p className='fw-medium d-flex align-items-center gap-2'><ion-icon name="person-add-outline"></ion-icon> Thành viên tham gia từ {registrationDate}</p>
-                        <p className='text-success fw-medium  d-flex align-items-center gap-2'><ion-icon name="shield-checkmark-outline"></ion-icon> 65% hoàn thành hồ sơ</p>
+                        <p className='text-success fw-medium d-flex align-items-center gap-2'><ion-icon name="shield-checkmark-outline"></ion-icon> {completionPercentage}% hoàn thành hồ sơ</p>
+                        {/* <div>
+                            <h5>Incomplete Models:</h5>
+                            <ul>
+                                {incompleteModels.map((model, index) => (
+                                    <li key={index}>{model}</li>
+                                ))}
+                            </ul>
+                        </div> */}
                     </div>
                 </div>
                 {/* <CreateTour /> */}

@@ -3,15 +3,20 @@ import Modal from 'react-modal';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { addDays, format } from 'date-fns';
+import { addDays, format, set } from 'date-fns';
 import { storage } from '../../../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { Button, Form, Row, Col, Tabs, Tab, Card, Accordion } from 'react-bootstrap';
+import { Button, Form, Row, Col, Tabs, Tab, Card, Accordion, Modal as BootstrapModal } from 'react-bootstrap';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import '../../assets/css/Local/CreateTour.css'
 import TextareaAutosize from 'react-textarea-autosize';
 import Switch from '../Shared/Switch';
+import checkProfileCompletion from '../../utils/Profile/checkProfileCompletion';
+import { Link } from 'react-router-dom';
+import RoutePath from '../../routes/RoutePath';
+import { useDispatch } from 'react-redux';
+import { viewProfile } from '../../redux/actions/profileActions';
 Modal.setAppElement('#root');
 function CreateTour({ onTourCreated }) {
     const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -20,7 +25,17 @@ function CreateTour({ onTourCreated }) {
     const [locationCurent, setLocationCurent] = useState('');
     const [isGlobalContract, setIsGlobalContract] = useState(true);
     const [termsAccepted, setTermsAccepted] = useState(false);
-
+    const userProfile = useSelector((state) => state.profile);
+    const user = useSelector((state) => state.auth.user);
+    const dispatch = useDispatch();
+    const [incompleteModels, setIncompleteModels] = useState([]);
+    const [isModalOpenIncompleteModels, setIsModalOpenIncompleteModels] = useState(false);
+    const openModalIncompleteModels = () => {
+        setIsModalOpenIncompleteModels(true);
+    };
+    const closeModalIncompleteModels = () => {
+        setIsModalOpenIncompleteModels(false);
+    };
     const [tourDetails, setTourDetails] = useState({
         tourName: '',
         price: 0,
@@ -35,6 +50,9 @@ function CreateTour({ onTourCreated }) {
         additionalInfo: '',
     });
     const token = useSelector((state) => state.auth.token);
+
+
+
     const [key, setKey] = useState('schedule');
     const [locations, setLocations] = useState([]);
     useEffect(() => {
@@ -75,18 +93,20 @@ function CreateTour({ onTourCreated }) {
     useEffect(() => {
         const fetchLocations = async () => {
             try {
-                const response = await axios.get('https://provinces.open-api.vn/api/');
-                console.log('Location:', response.data);
-                const cleanedLocations = response.data.map(location => ({
-                    ...location,
-                    name: location.name.replace(/Tỉnh|Thành phố/g, '').trim()
-                }));
-                setLocations(cleanedLocations || []);
+                const response = await axios.get('https://travelmateapp.azurewebsites.net/api/UserLocationsWOO/get-current-user', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `${token}`,
+                    },
+                });
+                setLocations(response.data.$values || []);
             } catch (error) {
                 console.error('Error fetching locations:', error);
             }
         };
         fetchLocations();
+
+        dispatch(viewProfile(user.id, token));
     }, [token]);
 
 
@@ -95,6 +115,7 @@ function CreateTour({ onTourCreated }) {
     };
 
     const openModal = () => {
+
         setModalIsOpen(true);
     };
 
@@ -186,6 +207,16 @@ function CreateTour({ onTourCreated }) {
     };
 
     const handleSaveChanges = async () => {
+        // check total percenttage and incomplete models
+        const { totalPercentage, incompleteModels } = await checkProfileCompletion('https://travelmateapp.azurewebsites.net', token);
+        if (totalPercentage < 70) {
+            toast.error('Vui lòng hoàn thiện hồ sơ trước khi tạo tour.');
+            // Hiển thị danh sách các mục cần hoàn thiện
+            setIncompleteModels(incompleteModels.$values);
+            openModalIncompleteModels();
+            return;
+        }
+
         if (new Date(tourDetails.startDate) >= new Date(tourDetails.endDate)) {
             toast.error('Ngày bắt đầu phải trước ngày kết thúc.');
             return;
@@ -238,8 +269,6 @@ function CreateTour({ onTourCreated }) {
             })),
             additionalInfo: tourDetails.additionalInfo,
         };
-        console.log('Tour data:', tourData);
-
         try {
             const response = await axios.post('https://travelmateapp.azurewebsites.net/api/Tour', tourData, {
                 headers: {
@@ -259,7 +288,6 @@ function CreateTour({ onTourCreated }) {
     };
 
     const handleSwitchToggle = (isOn) => {
-        console.log('Switch is now', isOn ? 'ON' : 'OFF');
         setIsGlobalContract(isOn);
     };
 
@@ -330,14 +358,18 @@ function CreateTour({ onTourCreated }) {
                                             </Form.Group>
                                             <Form.Group className="mb-3 form-group-custom-create-tour">
                                                 <Form.Label>Địa điểm</Form.Label>
-                                                <Form.Control as="select" value={tourDetails.location} onChange={(e) => setTourDetails({ ...tourDetails, location: e.target.value })}>
-                                                    <option value="">Chọn địa điểm</option>
+                                                {locations.length > 0 ? <Form.Control as="select" value={tourDetails.location} onChange={(e) => setTourDetails({ ...tourDetails, location: e.target.value })}>
+                                                    <option value="">{userProfile.profile.city}</option>
                                                     {locations.map((location) => (
-                                                        <option key={location.code} value={location.name}>
-                                                            {location.name}
+                                                        <option key={location.locationId} value={location.location.locationName}>
+                                                            {location.location.locationName}
                                                         </option>
                                                     ))}
-                                                </Form.Control>
+                                                </Form.Control> :
+                                                     <Link className='btn btn-primary' to="https://travelmatefe.netlify.app/profile/my-profile">
+                                                     Cập nhật địa phương đăng kí
+                                                 </Link>
+                                                    }
                                             </Form.Group>
 
                                             <Form.Group className="mb-3 form-group-custom-create-tour">
@@ -561,6 +593,32 @@ function CreateTour({ onTourCreated }) {
                     <Button variant="success" onClick={handleSaveChanges}>Tạo tour</Button>
                 </div>
             </Modal>
+
+            <BootstrapModal show={isModalOpenIncompleteModels} onHide={closeModalIncompleteModels}>
+                <BootstrapModal.Header closeButton>
+                    <BootstrapModal.Title>Hoàn thiện hồ sơ</BootstrapModal.Title>
+                </BootstrapModal.Header>
+                <BootstrapModal.Body>
+                    <p>Vui lòng hoàn thiện các mục sau trước khi tạo tour:</p>
+                    <div className='w-100'>
+                        <ol>
+                            {incompleteModels.map((model, index) => (
+                                <li key={index}>{model}
+                                    {
+                                        (model === 'UserHome' || model === 'UserLocation' || model === 'UserEducation' || model === 'SpokenLanguage') ?
+                                            <Link target="_blank" rel="noopener noreferrer" to={RoutePath.PROFILE_MY_PROFILE}> cập nhật</Link> :
+                                            <Link target="_blank" rel="noopener noreferrer" to={RoutePath.SETTING}> cập nhật</Link>
+                                    }
+
+                                </li>
+                            ))}
+                        </ol>
+                    </div>
+                </BootstrapModal.Body>
+                <BootstrapModal.Footer>
+                    <Button variant="secondary" onClick={closeModalIncompleteModels}>Đóng</Button>
+                </BootstrapModal.Footer>
+            </BootstrapModal>
         </div>
     );
 }

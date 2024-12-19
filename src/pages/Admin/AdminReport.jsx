@@ -18,8 +18,8 @@ const AdminReport = () => {
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
 
   const [rowData, setRowData] = useState([
-    { id: 1, user: "John Doe", address: "123 Main St", type: "Fraud", reportDate: "2023-10-12", status: "Đang xử lí", content: "Report content 1" },
-    { id: 2, user: "Jane Smith", address: "456 Oak Ave", type: "Abuse", reportDate: "2023-09-25", status: "Đã xử lí", content: "Report content 2" },
+    { id: 1, user: "John Doe", address: "123 Main St", type: "Fraud", reportDate: "2023-10-12", status: "Đang xử lý", content: "Report content 1" },
+    { id: 2, user: "Jane Smith", address: "456 Oak Ave", type: "Abuse", reportDate: "2023-09-25", status: "Đã xử lý", content: "Report content 2" },
     { id: 3, user: "Alice Johnson", address: "789 Pine Rd", type: "Spam", reportDate: "2023-11-01", status: "Đã phản hồi", content: "Report content 3" },
     { id: 4, user: "Robert Brown", address: "321 Maple Ln", type: "Harassment", reportDate: "2023-10-05", status: "Đã phản hồi", content: "Report content 4" },
     { id: 5, user: "Michael Miller", address: "654 Elm St", type: "Fraud", reportDate: "2023-08-18", status: "Đã phản hồi", content: "Report content 5" },
@@ -41,7 +41,7 @@ const AdminReport = () => {
     {
       headerName: "Trạng thái", field: "status", editable: true, filter: true, sortable: true, cellEditor: 'agSelectCellEditor',
       cellEditorParams: {
-        values: ['Đang xử lí', 'Đã xử lí', 'Đã phản hồi',],
+        values: ['Đang xử lý', 'Đã xử lý', 'Đã phản hồi',],
       }
     },
     {

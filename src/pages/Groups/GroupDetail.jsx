@@ -236,7 +236,7 @@ const GroupDetail = () => {
             </Dropdown.Toggle>
             <Dropdown.Menu style={{ border: 'none', boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)', borderRadius: '10px' }}>
               <Dropdown.Item className='form_edit_group' onClick={handleOpenFormModal}>Cập nhật thông tin nhóm</Dropdown.Item>
-              <Dropdown.Item className='form_edit_group' onClick={() => navigate(RoutePath.Group_Management)}>Quản lí Thành viên</Dropdown.Item>
+              <Dropdown.Item className='form_edit_group' onClick={() => navigate(RoutePath.Group_Management)}>Quản lý Thành viên</Dropdown.Item>
               <Dropdown.Item onClick={handleDeleteGroup}>Xóa nhóm</Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
