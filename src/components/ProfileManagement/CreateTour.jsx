@@ -366,7 +366,7 @@ function CreateTour({ onTourCreated }) {
                                                         </option>
                                                     ))}
                                                 </Form.Control> :
-                                                     <Link to="https://travelmatefe.netlify.app/profile/my-profile">
+                                                     <Link className='btn btn-primary' to="https://travelmatefe.netlify.app/profile/my-profile">
                                                      Cập nhật địa phương đăng kí
                                                  </Link>
                                                     }

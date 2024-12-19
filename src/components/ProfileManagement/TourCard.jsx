@@ -475,7 +475,7 @@ function TourCard({ tour, onTourUpdated }) {
                                     <Form.Group className="mb-3 form-group-custom-create-tour">
                                         <Form.Label>Chọn địa điểm</Form.Label>
                                         {locations.length == 0 ? (
-                                            <Link to="https://travelmatefe.netlify.app/profile/my-profile">
+                                            <Link className='btn btn-primary' to="https://travelmatefe.netlify.app/profile/my-profile">
                                                 Cập nhật địa phương đăng kí
                                             </Link>
                                         ) : (
