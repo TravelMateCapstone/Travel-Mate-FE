@@ -13,23 +13,21 @@ const MemoizedChatSidebar = memo(ChatSidebar);
 const MemoizedChatHeader = memo(ChatHeader);
 const MemoizedChatMessages = memo(ChatMessages);
 const MemoizedChatInput = memo(ChatInput);
-const MemoizedChatContract = memo(ChatContract);
 
 function Chat() {
   return (
     <Container fluid className='p-0'>
       <Row>
         <MemoizedChatSidebar />
-        <Col lg={8} className='chat-column'>
+        <Col lg={10} className='chat-column'>
           <MemoizedChatHeader />
           <div className='chatmessage-container overflow-y-auto'>
-            {/* <MemoizedChatMessages isSender={true} />
-            <MemoizedChatMessages isSender={false} /> */}
-            <MemoizedChatMessages isRequest={true} />
+            <MemoizedChatMessages isSender={true} />
+            <MemoizedChatMessages isSender={false} />
+            {/* <MemoizedChatMessages isRequest={true} /> */}
           </div>
           <MemoizedChatInput />
         </Col>
-        <MemoizedChatContract />
       </Row>
     </Container>
   )
