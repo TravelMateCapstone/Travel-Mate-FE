@@ -22,7 +22,7 @@ const RouteWrapper = ({ component: Component, layout: Layout, path }) => {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      if (privateRoutes.some(route => route.path === path) && path !== RoutePath.AUTH) {
+      if (privateRoutes.some(route => route.path === path) && path === RoutePath.AUTH) {
         toast.error("Bạn không có quyền truy cập trang này. Vui lòng đăng nhập để tiếp tục.");
         navigate(RoutePath.AUTH);
       }
