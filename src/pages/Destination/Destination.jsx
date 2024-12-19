@@ -21,6 +21,8 @@ function Destination() {
     const location = useLocation();
     const selectedLocation = location.state?.selectedLocation || JSON.parse(localStorage.getItem('selectedLocation'));
 
+    console.log('Địa điểm được chọn: ', selectedLocation);
+    
     useEffect(() => {
         if (selectedLocation) {
             console.log('Địa điểm được chọn: ', selectedLocation);

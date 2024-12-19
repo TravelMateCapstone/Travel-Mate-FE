@@ -5,9 +5,26 @@ import { Button, Col, Container, Row } from 'react-bootstrap';
 import Destination from './Destination/Destination';
 import DestinationCard from '../components/Home/DestinationCard';
 import ImageAccordionSlider from '../components/Home/ImageAccordionSlider';
+import { Typewriter } from 'react-simple-typewriter';
+import { useNavigate } from 'react-router-dom';
+import RoutePath from '../routes/RoutePath';
 
 function Home() {
   const [destinations, setDestinations] = useState([]);
+  const [wordIndex, setWordIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [query, setQuery] = useState('');
+  const [searchResult, setSearchResult] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const words = [
+    'Bạn phân vân không biết nên đi đâu ?',
+    'Hãy mô tả điểm đến của bạn...',
+    'Chúng tôi sẽ chọn lọc điểm đến phù hợp với bạn...',
+  ];
+  const [placeholder, setPlaceholder] = useState('');
+  
+  
 
   useEffect(() => {
     fetch('https://travelmateapp.azurewebsites.net/api/Locations')
@@ -24,6 +41,57 @@ function Home() {
   }, []);
 
 
+  useEffect(() => {
+    const typeWriterEffect = () => {
+      const currentWord = words[wordIndex]; // Lấy câu hiện tại trong mảng `words`
+      if (charIndex < currentWord.length) {
+        setPlaceholder((prev) => prev + currentWord[charIndex]); // Thêm chữ mới vào placeholder
+        setCharIndex((prev) => prev + 1); // Tăng chỉ số vị trí ký tự
+      } else {
+        // Chuyển sang câu tiếp theo khi hoàn thành câu hiện tại
+        setTimeout(() => {
+          setCharIndex(0); // Đặt lại vị trí ký tự
+          setWordIndex((prev) => (prev + 1) % words.length); // Chuyển đến câu tiếp theo, quay lại đầu nếu hết mảng
+          setPlaceholder(''); // Xóa nội dung của placeholder khi chuyển câu
+        }, 1500); // Thời gian nghỉ giữa các câu (1.5s)
+      }
+    };
+
+    const interval = setInterval(typeWriterEffect, 150); // Tốc độ gõ chữ (150ms cho mỗi ký tự)
+
+    return () => clearInterval(interval); // Dọn dẹp interval khi component unmount
+  }, [charIndex, wordIndex]);
+
+  const handleInputChange = (e) => {
+    setQuery(e.target.value);
+    if (e.target.value === '') {
+      setSearchResult(null);
+    }
+  };
+
+  const handleSearch = () => {
+    setIsLoading(true);
+    fetch(`https://travelmateapp.azurewebsites.net/api/LocationPredict/predict?query=${query}`)
+      .then(response => response.json())
+      .then(data => {
+        setSearchResult(data.$values[0]);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching search result:', error);
+        setIsLoading(false);
+      });
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const handleSearchResultClick = () => {
+    navigate(RoutePath.DESTINATION, { state: { selectedLocation: searchResult } });
+  }
 
   return (
     <>
@@ -71,10 +139,41 @@ function Home() {
             <p className='fw-semibold' style={{
               fontSize: '32px',
             }}>Khám Phá Việt Nam Theo Cách Riêng</p>
-            <p>Hãy để những người địa phương đồng hành cùng bạn trên hành trình khám phá Việt Nam một cách độc đáo và chân thực nhất. Chọn những chuyến đi được thiết kế riêng, từ phố thị sôi động đến làng quê yên bình. Mỗi trải nghiệm không chỉ là một chuyến du lịch mà còn là một câu chuyện đáng nhớ, nơi bạn cảm nhận được văn hóa, con người, và vẻ đẹp nguyên sơ của đất nước hình chữ S.</p>
-            <button className='mt-5 button_explore'>
-              Khám phá ngay
-            </button>
+            <div style={{
+              height: '70px',
+            }}>
+              <p style={{ fontSize: '16px', lineHeight: '1.6' }}>
+                Hãy để những người địa phương đồng hành cùng bạn trên hành trình khám phá Việt Nam một cách độc đáo và chân thực nhất. Chọn những chuyến đi được thiết kế riêng, từ phố thị sôi động đến làng quê yên bình. Mỗi trải nghiệm không chỉ là một chuyến du lịch mà còn là một câu chuyện đáng nhớ. Nơi bạn cảm nhận được văn hóa, con người, và vẻ đẹp nguyên sơ của đất nước hình chữ S.
+              </p>
+            </div>
+            <div className='mt-5 d-flex gap-3'>
+              <input
+                type="text"
+                className="form-control w-50"
+                placeholder={placeholder}
+                value={query}
+                onChange={handleInputChange}
+                onKeyPress={handleKeyPress} // Change this line to handleKeyPress
+              />
+              {
+                searchResult && (
+                  <button className='btn btn-success d-flex align-items-center gap-2' onClick={handleSearchResultClick}>
+                    Khám phá {searchResult?.title} <ion-icon name="arrow-forward-outline"></ion-icon>
+                  </button>
+                )
+              }
+            </div>
+            {isLoading && (
+              <div className="search-result mt-4">
+                <strong>Đang tìm kiếm...</strong>
+              </div>
+            )}
+            {searchResult && !isLoading && (
+              <div className="search-result mt-4">
+                <strong>Kết quả tìm kiếm:</strong>
+                <p><strong>{searchResult.title}</strong>: {searchResult.description}</p>
+              </div>
+            )}
           </Col>
           <Col lg={6}>
             <div className='w-100 d-flex justify-content-end gap-5'>
@@ -111,9 +210,9 @@ function Home() {
         </Container>
       </div>
 
-     <div style={{
-      marginBottom: '50px',
-     }}> <ImageAccordionSlider /></div>
+      <div style={{
+        marginBottom: '50px',
+      }}> <ImageAccordionSlider /></div>
     </>
   );
 }
