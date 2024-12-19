@@ -209,7 +209,7 @@ function CreateTour({ onTourCreated }) {
     const handleSaveChanges = async () => {
         // check total percenttage and incomplete models
         const { totalPercentage, incompleteModels } = await checkProfileCompletion('https://travelmateapp.azurewebsites.net', token);
-        if (totalPercentage < 90) {
+        if (totalPercentage < 70) {
             toast.error('Vui lòng hoàn thiện hồ sơ trước khi tạo tour.');
             // Hiển thị danh sách các mục cần hoàn thiện
             setIncompleteModels(incompleteModels.$values);
