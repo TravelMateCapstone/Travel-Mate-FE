@@ -32,8 +32,6 @@ function MyProfile() {
 
     const url = import.meta.env.VITE_BASE_API_URL;
     const profileImage = dataProfile.profile?.imageUser || "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3467.jpg";
-    console.log("avt", profileImage);
-
 
     const handleImageUpload = async (event) => {
         const file = event.target.files[0];
@@ -116,7 +114,7 @@ function MyProfile() {
 
                     <div className='info_user_profile_content'>
                         <h4>{dataProfile.profile?.user?.fullName}</h4>
-                        <p className='fw-medium d-flex align-items-center gap-2'><ion-icon name="location-outline"></ion-icon> {dataProfile.profile?.city}</p>
+                        <p className='fw-medium d-flex align-items-center gap-2'><ion-icon name="location-outline"></ion-icon> {dataProfile.profile?.city || 'Chưa cập nhập'}</p>
                         <p className='fw-medium d-flex align-items-center gap-2'><ion-icon name="person-add-outline"></ion-icon> Thành viên tham gia từ {registrationDate}</p>
                         <p className='text-success fw-medium d-flex align-items-center gap-2'><ion-icon name="shield-checkmark-outline"></ion-icon> {completionPercentage}% hoàn thành hồ sơ</p>
                         {/* <div>
