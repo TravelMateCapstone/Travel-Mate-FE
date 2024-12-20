@@ -225,6 +225,21 @@ function CreateTour({ onTourCreated }) {
                 if (startTime && endTime && startTime >= endTime) {
                     toast.error('Thời gian bắt đầu phải trước thời gian kết thúc.');
                 }
+
+                // Check for overlapping times within the same day
+                const currentActivity = updatedActivities[dayIndex].activities[actIndex];
+                for (let i = 0; i < updatedActivities[dayIndex].activities.length; i++) {
+                    if (i !== actIndex) {
+                        const otherActivity = updatedActivities[dayIndex].activities[i];
+                        if (
+                            (currentActivity.startTime < otherActivity.endTime && currentActivity.endTime > otherActivity.startTime) ||
+                            (currentActivity.endTime > otherActivity.startTime && currentActivity.startTime < otherActivity.endTime)
+                        ) {
+                            toast.error(`Thời gian hoạt động bị trùng lặp với hoạt động: ${otherActivity.title}`);
+                            break;
+                        }
+                    }
+                }
             }
 
             return updatedActivities;
