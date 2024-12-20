@@ -109,7 +109,7 @@ function Home() {
           fontSize: '36px',
           fontWeight: '400',
           letterSpacing: '-0.5%',
-        }}>Trải nghiệm chân thật, kỷ niệm đáng nhớ!</h1>
+        }}>Trải nghiệm hành trình để ghi dấu chân trên bản đồ Việt Nam.</h1>
         <div className="home-map-container">
           <MapComponent />
           <div className="home-statistics">
