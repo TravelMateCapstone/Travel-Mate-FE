@@ -52,21 +52,7 @@ function CreateContract() {
     fetchProfile();
   }, [user.id]);
 
-  useEffect(() => {
-    let timer;
-    if (remainingTime > 0) {
-      timer = setInterval(() => {
-        setRemainingTime((prevTime) => prevTime - 1);
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [remainingTime]);
-
   const handleCreateContractAndPayment = async () => {
-    if (remainingTime <= 0) {
-      toast.error("Thời gian đã hết. Vui lòng tạo lại hợp đồng mới.");
-      return;
-    }
     if (!isValidSignature) {
       toast.error("Vui lòng tải chữ ký hợp lệ trước khi tiếp tục");
       return;
@@ -313,9 +299,6 @@ function CreateContract() {
                   </ul>
                 </div>
               ))}
-            </div>
-            <div className="d-flex justify-content-end">
-              <p>Thời gian còn lại: {Math.floor(remainingTime / 60)}:{remainingTime % 60}</p>
             </div>
             <div className="d-flex justify-content-end">
               <Button

@@ -113,18 +113,18 @@ function TourCard({ tour, onTourUpdated }) {
         if (tourDetails.startDate && tourDetails.endDate) {
             const start = new Date(tourDetails.startDate);
             const end = new Date(tourDetails.endDate);
-            const numberOfDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+            const numberOfDays = Math.floor((end - start) / (1000 * 60 * 60 * 24));
             const numberOfNights = numberOfDays - 1;
-
+    
             setTourDetails((prevDetails) => ({
                 ...prevDetails,
                 numberOfDays,
                 numberOfNights,
             }));
-
+    
             if (activities.length !== numberOfDays) {
                 const newActivities = activities.length ? activities : [];
-
+    
                 for (let i = newActivities.length; i < numberOfDays; i++) {
                     newActivities.push({
                         day: i + 1,
@@ -136,6 +136,7 @@ function TourCard({ tour, onTourUpdated }) {
             }
         }
     }, [tourDetails.startDate, tourDetails.endDate]);
+    
 
     const openModal = async () => {
         console.log(tour.tourId);

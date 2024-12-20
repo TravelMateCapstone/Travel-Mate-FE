@@ -17,17 +17,6 @@ function TourDetail() {
     const tourData = useSelector((state) => state.tour?.tour);
     const navigate = useNavigate();
     const token = useSelector((state) => state.auth.token);
-    const [remainingTime, setRemainingTime] = useState(180); // 3 minutes in seconds
-
-    useEffect(() => {
-        let timer;
-        if (remainingTime > 0) {
-            timer = setInterval(() => {
-                setRemainingTime((prevTime) => prevTime - 1);
-            }, 1000);
-        }
-        return () => clearInterval(timer);
-    }, [remainingTime]);
 
     console.log(tourData);
 
@@ -57,7 +46,7 @@ function TourDetail() {
                 }
             );
 
-            navigate(RoutePath.CREATE_CONTRACT, { state: { remainingTime: 180 } });
+            navigate(RoutePath.CREATE_CONTRACT);
         } catch (error) {
             console.error("Error joining tour:", error);
             if (error.response && error.response.data === "You have joined this tour") {
