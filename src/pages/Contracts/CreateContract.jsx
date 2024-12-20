@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "../../assets/css/Contracts/CreateContract.css";
 import { Button, Col, Row } from "react-bootstrap";
 import { useSelector } from "react-redux";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import RoutePath from "../../routes/RoutePath";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -19,8 +19,6 @@ function CreateContract() {
   const travlerrSignature = useSelector((state) => state.signature.signature);
   const [isValidSignature, setIsValidSignature] = useState(false);
   const token = useSelector((state) => state.auth.token);
-  const location = useLocation();
-  const [remainingTime, setRemainingTime] = useState(location.state?.remainingTime || 180);
   const formatDate = (date) => {
     return format(new Date(date), "dd/MM/yyyy", { locale: vi });
   };
