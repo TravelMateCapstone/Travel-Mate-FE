@@ -4,14 +4,14 @@ import { Container, Row, Col, Button, Form } from 'react-bootstrap';
 import axios from 'axios';
 
 import { storage } from '../../../../firebaseConfig';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import UploadImageComponent from '../../../components/Shared/UploadImageComponent';
 
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 
-import { toast } from 'react-toastify';  // Thêm phần này
-import 'react-toastify/dist/ReactToastify.css'; // Import CSS cho toastify
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import { viewProfile } from '../../../redux/actions/profileActions';
 
@@ -30,16 +30,13 @@ function MyHome() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchLocations();
-    }, []);
-
-    useEffect(() => {
         if (dataProfile?.home) {
             setHomeData(dataProfile.home);
         }
     }, [dataProfile]);
 
     const toggleEdit = () => {
+        dispatch(viewProfile(user.id));
         setIsEditing(!isEditing);
     };
 
@@ -54,24 +51,6 @@ function MyHome() {
                 setErrors(prev => ({ ...prev, maxGuests: '' }));
             }
         }
-    };
-
-
-    const fetchLocations = async () => {
-        try {
-            const response = await axios.get('https://provinces.open-api.vn/api/p/');
-            const locationData = response.data.map(location => ({
-                ...location,
-                name: location.name.replace(/^Tỉnh |^Thành phố /, ''),
-            }));
-            setLocations(locationData);
-        } catch (error) {
-            console.error("Error fetching locations:", error);
-        }
-    };
-
-    const handleUploadImages = (urls) => {
-        setHomeData(prev => ({ ...prev, homePhotos: urls }));
     };
 
     const renderDataOrFallback = (data) => {
@@ -161,7 +140,6 @@ function MyHome() {
                 },
             });
             dispatch(viewProfile(user.id, token));
-            toast.success("Ảnh đã được cập nhật thành công trên server!");
         } catch (error) {
             console.error("Error updating photos:", error);
             toast.error("Lỗi khi cập nhật ảnh trên server.");
@@ -201,8 +179,47 @@ function MyHome() {
         }
     }, [updateHomePhotos, queryClient]);
 
+    const deleteImageFromFirebase = async (imagePath) => {
+        try {
+            const imageRef = ref(storage, imagePath);
+            await deleteObject(imageRef);
+            console.log(`Ảnh tại ${imagePath} đã được xóa thành công.`);
+        } catch (error) {
+            console.error("Lỗi khi xóa ảnh:", error);
+            throw new Error("Không thể xóa ảnh trên Firebase.");
+        }
+    };
+
+    const handleDeleteImage = async (photoId, photoURL) => {
+        try {
+            const deleteApiUrl = `${import.meta.env.VITE_BASE_API_URL}/api/HomePhoto/${photoId}`;
+            await axios.delete(deleteApiUrl, {
+                headers: {
+                    Authorization: `${token}`,
+                },
+            });
+            deleteImageFromFirebase(photoURL);
+            toast.success("Ảnh đã được xóa thành công!");
 
 
+            dispatch(viewProfile(user.id));
+        } catch (error) {
+            console.error("Error deleting photo:", error);
+            toast.error("Lỗi khi xóa ảnh");
+        }
+    };
+
+    const [showViewImage, setShowViewImage] = useState(false);
+    const [imageToView, setImageToView] = useState('');
+
+    const handleView = (imageUrl) => {
+        setImageToView(imageUrl);
+        setShowViewImage(true);
+    };
+
+    const handleCloseView = () => {
+        setShowViewImage(false);
+    };
 
     return (
         <Container>
@@ -399,27 +416,6 @@ function MyHome() {
 
             {/* Hình ảnh nhà */}
 
-            {/* <div className="container px-5">
-                <div className="row">
-                    {formData.homePhotos.map((image, index) => (
-                        <div
-                            key={index}
-                            className="col col-lg-4 col-md-6 col-6 image-grid-container"
-                        >
-                            <div className="img-thumbnail shadow p-3">
-                                <LazyLoadImage
-                                    src={image.homePhotoUrl}
-                                    alt={`image-${index}`}
-                                    effect="blur" // Tạo hiệu ứng làm mờ khi tải
-                                    className="img-fluid"
-                                />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div> */}
-
-
             <Row className="mb-3">
                 <Col lg={4} className="d-flex align-items-center">
                     <Form.Label>Hình ảnh nhà của bạn</Form.Label>
@@ -428,36 +424,56 @@ function MyHome() {
                     <Row>
                         {homeData.homePhotos?.$values?.map(photo => (
                             <Col xs={12} md={4} className="mb-3" key={photo.photoId}>
-                                <img src={photo.homePhotoUrl} alt={`House ${photo.photoId}`} className="img-fluid rounded-3" />
+                                <img src={photo.homePhotoUrl} alt={`House ${photo.photoId}`} className="img-fluid rounded-3" style={{ width: '300px', height: '150px' }} />
+                                {isEditing ? (
+                                    <ion-icon
+                                        name="trash-outline"
+                                        className="delete-icon"
+                                        onClick={() => handleDeleteImage(photo.photoId, photo.homePhotoUrl)}
+                                        style={{
+                                            position: 'absolute',
+                                            top: '50%',
+                                            left: '50%',
+                                            transform: 'translate(-50%, -50%)',
+                                            fontSize: '24px',
+                                            color: 'white'
+                                        }}
+                                    ></ion-icon>
+                                ) : (
+                                    <ion-icon
+                                        name="eye-outline"
+                                        className="view-icon"
+                                        onClick={() => handleView(photo.homePhotoUrl)}
+                                        style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: '24px', color: 'white' }}
+                                    ></ion-icon>
+                                )}
                             </Col>
                         ))}
                     </Row>
-                    {isEditing &&
-                        <div className="display-form-myhome mt-4">
-                            <input
-                                type="file"
-                                id="fileInputGroup"
-                                style={{ display: 'none' }}
-                                onChange={handleFileSelect}
-                                multiple // Cho phép chọn nhiều ảnh
-                            />
-                            <Button
-                                variant=""
-                                onClick={triggerFileInput}
-                                disabled={isUploading}
-                                className="mb-3 input-save"
-                            >
-                                {isUploading ? (
-                                    'Đang tải lên...'
-                                ) : (
-                                    <>
-                                        Nhấn vào đây để{' '}
-                                        <span className='text-primary'>upload</span>
-                                    </>
-                                )}
-                            </Button>
-                        </div>
-                    }
+                    <div className="display-form-myhome mt-4">
+                        <input
+                            type="file"
+                            id="fileInputGroup"
+                            style={{ display: 'none' }}
+                            onChange={handleFileSelect}
+                            multiple // Cho phép chọn nhiều ảnh
+                        />
+                        <Button
+                            variant=""
+                            onClick={triggerFileInput}
+                            disabled={isUploading}
+                            className="mb-3 input-save"
+                        >
+                            {isUploading ? (
+                                'Đang tải lên...'
+                            ) : (
+                                <>
+                                    Nhấn vào đây để{' '}
+                                    <span className='text-primary'>thêm ảnh</span>
+                                </>
+                            )}
+                        </Button>
+                    </div>
                 </Col>
             </Row>
 
@@ -465,6 +481,15 @@ function MyHome() {
                 <Button variant='success' className='rounded-5' onClick={handleSaveChanges}>
                     Lưu thay đổi
                 </Button>
+            )}
+            {showViewImage && (
+                <div className="fullscreen-image-container" onClick={handleCloseView}>
+                    <img
+                        src={imageToView}
+                        alt="Ảnh phóng to sự kiện"
+                        className="fullscreen-image"
+                    />
+                </div>
             )}
         </Container>
     );

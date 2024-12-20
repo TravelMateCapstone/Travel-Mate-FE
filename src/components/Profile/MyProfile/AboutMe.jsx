@@ -205,18 +205,24 @@ function AboutMe() {
                 }
             }
 
-            // Cập nhật Địa phương đăng ký
-            const selectedLocation = locations.find(loc => loc.name === profileData.city);
-            if (selectedLocation) {
-                const isLocationExist = userLocations.some(loc => loc.id === selectedLocation.code);
-
-                if (!isLocationExist) {
-                    await axios.post(
-                        'https://travelmateapp.azurewebsites.net/api/UserLocationsWOO/post-curent-user',
-                        { locationId: selectedLocation.code },
+            // Xóa tất cả các địa phương hiện tại
+            if (userLocations.length > 0) {
+                for (const loc of userLocations) {
+                    await axios.delete(
+                        `https://travelmateapp.azurewebsites.net/api/UserLocationsWOO/delete-current-user/${loc.id}`,
                         { headers: { Authorization: `${token}` } }
                     );
                 }
+            }
+
+            // Thêm địa phương mới
+            const selectedLocation = locations.find(loc => loc.name === profileData.city);
+            if (selectedLocation) {
+                await axios.post(
+                    'https://travelmateapp.azurewebsites.net/api/UserLocationsWOO/post-curent-user',
+                    { locationId: selectedLocation.code },
+                    { headers: { Authorization: `${token}` } }
+                );
             }
             await fetchUserLocations();
             dispatch(viewProfile(user.id));
@@ -396,7 +402,7 @@ function AboutMe() {
                         userLocations.length > 0 ? (
                             <p>
                                 {userLocations.map(location => (
-                                    <span key={location.id}>{location.name}, </span>
+                                    <span key={location.id}>{location.name}</span>
                                 ))}
                             </p>
                         ) : (

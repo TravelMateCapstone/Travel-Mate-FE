@@ -28,7 +28,7 @@ function Setting() {
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
   };
-  
+
 
   const [profile, setProfile] = useState({
     firstName: '',
@@ -89,7 +89,7 @@ function Setting() {
         address: profileData.address || '',
       });
       setPhone(profileData.phone || "Không có dữ liệu");
-      return profileData; 
+      return profileData;
     } catch (error) {
       console.error("Lỗi khi lấy thông tin Profile:", error);
       toast.error('Lỗi khi lấy thông tin Profile.');
@@ -513,7 +513,7 @@ function Setting() {
               <Col md={12}>
                 <Form.Group className="d-flex align-items-center">
                   <Form.Label>Chữ ký số</Form.Label>
-                  <SaveSignature/>
+                  <SaveSignature />
                 </Form.Group>
               </Col>
             </Row>
