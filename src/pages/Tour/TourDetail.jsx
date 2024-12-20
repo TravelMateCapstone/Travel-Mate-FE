@@ -57,7 +57,7 @@ function TourDetail() {
                 }
             );
 
-            navigate(RoutePath.CREATE_CONTRACT, { state: { remainingTime } });
+            navigate(RoutePath.CREATE_CONTRACT, { state: { remainingTime: 180 } });
         } catch (error) {
             console.error("Error joining tour:", error);
             if (error.response && error.response.data === "You have joined this tour") {
