@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "../../assets/css/Contracts/CreateContract.css";
 import { Button, Col, Row } from "react-bootstrap";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import RoutePath from "../../routes/RoutePath";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -19,6 +19,8 @@ function CreateContract() {
   const travlerrSignature = useSelector((state) => state.signature.signature);
   const [isValidSignature, setIsValidSignature] = useState(false);
   const token = useSelector((state) => state.auth.token);
+  const location = useLocation();
+  const [remainingTime, setRemainingTime] = useState(location.state?.remainingTime || 180);
   const formatDate = (date) => {
     return format(new Date(date), "dd/MM/yyyy", { locale: vi });
   };
@@ -50,7 +52,21 @@ function CreateContract() {
     fetchProfile();
   }, [user.id]);
 
+  useEffect(() => {
+    let timer;
+    if (remainingTime > 0) {
+      timer = setInterval(() => {
+        setRemainingTime((prevTime) => prevTime - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [remainingTime]);
+
   const handleCreateContractAndPayment = async () => {
+    if (remainingTime <= 0) {
+      toast.error("Thời gian đã hết. Vui lòng tạo lại hợp đồng mới.");
+      return;
+    }
     if (!isValidSignature) {
       toast.error("Vui lòng tải chữ ký hợp lệ trước khi tiếp tục");
       return;
@@ -297,6 +313,9 @@ function CreateContract() {
                   </ul>
                 </div>
               ))}
+            </div>
+            <div className="d-flex justify-content-end">
+              <p>Thời gian còn lại: {Math.floor(remainingTime / 60)}:{remainingTime % 60}</p>
             </div>
             <div className="d-flex justify-content-end">
               <Button
