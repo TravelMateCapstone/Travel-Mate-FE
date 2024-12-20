@@ -11,6 +11,8 @@ function TourCard({ tour }) {
     const disPatch = useDispatch();
     const token = useSelector((state) => state.auth.token);
     const navigate = useNavigate();
+    console.log('Tour data', tour);
+    
 
     const renderStars = (rating) => {
         const stars = [];
@@ -78,7 +80,7 @@ function TourCard({ tour }) {
                         
                   <div className='d-flex flex-column align-items-center mb-2'>
                        <h5 className='m-0'>{tour.User.FullName}</h5>
-                       <small>{tour.User.Profile.Address}</small>
+                       <small>{tour.User.LocationIds[0]}</small>
                   </div>
                    
                     <div className='d-flex align-items-center flex-column'>
