@@ -99,7 +99,14 @@ function CreateTour({ onTourCreated }) {
                         Authorization: `${token}`,
                     },
                 });
-                setLocations(response.data.$values || []);
+                const fetchedLocations = response.data.$values || [];
+                setLocations(fetchedLocations);
+                if (fetchedLocations.length > 0) {
+                    setTourDetails((prevDetails) => ({
+                        ...prevDetails,
+                        location: fetchedLocations[0].location.locationName,
+                    }));
+                }
             } catch (error) {
                 console.error('Error fetching locations:', error);
             }
@@ -109,6 +116,45 @@ function CreateTour({ onTourCreated }) {
         dispatch(viewProfile(user.id, token));
     }, [token]);
 
+    const validateFields = () => {
+        const errors = [];
+        if (!tourDetails.tourName.trim()) errors.push('Tên tour không được để trống.');
+        if (!tourDetails.startDate.trim()) errors.push('Ngày bắt đầu không được để trống.');
+        if (!tourDetails.endDate.trim()) errors.push('Ngày kết thúc không được để trống.');
+        if (!tourDetails.location.trim()) errors.push('Địa điểm không được để trống.');
+        if (!tourDetails.maxGuests || tourDetails.maxGuests <= 0) errors.push('Số lượng khách tối đa phải lớn hơn 0.');
+        if (!tourDetails.tourDescription.trim()) errors.push('Mô tả tour không được để trống.');
+        if (!tourDetails.tourImage) errors.push('Ảnh tour không được để trống.');
+        if (activities.length === 0) {
+            errors.push('Lịch trình không được để trống.');
+        } else {
+            activities.forEach((activity, dayIndex) => {
+                if (activity.activities.length === 0) {
+                    errors.push(`Hoạt động cho ngày ${dayIndex + 1} không được để trống.`);
+                }
+            });
+        }
+        return errors;
+    };
+
+    const validateActivityFields = (activity) => {
+        const errors = [];
+        if (!activity.title.trim()) errors.push('Tên hoạt động không được để trống.');
+        if (!activity.startTime.trim()) errors.push('Thời gian bắt đầu không được để trống.');
+        if (!activity.endTime.trim()) errors.push('Thời gian kết thúc không được để trống.');
+        if (!activity.activityAddress.trim()) errors.push('Địa chỉ không được để trống.');
+        if (!activity.note.trim()) errors.push('Ghi chú không được để trống.');
+        if (!activity.description.trim()) errors.push('Mô tả không được để trống.');
+        return errors;
+    };
+
+    const validateCostDetailFields = (costDetail) => {
+        const errors = [];
+        if (!costDetail.title.trim()) errors.push('Tiêu đề không được để trống.');
+        if (!costDetail.amount) errors.push('Số tiền không được để trống.');
+        if (!costDetail.notes.trim()) errors.push('Ghi chú không được để trống.');
+        return errors;
+    };
 
     const formatPrice = (price) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
@@ -124,8 +170,7 @@ function CreateTour({ onTourCreated }) {
     };
 
     const addActivity = (dayIndex) => {
-        const updatedActivities = [...activities];
-        updatedActivities[dayIndex].activities.push({
+        const newActivity = {
             startTime: '',
             endTime: '',
             title: '',
@@ -134,19 +179,19 @@ function CreateTour({ onTourCreated }) {
             activityAddress: '',
             activityAmount: 0,
             activityImage: '',
-        });
+        };
+        const updatedActivities = [...activities];
+        updatedActivities[dayIndex].activities.push(newActivity);
         setActivities(updatedActivities);
     };
 
     const addCostDetail = () => {
-        setCostDetails([
-            ...costDetails,
-            {
-                title: '',
-                amount: 0,
-                notes: '',
-            },
-        ]);
+        const newCostDetail = {
+            title: '',
+            amount: 0,
+            notes: '',
+        };
+        setCostDetails([...costDetails, newCostDetail]);
     };
 
     const removeActivity = (dayIndex, actIndex) => {
@@ -205,13 +250,16 @@ function CreateTour({ onTourCreated }) {
             updateActivity(dayIndex, actIndex, 'activityImage', downloadURL);
         }
     };
-
     const handleSaveChanges = async () => {
-        // check total percenttage and incomplete models
+        const errors = validateFields();
+        if (errors.length > 0) {
+            errors.forEach((error) => toast.error(error));
+            return;
+        }
+
         const { totalPercentage, incompleteModels } = await checkProfileCompletion('https://travelmateapp.azurewebsites.net', token);
         if (totalPercentage < 85) {
             toast.error('Vui lòng hoàn thiện hồ sơ trước khi tạo tour.');
-            // Hiển thị danh sách các mục cần hoàn thiện
             setIncompleteModels(incompleteModels.$values);
             openModalIncompleteModels();
             return;
@@ -224,10 +272,23 @@ function CreateTour({ onTourCreated }) {
 
         for (const activity of activities) {
             for (const act of activity.activities) {
+                const activityErrors = validateActivityFields(act);
+                if (activityErrors.length > 0) {
+                    activityErrors.forEach((error) => toast.error(error));
+                    return;
+                }
                 if (act.startTime >= act.endTime) {
                     toast.error('Thời gian bắt đầu phải trước thời gian kết thúc.');
                     return;
                 }
+            }
+        }
+
+        for (const costDetail of costDetails) {
+            const costDetailErrors = validateCostDetailFields(costDetail);
+            if (costDetailErrors.length > 0) {
+                costDetailErrors.forEach((error) => toast.error(error));
+                return;
             }
         }
 
@@ -248,10 +309,10 @@ function CreateTour({ onTourCreated }) {
             location: tourDetails.location,
             maxGuests: parseInt(tourDetails.maxGuests),
             tourImage: tourDetails.tourImage,
-            itinerary: activities.map(activity => ({
+            itinerary: activities.map((activity) => ({
                 day: activity.day,
                 date: new Date(activity.date),
-                activities: activity.activities.map(act => ({
+                activities: activity.activities.map((act) => ({
                     startTime: act.startTime,
                     endTime: act.endTime,
                     title: act.title,
@@ -262,13 +323,14 @@ function CreateTour({ onTourCreated }) {
                     activityImage: act.activityImage,
                 })),
             })),
-            costDetails: costDetails.map(cost => ({
+            costDetails: costDetails.map((cost) => ({
                 title: cost.title,
                 amount: cost.amount,
                 notes: cost.notes,
             })),
             additionalInfo: tourDetails.additionalInfo,
         };
+
         try {
             const response = await axios.post('https://travelmateapp.azurewebsites.net/api/Tour', tourData, {
                 headers: {
@@ -276,11 +338,9 @@ function CreateTour({ onTourCreated }) {
                     Authorization: `${token}`,
                 },
             });
-            toast.success('Tour created successfully!');
-            closeModal();
-            if (onTourCreated) {
-                onTourCreated();
-            }
+            toast.success('Tạo tour thành công.');
+            setModalIsOpen(false);
+            if (onTourCreated) onTourCreated();
         } catch (error) {
             console.error('Error creating tour:', error);
             toast.error('An error occurred. Please try again.');
@@ -293,6 +353,10 @@ function CreateTour({ onTourCreated }) {
 
     const handleImageUploadClick = () => {
         document.getElementById('image_tour_detail').click();
+    };
+
+    const handleActivityImageUploadClick = (dayIndex, actIndex) => {
+        document.getElementById(`activity_image_${dayIndex}_${actIndex}`).click();
     };
 
     return (
@@ -359,7 +423,6 @@ function CreateTour({ onTourCreated }) {
                                             <Form.Group className="mb-3 form-group-custom-create-tour">
                                                 <Form.Label>Địa điểm</Form.Label>
                                                 {locations.length > 0 ? <Form.Control as="select" value={tourDetails.location} onChange={(e) => setTourDetails({ ...tourDetails, location: e.target.value })}>
-                                                    <option value="">{userProfile.profile.city}</option>
                                                     {locations.map((location) => (
                                                         <option key={location.locationId} value={location.location.locationName}>
                                                             {location.location.locationName}
@@ -467,13 +530,13 @@ function CreateTour({ onTourCreated }) {
                                                                             <Col>
                                                                                 <Form.Group className="mb-3 form-group-custom-create-tour">
                                                                                     <Form.Label>Thời gian bắt đầu</Form.Label>
-                                                                                    <Form.Control type="time" step="1" value={act.startTime} onChange={(e) => updateActivity(dayIndex, actIndex, 'startTime', e.target.value)} />
+                                                                                    <Form.Control type="time" value={act.startTime} onChange={(e) => updateActivity(dayIndex, actIndex, 'startTime', e.target.value + ':00')} />
                                                                                 </Form.Group>
                                                                             </Col>
                                                                             <Col>
                                                                                 <Form.Group className="mb-3 form-group-custom-create-tour">
                                                                                     <Form.Label>Thời gian kết thúc</Form.Label>
-                                                                                    <Form.Control type="time" step="1" value={act.endTime} onChange={(e) => updateActivity(dayIndex, actIndex, 'endTime', e.target.value)} />
+                                                                                    <Form.Control type="time" value={act.endTime} onChange={(e) => updateActivity(dayIndex, actIndex, 'endTime', e.target.value + ':00')} />
                                                                                 </Form.Group>
                                                                             </Col>
                                                                         </Row>
@@ -502,7 +565,15 @@ function CreateTour({ onTourCreated }) {
                                                                     </Col>
                                                                     <Col lg={4}>
                                                                         <Form.Group className="mb-3 form-group-custom-create-tour">
-                                                                            <Form.Control type="file" onChange={(e) => handleActivityImageUpload(e, dayIndex, actIndex)} />
+                                                                            <Button variant="outline-primary" onClick={() => handleActivityImageUploadClick(dayIndex, actIndex)}>
+                                                                                Tải ảnh hoạt động lên
+                                                                            </Button>
+                                                                            <Form.Control
+                                                                                type="file"
+                                                                                id={`activity_image_${dayIndex}_${actIndex}`}
+                                                                                onChange={(e) => handleActivityImageUpload(e, dayIndex, actIndex)}
+                                                                                style={{ display: 'none' }}
+                                                                            />
                                                                         </Form.Group>
                                                                         {act.activityImage && (
                                                                             <img src={act.activityImage} alt="Activity" style={{ width: '100%', height: 'auto' }} />
