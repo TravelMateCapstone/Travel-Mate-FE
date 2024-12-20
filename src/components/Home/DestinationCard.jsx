@@ -17,9 +17,9 @@ function DestinationCard({ destination }) {
         navigate(RoutePath.DESTINATION);
     }
     return (
-        <Col lg={3} className='mb-4' onClick={handleDestinationClick}>
+        <Col lg={3} className='mb-4' onClick={handleDestinationClick} style={{ height: '100%' }}>
             <div style={{
-                height: '100px',
+                height: '100%',
                 marginBottom: '10px',
             }} className='h-100 position-relative destination_card d-flex border-1 bg-white rounded-4 gap-3 justify-content-between'>
              <img className='h-100 object-fit-cover rounded-4 h-100 w-100' src={destination.imageUrl } alt={destination.name} height={100} width={100} />

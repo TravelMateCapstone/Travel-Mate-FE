@@ -109,7 +109,7 @@ function Home() {
           fontSize: '36px',
           fontWeight: '400',
           letterSpacing: '-0.5%',
-        }}>Trải nghiệm hành trình để ghi dấu chân trên bản đồ Việt Nam.</h1>
+        }}>Trải nghiệm hành trình để ghi dấu chân trên bản đồ quê hương.</h1>
         <div className="home-map-container">
           <MapComponent />
           <div className="home-statistics">
@@ -202,7 +202,7 @@ function Home() {
           marginTop: '40px',
         }}>
           <h2 className='text-center fw-bold'></h2>
-          <Row>
+          <Row style={{ height: '250px' }}>
             {destinations.map((destination, index) => (
               <DestinationCard key={index} destination={destination} />
             ))}

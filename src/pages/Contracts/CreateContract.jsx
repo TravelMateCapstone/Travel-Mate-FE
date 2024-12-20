@@ -18,6 +18,7 @@ function CreateContract() {
   const navigate = useNavigate();
   const travlerrSignature = useSelector((state) => state.signature.signature);
   const [isValidSignature, setIsValidSignature] = useState(false);
+  const token = useSelector((state) => state.auth.token);
   const formatDate = (date) => {
     return format(new Date(date), "dd/MM/yyyy", { locale: vi });
   };
@@ -25,7 +26,12 @@ function CreateContract() {
     const fetchProfile = async () => {
       try {
         const response = await axios.get(
-          `https://travelmateapp.azurewebsites.net/api/Profile/${user.id}`
+          `https://travelmateapp.azurewebsites.net/api/Profile/current-profile`,
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
         );
         console.log("Profile:", response.data);
         
@@ -137,9 +143,9 @@ function CreateContract() {
               />
               <div>
                 <p className="m-0 fw-bold">
-                  {profile?.user.fullName || "Không có thông tin"}
+                  {profile?.firstName +' '+ profile?.lastName || "Không có thông tin"}
                 </p>
-                <sub className="fw-medium">{profile?.profile.city}</sub>
+                <sub className="fw-medium">{profile?.city}</sub>
               </div>
             </div>
             <VerifySignatureRSA setIsValidSignature={setIsValidSignature} />

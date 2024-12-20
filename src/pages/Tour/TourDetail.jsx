@@ -10,6 +10,7 @@ import RoutePath from "../../routes/RoutePath";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Table from 'react-bootstrap/Table';
+import checkProfileCompletion from "../../utils/Profile/checkProfileCompletion";
 
 function TourDetail() {
     const [key, setKey] = useState("home");
@@ -29,6 +30,12 @@ function TourDetail() {
 
     const handelJointTour = async (tourId) => {
         try {
+            const profileCompletion = await checkProfileCompletion("https://travelmateapp.azurewebsites.net", token);
+            if (profileCompletion.totalPercentage < 75) {
+                toast.error("Hồ sơ của bạn chưa hoàn thành đủ 75%. Vui lòng cập nhật hồ sơ của bạn.");
+                return;
+            }
+
             const response = await axios.post(
                 `https://travelmateapp.azurewebsites.net/api/Tour/join/${tourId}`,
                 {},
