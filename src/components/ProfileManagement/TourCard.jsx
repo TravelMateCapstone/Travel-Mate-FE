@@ -113,7 +113,7 @@ function TourCard({ tour, onTourUpdated }) {
         if (tourDetails.startDate && tourDetails.endDate) {
             const start = new Date(tourDetails.startDate);
             const end = new Date(tourDetails.endDate);
-            const numberOfDays = Math.floor((end - start) / (1000 * 60 * 60 * 24));
+            const numberOfDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
             const numberOfNights = numberOfDays - 1;
     
             setTourDetails((prevDetails) => ({
@@ -122,20 +122,32 @@ function TourCard({ tour, onTourUpdated }) {
                 numberOfNights,
             }));
     
-            if (activities.length !== numberOfDays) {
-                const newActivities = activities.length ? activities : [];
+            // Cập nhật lại lịch trình
+            setActivities((prevActivities) => {
+                const updatedActivities = [];
+                for (let i = 0; i < numberOfDays; i++) {
+                    const currentDay = addDays(start, i);
+                    const existingDay = prevActivities.find((act) => 
+                        new Date(act.date).toDateString() === currentDay.toDateString()
+                    );
     
-                for (let i = newActivities.length; i < numberOfDays; i++) {
-                    newActivities.push({
-                        day: i + 1,
-                        date: format(addDays(start, i), "yyyy-MM-dd'T'HH:mm", { locale: vi }),
-                        activities: [],
-                    });
+                    if (existingDay) {
+                        // Giữ lại ngày cũ nếu đã tồn tại
+                        updatedActivities.push(existingDay);
+                    } else {
+                        // Thêm ngày mới nếu chưa tồn tại
+                        updatedActivities.push({
+                            day: i + 1,
+                            date: format(currentDay, "yyyy-MM-dd'T'HH:mm", { locale: vi }),
+                            activities: [],
+                        });
+                    }
                 }
-                setActivities(newActivities);
-            }
+                return updatedActivities;
+            });
         }
     }, [tourDetails.startDate, tourDetails.endDate]);
+    
     
 
     const openModal = async () => {
@@ -474,7 +486,9 @@ function TourCard({ tour, onTourUpdated }) {
                                         <Form.Control type="number" value={tourDetails.numberOfNights} onChange={(e) => setTourDetails({ ...tourDetails, numberOfNights: e.target.value })} />
                                     </Form.Group>
                                     <Form.Group className="mb-3 form-group-custom-create-tour">
-                                        <Form.Label>Chọn địa điểm</Form.Label>
+                                        <Form.Label style={{
+                                            marginRight: '25px',
+                                        }}>Chọn địa điểm</Form.Label>
                                         {locations.length == 0 ? (
                                             <Link className='btn btn-primary' to="https://travelmatefe.netlify.app/profile/my-profile">
                                                 Cập nhật địa phương đăng kí
@@ -489,7 +503,7 @@ function TourCard({ tour, onTourUpdated }) {
                                                     console.log('Tour details:', tourDetails);
                                                 }}
                                             >
-                                                <option value={userProfile.profile.city}>{userProfile.profile.city}</option>
+                                               
                                                 {locations.map((location) => (
                                                     <option key={location.locationId} value={location.location.locationName}>
                                                         {location.location.locationName}
