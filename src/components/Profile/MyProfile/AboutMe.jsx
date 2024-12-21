@@ -355,7 +355,7 @@ function AboutMe() {
 
             <hr />
             {/* Quê quán */}
-            <Row className="mb-3">
+            {/* <Row className="mb-3">
                 <Col lg={4} className="d-flex align-items-center">
                     <Form.Label>Quê quán</Form.Label>
                 </Col>
@@ -379,7 +379,7 @@ function AboutMe() {
                 </Col>
             </Row>
 
-            <hr />
+            <hr /> */}
 
             <Row className="mb-3">
                 <Col lg={4} className="d-flex align-items-center">

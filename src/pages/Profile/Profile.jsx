@@ -21,8 +21,8 @@ function Profile() {
     <MyHome />,
     <PastTrips />,
     <Friends />,
-    <Favorites />,
-    <TourList />  
+    // <Favorites />,
+    <TourList />
   ];
 
   const tabIcons = [
@@ -31,13 +31,13 @@ function Profile() {
     'car-sport-outline',
     'people-outline',
     'bookmarks-outline',
-    'map-outline',  
+    'map-outline',
   ];
 
   return (
     <div className="tabs">
       <div className="tab-header">
-        {['Giới thiệu', 'Nhà của tôi', 'Chuyến đi', 'Bạn bè', 'Địa điểm', 'Danh sách tour'].map((tab, index) => (  
+        {['Giới thiệu', 'Nhà của tôi', 'Chuyến đi', 'Bạn bè', 'Danh sách tour'].map((tab, index) => (
           <div
             key={index}
             className={activeTab === index ? 'active' : ''}
@@ -46,7 +46,7 @@ function Profile() {
             {/* Add icon before the tab name */}
             <ion-icon name={tabIcons[index]} style={{
               fontSize: '14px',
-            }}></ion-icon> 
+            }}></ion-icon>
             <div className='fw-semibold' style={{
               fontSize: '13px',
             }}>{tab}</div>
