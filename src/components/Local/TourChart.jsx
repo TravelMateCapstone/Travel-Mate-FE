@@ -35,6 +35,18 @@ function TourChart({ tours, token }) {
       },
     ],
     title: { text: 'Doanh thu mỗi tour du lịch' },
+    axes: [
+      {
+        type: 'number',
+        position: 'left',
+        title: { text: 'Amount' },
+        tick: { interval: 1000000 },
+      },
+      {
+        type: 'category',
+        position: 'bottom',
+      },
+    ],
   };
 
   if (loading) {

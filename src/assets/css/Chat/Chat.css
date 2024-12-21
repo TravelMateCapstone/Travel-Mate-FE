@@ -17,8 +17,6 @@
   height: 40px !important;
 }
 .chat-column {
-  border-left: 1px solid #e0e0e0 !important;
-  border-right: 1px solid #e0e0e0 !important;
   padding: 0 20px;
 }
 .chatmessage-container {
@@ -44,5 +42,11 @@
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 1;
+  line-clamp: 1;
   -webkit-box-orient: vertical;
+}
+
+.message-item-chat-sidebar:hover {
+  background-color: #f0f0f0;
+  cursor: pointer;
 }
