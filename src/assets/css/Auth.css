@@ -1,4 +1,3 @@
-
 .custom-container {
   position: relative;
   width: 100%;
@@ -258,20 +257,24 @@ form.custom-sign-in-form {
 .custom-container.sign-up-mode .custom-right-panel {
   pointer-events: all;
 }
-.S9gUrf-YoZ4jf{
+
+.S9gUrf-YoZ4jf {
   width: 300px !important;
   border: 1px solid #f9f9f9 !important;
   background: white !important;
   color: black !important;
 }
-.nsm7Bb-HzV7m-LgbsSe-MJoBVe{
+
+.nsm7Bb-HzV7m-LgbsSe-MJoBVe {
   background: white !important;
 }
+
 @media (max-width: 870px) {
   .custom-container {
     min-height: 800px;
     height: 100vh;
   }
+
   .custom-signin-signup {
     width: 100%;
     top: 95%;
@@ -378,9 +381,11 @@ form.custom-sign-in-form {
   .custom-image {
     display: none;
   }
+
   .custom-panel .custom-content {
     padding: 0.5rem 1rem;
   }
+
   .custom-container {
     padding: 1.5rem;
   }
@@ -396,3 +401,35 @@ form.custom-sign-in-form {
   }
 }
 
+.custom-input-field {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.password-container {
+  position: relative;
+  width: 100%;
+}
+
+.password-container input {
+  width: 100%;
+  padding-right: 40px;
+  /* Dành khoảng trống cho icon */
+  box-sizing: border-box;
+}
+
+.toggle-password-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #555;
+  font-size: 1.2em;
+}
+
+.custom-input-field i {
+  margin-right: 10px;
+  color: #555;
+}
