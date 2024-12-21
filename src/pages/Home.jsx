@@ -8,7 +8,7 @@ import ImageAccordionSlider from '../components/Home/ImageAccordionSlider';
 import { Typewriter } from 'react-simple-typewriter';
 import { useNavigate } from 'react-router-dom';
 import RoutePath from '../routes/RoutePath';
-
+import TextareaAutosize from 'react-textarea-autosize';
 function Home() {
   const [destinations, setDestinations] = useState([]);
   const [wordIndex, setWordIndex] = useState(0);
@@ -23,8 +23,8 @@ function Home() {
     'Chúng tôi sẽ chọn lọc điểm đến phù hợp với bạn...',
   ];
   const [placeholder, setPlaceholder] = useState('');
-  
-  
+
+
 
   useEffect(() => {
     fetch('https://travelmateapp.azurewebsites.net/api/Locations')
@@ -74,7 +74,7 @@ function Home() {
     fetch(`https://travelmateapp.azurewebsites.net/api/LocationPredict/predict?query=${query}`)
       .then(response => response.json())
       .then(data => {
-        setSearchResult(data.$values[0]);
+        setSearchResult(data.$values);
         setIsLoading(false);
       })
       .catch(error => {
@@ -89,9 +89,9 @@ function Home() {
     }
   };
 
-  const handleSearchResultClick = () => {
-    navigate(RoutePath.DESTINATION, { state: { selectedLocation: searchResult } });
-  }
+  const handleSearchResultClick = (result) => {
+    navigate(RoutePath.DESTINATION, { state: { selectedLocation: result } });
+  };
 
   return (
     <>
@@ -135,33 +135,30 @@ function Home() {
           <Col lg={6}>
             <p className='fw-semibold m-0' style={{
               fontSize: '32px',
+              color: '#34A853',
             }}>Bắt Đầu Hành Trình Của Bạn</p>
             <p className='fw-semibold' style={{
               fontSize: '32px',
+              color: '#34A853',
             }}>Khám Phá Việt Nam Theo Cách Riêng</p>
             <div style={{
               height: '70px',
             }}>
-              <p style={{ fontSize: '16px', lineHeight: '1.6' }}>
-                Hãy để những người địa phương đồng hành cùng bạn trên hành trình khám phá Việt Nam một cách độc đáo và chân thực nhất. Chọn những chuyến đi được thiết kế riêng, từ phố thị sôi động đến làng quê yên bình. Mỗi trải nghiệm không chỉ là một chuyến du lịch mà còn là một câu chuyện đáng nhớ. Nơi bạn cảm nhận được văn hóa, con người, và vẻ đẹp nguyên sơ của đất nước hình chữ S.
-              </p>
-            </div>
-            <div className='mt-5 d-flex gap-3'>
-              <input
+              <p className='fw-medium' style={{ fontSize: '20px', lineHeight: '1.6' }}>
+                Nhập từ khóa và để tính năng gợi ý thông minh của chúng tôi giúp bạn nhanh chóng tìm thấy điểm đến lý tưởng một cách dễ dàng và tiện lợi!</p></div>
+            <div className='mt-4 d-flex gap-3'>
+              <TextareaAutosize
+              style={{
+              }}
+                minRows={3}
                 type="text"
-                className="form-control w-50"
+                className="w-100 search_AI_input"
                 placeholder={placeholder}
                 value={query}
                 onChange={handleInputChange}
                 onKeyPress={handleKeyPress} // Change this line to handleKeyPress
               />
-              {
-                searchResult && (
-                  <button className='btn btn-success d-flex align-items-center gap-2' onClick={handleSearchResultClick}>
-                    Khám phá {searchResult?.title} <ion-icon name="arrow-forward-outline"></ion-icon>
-                  </button>
-                )
-              }
+
             </div>
             {isLoading && (
               <div className="search-result mt-4">
@@ -170,8 +167,19 @@ function Home() {
             )}
             {searchResult && !isLoading && (
               <div className="search-result mt-4">
-                <strong>Kết quả tìm kiếm:</strong>
-                <p><strong>{searchResult.title}</strong>: {searchResult.description}</p>
+                <strong>Kết quả tìm kiếm</strong>
+                {searchResult.map((result, index) => (
+                  <div
+                    key={index}
+                    onClick={() => handleSearchResultClick(result)}
+                    style={{ cursor: 'pointer' }}
+                    className="search-result-item"
+                  >
+                    <p><strong style={{
+                      color: '#34A853',
+                    }}>{result.title}</strong> {result.description}</p>
+                  </div>
+                ))}
               </div>
             )}
           </Col>
