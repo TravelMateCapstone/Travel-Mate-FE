@@ -77,6 +77,8 @@ const RoutePath = {
 
     DESTINATION: '/destination',
 
+    CHATTEST: '/chat-test',
+
 
     AUTH: '/auth',
 }
