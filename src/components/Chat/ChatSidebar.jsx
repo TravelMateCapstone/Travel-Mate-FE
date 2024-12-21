@@ -45,7 +45,9 @@ const ChatSidebar = () => {
   );
 
   return (
-    <Col lg={2}>
+    <Col lg={3} className='border-1 p-4' style={{
+      borderColor: '#e0e0e0',
+    }}>
       <Form.Control 
         type="text" 
         className='w-100 my-2 rounded-5 search-chat' 
@@ -55,8 +57,10 @@ const ChatSidebar = () => {
       />
       <div className='mt-2'>
         {filteredChats.map(chat => (
-          <div className='message d-flex gap-2 mb-2' key={chat.formId} onClick={() => handleMessageClick(chat)}>
-            <img src={chat.userAvatarUrl} alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
+          <div style={{
+        
+          }} className='message-item-chat-sidebar d-flex gap-2 p-2 mb-2' key={chat.formId} onClick={() => handleMessageClick(chat)}>
+            <img src={chat.userAvatarUrl} alt="" width={60} height={60} className='rounded-circle object-fit-cover' />
             <div className='d-flex flex-column'>
               <p className='m-0'>{chat.userName}</p>
               <small className='chat-text'>

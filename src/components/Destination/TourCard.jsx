@@ -11,6 +11,8 @@ function TourCard({ tour }) {
     const disPatch = useDispatch();
     const token = useSelector((state) => state.auth.token);
     const navigate = useNavigate();
+    console.log('Tour data', tour);
+    
 
     const renderStars = (rating) => {
         const stars = [];
@@ -27,6 +29,14 @@ function TourCard({ tour }) {
     const formatPrice = (price) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
     };
+
+    const formatDaysNights = (days, nights) => {
+        if (days === 0 && nights === -1) {
+            return '1 ngày, 0 đêm';
+        }
+        return `${days + 1} ngày, ${nights + 1} đêm`;
+    };
+
     const handleTourClick = () => {
         disPatch(fetchTour(tour.TourId, token));
         navigate(RoutePath.TOUR_DETAIL);
@@ -52,7 +62,7 @@ function TourCard({ tour }) {
                             fontWeight: '550'
                         }}>{tour.TourName}</h5>
                         <p className='mb-1 fw-medium'><ion-icon name="location-outline"></ion-icon> {tour.Location}</p>
-                        <p className='mb-1 fw-medium'><ion-icon name="time-outline"></ion-icon> {tour.NumberOfDays} ngày, {tour.NumberOfNights} đêm</p>
+                        <p className='mb-1 fw-medium'><ion-icon name="time-outline"></ion-icon> {formatDaysNights(tour.NumberOfDays, tour.NumberOfNights)}</p>
                         <p className='fw-medium' style={{
                             marginBottom: '12px',
                         }}><ion-icon name="people-outline"></ion-icon> {tour.RegisteredGuests}/{tour.MaxGuests}</p>
@@ -78,7 +88,7 @@ function TourCard({ tour }) {
                         
                   <div className='d-flex flex-column align-items-center mb-2'>
                        <h5 className='m-0'>{tour.User.FullName}</h5>
-                       <small>{tour.User.Profile.Address}</small>
+                       <small>{tour.User.LocationIds[0]}</small>
                   </div>
                    
                     <div className='d-flex align-items-center flex-column'>

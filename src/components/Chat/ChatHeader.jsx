@@ -14,7 +14,9 @@ const ChatHeader = () => {
 
   const chatHeader = useSelector(state => state.chat.chatHeader);
   return (
-    <div className='chat-header d-flex justify-content-between mb-2'>
+    <div className='chat-header d-flex justify-content-between mb-2 px-4 pt-3 pb-3' style={{
+      backgroundColor: '#f5f5f5',
+    }}>
       <div className='d-flex gap-2'>
         <img src={chatHeader?.userAvatarUrl} alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
         <div className='d-flex flex-column'>

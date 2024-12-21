@@ -115,27 +115,40 @@ function TourCard({ tour, onTourUpdated }) {
             const end = new Date(tourDetails.endDate);
             const numberOfDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
             const numberOfNights = numberOfDays - 1;
-
+    
             setTourDetails((prevDetails) => ({
                 ...prevDetails,
                 numberOfDays,
                 numberOfNights,
             }));
-
-            if (activities.length !== numberOfDays) {
-                const newActivities = activities.length ? activities : [];
-
-                for (let i = newActivities.length; i < numberOfDays; i++) {
-                    newActivities.push({
-                        day: i + 1,
-                        date: format(addDays(start, i), "yyyy-MM-dd'T'HH:mm", { locale: vi }),
-                        activities: [],
-                    });
+    
+            // Cập nhật lại lịch trình
+            setActivities((prevActivities) => {
+                const updatedActivities = [];
+                for (let i = 0; i < numberOfDays; i++) {
+                    const currentDay = addDays(start, i);
+                    const existingDay = prevActivities.find((act) => 
+                        new Date(act.date).toDateString() === currentDay.toDateString()
+                    );
+    
+                    if (existingDay) {
+                        // Giữ lại ngày cũ nếu đã tồn tại
+                        updatedActivities.push(existingDay);
+                    } else {
+                        // Thêm ngày mới nếu chưa tồn tại
+                        updatedActivities.push({
+                            day: i + 1,
+                            date: format(currentDay, "yyyy-MM-dd'T'HH:mm", { locale: vi }),
+                            activities: [],
+                        });
+                    }
                 }
-                setActivities(newActivities);
-            }
+                return updatedActivities;
+            });
         }
     }, [tourDetails.startDate, tourDetails.endDate]);
+    
+    
 
     const openModal = async () => {
         console.log(tour.tourId);
@@ -147,8 +160,6 @@ function TourCard({ tour, onTourUpdated }) {
                 }
             });
             const tourData = response.data;
-            console.log(`Tour data:`, tourData);
-
             setTourDetails({
                 tourName: tourData.tourName,
                 price: tourData.price,
@@ -270,11 +281,38 @@ function TourCard({ tour, onTourUpdated }) {
             };
             updatedActivities[dayIndex].activities[actIndex] = {
                 ...updatedActivities[dayIndex].activities[actIndex],
-                [field]: field === 'activityAmount' ? parseFloat(value) || 0 : value,
+                [field]: value,
             };
+    
+            const newActivity = updatedActivities[dayIndex].activities[actIndex];
+            if (field === 'startTime' || field === 'endTime') {
+                const overlapActivity = getOverlapActivity(updatedActivities, dayIndex, newActivity, actIndex);
+                if (overlapActivity) {
+                    toast.error(`Thời gian chỉnh sửa bị trùng lặp với hoạt động: ${overlapActivity.title}`);
+                    return prevActivities; // Không cập nhật nếu trùng lặp
+                }
+            }
+    
             return updatedActivities;
         });
     };
+    
+    const getOverlapActivity = (activities, dayIndex, newActivity, actIndex = -1) => {
+        const { startTime, endTime } = newActivity;
+        for (let i = 0; i < activities[dayIndex].activities.length; i++) {
+            if (i === actIndex) continue; // Bỏ qua chính hoạt động đang chỉnh sửa
+            const act = activities[dayIndex].activities[i];
+            if (
+                (startTime >= act.startTime && startTime < act.endTime) || // Trùng trong khoảng
+                (endTime > act.startTime && endTime <= act.endTime) || // Trùng cuối
+                (startTime <= act.startTime && endTime >= act.endTime) // Bao trùm cả hoạt động khác
+            ) {
+                return act;
+            }
+        }
+        return null;
+    };
+    
 
     const handleImageUpload = async (event) => {
         const file = event.target.files[0];
@@ -296,7 +334,97 @@ function TourCard({ tour, onTourUpdated }) {
         }
     };
 
+    const validateFields = () => {
+        const errors = [];
+        if (!tourDetails.tourName.trim()) errors.push('Tên tour không được để trống.');
+        if (!tourDetails.startDate.trim()) errors.push('Ngày bắt đầu không được để trống.');
+        if (!tourDetails.endDate.trim()) errors.push('Ngày kết thúc không được để trống.');
+        if (!tourDetails.location.trim()) errors.push('Địa điểm không được để trống.');
+        if (!tourDetails.maxGuests || tourDetails.maxGuests <= 0) errors.push('Số lượng khách tối đa phải lớn hơn 0.');
+        if (!tourDetails.tourDescription.trim()) errors.push('Mô tả tour không được để trống.');
+        if (!tourDetails.tourImage) errors.push('Ảnh tour không được để trống.');
+        if (activities.length === 0) {
+            errors.push('Lịch trình không được để trống.');
+        } else {
+            activities.forEach((activity, dayIndex) => {
+                if (activity.activities.length === 0) {
+                    errors.push(`Hoạt động cho ngày ${dayIndex + 1} không được để trống.`);
+                }
+            });
+        }
+        return errors;
+    };
+
+    const isTimeOverlap = (activities, dayIndex, newActivity, actIndex = -1) => {
+        const { startTime, endTime } = newActivity;
+        for (let i = 0; i < activities[dayIndex].activities.length; i++) {
+            if (i === actIndex) continue; // Bỏ qua chính hoạt động đang chỉnh sửa
+            const act = activities[dayIndex].activities[i];
+            if (
+                (startTime >= act.startTime && startTime < act.endTime) || // Trùng trong khoảng
+                (endTime > act.startTime && endTime <= act.endTime) || // Trùng cuối
+                (startTime <= act.startTime && endTime >= act.endTime) // Bao trùm cả hoạt động khác
+            ) {
+                return true;
+            }
+        }
+        return false;
+    };
+    
+    
+    const validateActivityFields = (activity) => {
+        const errors = [];
+        if (!activity.title.trim()) errors.push('Tên hoạt động không được để trống.');
+        if (!activity.startTime.trim()) errors.push('Thời gian bắt đầu không được để trống.');
+        if (!activity.endTime.trim()) errors.push('Thời gian kết thúc không được để trống.');
+        if (!activity.activityAddress.trim()) errors.push('Địa chỉ không được để trống.');
+        if (!activity.note.trim()) errors.push('Ghi chú không được để trống.');
+        if (!activity.description.trim()) errors.push('Mô tả không được để trống.');
+        return errors;
+    };
+    
+    const validateCostDetailFields = (costDetail) => {
+        const errors = [];
+        if (!costDetail.title.trim()) errors.push('Tiêu đề không được để trống.');
+        if (!costDetail.amount) errors.push('Số tiền không được để trống.');
+        if (!costDetail.notes.trim()) errors.push('Ghi chú không được để trống.');
+        return errors;
+    };
+    
     const handleSaveChanges = async (tourId) => {
+        const errors = validateFields();
+        if (errors.length > 0) {
+            errors.forEach((error) => toast.error(error));
+            return;
+        }
+    
+        if (new Date(tourDetails.startDate) >= new Date(tourDetails.endDate)) {
+            toast.error('Ngày bắt đầu phải trước ngày kết thúc.');
+            return;
+        }
+    
+        for (const activity of activities) {
+            for (const act of activity.activities) {
+                const activityErrors = validateActivityFields(act);
+                if (activityErrors.length > 0) {
+                    activityErrors.forEach((error) => toast.error(error));
+                    return;
+                }
+                if (act.startTime >= act.endTime) {
+                    toast.error('Thời gian bắt đầu phải trước thời gian kết thúc.');
+                    return;
+                }
+            }
+        }
+    
+        for (const costDetail of costDetails) {
+            const costDetailErrors = validateCostDetailFields(costDetail);
+            if (costDetailErrors.length > 0) {
+                costDetailErrors.forEach((error) => toast.error(error));
+                return;
+            }
+        }
+    
         // Upload tour image to Firebase if it exists
         let tourImageUrl = tourDetails.tourImage;
         if (tourDetails.tourImage && tourDetails.tourImage.startsWith('blob:')) {
@@ -305,7 +433,7 @@ function TourCard({ tour, onTourUpdated }) {
             await uploadBytes(tourImageRef, tourImageFile);
             tourImageUrl = await getDownloadURL(tourImageRef);
         }
-
+    
         // Upload activity images to Firebase if they exist
         const updatedActivities = await Promise.all(activities.map(async (activity) => {
             const updatedActivityImages = await Promise.all(activity.activities.map(async (act) => {
@@ -320,7 +448,7 @@ function TourCard({ tour, onTourUpdated }) {
             }));
             return { ...activity, activities: updatedActivityImages };
         }));
-
+    
         const tourData = {
             tourName: tourDetails.tourName,
             price: parseFloat(tourDetails.price),
@@ -355,7 +483,7 @@ function TourCard({ tour, onTourUpdated }) {
             additionalInfo: tourDetails.additionalInfo,
         };
         console.log('Tour data:', tourData);
-
+    
         try {
             const response = await axios.put(`https://travelmateapp.azurewebsites.net/api/Tour/${tourId}`, tourData, {
                 headers: {
@@ -371,6 +499,7 @@ function TourCard({ tour, onTourUpdated }) {
             toast.error('An error occurred. Please try again.');
         }
     };
+    
 
     const filteredParticipants = participants.filter(participant => {
         const matchesFilter = filter === 'paid' ? participant.paymentStatus : !participant.paymentStatus;
@@ -473,7 +602,9 @@ function TourCard({ tour, onTourUpdated }) {
                                         <Form.Control type="number" value={tourDetails.numberOfNights} onChange={(e) => setTourDetails({ ...tourDetails, numberOfNights: e.target.value })} />
                                     </Form.Group>
                                     <Form.Group className="mb-3 form-group-custom-create-tour">
-                                        <Form.Label>Chọn địa điểm</Form.Label>
+                                        <Form.Label style={{
+                                            marginRight: '25px',
+                                        }}>Chọn địa điểm</Form.Label>
                                         {locations.length == 0 ? (
                                             <Link className='btn btn-primary' to="https://travelmatefe.netlify.app/profile/my-profile">
                                                 Cập nhật địa phương đăng kí
@@ -488,7 +619,7 @@ function TourCard({ tour, onTourUpdated }) {
                                                     console.log('Tour details:', tourDetails);
                                                 }}
                                             >
-                                                <option value={userProfile.profile.city}>{userProfile.profile.city}</option>
+                                               
                                                 {locations.map((location) => (
                                                     <option key={location.locationId} value={location.location.locationName}>
                                                         {location.location.locationName}

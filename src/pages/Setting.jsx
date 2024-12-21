@@ -18,6 +18,7 @@ function Setting() {
   const [backImageUrl, setBackImageUrl] = useState(null);
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.auth.user);
+  const [isSignature, setIsSignature] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -39,7 +40,7 @@ function Setting() {
     phone: '', // Thêm thuộc tính phone nếu cần
   });
 
-  const [phone, setPhone] = useState(profile.phone || "Không có dữ liệu");
+  const [phone, setPhone] = useState(profile.phone || '');
 
 
   const fetchCCCDInfo = async () => {
@@ -88,7 +89,7 @@ function Setting() {
         birthdate: profileData.birthdate ? profileData.birthdate.split('T')[0] : '',
         address: profileData.address || '',
       });
-      setPhone(profileData.phone || "Không có dữ liệu");
+      setPhone(profileData.phone || '');
       return profileData;
     } catch (error) {
       console.error("Lỗi khi lấy thông tin Profile:", error);
@@ -97,7 +98,32 @@ function Setting() {
     }
   };
 
+  const checkCCCDAndSignature = async () => {
+    try {
+      const response = await axios.get(
+        'https://travelmateapp.azurewebsites.net/api/CCCD/verify-cccd-signature',
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      const data = response.data;
+      const check = data.verificationDetails.publicSignatureMessage;
+      console.log('check sign', check);
+      if (check === 'Chữ ký số đã được xác minh.') {
+        setIsSignature(true);
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy thông tin check Signature:", error);
+      throw error;
+    }
+  };
+
+
   useEffect(() => {
+    checkCCCDAndSignature();
     fetchCCCDInfo();
     fetchProfileInfo();
 
@@ -165,18 +191,18 @@ function Setting() {
   const handleSaveInfo = async () => {
     try {
       const updatedData = {
-        firstName: capitalizeWords(profile.firstName || "Không có dữ liệu"),
-        lastName: capitalizeWords(profile.lastName || "Không có dữ liệu"),
-        address: capitalizeWords(profile.address || "Không có dữ liệu"),
-        phone: phone || "Không có dữ liệu",
-        gender: profile.gender || "Không có dữ liệu",
-        city: capitalizeWords(profile.city || "Không có dữ liệu"),
-        description: profile.description || "Không có dữ liệu",
-        hostingAvailability: profile.hostingAvailability || "Không có dữ liệu",
-        whyUseTravelMate: profile.whyUseTravelMate || "Không có dữ liệu",
-        musicMoviesBooks: profile.musicMoviesBooks || "Không có dữ liệu",
-        whatToShare: profile.whatToShare || "Không có dữ liệu",
-        birthdate: profile.birthdate || "2002-01-01T17:50:19.190Z",
+        firstName: capitalizeWords(profile.firstName || ''),
+        lastName: capitalizeWords(profile.lastName || ''),
+        address: capitalizeWords(profile.address || ''),
+        phone: phone || '',
+        gender: profile.gender || '',
+        city: capitalizeWords(profile.city || ''),
+        description: profile.description || '',
+        hostingAvailability: profile.hostingAvailability || '',
+        whyUseTravelMate: profile.whyUseTravelMate || '',
+        musicMoviesBooks: profile.musicMoviesBooks || '',
+        whatToShare: profile.whatToShare || '',
+        birthdate: profile.birthdate || '',
         imageUser: user?.avatarUrl || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg',
       };
 
@@ -512,11 +538,16 @@ function Setting() {
             <Row className="mt-3">
               <Col md={12}>
                 <Form.Group className="d-flex align-items-center">
-                  <Form.Label>Chữ ký số</Form.Label>
-                  <SaveSignature />
+                  <Form.Label className="me-2" style={{ width: '11.5%' }}>Chữ ký số</Form.Label>
+                  {isSignature ? (
+                    <span className="text-success fw-bold">Chữ ký số đã được tạo</span>
+                  ) : (
+                    <SaveSignature />
+                  )}
                 </Form.Group>
               </Col>
             </Row>
+
           </section>
 
           <section id="account-details" className="mb-4">

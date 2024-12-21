@@ -7,6 +7,8 @@ const checkProfileCompletion = async (url, token) => {
                 Authorization: `${token}`,
             },
         });
+        console.log("Kiểm tra hoàn thành hồ sơ:", response);
+        
         return response.data.value;
     } catch (error) {
         console.error("Lỗi khi kiểm tra hoàn thành hồ sơ:", error);

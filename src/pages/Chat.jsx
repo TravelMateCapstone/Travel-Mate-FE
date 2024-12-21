@@ -16,17 +16,25 @@ const MemoizedChatInput = memo(ChatInput);
 
 function Chat() {
   return (
-    <Container fluid className='p-0'>
-      <Row>
-        <MemoizedChatSidebar />
-        <Col lg={10} className='chat-column'>
-          <MemoizedChatHeader />
-          <div className='chatmessage-container overflow-y-auto'>
-            <MemoizedChatMessages isSender={true} />
-            <MemoizedChatMessages isSender={false} />
-            {/* <MemoizedChatMessages isRequest={true} /> */}
+    <Container fluid className=' ' style={{
+      padding: '0 140px'
+    }}>
+      <Row style={{
+        
+      }}>
+       <MemoizedChatSidebar />
+        <Col lg={9} className='chat-column px-4'>
+          <div className='bg-white pb-3' style={{
+            border: '1px solid #e0e0e0',
+          }}>
+            <MemoizedChatHeader />
+            <div className='chatmessage-container overflow-y-auto mx-4'>
+              <MemoizedChatMessages isSender={true} />
+              <MemoizedChatMessages isSender={false} />
+              {/* <MemoizedChatMessages isRequest={true} /> */}
+            </div>
+            <MemoizedChatInput />
           </div>
-          <MemoizedChatInput />
         </Col>
       </Row>
     </Container>

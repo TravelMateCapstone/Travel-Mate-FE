@@ -12,7 +12,7 @@ const ChatMessages = ({ isSender, isRequest, selectedRequest }) => {
 
 
   return (
-    <>
+    <div className=''>
       {isRequest ? (
         <div className='chat-sender d-flex gap-2'>
           <img src={chatHeader?.userAvatarUrl} alt="" width={50} height={50} className='rounded-circle object-fit-cover' />
@@ -41,7 +41,7 @@ const ChatMessages = ({ isSender, isRequest, selectedRequest }) => {
           )}
         </>
       )}
-    </>
+    </div>
   );
 };
 

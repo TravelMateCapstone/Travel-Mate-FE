@@ -70,8 +70,8 @@ function FinishContractLocal() {
                         Authorization: `${token}`,
                     },
                 });
-                setPostParticipant(response.data.$values[response.data.$values.length - 1]);
-                setStar(response.data.$values[response.data.$values.length - 1].star);
+                setPostParticipant(response.data?.$values[response.data.$values.length - 1]);
+                setStar(response.data?.$values[response.data?.$values.length - 1].star);
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
@@ -207,7 +207,7 @@ function FinishContractLocal() {
                         </p>
                         <input type="file" className='d-none' id='upload_img_traveller' multiple onChange={handleImageUpload} />
                         <div className='row mt-3'>
-                            {additional?.tripImages.$values.map((image, index) => (
+                            {additional?.tripImages?.$values.map((image, index) => (
                                 <div className='col col-lg-4 mb-4 position-relative' key={index}>
                                     <img src={image} alt='' className='w-100 rounded-4 object-fit-cover' />
                                 </div>

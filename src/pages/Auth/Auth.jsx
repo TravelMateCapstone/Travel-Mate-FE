@@ -25,6 +25,10 @@ const Auth = () => {
   const handleSignUpClick = () => setIsSignUpMode(true);
   const handleSignInClick = () => setIsSignUpMode(false);
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+
   const handleLoginSuccess = async (response) => {
     try {
       const googleToken = response.credential;
@@ -49,7 +53,7 @@ const Auth = () => {
         localStorage.setItem('token', token);
         dispatch(loginSuccess({ user, token }));
         toast.success('Đăng nhập thành công!');
-        navigate(RoutePath.HOMEPAGE); 
+        navigate(RoutePath.HOMEPAGE);
         if (user.role === 'admin') {
           navigate(RoutePath.ADMIN);
         } else {
@@ -146,8 +150,23 @@ const Auth = () => {
             </div>
             <div className="custom-input-field">
               <i className="fas fa-lock"></i>
-              <input type="password" placeholder="Mật khẩu" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <div className="password-container d-flex">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Mật khẩu"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <ion-icon
+                  name={showPassword ? "eye-outline" : "eye-off-outline"}
+                  className="toggle-password-icon"
+                  style={{ marginTop: '20px', marginRight: '25px' }}
+                  onClick={() => setShowPassword(!showPassword)}
+                ></ion-icon>
+              </div>
             </div>
+
             <input type="submit" value="Đăng nhập" className="custom-btn solid" />
             <p className="custom-social-text">Hoặc đăng nhập bằng các nền tảng xã hội</p>
             <div className="custom-social-media">
@@ -191,28 +210,46 @@ const Auth = () => {
             </div>
             <div className="custom-input-field">
               <i className="fas fa-lock"></i>
-              <input
-                type="password"
-                placeholder="Mật khẩu"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="password-container d-flex">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Mật khẩu"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <ion-icon
+                  name={showPassword ? "eye-outline" : "eye-off-outline"}
+                  className="toggle-password-icon"
+                  style={{ marginTop: '20px', marginRight: '25px' }}
+                  onClick={() => setShowPassword(!showPassword)}
+                ></ion-icon>
+              </div>
             </div>
+
             <div className="custom-input-field">
               <i className="fas fa-lock"></i>
-              <input
-                type="password"
-                placeholder="Nhập lại mật khẩu"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
+              <div className="password-container d-flex">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Nhập lại mật khẩu"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+                <ion-icon
+                  name={showConfirmPassword ? "eye-outline" : "eye-off-outline"}
+                  className="toggle-password-icon"
+                  style={{ marginTop: '20px', marginRight: '25px' }}
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                ></ion-icon>
+              </div>
             </div>
+
             <input type="submit" className="custom-btn" value="Đăng ký" />
             <p className="custom-social-text">Hoặc đăng ký bằng các nền tảng xã hội</p>
             <div className="custom-social-media">
-              <GoogleOAuthProvider  clientId="641114959725-q7732vhl0ssi5ip4il9uard2qv92aigf.apps.googleusercontent.com">
+              <GoogleOAuthProvider clientId="641114959725-q7732vhl0ssi5ip4il9uard2qv92aigf.apps.googleusercontent.com">
                 <GoogleLogin size="medium" shape="pill" text="signup_with" context="signup" locale="vi" width={'300px'} onSuccess={handleLoginSuccess} onError={handleLoginFailure} />
               </GoogleOAuthProvider>
             </div>

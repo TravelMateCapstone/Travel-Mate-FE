@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Accordion from "react-bootstrap/Accordion";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
@@ -11,23 +11,15 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Table from 'react-bootstrap/Table';
 import checkProfileCompletion from "../../utils/Profile/checkProfileCompletion";
+import { useDispatch } from "react-redux";
+import { viewProfile } from "../../redux/actions/profileActions";
 
 function TourDetail() {
     const [key, setKey] = useState("home");
     const tourData = useSelector((state) => state.tour?.tour);
     const navigate = useNavigate();
     const token = useSelector((state) => state.auth.token);
-    const [remainingTime, setRemainingTime] = useState(180); // 3 minutes in seconds
-
-    useEffect(() => {
-        let timer;
-        if (remainingTime > 0) {
-            timer = setInterval(() => {
-                setRemainingTime((prevTime) => prevTime - 1);
-            }, 1000);
-        }
-        return () => clearInterval(timer);
-    }, [remainingTime]);
+    const dispatch = useDispatch();
 
     console.log(tourData);
 
@@ -38,6 +30,11 @@ function TourDetail() {
             day: '2-digit',
         });
     };
+
+    const viewLocal = (localId) => {
+        dispatch(viewProfile(localId, token));
+        window.open(RoutePath.OTHERS_PROFILE, '_blank');
+    }
 
     const handelJointTour = async (tourId) => {
         try {
@@ -57,7 +54,7 @@ function TourDetail() {
                 }
             );
 
-            navigate(RoutePath.CREATE_CONTRACT, { state: { remainingTime } });
+            navigate(RoutePath.CREATE_CONTRACT);
         } catch (error) {
             console.error("Error joining tour:", error);
             if (error.response && error.response.data === "You have joined this tour") {
@@ -219,6 +216,7 @@ function TourDetail() {
                                     </div>
                                     <p className="mb-2">{tourData.creator.totalTrips} chuyến đi</p>
                                     <p className="mb-0">Tham gia từ {new Date(tourData.creator.joinedAt).getFullYear()}</p>
+                                    <Button variant="outline-secondary" onClick={() => viewLocal(tourData.creator.id)}>Xem hồ sơ</Button>
                                 </div>
                                 <div className=" p-3 rounded-4 mt-3 tour_card_component bg-white">
                                     <div className="flex flex-col tour-form_gap__N_UmA ">
