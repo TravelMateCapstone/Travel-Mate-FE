@@ -14,6 +14,8 @@ import { toast } from "react-toastify";
 import FormModal from '../../components/Shared/FormModal'
 import AnswerQuestion from '../../components/Profile/FormBuilder/AnswerQuestion'
 import TextareaAutosize from 'react-textarea-autosize';
+import checkProfileCompletion from '../../utils/Profile/checkProfileCompletion';
+
 function ProfileCard() {
   const [profile, setProfile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -37,7 +39,23 @@ function ProfileCard() {
   const [reportImage, setReportImage] = useState(null);
   const [reportType, setReportType] = useState("User");
   const [reportStatus, setReportStatus] = useState("Created");
-  const [profileCompletion, setProfileCompletion] = useState(65); // Default value
+
+  const [completionPercentage, setCompletionPercentage] = useState(0);
+  const [incompleteModels, setIncompleteModels] = useState([]);
+
+  useEffect(() => {
+    const fetchProfileCompletion = async () => {
+      try {
+        const { totalPercentage, incompleteModels } = await checkProfileCompletion(url, token);
+        setCompletionPercentage(totalPercentage);
+        setIncompleteModels(incompleteModels.$values);
+      } catch (error) {
+        console.error("Lỗi khi kiểm tra hoàn thành hồ sơ:", error);
+      }
+    };
+
+    fetchProfileCompletion();
+  }, [token, url]);
 
   useEffect(() => {
     setIsLoadingFormData(true);
@@ -452,7 +470,7 @@ function ProfileCard() {
         </div>
         <div className="profile-info">
           <p className="text-center fw-medium profile-name">
-            {dataProfile.profile.user.fullName || "Không có thông tin"}
+            {dataProfile.profile.user.fullName || "Chưa cập nhập"}
           </p>
 
           <p className="fw-medium text-center" style={{ fontSize: "20px", color: "#007931" }}>
@@ -478,7 +496,7 @@ function ProfileCard() {
             ) : (
               <>
                 <Button onClick={() => handelShowFormRequest(true)} variant="success" className="profile-button profile-button-success">
-                  <span className="send-request">Gửi yêu cầu</span>
+                  <span className="send-request">Nhắn tin</span>
                 </Button>
                 <DropdownButton
                   id="dropdown-options"
@@ -506,7 +524,7 @@ function ProfileCard() {
           >
             <div className="profile-location">
               <ion-icon name="location-outline"></ion-icon>
-              <span className="m-0">{dataProfile.profile.address || "Không có thông tin"}</span>
+              <span className="m-0">{dataProfile.profile.address || "Chưa cập nhập"}</span>
             </div>
 
             <div className="profile-education">
@@ -514,7 +532,7 @@ function ProfileCard() {
               <span className="m-0">
                 {dataProfile.education && dataProfile.education.$values && dataProfile.education.$values.length > 0
                   ? dataProfile.education.$values[0].university.universityName
-                  : "Không có thông tin"}
+                  : "Chưa cập nhập"}
               </span>
             </div>
 
@@ -523,7 +541,7 @@ function ProfileCard() {
               <span className="m-0">
                 {dataProfile.languages && dataProfile.languages.$values && dataProfile.languages.$values.length > 0
                   ? dataProfile.languages.$values.map((lang) => lang.languages.languagesName).join(", ")
-                  : "Không có thông tin"}
+                  : "Chưa cập nhập"}
               </span>
             </div>
 
@@ -534,7 +552,7 @@ function ProfileCard() {
 
             <div className="profile-completion">
               <ion-icon name="shield-checkmark-outline"></ion-icon>
-              <span className="m-0">{profileCompletion}% hoàn thành hồ sơ</span>
+              <span className="m-0">{completionPercentage}% hoàn thành hồ sơ</span>
             </div>
           </div>
         </div>
