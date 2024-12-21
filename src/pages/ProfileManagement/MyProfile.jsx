@@ -83,7 +83,7 @@ function MyProfile() {
                 setCompletionPercentage(totalPercentage);
                 setIncompleteModels(incompleteModels.$values);
                 console.log(totalPercentage, incompleteModels);
-                
+
             } catch (error) {
                 console.error("Lỗi khi kiểm tra hoàn thành hồ sơ:", error);
             }

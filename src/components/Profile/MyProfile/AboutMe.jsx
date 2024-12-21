@@ -294,7 +294,7 @@ function AboutMe() {
             {/* Giáo dục */}
             <Row className="mb-3">
                 <Col lg={4} className="d-flex align-items-center">
-                    <Form.Label>Giáo dục</Form.Label>
+                    <Form.Label>Giáo dục <span style={{ color: 'red' }}>*</span></Form.Label>
                 </Col>
                 <Col lg={8}>
                     {isEditing ? (
@@ -326,7 +326,7 @@ function AboutMe() {
             {/* Ngôn ngữ */}
             <Row className="mb-3">
                 <Col lg={4} className="d-flex align-items-center">
-                    <Form.Label>Ngôn ngữ sử dụng</Form.Label>
+                    <Form.Label>Ngôn ngữ sử dụng <span style={{ color: 'red' }}>*</span></Form.Label>
                 </Col>
                 <Col lg={8}>
                     {isEditing ? (
@@ -383,7 +383,7 @@ function AboutMe() {
 
             <Row className="mb-3">
                 <Col lg={4} className="d-flex align-items-center">
-                    <Form.Label>Địa phương đăng ký</Form.Label>
+                    <Form.Label>Địa phương đăng ký <span style={{ color: 'red' }}>*</span></Form.Label>
                 </Col>
                 <Col lg={8}>
                     {isEditing ? (
@@ -418,7 +418,7 @@ function AboutMe() {
             {/* Sở thích */}
             <Row className="mb-3">
                 <Col lg={4} className="d-flex align-items-center">
-                    <Form.Label>Sở thích</Form.Label>
+                    <Form.Label>Sở thích <span style={{ color: 'red' }}>*</span></Form.Label>
                 </Col>
                 <Col lg={8}>
                     {isEditing ? (

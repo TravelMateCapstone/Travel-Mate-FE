@@ -488,9 +488,10 @@ function Setting() {
               </Col>
             </Row>
             <Row className="mt-3">
+              <h5 style={{ color: '#E65C00' }}>Định danh tài khoản</h5>
               <Col md={6}>
                 <div className="image-upload-wrapper d-flex align-items-center">
-                  <p className="me-2" style={{ width: '28%' }}>Ảnh CCCD mặt trước</p>
+                  <p className="me-2" style={{ width: '28%' }}>Ảnh CCCD mặt trước <span style={{ color: 'red' }}>*</span></p>
                   {frontImageUrl ? (
                     <div className="uploaded-image">
                       <img src={frontImageUrl} alt="CCCD Mặt Trước" style={{ maxWidth: '100%', height: 'auto' }} />
@@ -513,7 +514,7 @@ function Setting() {
 
               <Col md={6}>
                 <div className="image-upload-wrapper d-flex align-items-center">
-                  <p className="me-2" style={{ width: '28%' }}>Ảnh CCCD mặt sau</p>
+                  <p className="me-2" style={{ width: '28%' }}>Ảnh CCCD mặt sau <span style={{ color: 'red' }}>*</span></p>
                   {backImageUrl ? (
                     <div className="uploaded-image">
                       <img src={backImageUrl} alt="CCCD Mặt Sau" style={{ maxWidth: '100%', height: 'auto' }} />
@@ -537,8 +538,9 @@ function Setting() {
 
             <Row className="mt-3">
               <Col md={12}>
+                <p style={{ fontStyle: 'italic', color: '#6c757d' }}>Chữ ký số giúp người dùng xác thực tính pháp lý và bảo mật của tài liệu điện tử, đáp ứng yêu cầu của các giao dịch trực tuyến hoặc hợp đồng số.</p>
                 <Form.Group className="d-flex align-items-center">
-                  <Form.Label className="me-2" style={{ width: '11.5%' }}>Chữ ký số</Form.Label>
+                  <Form.Label className="me-2" style={{ width: '11.5%' }}>Chữ ký số <span style={{ color: 'red' }}>*</span></Form.Label>
                   {isSignature ? (
                     <span className="text-success fw-bold">Chữ ký số đã được tạo</span>
                   ) : (
@@ -553,7 +555,7 @@ function Setting() {
           <section id="account-details" className="mb-4">
             <h5 style={{ color: '#E65C00' }}>Thông Tin Tài Khoản</h5>
             <Form.Group className="d-flex align-items-center">
-              <Form.Label>Email</Form.Label>
+              <Form.Label>Email <span style={{ color: 'red' }}>*</span></Form.Label>
               <Form.Control type="email" value={`${user.emailaddress}`} />
             </Form.Group>
             <Form.Group className="d-flex align-items-center mt-3">
@@ -565,7 +567,7 @@ function Setting() {
           <section id="contact-info" className="mb-4">
             <h5 style={{ color: '#E65C00' }}>Thông Tin Liên Lạc</h5>
             <Form.Group className="d-flex align-items-center">
-              <Form.Label>Số điện thoại</Form.Label>
+              <Form.Label>Số điện thoại <span style={{ color: 'red' }}>*</span></Form.Label>
               <Form.Control
                 type="text"
                 value={phone}
