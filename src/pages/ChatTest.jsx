@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { HttpTransportType, HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
 import { useSelector } from "react-redux";
+import { Container, Row, Col, Card, ListGroup, Form, Button } from 'react-bootstrap';
 
 const ChatApp = () => {
   const [connection, setConnection] = useState(null);
@@ -11,6 +12,15 @@ const ChatApp = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const token = useSelector((state) => state.auth.token);
   const tokenWithoutBearer = token.replace(/^Bearer\s+/, '');
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   useEffect(() => {
     const connect = new HubConnectionBuilder()
@@ -25,51 +35,43 @@ const ChatApp = () => {
     connect
       .start()
       .then(() => {
-        console.log("Connected to SignalR Hub");
+        console.log("Đã kết nối tới SignalR Hub");
         setConnection(connect);
 
         connect.on("getProfileInfo", (user) => {
-          console.log("Received profile info:", user);
+          console.log("Nhận thông tin hồ sơ:", user);
           setUserInfo(user);
         });
 
         connect.on("onError", (error) => {
-          console.log("Received onError:", error);
+          console.log("Nhận lỗi:", error);
         });
 
-
         connect.on("receiveChatUsers", (users) => {
-          console.log("Received chat users:", users);
+          console.log("Nhận người dùng chat:", users);
           setChatUsers(users);
         });
 
         connect.on("LoadMessages", (msgs) => {
-          console.log("Received messages mới:", msgs);
+          console.log("Nhận tin nhắn mới:", msgs);
           setMessages(msgs);
         });
 
         connect.on("receiveMessage", (msg) => {
-          console.log('Received message', msg);
+          console.log('Nhận tin nhắn', msg);
           setMessages((prev) => [...prev, msg]);
-          console.log('Messages', messages);
+          console.log('Tin nhắn', messages);
           
         });
 
         connect.send("GetChatUsers");
       })
-      .catch((err) => console.error("Connection failed: ", err));
+      .catch((err) => console.error("Kết nối thất bại: ", err));
 
     return () => {
       connect.stop();
     };
   }, []);
-
-  // useEffect(() => {
-  //   if (selectedUser) {
-  //     loadMessages(selectedUser);
-  //   }
-  // }, [messages]);
-
 
   const sendMessage = async () => {
     if (connection && selectedUser && message.trim()) {
@@ -78,7 +80,7 @@ const ChatApp = () => {
         setMessage("");
         await loadMessages(selectedUser);
       } catch (err) {
-        console.error("Error sending message: ", err);
+        console.error("Lỗi khi gửi tin nhắn: ", err);
       }
     }
   };
@@ -89,55 +91,71 @@ const ChatApp = () => {
       try {
         await connection.send("LoadMessages", userInfo.id, user.id);
       } catch (err) {
-        console.error("Error loading messages: ", err);
+        console.error("Lỗi khi tải tin nhắn: ", err);
       }
     }
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-      {userInfo && (
-        <div>
-          <h2>Welcome, {userInfo.name}</h2>
-        </div>
-      )}
+    <Container fluid style={{
+      padding: '0 140px'
+    }}>
 
-      <div style={{ display: "flex", gap: "2rem" }}>
-        <div>
-          <h3>Users</h3>
-          <ul>
-            {chatUsers.map((user) => (
-              <li key={user.id} onClick={() => loadMessages(user)} style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                <img src={user.avatar} alt={user.fullName} style={{ width: "40px", height: "40px", borderRadius: "50%" }} />
-                <div>
-                  <div>{user.fullName}</div>
-                  <div>{user.city}</div>
+      <Row>
+        <Col md={4}>
+          <Card>
+            <Card.Header>Người dùng</Card.Header>
+            <ListGroup variant="flush">
+              {chatUsers.map((user) => (
+                <ListGroup.Item key={user.id} onClick={() => loadMessages(user)} style={{ cursor: "pointer" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <img src={user.avatar} alt={user.fullName} style={{ width: "40px", height: "40px", borderRadius: "50%" }} />
+                    <div>
+                      <div>{user.fullName}</div>
+                      <div>{user.city}</div>
+                    </div>
+                  </div>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          </Card>
+        </Col>
+
+        <Col md={8}>
+          <Card>
+            <Card.Header>
+              {selectedUser ? `Đang chat với ${selectedUser.fullName}` : "Chat"}
+            </Card.Header>
+            <Card.Body style={{ height: "300px", overflowY: "scroll" }}>
+              {messages.map((msg, index) => (
+                <div key={index} style={{ display: "flex", alignItems: "center", justifyContent: msg.senderId === userInfo.id ? "flex-end" : "flex-start", marginBottom: "10px" }}>
+                  {msg.senderId !== userInfo.id && (
+                    <img src={selectedUser.avatar} alt={selectedUser.fullName} style={{ width: "30px", height: "30px", borderRadius: "50%", marginRight: "0.5rem" }} />
+                  )}
+                  <div>
+                    {msg.content}
+                  </div>
+                 
                 </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div style={{ flex: 1 }}>
-          <h3>Chat</h3>
-          {selectedUser && <h4>Chatting with {selectedUser.fullName}</h4>}
-          <div style={{ border: "1px solid #ccc", padding: "1rem", height: "300px", overflowY: "scroll" }}>
-            {messages.map((msg, index) => (
-              <div key={index}>
-                <strong>{msg.senderId === userInfo.id ? "You" : selectedUser.fullName}:</strong> {msg.content}
-              </div>
-            ))}
-          </div>
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type your message..."
-          />
-          <button onClick={sendMessage}>Send</button>
-        </div>
-      </div>
-    </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </Card.Body>
+            <Card.Footer>
+              <Form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: "flex", alignItems: "center" }}>
+                <Form.Control
+                  type="text"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Nhập tin nhắn của bạn..."
+                  style={{ flex: 1, marginRight: "0.5rem" }}
+                />
+                <Button type="submit">Gửi</Button>
+              </Form>
+            </Card.Footer>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 
