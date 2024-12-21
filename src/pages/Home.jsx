@@ -156,7 +156,7 @@ function Home() {
                 placeholder={placeholder}
                 value={query}
                 onChange={handleInputChange}
-                onKeyPress={handleKeyPress} // Change this line to handleKeyPress
+                onKeyPress={handleKeyPress} 
               />
 
             </div>

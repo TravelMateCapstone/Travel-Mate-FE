@@ -64,7 +64,7 @@ function VerifySignatureRSA({ setIsValidSignature }) {
                 variant={isValidSignature ? 'success' : 'outline-danger'} 
                 onClick={() => document.getElementById('signature_upload').click()}
             >
-                {isValidSignature ? 'Đã kí' : 'Vui lòng tải chữ kí'}
+                {isValidSignature ? 'Đã ký' : 'Vui lòng tải chữ ký'}
             </Button>
         </div>
     );
