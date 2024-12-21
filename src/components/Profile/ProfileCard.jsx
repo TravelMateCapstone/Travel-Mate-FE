@@ -37,6 +37,7 @@ function ProfileCard() {
   const [reportImage, setReportImage] = useState(null);
   const [reportType, setReportType] = useState("User");
   const [reportStatus, setReportStatus] = useState("Created");
+  const [profileCompletion, setProfileCompletion] = useState(65); // Default value
 
   useEffect(() => {
     setIsLoadingFormData(true);
@@ -55,6 +56,20 @@ function ProfileCard() {
       })
       .finally(() => {
         setIsLoadingFormData(false);
+      });
+  }, [profileViewId]);
+
+  useEffect(() => {
+    axios.get(`https://travelmateapp.azurewebsites.net/api/Profile/checkComplete/${profileViewId}`, {
+      headers: {
+        Authorization: `${token}`
+      }
+    })
+      .then(response => {
+        setProfileCompletion(response.data.value.totalPercentage);
+      })
+      .catch(error => {
+        console.error('Error fetching profile completion:', error);
       });
   }, [profileViewId]);
 
@@ -519,7 +534,7 @@ function ProfileCard() {
 
             <div className="profile-completion">
               <ion-icon name="shield-checkmark-outline"></ion-icon>
-              <span className="m-0">65% hoàn thành hồ sơ</span>
+              <span className="m-0">{profileCompletion}% hoàn thành hồ sơ</span>
             </div>
           </div>
         </div>

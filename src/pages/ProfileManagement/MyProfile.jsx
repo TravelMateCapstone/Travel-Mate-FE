@@ -82,6 +82,8 @@ function MyProfile() {
                 const { totalPercentage, incompleteModels } = await checkProfileCompletion(url, token);
                 setCompletionPercentage(totalPercentage);
                 setIncompleteModels(incompleteModels.$values);
+                console.log(totalPercentage, incompleteModels);
+                
             } catch (error) {
                 console.error("Lỗi khi kiểm tra hoàn thành hồ sơ:", error);
             }

@@ -160,8 +160,6 @@ function TourCard({ tour, onTourUpdated }) {
                 }
             });
             const tourData = response.data;
-            console.log(`Tour data:`, tourData);
-
             setTourDetails({
                 tourName: tourData.tourName,
                 price: tourData.price,
