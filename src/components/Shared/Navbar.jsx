@@ -47,11 +47,11 @@ const Navbar = React.memo(() => {
   }, [navigate]);
 
   const handleSearchLocal = useCallback(() => {
-    setNavigateTo(RoutePath.SEARCH_LIST_LOCAL);
+    navigate(RoutePath.SEARCH_LIST_LOCAL); // Điều hướng đến trang "Người địa phương"
   }, [navigate]);
 
   const handleSearchTraveller = useCallback(() => {
-    setNavigateTo(RoutePath.SEARCH_LIST_TRAVELLER);
+    navigate(RoutePath.SEARCH_LIST_TRAVELLER); // Điều hướng đến trang "Khách du lịch"
   }, [navigate]);
 
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
@@ -308,6 +308,7 @@ const Navbar = React.memo(() => {
     const savedLocations = JSON.parse(localStorage.getItem('selectedLocations')) || [];
     console.log('Địa điểm đã lưu:', savedLocations);
   }, []);
+
   const handleEnterSearch = (e) => {
     if (e.key === 'Enter') {
       if (searchInput.trim() === '') {
@@ -442,17 +443,17 @@ const Navbar = React.memo(() => {
                       className="custom-dropdown-item px-0"
                       onClick={handleSearchLocal} // Gọi hàm điều hướng
                     >
-                      <p className="m-0">Người địa phương</p>
-                      <p className="m-0 fw-light">Tìm bạn cùng khám phá thành phố</p>
+                      <p className="m-0">Người đồng hành</p>
+                      <p className="m-0 fw-light">Tìm bạn bè cùng khám phá thành phố</p>
                     </Dropdown.Item>
-                    <Dropdown.Item
+                    {/* <Dropdown.Item
                       eventKey="Khách du lịch"
                       className="custom-dropdown-item px-0"
                       onClick={handleSearchTraveller} // Gọi hàm điều hướng
                     >
                       <p className="m-0">Khách du lịch</p>
                       <p className="m-0 fw-light">Kết nối với bạn bè để trải nghiệm</p>
-                    </Dropdown.Item>
+                    </Dropdown.Item> */}
 
                   </Dropdown.Menu>
                 </Dropdown>

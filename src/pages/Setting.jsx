@@ -42,7 +42,6 @@ function Setting() {
 
   const [phone, setPhone] = useState(profile.phone || '');
 
-
   const fetchCCCDInfo = async () => {
     try {
       const response = await axios.get(
@@ -79,9 +78,7 @@ function Setting() {
           },
         }
       );
-
       const profileData = response.data;
-
       setProfile({
         firstName: profileData.firstName || '',
         lastName: profileData.lastName || '',
@@ -137,13 +134,6 @@ function Setting() {
     return { firstName, lastName };
   };
 
-  const [emergencyContact, setEmergencyContact] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    noteContact: '',
-  });
-
   const updateProfileInfo = async (cccdData, profileData) => {
     const { firstName, lastName } = splitFullName(cccdData.name);
     const payload = {
@@ -196,6 +186,52 @@ function Setting() {
     }
   };
 
+
+  // liên hệ khẩn cấp
+  const [emergencyContact, setEmergencyContact] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    noteContact: '',
+  });
+
+  // Fetch emergency contact info
+  useEffect(() => {
+    const fetchEmergencyContact = async () => {
+      try {
+        const response = await axios.get(
+          'https://travelmateapp.azurewebsites.net/api/UserContact/Get-CurrentUser',
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        );
+        const contactData = response.data?.$values?.[0] || {};
+        setEmergencyContact({
+          name: contactData.name || '',
+          phone: contactData.phone || '',
+          email: contactData.email || '',
+          noteContact: contactData.noteContact || '',
+        });
+      } catch (error) {
+        console.error('Error fetching emergency contact:', error);
+        toast.error('Không thể tải thông tin liên hệ khẩn cấp.');
+      }
+    };
+
+    fetchEmergencyContact();
+  }, [token]);
+
+  // Handle input changes
+  const handleEmergencyContactChange = (e) => {
+    const { name, value } = e.target;
+    setEmergencyContact((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   const handleSaveInfo = async () => {
     try {
       const updatedData = {
@@ -230,29 +266,25 @@ function Setting() {
         throw new Error("Cập nhật thất bại.");
       }
 
-      // Prepare data for emergency contact
-      const contactData = {
-        name: emergencyContact.name || '',
-        phone: emergencyContact.phone || '',
-        email: emergencyContact.email || '',
-        noteContact: emergencyContact.noteContact || '',
-      };
+      try {
+        const response = await axios.put(
+          'https://travelmateapp.azurewebsites.net/api/UserContact/Update-Contact-CurrentUser',
+          emergencyContact,
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        );
 
-      // Update emergency contact info via API
-      const contactResponse = await axios.put(
-        'https://travelmateapp.azurewebsites.net/api/UserContact/Update-Contact-CurrentUser',
-        contactData,
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
+        if (response.status === 200) {
+          toast.success('Cập nhật thông tin liên hệ khẩn cấp thành công.');
+        } else {
+          throw new Error('Cập nhật thất bại.');
         }
-      );
-
-      if (contactResponse.status === 200) {
-        toast.success("Cập nhật thông tin liên hệ khẩn cấp thành công.");
-      } else {
-        throw new Error("Cập nhật thông tin liên hệ khẩn cấp thất bại.");
+      } catch (error) {
+        console.error('Error saving emergency contact:', error);
+        toast.error('Lỗi khi lưu thông tin liên hệ khẩn cấp.');
       }
     } catch (error) {
       console.error("Lỗi khi lưu thông tin:", error);
@@ -260,16 +292,9 @@ function Setting() {
     }
   };
 
-  // Handle input changes for the emergency contact form
-  const handleEmergencyContactChange = (e) => {
-    const { name, value } = e.target;
-    setEmergencyContact((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
 
   const handleFrontImageUpload = async (event) => {
+
     const file = event.target.files[0];
     if (!file) return;
     setFrontImage(file);
@@ -454,8 +479,6 @@ function Setting() {
     }
   };
 
-
-
   return (
     <Container>
       <h2>Cài đặt</h2>
@@ -604,9 +627,9 @@ function Setting() {
               <Form.Control type="email" value={`${user.emailaddress}`} readOnly />
             </Form.Group>
             {/* <Form.Group className="d-flex align-items-center mt-3">
-              <Form.Label className="me-2" style={{ width: '12.5%' }}>Mật khẩu</Form.Label>
-              <p className="text-muted">Đổi mật khẩu</p>
-            </Form.Group> */}
+                        <Form.Label className="me-2" style={{ width: '12.5%' }}>Mật khẩu</Form.Label>
+                        <p className="text-muted">Đổi mật khẩu</p>
+                      </Form.Group> */}
           </section>
 
           <section id="contact-info" className="mb-4">
@@ -631,9 +654,11 @@ function Setting() {
           </section>
 
           <section id="emergency-contact" className="mb-4">
-            <h5 style={{ color: '#E65C00' }}>Liên Hệ Khẩn Cấp</h5>
+            <h5 style={{ color: "#E65C00" }}>Liên Hệ Khẩn Cấp</h5>
             <p className="text-muted">
-              Bạn cho phép chúng tôi thông báo cho người này nếu chúng tôi cho rằng bạn đang gặp tình huống khẩn cấp và chia sẻ thông tin về hoạt động cũng như vị trí của bạn với họ nếu có yêu cầu.
+              Bạn cho phép chúng tôi thông báo cho người này nếu chúng tôi cho rằng
+              bạn đang gặp tình huống khẩn cấp và chia sẻ thông tin về hoạt động cũng
+              như vị trí của bạn với họ nếu có yêu cầu.
             </p>
             <Form.Group className="d-flex align-items-center">
               <Form.Label>Tên</Form.Label>
