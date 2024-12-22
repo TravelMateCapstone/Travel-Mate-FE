@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { HttpTransportType, HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Container, Row, Col, Card, ListGroup, Form, Button } from 'react-bootstrap';
+import { setChatConnection } from '../redux/actions/chatHubAction';
 
 const Chat = () => {
-  const [connection, setConnection] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [chatUsers, setChatUsers] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -13,6 +13,8 @@ const Chat = () => {
   const token = useSelector((state) => state.auth.token);
   const tokenWithoutBearer = token.replace(/^Bearer\s+/, '');
   const messagesEndRef = useRef(null);
+  const dispatch = useDispatch();
+  const connection = useSelector((state) => state.chatHub.connection);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -36,7 +38,7 @@ const Chat = () => {
       .start()
       .then(() => {
         console.log("Đã kết nối tới SignalR Hub");
-        setConnection(connect);
+        dispatch(setChatConnection(connect));
 
         connect.on("getProfileInfo", (user) => {
           console.log("Nhận thông tin hồ sơ:", user);
@@ -59,9 +61,14 @@ const Chat = () => {
 
         connect.on("receiveMessage", (msg) => {
           console.log('Nhận tin nhắn', msg);
-          setMessages((prev) => [...prev, msg]);
-          console.log('Tin nhắn', messages);
           
+          setMessages((prev) => {
+            if (msg.senderId === selectedUser.id || msg.receiverId === selectedUser.id) {
+              return [...prev, msg];
+            }
+            return prev;
+          });
+          console.log('Tin nhắn', messages);
         });
 
         connect.send("GetChatUsers");
@@ -71,12 +78,12 @@ const Chat = () => {
     return () => {
       connect.stop();
     };
-  }, []);
+  }, [dispatch, tokenWithoutBearer]);
 
   const sendMessage = async () => {
     if (connection && selectedUser && message.trim()) {
       try {
-        await connection.send("SendPrivate", selectedUser.id, message);
+        const response = await connection.send("SendPrivate", selectedUser.id, message);
         setMessage("");
         await loadMessages(selectedUser);
       } catch (err) {
