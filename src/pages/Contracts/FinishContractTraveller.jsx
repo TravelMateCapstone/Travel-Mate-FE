@@ -19,6 +19,8 @@ function FinishContractTraveller() {
     const [star, setStar] = useState(0);
     const contractInfo = JSON.parse(localStorage.getItem('contractInfo'));
     const contract_selected = JSON.parse(localStorage.getItem('contract_selected'));
+    console.log(contract_selected);
+    
     const profile = useSelector((state) => state.profile);
     const handleImageUpload = async (event) => {
         const files = Array.from(event.target.files);
@@ -71,7 +73,7 @@ function FinishContractTraveller() {
         } catch (error) {
             console.error("Error:", error);
             if (error.response.data == 'You have already create post about this tour') {
-                toast.error('Bạn đã tạo bài viết về chuyến đi này rồi.');
+                // toast.error('Bạn đã tạo bài viết về chuyến đi này rồi.');
                 navigate(RoutePath.DONE_CONTRACT)
             } else if(error.response.data === 'You did not join this tour!') {
                 toast.error('Bạn chưa tham gia chuyến đi này.');
@@ -146,15 +148,15 @@ function FinishContractTraveller() {
                         <div className="d-flex justify-content-between align-items-center">
                             <div className="d-flex gap-3">
                                 <img
-                                    src={contract_selected.localProfile.imageUser}
+                                    src={contract_selected?.localProfile.imageUser || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'}
                                     alt="avatar"
                                     className="rounded-circle object-fit-cover"
                                     height={60}
                                     width={60}
                                 />
                                 <div className='d-flex flex-column justify-content-center'>
-                                    <p className="mb-2 fw-bold">{"NGUYỄN MINH QUÂN"}</p>
-                                    <small className="fw-medium">{contract_selected.location}</small>
+                                    <p className="mb-2 fw-bold">{contract_selected?.account.fullName || 'Không xác định'}</p>
+                                    <small className="fw-medium">{contract_selected?.location || 'Không xác định'}</small>
                                 </div>
                             </div>
     

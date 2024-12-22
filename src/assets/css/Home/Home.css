@@ -69,8 +69,22 @@
   width: 100%;
 }
 
+.search-result-item:hover {
+  background-color: #f0f0f0;
+}
 
 .mySwiper img{
   height: 275px;
   object-fit: cover;
+}
+
+.search_AI_input {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px 20px;
+}
+.search_AI_input:focus {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+  
 }

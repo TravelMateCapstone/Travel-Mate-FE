@@ -63,18 +63,6 @@ function LocalIncomeStatistics() {
   return (
     <div>
       <h4 className='text-uppercase fw-bold'>Thống kê</h4>
-      <Row>
-        <Col lg={12}>
-          <Form.Select value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))} style={{
-            width: 'fit-content',
-          }}>
-            {[2021, 2022, 2023, 2024, 2025].map(year => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </Form.Select>
-          <MonthlySpendingChart transactions={transactions} selectedYear={selectedYear} />
-        </Col>
-      </Row>
       <Row className='mt-5'>
         <Col lg={6}>
           <TourChart tours={tours} token={token} />

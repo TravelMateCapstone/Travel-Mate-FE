@@ -15,6 +15,13 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/serviceHub/, '/serviceHub'), // Keeps the correct path
         ws: true,
       },
+      '/chatHub': {
+        target: 'https://travelmateapp.azurewebsites.net',
+        changeOrigin: true,
+        secure: false, // If you're using self-signed SSL certificates
+        rewrite: (path) => path.replace(/^\/chatHub/, '/chatHub'), // Keeps the correct path
+        ws: true,
+      },
     },
   },
 

@@ -48,6 +48,7 @@ import Destinationmanagement from "../pages/Admin/Destinationmanagement"
 import FinishContractTraveller from "../pages/Contracts/FinishContractTraveller"
 import SearchListTraveller from "../pages/Search/SearchListTraveller"
 import FinishContractLocal from "../pages/Contracts/FinishContractLocal"
+import ChatTest from "../pages/ChatTest"
 const publishRoutes = [
     { path: RoutePath.AUTH, component: Login, layout: null },
 ]
@@ -104,6 +105,9 @@ const privateRoutes = [
     { path: RoutePath.DESTINATION, component: Destination,  },
     { path: RoutePath.TOUR_DETAIL, component: TourDetail,  },
     { path: RoutePath.REGULATION, component: Regulation,  },
+
+
+    { path: RoutePath.CHATTEST, component: ChatTest,  },
 ]
 
 export { publishRoutes, privateRoutes }

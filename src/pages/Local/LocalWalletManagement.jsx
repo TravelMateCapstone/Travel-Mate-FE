@@ -5,11 +5,14 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { useSelector } from 'react-redux';
 import MonthlySpendingChart from '../../components/Local/MonthlySpendingChart';
 import { fetchTransactions } from '../../utils/UserDashBoard/statistical';
+import { Col, Form, Row } from 'react-bootstrap';
 
 function WalletManagement() {
   const [rowData, setRowData] = useState([]);
   const [quickFilterText, setQuickFilterText] = useState('');
   const user = useSelector(state => state.auth.user);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [transactions, setTransactions] = useState([]);
 
   useEffect(() => {
     const getTransactions = async () => {
@@ -48,8 +51,20 @@ function WalletManagement() {
 
   return (
     <div>
+      <Row>
+        <Col lg={12}>
+          <Form.Select value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))} style={{
+            width: 'fit-content',
+          }}>
+            {[2021, 2022, 2023, 2024, 2025].map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </Form.Select>
+          <MonthlySpendingChart transactions={transactions} selectedYear={selectedYear} />
+        </Col>
+      </Row>
       <div>
-       
+
         <input
           type="text"
           className='form-control'

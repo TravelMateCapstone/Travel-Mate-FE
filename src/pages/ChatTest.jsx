@@ -3,7 +3,7 @@ import { HttpTransportType, HubConnectionBuilder, LogLevel } from "@microsoft/si
 import { useSelector } from "react-redux";
 import { Container, Row, Col, Card, ListGroup, Form, Button } from 'react-bootstrap';
 
-const Chat = () => {
+const ChatApp = () => {
   const [connection, setConnection] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
   const [chatUsers, setChatUsers] = useState([]);
@@ -97,21 +97,22 @@ const Chat = () => {
   };
 
   return (
-    <Container fluid style={{ padding: '0 140px', height: '80vh' }}>
-      <Row style={{ height: '100%' }}>
-        <Col md={3} style={{ height: '100%' }}>
-          <Card style={{ height: '100%' }}>
-            <Card.Header>
-              <h4 className="fw-bold text-center">Tin nhắn ({chatUsers.length})</h4>
-            </Card.Header>
-            <ListGroup variant="flush" style={{ overflowY: 'auto', height: 'calc(100% - 56px)' }}>
+    <Container fluid style={{
+      padding: '0 140px'
+    }}>
+
+      <Row>
+        <Col md={4}>
+          <Card>
+            <Card.Header>Người dùng</Card.Header>
+            <ListGroup variant="flush">
               {chatUsers.map((user) => (
-                <ListGroup.Item key={user.id} onClick={() => loadMessages(user)} style={{ cursor: "pointer", padding: "10px 25px" }}>
+                <ListGroup.Item key={user.id} onClick={() => loadMessages(user)} style={{ cursor: "pointer" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                    <img src={user.avatar} alt={user.fullName} style={{ width: "50px", height: "50px", borderRadius: "50%" }} />
+                    <img src={user.avatar} alt={user.fullName} style={{ width: "40px", height: "40px", borderRadius: "50%" }} />
                     <div>
-                      <small className="fw-bold">{user.fullName}</small>
-                      <p className="m-0">{user.city}</p>
+                      <div>{user.fullName}</div>
+                      <div>{user.city}</div>
                     </div>
                   </div>
                 </ListGroup.Item>
@@ -120,36 +121,26 @@ const Chat = () => {
           </Card>
         </Col>
 
-        <Col md={9} style={{ height: '100%' }}>
-          <Card style={{ height: '100%' }}>
-            <Card.Header className="bg-white py-3">
-              {selectedUser ? (
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <img src={selectedUser.avatar} alt={selectedUser.fullName} style={{ width: "60px", height: "60px", borderRadius: "50%" }} />
-                  <div>
-                    <h6>{selectedUser.fullName}</h6>
-                    <small className="m-0">{selectedUser.city}</small>
-                  </div>
-                </div>
-              ) : "Chat"}
+        <Col md={8}>
+          <Card>
+            <Card.Header>
+              {selectedUser ? `Đang chat với ${selectedUser.fullName}` : "Chat"}
             </Card.Header>
-            <Card.Body style={{ height: 'calc(100% - 112px)', overflowY: 'scroll' }}>
-            {messages.map((msg, index) => (
+            <Card.Body style={{ height: "300px", overflowY: "scroll" }}>
+              {messages.map((msg, index) => (
                 <div key={index} style={{ display: "flex", alignItems: "center", justifyContent: msg.senderId === userInfo.id ? "flex-end" : "flex-start", marginBottom: "10px" }}>
                   {msg.senderId !== userInfo.id && (
                     <img src={selectedUser.avatar} alt={selectedUser.fullName} style={{ width: "30px", height: "30px", borderRadius: "50%", marginRight: "0.5rem" }} />
                   )}
-                  <div style={{ padding: "10px", borderRadius: "10px", backgroundColor: msg.senderId === userInfo.id ? "#34A853" : "#f1f1f1", color: msg.senderId === userInfo.id ? "#fff" : "#000" }}>
+                  <div>
                     {msg.content}
                   </div>
-                  {msg.senderId === userInfo.id && (
-                    <img src={userInfo.avatar} alt={userInfo.fullName} style={{ width: "30px", height: "30px", borderRadius: "50%", marginLeft: "0.5rem" }} />
-                  )}
+                 
                 </div>
               ))}
               <div ref={messagesEndRef} />
             </Card.Body>
-            <Card.Footer className="bg-white border-0 px-5">
+            <Card.Footer>
               <Form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: "flex", alignItems: "center" }}>
                 <Form.Control
                   type="text"
@@ -158,14 +149,7 @@ const Chat = () => {
                   placeholder="Nhập tin nhắn của bạn..."
                   style={{ flex: 1, marginRight: "0.5rem" }}
                 />
-                <Button type="submit" style={{
-                  backgroundColor: '#34A853',
-                  border: 'none',
-                  color: 'white',
-                  padding: '0.8rem 1rem',
-                }} className="d-flex justify-content-center align-items-center"><ion-icon name="send" style={{
-                  fontSize: '1.5rem',
-                }}></ion-icon></Button>
+                <Button type="submit">Gửi</Button>
               </Form>
             </Card.Footer>
           </Card>
@@ -175,4 +159,4 @@ const Chat = () => {
   );
 };
 
-export default Chat;
+export default ChatApp;
