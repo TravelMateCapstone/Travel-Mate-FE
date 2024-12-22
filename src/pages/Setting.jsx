@@ -35,6 +35,7 @@ function Setting() {
     firstName: '',
     lastName: '',
     gender: '',
+    city: '',
     birthdate: '',
     address: '',
     phone: '', // Thêm thuộc tính phone nếu cần
@@ -79,10 +80,12 @@ function Setting() {
         }
       );
       const profileData = response.data;
+      console.log("ddd", profileData);
       setProfile({
         firstName: profileData.firstName || '',
         lastName: profileData.lastName || '',
         gender: profileData.gender || '',
+        city: profileData.city || '',
         birthdate: profileData.birthdate ? profileData.birthdate.split('T')[0] : '',
         address: profileData.address || '',
       });
@@ -249,22 +252,23 @@ function Setting() {
         birthdate: profile.birthdate || '',
         imageUser: user?.avatarUrl || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg',
       };
+      console.log('dtad', updatedData);
 
-      const response = await axios.put(
-        'https://travelmateapp.azurewebsites.net/api/Profile/edit-by-current-user',
-        updatedData,
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
-        }
-      );
+      // const response = await axios.put(
+      //   'https://travelmateapp.azurewebsites.net/api/Profile/edit-by-current-user',
+      //   updatedData,
+      //   {
+      //     headers: {
+      //       Authorization: `${token}`,
+      //     },
+      //   }
+      // );
 
-      if (response.status === 200) {
-        toast.success("Cập nhật thông tin thành công.");
-      } else {
-        throw new Error("Cập nhật thất bại.");
-      }
+      // if (response.status === 200) {
+      //   toast.success("Cập nhật thông tin thành công.");
+      // } else {
+      //   throw new Error("Cập nhật thất bại.");
+      // }
 
       try {
         const response = await axios.put(
