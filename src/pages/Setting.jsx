@@ -137,6 +137,13 @@ function Setting() {
     return { firstName, lastName };
   };
 
+  const [emergencyContact, setEmergencyContact] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    noteContact: '',
+  });
+
   const updateProfileInfo = async (cccdData, profileData) => {
     const { firstName, lastName } = splitFullName(cccdData.name);
     const payload = {
@@ -182,6 +189,7 @@ function Setting() {
 
       toast.success("Cập nhật thông tin thành công.");
       console.log("Kết quả API cập nhật Profile:", response.data);
+
     } catch (error) {
       console.error("Lỗi khi cập nhật Profile hoặc tên đầy đủ:", error);
       toast.error('Lỗi khi cập nhật thông tin Profile.');
@@ -221,10 +229,44 @@ function Setting() {
       } else {
         throw new Error("Cập nhật thất bại.");
       }
+
+      // Prepare data for emergency contact
+      const contactData = {
+        name: emergencyContact.name || '',
+        phone: emergencyContact.phone || '',
+        email: emergencyContact.email || '',
+        noteContact: emergencyContact.noteContact || '',
+      };
+
+      // Update emergency contact info via API
+      const contactResponse = await axios.put(
+        'https://travelmateapp.azurewebsites.net/api/UserContact/Update-Contact-CurrentUser',
+        contactData,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      if (contactResponse.status === 200) {
+        toast.success("Cập nhật thông tin liên hệ khẩn cấp thành công.");
+      } else {
+        throw new Error("Cập nhật thông tin liên hệ khẩn cấp thất bại.");
+      }
     } catch (error) {
       console.error("Lỗi khi lưu thông tin:", error);
       toast.error("Lỗi khi cập nhật thông tin.");
     }
+  };
+
+  // Handle input changes for the emergency contact form
+  const handleEmergencyContactChange = (e) => {
+    const { name, value } = e.target;
+    setEmergencyContact((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
   const handleFrontImageUpload = async (event) => {
@@ -412,6 +454,8 @@ function Setting() {
     }
   };
 
+
+
   return (
     <Container>
       <h2>Cài đặt</h2>
@@ -538,7 +582,6 @@ function Setting() {
 
             <Row className="mt-3">
               <Col md={12}>
-                <p style={{ fontStyle: 'italic', color: '#6c757d' }}>Chữ ký số giúp người dùng xác thực tính pháp lý và bảo mật của tài liệu điện tử, đáp ứng yêu cầu của các giao dịch trực tuyến hoặc hợp đồng số.</p>
                 <Form.Group className="d-flex align-items-center">
                   <Form.Label className="me-2" style={{ width: '11.5%' }}>Chữ ký số <span style={{ color: 'red' }}>*</span></Form.Label>
                   {isSignature ? (
@@ -547,6 +590,8 @@ function Setting() {
                     <SaveSignature />
                   )}
                 </Form.Group>
+                <p style={{ fontStyle: 'italic', color: '#6c757d', marginLeft: '12.5%' }}>Chữ ký số giúp người dùng xác thực tính pháp lý và bảo mật của tài liệu điện tử, đáp ứng yêu cầu của các giao dịch trực tuyến hoặc hợp đồng số.</p>
+
               </Col>
             </Row>
 
@@ -556,12 +601,12 @@ function Setting() {
             <h5 style={{ color: '#E65C00' }}>Thông Tin Tài Khoản</h5>
             <Form.Group className="d-flex align-items-center">
               <Form.Label>Email <span style={{ color: 'red' }}>*</span></Form.Label>
-              <Form.Control type="email" value={`${user.emailaddress}`} />
+              <Form.Control type="email" value={`${user.emailaddress}`} readOnly />
             </Form.Group>
-            <Form.Group className="d-flex align-items-center mt-3">
+            {/* <Form.Group className="d-flex align-items-center mt-3">
               <Form.Label className="me-2" style={{ width: '12.5%' }}>Mật khẩu</Form.Label>
               <p className="text-muted">Đổi mật khẩu</p>
-            </Form.Group>
+            </Form.Group> */}
           </section>
 
           <section id="contact-info" className="mb-4">
@@ -592,22 +637,46 @@ function Setting() {
             </p>
             <Form.Group className="d-flex align-items-center">
               <Form.Label>Tên</Form.Label>
-              <Form.Control type="text" placeholder="Tên" />
+              <Form.Control
+                type="text"
+                placeholder="Tên"
+                name="name"
+                value={emergencyContact.name}
+                onChange={handleEmergencyContactChange}
+              />
             </Form.Group>
             <Form.Group className="d-flex align-items-center mt-3">
               <Form.Label>Số điện thoại</Form.Label>
-              <Form.Control type="text" placeholder="Số điện thoại" />
+              <Form.Control
+                type="text"
+                placeholder="Số điện thoại"
+                name="phone"
+                value={emergencyContact.phone}
+                onChange={handleEmergencyContactChange}
+              />
             </Form.Group>
             <Form.Group className="d-flex align-items-center mt-3">
               <Form.Label>Email</Form.Label>
-              <Form.Control type="email" placeholder="Email" />
+              <Form.Control
+                type="email"
+                placeholder="Email"
+                name="email"
+                value={emergencyContact.email}
+                onChange={handleEmergencyContactChange}
+              />
             </Form.Group>
             <Form.Group className="d-flex align-items-center mt-3">
               <Form.Label>Ghi chú</Form.Label>
-              <Form.Control as="textarea" rows={5} placeholder="Ghi chú" />
+              <Form.Control
+                as="textarea"
+                rows={5}
+                placeholder="Ghi chú"
+                name="noteContact"
+                value={emergencyContact.noteContact}
+                onChange={handleEmergencyContactChange}
+              />
             </Form.Group>
           </section>
-
           <div className="d-flex justify-content-end">
             <Button variant="success" className="mt-3" onClick={handleSaveInfo}>
               Lưu Thông Tin
