@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
-import EventCard from './EventCard';
+import EventCardPropse from './EventCardPropse';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
@@ -41,7 +41,7 @@ function ProposeEvent() {
   return (
     <div className='d-flex flex-column gap-4' style={{ padding: '0 85px' }}>
       {eventData.map((card) => (
-        <EventCard
+        <EventCardPropse
           key={card.id} // Sử dụng id làm key
           id={card.id}
           img={card.img}
