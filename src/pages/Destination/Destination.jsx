@@ -25,10 +25,11 @@ function Destination() {
         startDate: '',
         priceRange: [0, 10000000],
         gender: '',
-        rating: 0, // Default to 0 stars
+        ratingRange: [0, 5], // Thay đổi thành khoảng
         connectionsRange: [1, 10000],
         interests: [],
     });
+
 
     // Hàm lấy danh sách tour
     const fetchTours = async () => {
@@ -68,7 +69,8 @@ function Destination() {
             const matchesPrice = tour.Price >= filters.priceRange[0] && tour.Price <= filters.priceRange[1];
             const matchesGender = !filters.gender || tour.User.CCCD.Sex === filters.gender;
             const matchesRating =
-                filters.rating === 0 ? tour.User.Star === 0 : tour.User.Star >= filters.rating;
+                tour.User.Star >= filters.ratingRange[0] && tour.User.Star <= filters.ratingRange[1];
+
             const matchesConnections =
                 tour.User.CountConnect >= filters.connectionsRange[0] &&
                 tour.User.CountConnect <= filters.connectionsRange[1];
@@ -104,19 +106,15 @@ function Destination() {
         }
     };
 
-    // Lấy các tour khi location thay đổi
     useEffect(() => {
         if (selectedLocation) {
             fetchTours();
         }
     }, [selectedLocation]);
 
-    // Áp dụng bộ lọc khi có thay đổi ở filter
     useEffect(() => {
         applyFilters();
     }, [filters]);
-
-    // Gọi API lấy activities khi component mount
     useEffect(() => {
         fetchActivities();
     }, []);
@@ -128,13 +126,14 @@ function Destination() {
             startDate: '',
             priceRange: [0, 10000000],
             gender: '',
-            rating: 0,
+            ratingRange: [0, 5],
             connectionsRange: [0, 10000],
             interests: [],
         });
         setSelectedHobbies([]);
         fetchTours();
     };
+
 
     // Cập nhật sở thích và lọc ngay
     const handleHobbySelect = (hobbyName) => {
@@ -234,19 +233,28 @@ function Destination() {
                                     <option value="NU">Nữ</option>
                                     <option value="KHAC">Khác</option>
                                 </Form.Select>
-                                <h6>Số sao</h6>
-                                <Form.Select
-                                    aria-label="Chọn số sao"
-                                    value={filters.rating}
-                                    onChange={(e) => setFilters({ ...filters, rating: Number(e.target.value) })}
-                                >
-                                    <option value={0}>0 sao</option>
-                                    <option value={1}>1 sao</option>
-                                    <option value={2}>2 sao</option>
-                                    <option value={3}>3 sao</option>
-                                    <option value={4}>4 sao</option>
-                                    <option value={5}>5 sao</option>
-                                </Form.Select>
+                                <h6>Khoảng số sao</h6>
+                                <div className='d-flex gap-2'>
+                                    <Form.Control
+                                        type="number"
+                                        placeholder="Từ"
+                                        value={filters.ratingRange[0]}
+                                        onChange={(e) => setFilters({
+                                            ...filters,
+                                            ratingRange: [Number(e.target.value), filters.ratingRange[1]],
+                                        })}
+                                    />
+                                    <Form.Control
+                                        type="number"
+                                        placeholder="Đến"
+                                        value={filters.ratingRange[1]}
+                                        onChange={(e) => setFilters({
+                                            ...filters,
+                                            ratingRange: [filters.ratingRange[0], Number(e.target.value)],
+                                        })}
+                                    />
+                                </div>
+
 
                                 <h6>Số lượng kết nối</h6>
                                 <div className='d-flex gap-2'>
