@@ -3,6 +3,7 @@ import { HttpTransportType, HubConnectionBuilder, LogLevel } from "@microsoft/si
 import { useSelector, useDispatch } from "react-redux";
 import { Container, Row, Col, Card, ListGroup, Form, Button } from 'react-bootstrap';
 import { setChatConnection } from '../redux/actions/chatHubAction';
+import { useLocation } from "react-router-dom";
 
 const Chat = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -15,6 +16,16 @@ const Chat = () => {
   const messagesEndRef = useRef(null);
   const dispatch = useDispatch();
   const connection = useSelector((state) => state.chatHub.connection);
+  const location = useLocation();
+  const userData = location.state?.user;
+
+  useEffect(() => {
+    if (userData) {
+      console.log("Received user data from TourDetail:", userData);
+      setSelectedUser(userData);
+    }
+  }, [userData]);
+
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -61,7 +72,7 @@ const Chat = () => {
 
         connect.on("receiveMessage", (msg) => {
           console.log('Nhận tin nhắn', msg);
-          
+
           setMessages((prev) => [...prev, msg]);
           console.log('Tin nhắn', messages);
         });
@@ -81,11 +92,23 @@ const Chat = () => {
         const response = await connection.send("SendPrivate", selectedUser.id, message);
         setMessage("");
         await loadMessages(selectedUser);
+        await loadUserList();
       } catch (err) {
         console.error("Lỗi khi gửi tin nhắn: ", err);
       }
     }
   };
+
+  const loadUserList = async () => {
+    if (connection) {
+      try {
+        await connection.send("GetChatUsers");
+      } catch (err) {
+        console.error("Lỗi khi tải danh sách người dùng: ", err);
+      }
+    }
+  }
+
 
   const loadMessages = async (user) => {
     setSelectedUser(user);
@@ -108,9 +131,17 @@ const Chat = () => {
             </Card.Header>
             <ListGroup variant="flush" style={{ overflowY: 'auto', height: 'calc(100% - 56px)' }}>
               {chatUsers.map((user) => (
-                <ListGroup.Item key={user.id} onClick={() => loadMessages(user)} style={{ cursor: "pointer", padding: "10px 25px" }}>
+                <ListGroup.Item
+                  key={user.id}
+                  onClick={() => loadMessages(user)}
+                  style={{ cursor: "pointer", padding: "10px 25px" }}
+                >
                   <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                    <img src={user.avatar} alt={user.fullName} style={{ width: "50px", height: "50px", borderRadius: "50%" }} />
+                    <img
+                      src={user.avatar}
+                      alt={user.fullName}
+                      style={{ width: "50px", height: "50px", borderRadius: "50%" }}
+                    />
                     <div>
                       <small className="fw-bold">{user.fullName}</small>
                       <p className="m-0">{user.city}</p>
@@ -119,6 +150,7 @@ const Chat = () => {
                 </ListGroup.Item>
               ))}
             </ListGroup>
+
           </Card>
         </Col>
 
@@ -136,7 +168,7 @@ const Chat = () => {
               ) : "Chat"}
             </Card.Header>
             <Card.Body style={{ height: 'calc(100% - 112px)', overflowY: 'scroll' }}>
-            {messages.map((msg, index) => (
+              {messages.map((msg, index) => (
                 <div key={index} style={{ display: "flex", alignItems: "center", justifyContent: msg.senderId === userInfo.id ? "flex-end" : "flex-start", marginBottom: "10px" }}>
                   {msg.senderId !== userInfo.id && (
                     <img src={selectedUser.avatar} alt={selectedUser.fullName} style={{ width: "30px", height: "30px", borderRadius: "50%", marginRight: "0.5rem" }} />
