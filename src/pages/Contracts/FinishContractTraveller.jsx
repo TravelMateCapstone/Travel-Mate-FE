@@ -19,6 +19,8 @@ function FinishContractTraveller() {
     const [star, setStar] = useState(0);
     const contractInfo = JSON.parse(localStorage.getItem('contractInfo'));
     const contract_selected = JSON.parse(localStorage.getItem('contract_selected'));
+    console.log(contract_selected);
+    
     const profile = useSelector((state) => state.profile);
     const handleImageUpload = async (event) => {
         const files = Array.from(event.target.files);
@@ -153,8 +155,8 @@ function FinishContractTraveller() {
                                     width={60}
                                 />
                                 <div className='d-flex flex-column justify-content-center'>
-                                    <p className="mb-2 fw-bold">{"NGUYỄN MINH QUÂN"}</p>
-                                    <small className="fw-medium">{contract_selected?.location || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'}</small>
+                                    <p className="mb-2 fw-bold">{contract_selected?.account.fullName || 'Không xác định'}</p>
+                                    <small className="fw-medium">{contract_selected?.location || 'Không xác định'}</small>
                                 </div>
                             </div>
     

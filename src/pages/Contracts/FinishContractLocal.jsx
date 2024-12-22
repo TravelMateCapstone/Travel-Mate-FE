@@ -166,8 +166,8 @@ function FinishContractLocal() {
                                     width={60}
                                 />
                                 <div  className='d-flex flex-column justify-content-center'>
-                                    <p className="mb-2 fw-bold">{user.FullName}</p>
-                                    <small className="fw-medium">{additional?.location || 'Đà Nẵng' }</small>
+                                    <p className="mb-2 fw-bold">{user.FullName || 'Không xác định'}</p>
+                                    <small className="fw-medium">{additional?.location || 'Không xác định' }</small>
                                 </div>
                             </div>
     
