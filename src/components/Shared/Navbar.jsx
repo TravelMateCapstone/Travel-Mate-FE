@@ -436,35 +436,9 @@ const Navbar = React.memo(() => {
           <Col xs={4} className="d-flex justify-content-end gap-2 align-items-center pe-0">
             {isAuthenticated ? (
               <>
-                <Dropdown align="end">
-                  <Dropdown.Toggle className="messages_action bg-white rounded-5 border-0 d-flex justify-content-center align-items-center shadow-none">
-                    <ion-icon name="chatbubbles-outline" style={{
-                      color: 'black',
-                      fontSize: '20px'
-                    }}></ion-icon>
-                  </Dropdown.Toggle>
-
-                  <Dropdown.Menu className="py-3 messenger-dropdown-menu">
-                    {messages.map((message) => (
-                      <Dropdown.Item key={message.id} href={`#message${message.id}`} className="px-3 py-2">
-                        <MessengerItem
-                          avatar={message.avatar}
-                          name={message.name}
-                          message={message.message}
-                          time={message.time}
-                        />
-                      </Dropdown.Item>
-                    ))}
-                    <Link to={RoutePath.CHAT} className='text-black'>
-                      <div className="d-flex align-items-center justify-content-center mt-2 gap-1">
-                        <p className="m-0 messege-more">Mở tin nhắn</p>
-                        <ion-icon name="chevron-forward-circle-outline" style={{
-                          fontSize: '20px'
-                        }}></ion-icon>
-                      </div>
-                    </Link>
-                  </Dropdown.Menu>
-                </Dropdown>
+                <Button as={Link} to={RoutePath.CHAT} variant=''>
+                <ion-icon name="chatbubble-outline" style={{ color: 'black', fontSize: '20px' }}></ion-icon>
+                </Button>
 
                 <Dropdown align="end">
                   <Dropdown.Toggle className="notify_action shadow-none bg-white rounded-5 border-0 d-flex justify-content-center align-items-center position-relative">

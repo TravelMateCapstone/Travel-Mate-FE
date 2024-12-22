@@ -12,7 +12,7 @@ function MonthlySpendingChart({ transactions, selectedYear }) {
 
     const monthlySpending = filteredTransactions.reduce((acc, transaction) => {
       const month = new Date(transaction.transactionTime).getMonth() + 1;
-      acc[month] = (acc[month] || 0) + transaction.amount; // Change transaction.price to transaction.amount
+      acc[month] = (acc[month] || 0) + transaction.amount; 
       return acc;
     }, {});
 

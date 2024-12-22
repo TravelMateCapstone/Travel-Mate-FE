@@ -1,52 +1,8 @@
-#chat-tabs{
-    display: flex;
-    justify-content: center;
-    padding: 10px;
-    gap: 10px;
-    background-color: #c5c6c7;
-    border-radius: 20px;
-}
-#chat-tabs button{
-  height: 30px;
-  width: 130px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.search-chat{
-  height: 40px !important;
-}
-.chat-column {
-  padding: 0 20px;
-}
-.chatmessage-container {
-  height: 70vh !important;
-}
-.input-chat{
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-.input-chat input{
-  width: 400px;
-  height: 40px;
-  border-radius: 20px;
-  padding: 0 20px;
-}
-.send-button{
-  border: 1px solid #e0e0e0 !important;
-}
-.chat-text {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  line-clamp: 1;
-  -webkit-box-orient: vertical;
-}
-
-.message-item-chat-sidebar:hover {
+.list-group-item:hover {
   background-color: #f0f0f0;
   cursor: pointer;
+}
+
+.chat-input-text-ctr:focus{
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
 }

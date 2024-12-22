@@ -97,22 +97,21 @@ const Chat = () => {
   };
 
   return (
-    <Container fluid style={{
-      padding: '0 140px'
-    }}>
-
-      <Row>
-        <Col md={4}>
-          <Card>
-            <Card.Header>Người dùng</Card.Header>
-            <ListGroup variant="flush">
+    <Container fluid style={{ padding: '0 140px', height: '80vh' }}>
+      <Row style={{ height: '100%' }}>
+        <Col md={3} style={{ height: '100%' }}>
+          <Card style={{ height: '100%' }}>
+            <Card.Header>
+              <h4 className="fw-bold text-center">Tin nhắn ({chatUsers.length})</h4>
+            </Card.Header>
+            <ListGroup variant="flush" style={{ overflowY: 'auto', height: 'calc(100% - 56px)' }}>
               {chatUsers.map((user) => (
-                <ListGroup.Item key={user.id} onClick={() => loadMessages(user)} style={{ cursor: "pointer" }}>
+                <ListGroup.Item key={user.id} onClick={() => loadMessages(user)} style={{ cursor: "pointer", padding: "10px 25px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                    <img src={user.avatar} alt={user.fullName} style={{ width: "40px", height: "40px", borderRadius: "50%" }} />
+                    <img src={user.avatar} alt={user.fullName} style={{ width: "50px", height: "50px", borderRadius: "50%" }} />
                     <div>
-                      <div>{user.fullName}</div>
-                      <div>{user.city}</div>
+                      <small className="fw-bold">{user.fullName}</small>
+                      <p className="m-0">{user.city}</p>
                     </div>
                   </div>
                 </ListGroup.Item>
@@ -121,21 +120,43 @@ const Chat = () => {
           </Card>
         </Col>
 
-        <Col md={8}>
-          <Card>
-            <Card.Header>
-              {selectedUser ? `Đang chat với ${selectedUser.fullName}` : "Chat"}
+        <Col md={9} style={{ height: '100%' }}>
+          <Card style={{ height: '100%' }}>
+            <Card.Header className="bg-white py-3">
+              {selectedUser ? (
+                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                  <img src={selectedUser.avatar} alt={selectedUser.fullName} style={{ width: "60px", height: "60px", borderRadius: "50%" }} />
+                  <div>
+                    <h6>{selectedUser.fullName}</h6>
+                    <small className="m-0">{selectedUser.city}</small>
+                  </div>
+                </div>
+              ) : "Chat"}
             </Card.Header>
-            <Card.Body style={{ height: "300px", overflowY: "scroll" }}>
+            <Card.Body style={{ height: 'calc(100% - 112px)', overflowY: 'scroll' }}>
               {messages.map((msg, index) => (
-                <div key={index} style={{ display: "flex", alignItems: "center", justifyContent: msg.senderId === userInfo.id ? "flex-end" : "flex-start", marginBottom: "10px" }}>
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: msg.senderId === userInfo.id ? "flex-end" : "flex-start",
+                    marginBottom: "10px",
+                    border: "1px solid #ccc",
+                    borderRadius: "10px",
+                    padding: "10px",
+                    backgroundColor: msg.senderId === userInfo.id ? "#e0f7fa" : "#fff"
+                  }}
+                >
                   {msg.senderId !== userInfo.id && (
                     <img src={selectedUser.avatar} alt={selectedUser.fullName} style={{ width: "30px", height: "30px", borderRadius: "50%", marginRight: "0.5rem" }} />
                   )}
                   <div>
                     {msg.content}
                   </div>
-                 
+                  {msg.senderId === userInfo.id && (
+                    <img src={userInfo.avatar} alt={userInfo.fullName} style={{ width: "30px", height: "30px", borderRadius: "50%", marginLeft: "0.5rem" }} />
+                  )}
                 </div>
               ))}
               <div ref={messagesEndRef} />
