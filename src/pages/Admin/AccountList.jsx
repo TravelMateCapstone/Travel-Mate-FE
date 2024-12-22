@@ -6,7 +6,7 @@ import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-mod
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import ReactModal from "react-modal";
-import { Button, FormControl, Row, Col } from "react-bootstrap";
+import { Button, FormControl, Row, Col, Card } from "react-bootstrap";
 import { utils, writeFile } from "xlsx";
 import { AgCharts } from "ag-charts-react";
 import { toast, ToastContainer } from "react-toastify";
@@ -34,6 +34,12 @@ const AccountList = () => {
 
 
   const { data, isLoading, isError, error } = useQuery("users", fetchUserData);
+
+  const totalUsers = data?.value?.length || 0;
+  const totalBannedUsers = Object.values(bannedUsers).filter((banned) => banned).length;
+  const averageStars =
+    data?.value?.reduce((sum, user) => sum + (user.Star || 0), 0) / totalUsers || 0;
+
 
   const handleToggleBan = (userId) => {
     setBannedUsers((prevState) => {
@@ -277,6 +283,26 @@ const AccountList = () => {
 
   return (
     <div style={containerStyle}>
+
+<Row className="mb-4">
+        <Col md={6}>
+          <Card className="text-center">
+            <Card.Body>
+              <Card.Title>Tổng số người dùng</Card.Title>
+              <h3>{totalUsers}</h3>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={6}>
+          <Card className="text-center">
+            <Card.Body>
+              <Card.Title>Người dùng bị cấm</Card.Title>
+              <h3>{totalBannedUsers}</h3>
+            </Card.Body>
+          </Card>
+        </Col>
+        
+      </Row>
        <Row className="mb-2">
           <Col lg={8}>
             <div style={{ width: "100%", }}>
@@ -330,7 +356,6 @@ const AccountList = () => {
       
       </div>
 
-      {/* Modal chi tiết */}
       <ReactModal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
