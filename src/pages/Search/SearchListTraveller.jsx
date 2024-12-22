@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Form, Button, Spinner } from 'react-bootstrap';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
 import { ToastContainer } from 'react-toastify';
 import axios from 'axios';
@@ -19,6 +19,9 @@ function SearchListTraveller() {
   const [currentPage, setCurrentPage] = useState(0);
   const [selectedLocation, setSelectedLocation] = useState('');
   const [selectedHobbies, setSelectedHobbies] = useState([]);
+  const [locations, setLocations] = useState([]);
+  const [locals, setLocals] = useState([]);
+  const [allHobbies, setAllHobbies] = useState([]);
   const itemsPerPage = 4;
 
   const dispatch = useDispatch();
@@ -32,8 +35,8 @@ function SearchListTraveller() {
     }));
   };
 
-  const fetchTravellers = async () => {
-    const response = await axios.get('https://travelmateapp.azurewebsites.net/GetUsersWithDetail-byRole/traveler');
+  const fetchLocals = async () => {
+    const response = await axios.get('https://travelmateapp.azurewebsites.net/GetUsersWithDetail-byRole/user');
     return response.data.$values.map((user) => ({
       id: user.userId,
       avatar: user.profile?.imageUser || 'https://img.freepik.com/premium-vector/default-avatar-profile-icon_561158-3467.jpg',
@@ -58,13 +61,53 @@ function SearchListTraveller() {
     }));
   };
 
-  const { data: allHobbies = [] } = useQuery('activities', fetchActivities);
-  const { data: locals = [], isLoading: isLoadingTravellers } = useQuery('travellers', fetchTravellers);
-  const { data: locations = [] } = useQuery('locations', fetchLocations);
+  const { data: activitiesData, error: activitiesError } = useQuery('activities', fetchActivities);
+  const { data: localsData, error: localsError } = useQuery('locals', fetchLocals);
+  const { data: locationsData, error: locationsError } = useQuery('locations', fetchLocations);
+
+  useEffect(() => {
+    if (activitiesData) setAllHobbies(activitiesData);
+    if (localsData) setLocals(localsData);
+    if (locationsData) setLocations(locationsData);
+  }, [activitiesData, localsData, locationsData]);
 
   const token = useSelector((state) => state.auth.token);
 
-  const renderPlaceholder = () => (
+  const handleUserClick = useCallback((userId) => {
+    dispatch(viewProfile(userId, token));
+    navigate(RoutePath.OTHERS_PROFILE);
+  }, [dispatch, token, navigate]);
+
+  const filteredLocals = useMemo(() => locals.filter((local) => {
+    const matchesName = local.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesAddress = local.address.toLowerCase().includes(address.toLowerCase());
+    const matchesGender = !gender || local.gender.toLowerCase() === gender.toLowerCase();
+    const matchesAge = local.age === 'Chưa xác định' || (local.age >= ageRange[0] && local.age <= ageRange[1]);
+    // const matchesHobby = selectedHobbies.length;
+    // const matchesHobby = selectedHobbies.length === 0 || selectedHobbies.every((hobby) => local.hobbies.includes(hobby));
+    const matchesHobby = selectedHobbies.length === 0 || local.hobbies.some((hobby) => selectedHobbies.includes(hobby));
+    const matchesLocation = !selectedLocation || local.locations.includes(selectedLocation);
+
+    return matchesName && matchesAddress && matchesGender && matchesAge && matchesHobby && matchesLocation;
+  }), [locals, searchTerm, address, gender, ageRange, selectedHobbies, selectedLocation]);
+
+  const displayedLocals = useMemo(() => filteredLocals.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage), [filteredLocals, currentPage, itemsPerPage]);
+
+  const renderStars = useCallback((rating) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <ion-icon
+          key={i}
+          name={i <= rating ? 'star' : 'star-outline'}
+          style={{ color: i <= rating ? '#FFD700' : '#000000', fontSize: '20px' }}
+        />
+      );
+    }
+    return stars;
+  }, []);
+
+  const renderPlaceholder = useCallback(() => (
     <Row className="border-bottom p-3">
       <Col md={2}>
         <div className="placeholder-avatar" style={{ width: '100%', height: '150px', backgroundColor: '#e0e0e0' }}></div>
@@ -79,30 +122,12 @@ function SearchListTraveller() {
         <div className="placeholder-text" style={{ width: '50%', height: '15px', backgroundColor: '#e0e0e0' }}></div>
       </Col>
     </Row>
-  );
-
-  const handleUserClick = (userId) => {
-    dispatch(viewProfile(userId, token));
-    navigate(RoutePath.OTHERS_PROFILE);
-  };
-
-  const filteredLocals = locals.filter((local) => {
-    const matchesName = local.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesAddress = local.address.toLowerCase().includes(address.toLowerCase());
-    const matchesGender = !gender || local.gender.toLowerCase() === gender.toLowerCase();
-    const matchesAge = local.age === 'Chưa xác định' || (local.age >= ageRange[0] && local.age <= ageRange[1]);
-    const matchesHobby = selectedHobbies.length === 0 || selectedHobbies.every((hobby) => local.hobbies.includes(hobby));
-    const matchesLocation = !selectedLocation || local.locations.includes(selectedLocation);
-
-    return matchesName && matchesAddress && matchesGender && matchesAge && matchesHobby && matchesLocation;
-  });
-
-  const displayedLocals = filteredLocals.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
+  ), []);
 
   return (
     <Container fluid style={{ padding: '0 70px' }}>
-      <ToastContainer />
-      <Row>
+      <h4 className='text-uppercase text-success'>Khách du lịch</h4>
+      <Row className='mt-4'>
         <Col md={3} style={{
           borderRadius: '20px',
           borderColor: '#e0e0e0',
@@ -144,8 +169,8 @@ function SearchListTraveller() {
               onChange={(e) => setGender(e.target.value)}
             >
               <option value="">Tất cả</option>
-              <option value="Male">Nam</option>
-              <option value="Female">Nữ</option>
+              <option value="NAM">Nam</option>
+              <option value="NỮ">Nữ</option>
             </Form.Select>
           </Form.Group>
 
@@ -182,15 +207,17 @@ function SearchListTraveller() {
             </div>
           </Form.Group>
         </Col>
-        <Col md={9}>
-          {isLoadingTravellers ? (
-            <div className="">
+        <Col md={9} style={{
+          height: 'fit-content',
+        }}>
+          {localsData === undefined ? (
+            <>
               {Array.from({ length: itemsPerPage }).map((_, index) => (
                 <React.Fragment key={index}>
                   {renderPlaceholder()}
                 </React.Fragment>
               ))}
-            </div>
+            </>
           ) : filteredLocals.length === 0 ? (
             <div className="text-center">Không tìm thấy kết quả.</div>
           ) : (
@@ -205,7 +232,7 @@ function SearchListTraveller() {
                   <p>Sở thích: {local.hobbies.join(', ')}</p>
                 </Col>
                 <Col md={2}>
-                  <p>{local.rating} sao</p>
+                  <div>{renderStars(local.rating)}</div>
                   <p>{local.connections} kết nối</p>
                 </Col>
               </Row>

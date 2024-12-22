@@ -47,11 +47,11 @@ const Navbar = React.memo(() => {
   }, [navigate]);
 
   const handleSearchLocal = useCallback(() => {
-    setNavigateTo(RoutePath.SEARCH_LIST_LOCAL);
+    navigate(RoutePath.SEARCH_LIST_LOCAL); // Điều hướng đến trang "Người địa phương"
   }, [navigate]);
 
   const handleSearchTraveller = useCallback(() => {
-    setNavigateTo(RoutePath.SEARCH_LIST_TRAVELLER);
+    navigate(RoutePath.SEARCH_LIST_TRAVELLER); // Điều hướng đến trang "Khách du lịch"
   }, [navigate]);
 
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
@@ -77,11 +77,12 @@ const Navbar = React.memo(() => {
             const updatedNotifications = response.data.$values.map(notification => {
               return {
                 ...notification,
-                isRequest: notification.message.includes("Bạn đã nhận được một lời m���i kết bạn từ "),
+                isRequest: notification.message.includes("Bạn đã nhận được một lời mời kết bạn từ "),
                 senderId: notification.senderId ? notification.senderId : null
               };
             });
             setNotifications(updatedNotifications);
+            console.log("notify", notifications);
             const unreadCount = updatedNotifications.filter(notification => !notification.isRead).length;
             setUnreadNotificationsCount(unreadCount);
           }
@@ -184,7 +185,7 @@ const Navbar = React.memo(() => {
   const handleShow = useCallback(() => setShowOffcanvas(true), []);
   const handleClose = useCallback(() => setShowOffcanvas(false), []);
 
-  const handleAcceptFriendRequest = async (senderId) => {
+  const handleAcceptFriendRequest = async (senderId, notificationId) => {
     try {
       const response = await axios.post(
         `https://travelmateapp.azurewebsites.net/api/Friendship/accept?fromUserId=${senderId}`,
@@ -196,8 +197,27 @@ const Navbar = React.memo(() => {
         }
       );
       if (response.status === 200) {
-
         toast.success("Chấp nhận kết bạn thành công!");
+
+        // Gọi API PUT để cập nhật thông báo
+        try {
+          const putResponse = await axios.put(
+            `https://travelmateapp.azurewebsites.net/api/Notification/${notificationId}/message`,
+            JSON.stringify("Lời mời kết bạn đã được xử lý"), // Định dạng JSON
+            {
+              headers: {
+                Authorization: `${token}`,
+                "Content-Type": "application/json" // Đặt Content-Type là application/json
+              }
+            }
+          );
+          if (putResponse.status === 200) {
+            console.log("Cập nhật thông báo thành công");
+          }
+        } catch (putError) {
+          console.error("Error updating notification:", putError);
+          toast.error("Lỗi khi cập nhật thông báo!");
+        }
       }
     } catch (error) {
       console.error('Error accepting friend request:', error);
@@ -205,7 +225,7 @@ const Navbar = React.memo(() => {
     }
   };
 
-  const handleRejectFriendRequest = async (userIdRequest) => {
+  const handleRejectFriendRequest = async (userIdRequest, notificationId) => {
     try {
       const response = await axios.delete(
         `https://travelmateapp.azurewebsites.net/api/Friendship/remove?friendUserId=${userIdRequest}`,
@@ -217,6 +237,25 @@ const Navbar = React.memo(() => {
       );
       if (response.status === 200) {
         toast.success("Từ chối kết bạn thành công!");
+        // Gọi API PUT để cập nhật thông báo
+        try {
+          const putResponse = await axios.put(
+            `https://travelmateapp.azurewebsites.net/api/Notification/${notificationId}/message`,
+            JSON.stringify("Lời mời kết bạn đã được xử lý"), // Định dạng JSON
+            {
+              headers: {
+                Authorization: `${token}`,
+                "Content-Type": "application/json" // Đặt Content-Type là application/json
+              }
+            }
+          );
+          if (putResponse.status === 200) {
+            console.log("Cập nhật thông báo thành công");
+          }
+        } catch (putError) {
+          console.error("Error updating notification:", putError);
+          toast.error("Lỗi khi cập nhật thông báo!");
+        }
       }
     } catch (error) {
       console.error('Error rejecting friend request:', error);
@@ -269,6 +308,7 @@ const Navbar = React.memo(() => {
     const savedLocations = JSON.parse(localStorage.getItem('selectedLocations')) || [];
     console.log('Địa điểm đã lưu:', savedLocations);
   }, []);
+
   const handleEnterSearch = (e) => {
     if (e.key === 'Enter') {
       if (searchInput.trim() === '') {
@@ -403,17 +443,17 @@ const Navbar = React.memo(() => {
                       className="custom-dropdown-item px-0"
                       onClick={handleSearchLocal} // Gọi hàm điều hướng
                     >
-                      <p className="m-0">Người địa phương</p>
-                      <p className="m-0 fw-light">Tìm bạn cùng khám phá thành phố</p>
+                      <p className="m-0">Người đồng hành</p>
+                      <p className="m-0 fw-light">Tìm bạn bè cùng khám phá thành phố</p>
                     </Dropdown.Item>
-                    <Dropdown.Item
+                    {/* <Dropdown.Item
                       eventKey="Khách du lịch"
                       className="custom-dropdown-item px-0"
                       onClick={handleSearchTraveller} // Gọi hàm điều hướng
                     >
                       <p className="m-0">Khách du lịch</p>
                       <p className="m-0 fw-light">Kết nối với bạn bè để trải nghiệm</p>
-                    </Dropdown.Item>
+                    </Dropdown.Item> */}
 
                   </Dropdown.Menu>
                 </Dropdown>
@@ -463,8 +503,8 @@ const Navbar = React.memo(() => {
                             isRequest={notification.isRequest}
                             name={user?.username || 'User'}
                             isRead={notification.isRead}
-                            onAccept={() => handleAcceptFriendRequest(notification.senderId)}
-                            onDecline={() => handleRejectFriendRequest(notification.senderId)}
+                            onAccept={() => handleAcceptFriendRequest(notification.senderId, notification.notificationId)}
+                            onDecline={() => handleRejectFriendRequest(notification.senderId, notification.notificationId)}
                             updateUnreadCount={updateUnreadCount}
                           />
                         </Dropdown.Item>

@@ -99,7 +99,7 @@ function NotifyItem({ notificationId, typeNotification, senderId, isRequest, ava
         if (!isRead) {
             try {
                 await axios.post(`https://travelmateapp.azurewebsites.net/api/Notification/current-user-read/${notificationId}`);
-                toast.success("Thông báo đã được đánh dấu là đã đọc!");
+                // toast.success("Thông báo đã được đánh dấu là đã đọc!");
                 updateUnreadCount(); // Update unread count
             } catch (error) {
                 console.error("Error marking notification as read:", error);

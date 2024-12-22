@@ -36,7 +36,7 @@ function SearchListLocal() {
   };
 
   const fetchLocals = async () => {
-    const response = await axios.get('https://travelmateapp.azurewebsites.net/GetUsersWithDetail-byRole/user');
+    const response = await axios.get('https://travelmateapp.azurewebsites.net/GetUsersWithDetail');
     return response.data.$values.map((user) => ({
       id: user.userId,
       avatar: user.profile?.imageUser || 'https://img.freepik.com/premium-vector/default-avatar-profile-icon_561158-3467.jpg',
@@ -83,7 +83,9 @@ function SearchListLocal() {
     const matchesAddress = local.address.toLowerCase().includes(address.toLowerCase());
     const matchesGender = !gender || local.gender.toLowerCase() === gender.toLowerCase();
     const matchesAge = local.age === 'Chưa xác định' || (local.age >= ageRange[0] && local.age <= ageRange[1]);
-    const matchesHobby = selectedHobbies.length === 0 || selectedHobbies.every((hobby) => local.hobbies.includes(hobby));
+    // const matchesHobby = selectedHobbies.length;
+    // const matchesHobby = selectedHobbies.length === 0 || selectedHobbies.every((hobby) => local.hobbies.includes(hobby));
+    const matchesHobby = selectedHobbies.length === 0 || local.hobbies.some((hobby) => selectedHobbies.includes(hobby));
     const matchesLocation = !selectedLocation || local.locations.includes(selectedLocation);
 
     return matchesName && matchesAddress && matchesGender && matchesAge && matchesHobby && matchesLocation;
@@ -124,7 +126,7 @@ function SearchListLocal() {
 
   return (
     <Container fluid style={{ padding: '0 70px' }}>
-      <h4 className='text-uppercase text-success'>Người địa phương</h4>
+      <h4 className='text-uppercase text-success'>Người đồng hành</h4>
       <Row className='mt-4'>
         <Col md={3} style={{
           borderRadius: '20px',
@@ -144,7 +146,7 @@ function SearchListLocal() {
             />
           </Form.Group>
           <Form.Group className="mb-4">
-            <Form.Label>Địa điểm</Form.Label>
+            <Form.Label>Địa chỉ hiện tại</Form.Label>
             <Form.Select
               className='rounded-3'
               value={selectedLocation}
@@ -226,9 +228,11 @@ function SearchListLocal() {
                 </Col>
                 <Col md={8}>
                   <h6>{local.name} ({local.age} tuổi, {local.gender})</h6>
-                  <p>Địa chỉ: {local.address}</p>
+                  <p>Quê quán: {local.address}</p>
+                  <p>Địa điểm hiện tại: {local.locations.length > 0 ? local.locations.join(', ') : 'Chưa xác định'}</p>
                   <p>Sở thích: {local.hobbies.join(', ')}</p>
                 </Col>
+
                 <Col md={2}>
                   <div>{renderStars(local.rating)}</div>
                   <p>{local.connections} kết nối</p>

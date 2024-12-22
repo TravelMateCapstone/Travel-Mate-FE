@@ -42,7 +42,6 @@ function Setting() {
 
   const [phone, setPhone] = useState(profile.phone || '');
 
-
   const fetchCCCDInfo = async () => {
     try {
       const response = await axios.get(
@@ -79,9 +78,7 @@ function Setting() {
           },
         }
       );
-
       const profileData = response.data;
-
       setProfile({
         firstName: profileData.firstName || '',
         lastName: profileData.lastName || '',
@@ -182,10 +179,57 @@ function Setting() {
 
       toast.success("Cập nhật thông tin thành công.");
       console.log("Kết quả API cập nhật Profile:", response.data);
+
     } catch (error) {
       console.error("Lỗi khi cập nhật Profile hoặc tên đầy đủ:", error);
       toast.error('Lỗi khi cập nhật thông tin Profile.');
     }
+  };
+
+
+  // liên hệ khẩn cấp
+  const [emergencyContact, setEmergencyContact] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    noteContact: '',
+  });
+
+  // Fetch emergency contact info
+  useEffect(() => {
+    const fetchEmergencyContact = async () => {
+      try {
+        const response = await axios.get(
+          'https://travelmateapp.azurewebsites.net/api/UserContact/Get-CurrentUser',
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        );
+        const contactData = response.data?.$values?.[0] || {};
+        setEmergencyContact({
+          name: contactData.name || '',
+          phone: contactData.phone || '',
+          email: contactData.email || '',
+          noteContact: contactData.noteContact || '',
+        });
+      } catch (error) {
+        console.error('Error fetching emergency contact:', error);
+        toast.error('Không thể tải thông tin liên hệ khẩn cấp.');
+      }
+    };
+
+    fetchEmergencyContact();
+  }, [token]);
+
+  // Handle input changes
+  const handleEmergencyContactChange = (e) => {
+    const { name, value } = e.target;
+    setEmergencyContact((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSaveInfo = async () => {
@@ -221,13 +265,36 @@ function Setting() {
       } else {
         throw new Error("Cập nhật thất bại.");
       }
+
+      try {
+        const response = await axios.put(
+          'https://travelmateapp.azurewebsites.net/api/UserContact/Update-Contact-CurrentUser',
+          emergencyContact,
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          toast.success('Cập nhật thông tin liên hệ khẩn cấp thành công.');
+        } else {
+          throw new Error('Cập nhật thất bại.');
+        }
+      } catch (error) {
+        console.error('Error saving emergency contact:', error);
+        toast.error('Lỗi khi lưu thông tin liên hệ khẩn cấp.');
+      }
     } catch (error) {
       console.error("Lỗi khi lưu thông tin:", error);
       toast.error("Lỗi khi cập nhật thông tin.");
     }
   };
 
+
   const handleFrontImageUpload = async (event) => {
+
     const file = event.target.files[0];
     if (!file) return;
     setFrontImage(file);
@@ -488,9 +555,10 @@ function Setting() {
               </Col>
             </Row>
             <Row className="mt-3">
+              <h5 style={{ color: '#E65C00' }}>Định danh tài khoản</h5>
               <Col md={6}>
                 <div className="image-upload-wrapper d-flex align-items-center">
-                  <p className="me-2" style={{ width: '28%' }}>Ảnh CCCD mặt trước</p>
+                  <p className="me-2" style={{ width: '28%' }}>Ảnh CCCD mặt trước <span style={{ color: 'red' }}>*</span></p>
                   {frontImageUrl ? (
                     <div className="uploaded-image">
                       <img src={frontImageUrl} alt="CCCD Mặt Trước" style={{ maxWidth: '100%', height: 'auto' }} />
@@ -513,7 +581,7 @@ function Setting() {
 
               <Col md={6}>
                 <div className="image-upload-wrapper d-flex align-items-center">
-                  <p className="me-2" style={{ width: '28%' }}>Ảnh CCCD mặt sau</p>
+                  <p className="me-2" style={{ width: '28%' }}>Ảnh CCCD mặt sau <span style={{ color: 'red' }}>*</span></p>
                   {backImageUrl ? (
                     <div className="uploaded-image">
                       <img src={backImageUrl} alt="CCCD Mặt Sau" style={{ maxWidth: '100%', height: 'auto' }} />
@@ -538,13 +606,15 @@ function Setting() {
             <Row className="mt-3">
               <Col md={12}>
                 <Form.Group className="d-flex align-items-center">
-                  <Form.Label className="me-2" style={{ width: '11.5%' }}>Chữ ký số</Form.Label>
+                  <Form.Label className="me-2" style={{ width: '11.5%' }}>Chữ ký số <span style={{ color: 'red' }}>*</span></Form.Label>
                   {isSignature ? (
                     <span className="text-success fw-bold">Chữ ký số đã được tạo</span>
                   ) : (
                     <SaveSignature />
                   )}
                 </Form.Group>
+                <p style={{ fontStyle: 'italic', color: '#6c757d', marginLeft: '12.5%' }}>Chữ ký số giúp người dùng xác thực tính pháp lý và bảo mật của tài liệu điện tử, đáp ứng yêu cầu của các giao dịch trực tuyến hoặc hợp đồng số.</p>
+
               </Col>
             </Row>
 
@@ -553,19 +623,19 @@ function Setting() {
           <section id="account-details" className="mb-4">
             <h5 style={{ color: '#E65C00' }}>Thông Tin Tài Khoản</h5>
             <Form.Group className="d-flex align-items-center">
-              <Form.Label>Email</Form.Label>
-              <Form.Control type="email" value={`${user.emailaddress}`} />
+              <Form.Label>Email <span style={{ color: 'red' }}>*</span></Form.Label>
+              <Form.Control type="email" value={`${user.emailaddress}`} readOnly />
             </Form.Group>
-            <Form.Group className="d-flex align-items-center mt-3">
-              <Form.Label className="me-2" style={{ width: '12.5%' }}>Mật khẩu</Form.Label>
-              <p className="text-muted">Đổi mật khẩu</p>
-            </Form.Group>
+            {/* <Form.Group className="d-flex align-items-center mt-3">
+                        <Form.Label className="me-2" style={{ width: '12.5%' }}>Mật khẩu</Form.Label>
+                        <p className="text-muted">Đổi mật khẩu</p>
+                      </Form.Group> */}
           </section>
 
           <section id="contact-info" className="mb-4">
             <h5 style={{ color: '#E65C00' }}>Thông Tin Liên Lạc</h5>
             <Form.Group className="d-flex align-items-center">
-              <Form.Label>Số điện thoại</Form.Label>
+              <Form.Label>Số điện thoại <span style={{ color: 'red' }}>*</span></Form.Label>
               <Form.Control
                 type="text"
                 value={phone}
@@ -584,28 +654,54 @@ function Setting() {
           </section>
 
           <section id="emergency-contact" className="mb-4">
-            <h5 style={{ color: '#E65C00' }}>Liên Hệ Khẩn Cấp</h5>
+            <h5 style={{ color: "#E65C00" }}>Liên Hệ Khẩn Cấp</h5>
             <p className="text-muted">
-              Bạn cho phép chúng tôi thông báo cho người này nếu chúng tôi cho rằng bạn đang gặp tình huống khẩn cấp và chia sẻ thông tin về hoạt động cũng như vị trí của bạn với họ nếu có yêu cầu.
+              Bạn cho phép chúng tôi thông báo cho người này nếu chúng tôi cho rằng
+              bạn đang gặp tình huống khẩn cấp và chia sẻ thông tin về hoạt động cũng
+              như vị trí của bạn với họ nếu có yêu cầu.
             </p>
             <Form.Group className="d-flex align-items-center">
               <Form.Label>Tên</Form.Label>
-              <Form.Control type="text" placeholder="Tên" />
+              <Form.Control
+                type="text"
+                placeholder="Tên"
+                name="name"
+                value={emergencyContact.name}
+                onChange={handleEmergencyContactChange}
+              />
             </Form.Group>
             <Form.Group className="d-flex align-items-center mt-3">
               <Form.Label>Số điện thoại</Form.Label>
-              <Form.Control type="text" placeholder="Số điện thoại" />
+              <Form.Control
+                type="text"
+                placeholder="Số điện thoại"
+                name="phone"
+                value={emergencyContact.phone}
+                onChange={handleEmergencyContactChange}
+              />
             </Form.Group>
             <Form.Group className="d-flex align-items-center mt-3">
               <Form.Label>Email</Form.Label>
-              <Form.Control type="email" placeholder="Email" />
+              <Form.Control
+                type="email"
+                placeholder="Email"
+                name="email"
+                value={emergencyContact.email}
+                onChange={handleEmergencyContactChange}
+              />
             </Form.Group>
             <Form.Group className="d-flex align-items-center mt-3">
               <Form.Label>Ghi chú</Form.Label>
-              <Form.Control as="textarea" rows={5} placeholder="Ghi chú" />
+              <Form.Control
+                as="textarea"
+                rows={5}
+                placeholder="Ghi chú"
+                name="noteContact"
+                value={emergencyContact.noteContact}
+                onChange={handleEmergencyContactChange}
+              />
             </Form.Group>
           </section>
-
           <div className="d-flex justify-content-end">
             <Button variant="success" className="mt-3" onClick={handleSaveInfo}>
               Lưu Thông Tin
