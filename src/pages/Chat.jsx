@@ -62,12 +62,7 @@ const Chat = () => {
         connect.on("receiveMessage", (msg) => {
           console.log('Nhận tin nhắn', msg);
           
-          setMessages((prev) => {
-            if (msg.senderId === selectedUser.id || msg.receiverId === selectedUser.id) {
-              return [...prev, msg];
-            }
-            return prev;
-          });
+          setMessages((prev) => [...prev, msg]);
           console.log('Tin nhắn', messages);
         });
 
