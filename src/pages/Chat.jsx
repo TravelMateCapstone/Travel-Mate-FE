@@ -134,24 +134,12 @@ const Chat = () => {
               ) : "Chat"}
             </Card.Header>
             <Card.Body style={{ height: 'calc(100% - 112px)', overflowY: 'scroll' }}>
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: msg.senderId === userInfo.id ? "flex-end" : "flex-start",
-                    marginBottom: "10px",
-                    border: "1px solid #ccc",
-                    borderRadius: "10px",
-                    padding: "10px",
-                    backgroundColor: msg.senderId === userInfo.id ? "#e0f7fa" : "#fff"
-                  }}
-                >
+            {messages.map((msg, index) => (
+                <div key={index} style={{ display: "flex", alignItems: "center", justifyContent: msg.senderId === userInfo.id ? "flex-end" : "flex-start", marginBottom: "10px" }}>
                   {msg.senderId !== userInfo.id && (
                     <img src={selectedUser.avatar} alt={selectedUser.fullName} style={{ width: "30px", height: "30px", borderRadius: "50%", marginRight: "0.5rem" }} />
                   )}
-                  <div>
+                  <div style={{ padding: "10px", borderRadius: "10px", backgroundColor: msg.senderId === userInfo.id ? "#34A853" : "#f1f1f1", color: msg.senderId === userInfo.id ? "#fff" : "#000" }}>
                     {msg.content}
                   </div>
                   {msg.senderId === userInfo.id && (
@@ -161,7 +149,7 @@ const Chat = () => {
               ))}
               <div ref={messagesEndRef} />
             </Card.Body>
-            <Card.Footer>
+            <Card.Footer className="bg-white border-0 px-5">
               <Form onSubmit={(e) => { e.preventDefault(); sendMessage(); }} style={{ display: "flex", alignItems: "center" }}>
                 <Form.Control
                   type="text"
@@ -170,7 +158,14 @@ const Chat = () => {
                   placeholder="Nhập tin nhắn của bạn..."
                   style={{ flex: 1, marginRight: "0.5rem" }}
                 />
-                <Button type="submit">Gửi</Button>
+                <Button type="submit" style={{
+                  backgroundColor: '#34A853',
+                  border: 'none',
+                  color: 'white',
+                  padding: '0.8rem 1rem',
+                }} className="d-flex justify-content-center align-items-center"><ion-icon name="send" style={{
+                  fontSize: '1.5rem',
+                }}></ion-icon></Button>
               </Form>
             </Card.Footer>
           </Card>
