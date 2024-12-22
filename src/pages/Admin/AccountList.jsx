@@ -11,6 +11,8 @@ import { utils, writeFile } from "xlsx";
 import { AgCharts } from "ag-charts-react";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import axios from "axios";
+import { useSelector } from "react-redux";
 
 // Đăng ký module
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
@@ -31,7 +33,9 @@ const AccountList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [quickFilter, setQuickFilter] = useState("");
   const [bannedUsers, setBannedUsers] = useState({}); // Lưu trạng thái "Cấm" theo userId
+  const token = useSelector((state) => state.auth.token); 
 
+  console.log(token);
 
   const { data, isLoading, isError, error } = useQuery("users", fetchUserData);
 
@@ -39,17 +43,6 @@ const AccountList = () => {
   const totalBannedUsers = Object.values(bannedUsers).filter((banned) => banned).length;
   const averageStars =
     data?.value?.reduce((sum, user) => sum + (user.Star || 0), 0) / totalUsers || 0;
-
-
-  const handleToggleBan = (userId) => {
-    setBannedUsers((prevState) => {
-      const isBanned = prevState[userId];
-      const updatedState = { ...prevState, [userId]: !isBanned };
-      // Hiển thị toast thông báo
-      toast.success(isBanned ? "Mở cấm người dùng thành công" : "Cấm người dùng thành công");
-      return updatedState;
-    });
-  };
 
   const handleExportToExcel = () => {
     if (!data || !data.value) return;
@@ -277,6 +270,43 @@ const AccountList = () => {
     setSelectedRow(null);
     setIsModalOpen(false);
   };
+
+  const banUserApi = async (userId, token) => {
+    try {
+      const response = await axios.delete(
+        `https://travelmateapp.azurewebsites.net/api/ApplicationUsersWOO/${userId}`,
+        {
+          headers: {
+            Authorization: `${token}`, // Thêm token vào header
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Cấm tài khoản thất bại");
+    }
+  };
+  
+
+  const handleToggleBan = async (userId) => {
+    try {
+      const isBanned = bannedUsers[userId];
+      if (!isBanned) {
+        // Gọi API cấm tài khoản, truyền token từ Redux
+        await banUserApi(userId, token);
+      }
+      setBannedUsers((prevState) => {
+        const updatedState = { ...prevState, [userId]: !isBanned };
+        toast.success(!isBanned ? "Cấm người dùng thành công" : "Mở cấm người dùng thành công");
+        return updatedState;
+      });
+    } catch (error) {
+      toast.error(error.message || "Có lỗi xảy ra");
+    }
+  };
+  
+  
+  
 
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error: {error.message}</p>;
