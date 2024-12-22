@@ -15,6 +15,7 @@
   import { useQuery, useMutation, useQueryClient } from "react-query";
   import * as XLSX from "xlsx";
   import { saveAs } from "file-saver";
+  import { Spinner, Placeholder } from "react-bootstrap";
 
 
   ModuleRegistry.registerModules([
@@ -336,39 +337,57 @@
     }, []);
     return (
       <div style={containerStyle}>
-        <h2>Quản lý tour</h2>
-        <Row >
-          <Col lg={4}>
-            <div style={chartStyle}>
+      <h2>Quản lý tour</h2>
+
+      <Row>
+        <Col lg={4}>
+          <div style={chartStyle}>
+            {isLoading ? (
+              <div className="d-flex justify-content-center align-items-center" style={{ height: "28vh" }}>
+                <Spinner animation="border" variant="primary" />
+              </div>
+            ) : (
               <AgCharts options={options} />
-            </div>
-          </Col>
-
-          <Col lg={8}>
-            <div style={chartStyle}>
-              <AgCharts options={barChartOptions} />
-            </div>
-          </Col>
-        </Row>
-
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <input
-            type="text"
-            className="form-control w-25"
-            placeholder="Tìm kiếm nhanh..."
-            onChange={(e) => setQuickFilterText(e.target.value)}
-            style={{
-              height: "38px",
-            }}
-          />
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <button className="btn btn-success ml-2 text-nowrap" onClick={exportToExcel}>
-              Xuất Excel
-            </button>
+            )}
           </div>
-        </div>
+        </Col>
+        <Col lg={8}>
+          <div style={chartStyle}>
+            {isLoading ? (
+              <div className="d-flex justify-content-center align-items-center" style={{ height: "28vh" }}>
+                <Spinner animation="border" variant="primary" />
+              </div>
+            ) : (
+              <AgCharts options={barChartOptions} />
+            )}
+          </div>
+        </Col>
+      </Row>
 
-        <div style={gridStyle} className="ag-theme-quartz">
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <input
+          type="text"
+          className="form-control w-25"
+          placeholder="Tìm kiếm nhanh..."
+          onChange={(e) => setQuickFilterText(e.target.value)}
+          style={{ height: "38px" }}
+          disabled={isLoading} // Disable khi đang tải
+        />
+        <button
+          className="btn btn-success ml-2 text-nowrap"
+          onClick={exportToExcel}
+          disabled={isLoading} // Disable khi đang tải
+        >
+          Xuất Excel
+        </button>
+      </div>
+
+      <div style={gridStyle} className="ag-theme-quartz">
+        {isLoading ? (
+          <div className="d-flex justify-content-center align-items-center" style={{ height: "100%" }}>
+            <Spinner animation="border" variant="primary" />
+          </div>
+        ) : (
           <AgGridReact
             rowData={rowData}
             columnDefs={columnDefs}
@@ -380,115 +399,9 @@
             pagination={true}
             paginationPageSize={20}
           />
-        </div>
-        <Modal
-          isOpen={isModalOpen}
-          onRequestClose={closeModal}
-          contentLabel="Chi tiết tour"
-          style={{
-            content: {
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              backgroundColor: "#fff",
-              padding: "30px",
-              maxWidth: "1200px",
-              width: "100%",
-              borderRadius: "10px",
-              boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-              height: "90vh",
-            },
-            overlay: {
-              backgroundColor: "rgba(0,0,0,0.5)",
-            },
-          }}
-        >
-          <h2>{modalData?.tourName}</h2>
-          {/* <p>
-            <strong>Mã tour:</strong> {modalData?.tourId}
-          </p> */}
-          <img src={modalData?.tourImage} alt={modalData?.tourName} style={{ width: '100%' }} />
-          <p>
-            <strong>Mô tả:</strong> {modalData?.tourDescription}
-          </p>
-          <p>
-            <strong>Giá:</strong>{" "}
-            {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(modalData?.price)}
-          </p>
-          <p>
-            <strong>Địa điểm:</strong> {modalData?.location}
-          </p>
-          <p>
-            <strong>Ngày bắt đầu:</strong>{" "}
-            {new Date(modalData?.startDate).toLocaleDateString("vi-VN")}
-          </p>
-          <p>
-            <strong>Ngày kết thúc:</strong>{" "}
-            {new Date(modalData?.endDate).toLocaleDateString("vi-VN")}
-          </p>
-          <p>
-            <strong>Trạng thái phê duyệt:</strong>{" "}
-            {modalData?.approvalStatus === 0
-              ? "Đang xử lý"
-              : modalData?.approvalStatus === 1
-                ? "Đã chấp nhận"
-                : "Đã từ chối"}
-          </p>
-          <p>
-            <strong>Số khách đăng ký:</strong> {modalData?.registeredGuests}
-          </p>
-          <p>
-            <strong>Số khách tối đa:</strong> {modalData?.maxGuests}
-          </p>
-
-          <h3>Lịch trình chi tiết</h3>
-          {modalData?.itinerary?.$values.map((day) => (
-            <div key={day.day} style={{ marginBottom: "20px" }}>
-              <h4>Ngày {day.day} - {new Date(day.date).toLocaleDateString("vi-VN")}</h4>
-              {day.activities?.$values.map((activity) => (
-                <div key={activity.title} style={{ marginBottom: "10px" }}>
-                  <strong>Hoạt động:</strong> {activity.title}
-                  <br />
-                  <strong>Thời gian:</strong> {activity.startTime} - {activity.endTime}
-                  <br />
-                  <strong>Địa điểm:</strong> {activity.activityAddress}
-                  <br />
-                  <strong>Chi phí:</strong>{" "}
-                  {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(activity.activityAmount)}
-                  <br />
-                  <strong>Mô tả:</strong> {activity.description}
-                  <br />
-                  <strong>Lưu ý:</strong> {activity.note}
-                  <br />
-                  <img src={activity.activityImage} alt={activity.title} style={{ marginTop: "5px", width: "100%" }} />
-                </div>
-              ))}
-            </div>
-          ))}
-
-          <h3>Chi tiết chi phí</h3>
-          {modalData?.costDetails?.$values.map((cost) => (
-            <p key={cost.title}>
-              <strong>{cost.title}:</strong>{" "}
-              {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(cost.amount)}
-              <br />
-              <strong>Ghi chú:</strong> {cost.notes}
-            </p>
-          ))}
-
-          <h3>Thông tin bổ sung</h3>
-          <p>{modalData?.additionalInfo}</p>
-
-          <div className="d-flex justify-content-end">
-            <button onClick={closeModal} className="btn btn-primary mt-3">
-              Đóng
-            </button>
-          </div>
-
-        </Modal>
-
+        )}
       </div>
+    </div>
     );
   };
 
