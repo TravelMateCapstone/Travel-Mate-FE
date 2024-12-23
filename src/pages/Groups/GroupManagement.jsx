@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Button, Tabs, Tab, Modal } from 'react-bootstrap';
@@ -11,6 +11,8 @@ import '../../assets/css/Groups/MyGroupDetail.css';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Form from 'react-bootstrap/Form';
 import TextareaAutosize from 'react-textarea-autosize';
+import ProvinceSelector from '../../components/Shared/ProvinceSelector';
+import ImageSelector from '../../components/Shared/ImageSelector';
 
 const FormSubmit = React.lazy(() => import('../../components/Shared/FormSubmit'));
 
@@ -30,6 +32,8 @@ const GroupManagement = () => {
     const [groupName, setGroupName] = useState(groupDataRedux?.title || groupDataRedux.groupName || '');
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [key, setKey] = useState('joinRequests');
+    const [selectedProvince, setSelectedProvince] = useState(groupDataRedux?.location || '');
+    const [selectedBannerImage, setSelectedBannerImage] = useState(null);
 
     const queryClient = useQueryClient();
 
@@ -120,7 +124,7 @@ const GroupManagement = () => {
 
     const updateGroupMutation = useMutation(
         async (updatedGroup) => {
-            await axios.put(`${import.meta.env.VITE_BASE_API_URL}/api/groups/${groupDataRedux.id || groupDataRedux.groupId}`, updatedGroup, {
+            await axios.put(`https://travelmateapp.azurewebsites.net/api/groups/${groupDataRedux.id || groupDataRedux.groupId}`, updatedGroup, {
                 headers: {
                     Authorization: `${token}`,
                 },
@@ -172,15 +176,31 @@ const GroupManagement = () => {
         });
     }, [rejectRequestMutation, toast]);
 
-    const updateGroup = useCallback(() => {
+    const handleBannerSelect = (selectedFiles) => {
+        setSelectedBannerImage(selectedFiles[0]);
+    };
+
+    const handleRemoveBannerImage = () => {
+        setSelectedBannerImage(null);
+    };
+
+    const uploadBannerImage = async (file) => {
+        const storageRef = ref(storage, `groupBanners/${groupDataRedux?.groupId}/${file.name}`);
+        await uploadBytes(storageRef, file);
+        return await getDownloadURL(storageRef);
+    };
+
+    const updateGroup = useCallback(async () => {
+        const groupImageUrl = selectedBannerImage ? await uploadBannerImage(selectedBannerImage) : bannerImage;
+
         const updatedGroup = {
             groupName: groupName,
-            location: location,
+            location: selectedProvince,
             description: description,
-            groupImageUrl: bannerImage,
+            groupImageUrl: groupImageUrl,
         };
         updateGroupMutation.mutate(updatedGroup);
-    }, [groupName, location, description, bannerImage, updateGroupMutation]);
+    }, [groupName, selectedProvince, description, selectedBannerImage, updateGroupMutation]);
 
     const deleteGroup = useCallback(() => {
         deleteGroupMutation.mutate();
@@ -242,6 +262,12 @@ const GroupManagement = () => {
         }
     }, []);
 
+    const fileInputRef = useRef(null);
+
+    const handleFileInputClick = () => {
+        fileInputRef.current.click();
+    };
+
     return (
         <div className='my_group_detail_container'>
             <img src={groupDataRedux.img || groupDataRedux.groupImageUrl} alt="" className='banner_group' />
@@ -266,7 +292,7 @@ const GroupManagement = () => {
                         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
                         borderRadius: '10px',
                     }}>
-                        <Dropdown.Item className='form_edit_group'>
+                        <Dropdown.Item className='form_edit_group' onClick={handleFileInputClick}>
                             <React.Suspense fallback={<div>Loading...</div>}>
                                 <FormSubmit openModalText={'Chỉnh sửa thông tin'} title={'Chỉnh sửa thông tin nhóm'} buttonText={'Lưu thay đổi'} onButtonClick={updateGroup}>
                                     <h4>Tên nhóm</h4>
@@ -287,29 +313,29 @@ const GroupManagement = () => {
                                         onChange={(e) => setDescription(e.target.value)}
                                     />
                                     <h4>Địa điểm</h4>
-                                    <Form.Select
-                                        aria-label="Default select example"
-                                        className='rounded-5 selecte_location mb-4'
-                                        value={location}
-                                        onChange={(e) => setLocation(e.target.value)}
-                                    >
-                                        <option value="">Địa điểm</option>
-                                        {locations.map((loc) => (
-                                            <option key={loc.code} value={loc.name}>
-                                                {loc.name}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
+                                    <ProvinceSelector onSelect={setSelectedProvince} />
                                     <h4>Ảnh bìa nhóm</h4>
-                                    <input type="file" className='mb-3' id='banner_group' style={{ display: 'none' }} onChange={handleModalFileChange} onClick={(e) => e.stopPropagation()} />
-                                    <Button variant='' className='rounded-5 mb-3 button_banner_group d-flex gap-1 justify-content-center align-items-center' onClick={() => document.getElementById('banner_group').click()}>
-                                        Nhấn vào đây để <p className='text-primary m-0'>upload</p>
-                                    </Button>
-                                    {bannerImage && (
-                                        <div className='mb-3'>
-                                            <img src={bannerImage} alt="Group Banner" width={100} height={100} />
-                                        </div>
-                                    )}
+                                    <ImageSelector multiple={false} onSelect={handleBannerSelect} />
+                                    <div className='mt-2 position-relative'>
+                                        {selectedBannerImage && (
+                                            <>
+                                                <img src={URL.createObjectURL(selectedBannerImage)} alt="Selected Banner" className='rounded-2 w-100' />
+                                                <Button variant='danger' className='d-flex justify-content-center align-items-center position-absolute top-0 end-0 m-2' onClick={handleRemoveBannerImage}>
+                                                    <ion-icon name="close-outline"></ion-icon>
+                                                </Button>
+                                            </>
+                                        )}
+                                    </div>
+                                    <div className='mt-2'>
+                                        <Form.Label>Ảnh nhóm hiện tại</Form.Label>
+                                        <img src={bannerImage} alt="Group Image" className='rounded-2 w-100' />
+                                    </div>
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        style={{ display: 'none' }}
+                                        onChange={handleFileChange}
+                                    />
                                 </FormSubmit>
                             </React.Suspense>
                         </Dropdown.Item>

@@ -11,6 +11,7 @@ import chatReducer from './chatReducer';
 import tourReducer from './tourReducer';
 import searchReducer from './searchReducer';
 import signatureReducer from './signatureReducer';
+import chatHubReducer from './chatHubReducer';
 
 const rootReducer = combineReducers({
     couter: couterReducer,
@@ -25,6 +26,7 @@ const rootReducer = combineReducers({
     tour: tourReducer,
     search: searchReducer,
     signature: signatureReducer,
+    chatHub: chatHubReducer,
 });
 
 export default rootReducer;

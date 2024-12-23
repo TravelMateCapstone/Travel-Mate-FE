@@ -39,8 +39,8 @@ function TourDetail() {
     const handelJointTour = async (tourId) => {
         try {
             const profileCompletion = await checkProfileCompletion("https://travelmateapp.azurewebsites.net", token);
-            if (profileCompletion.totalPercentage < 75) {
-                toast.error("Hồ sơ của bạn chưa hoàn thành đủ 75%. Vui lòng cập nhật hồ sơ của bạn.");
+            if (!profileCompletion) {
+                toast.error("Bạn phải hoàn thành cả chữ kí số và CCCD. Vui lòng cập nhật hồ sơ của bạn.");
                 return;
             }
 
@@ -65,6 +65,17 @@ function TourDetail() {
         }
     };
 
+    const chatWithLocal = async (localId) => {
+        try {
+            const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Chat/UserInfo/${localId}`);
+            console.log("Chat user info:", response.data);
+            const userData = response.data;
+            navigate(RoutePath.CHAT, { state: { user: userData } });
+        } catch (error) {
+            console.error("Error fetching chat user info:", error);
+            toast.error("Không thể lấy thông tin người dùng để chat.");
+        }
+    };
 
     if (!tourData) {
         return (
@@ -217,6 +228,7 @@ function TourDetail() {
                                     <p className="mb-2">{tourData.creator.totalTrips} chuyến đi</p>
                                     <p className="mb-0">Tham gia từ {new Date(tourData.creator.joinedAt).getFullYear()}</p>
                                     <Button variant="outline-secondary" onClick={() => viewLocal(tourData.creator.id)}>Xem hồ sơ</Button>
+                                    <Button variant="outline-secondary" onClick={() => chatWithLocal(tourData.creator.id)}>🔥 Nhắn tin</Button>
                                 </div>
                                 <div className=" p-3 rounded-4 mt-3 tour_card_component bg-white">
                                     <div className="flex flex-col tour-form_gap__N_UmA ">
@@ -262,7 +274,7 @@ function TourDetail() {
                                     </div>
 
                                     <div className="d-flex gap-5 justify-content-center">
-                                        <Button variant="outline-secondary">🔥 Nhắn tin</Button>
+                                        <Button variant="outline-secondary" onClick={() => chatWithLocal(tourData.creator.id)}>🔥 Nhắn tin</Button>
                                         {(tourData.registeredGuests < tourData.maxGuests) ? (
                                             <Button variant="outline-success" onClick={() => handelJointTour(tourData.tourId)}>🚀 Đặt chỗ ngay</Button>
                                         ) : (

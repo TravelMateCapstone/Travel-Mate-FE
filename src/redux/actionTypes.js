@@ -51,3 +51,5 @@ export const SAVE_SIGNATURE = 'SAVE_SIGNATURE';
 export const DELETE_POST = 'DELETE_POST';
 
 export const UPDATE_POST = 'UPDATE_POST';
+
+export const SET_CHAT_CONNECTION = 'SET_CHAT_CONNECTION';
