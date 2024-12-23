@@ -10,7 +10,7 @@ function IncomeStatistic() {
         fetch('https://travelmateapp.azurewebsites.net/api/AdminDashboard')
             .then(response => response.json())
             .then(data => {
-                const totalRevenue = data.monthlyRevenues.$values.reduce((sum, item) => sum + item.revenue, 0);
+                const totalRevenue = data.monthlyRevenues.$values.reduce((sum, item) => sum + item.revenue, 0)*0.1;
                 setDashboardData({ ...data, totalRevenue });
             })
             .catch(error => console.error('Error fetching dashboard data:', error));
