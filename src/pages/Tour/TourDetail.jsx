@@ -39,8 +39,8 @@ function TourDetail() {
     const handelJointTour = async (tourId) => {
         try {
             const profileCompletion = await checkProfileCompletion("https://travelmateapp.azurewebsites.net", token);
-            if (profileCompletion.totalPercentage < 75) {
-                toast.error("Hồ sơ của bạn chưa hoàn thành đủ 75%. Vui lòng cập nhật hồ sơ của bạn.");
+            if (!profileCompletion) {
+                toast.error("Bạn phải hoàn thành cả chữ kí số và CCCD. Vui lòng cập nhật hồ sơ của bạn.");
                 return;
             }
 
