@@ -6,11 +6,13 @@ import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-mod
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import ReactModal from "react-modal";
-import { Button, FormControl, Row, Col } from "react-bootstrap";
+import { Button, FormControl, Row, Col, Card } from "react-bootstrap";
 import { utils, writeFile } from "xlsx";
 import { AgCharts } from "ag-charts-react";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import axios from "axios";
+import { useSelector } from "react-redux";
 
 // Đăng ký module
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
@@ -31,19 +33,16 @@ const AccountList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [quickFilter, setQuickFilter] = useState("");
   const [bannedUsers, setBannedUsers] = useState({}); // Lưu trạng thái "Cấm" theo userId
+  const token = useSelector((state) => state.auth.token); 
 
+  console.log(token);
 
   const { data, isLoading, isError, error } = useQuery("users", fetchUserData);
 
-  const handleToggleBan = (userId) => {
-    setBannedUsers((prevState) => {
-      const isBanned = prevState[userId];
-      const updatedState = { ...prevState, [userId]: !isBanned };
-      // Hiển thị toast thông báo
-      toast.success(isBanned ? "Mở cấm người dùng thành công" : "Cấm người dùng thành công");
-      return updatedState;
-    });
-  };
+  const totalUsers = data?.value?.length || 0;
+  const totalBannedUsers = Object.values(bannedUsers).filter((banned) => banned).length;
+  const averageStars =
+    data?.value?.reduce((sum, user) => sum + (user.Star || 0), 0) / totalUsers || 0;
 
   const handleExportToExcel = () => {
     if (!data || !data.value) return;
@@ -272,11 +271,68 @@ const AccountList = () => {
     setIsModalOpen(false);
   };
 
+  const banUserApi = async (userId, token) => {
+    try {
+      const response = await axios.delete(
+        `https://travelmateapp.azurewebsites.net/api/ApplicationUsersWOO/${userId}`,
+        {
+          headers: {
+            Authorization: `${token}`, // Thêm token vào header
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || "Cấm tài khoản thất bại");
+    }
+  };
+  
+
+  const handleToggleBan = async (userId) => {
+    try {
+      const isBanned = bannedUsers[userId];
+      if (!isBanned) {
+        // Gọi API cấm tài khoản, truyền token từ Redux
+        await banUserApi(userId, token);
+      }
+      setBannedUsers((prevState) => {
+        const updatedState = { ...prevState, [userId]: !isBanned };
+        toast.success(!isBanned ? "Cấm người dùng thành công" : "Mở cấm người dùng thành công");
+        return updatedState;
+      });
+    } catch (error) {
+      toast.error(error.message || "Có lỗi xảy ra");
+    }
+  };
+  
+  
+  
+
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error: {error.message}</p>;
 
   return (
     <div style={containerStyle}>
+
+<Row className="mb-4">
+        <Col md={6}>
+          <Card className="text-center">
+            <Card.Body>
+              <Card.Title>Tổng số người dùng</Card.Title>
+              <h3>{totalUsers}</h3>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={6}>
+          <Card className="text-center">
+            <Card.Body>
+              <Card.Title>Người dùng bị cấm</Card.Title>
+              <h3>{totalBannedUsers}</h3>
+            </Card.Body>
+          </Card>
+        </Col>
+        
+      </Row>
        <Row className="mb-2">
           <Col lg={8}>
             <div style={{ width: "100%", }}>
@@ -330,7 +386,6 @@ const AccountList = () => {
       
       </div>
 
-      {/* Modal chi tiết */}
       <ReactModal
         isOpen={isModalOpen}
         onRequestClose={closeModal}

@@ -224,6 +224,45 @@ function ListLayout({ children }) {
         }
     };
 
+
+    const validateForm = () => {
+        const newErrors = {};
+        const now = new Date();
+        if (!eventName || eventName.length > 100) {
+            newErrors.eventName = 'Tên sự kiện không được để trống và không vượt quá 100 ký tự.';
+        }
+        if (!eventDescription || eventDescription.length > 500) {
+            newErrors.eventDescription = 'Mô tả sự kiện không được để trống và không vượt quá 500 ký tự.';
+        }
+        if (!startAt) {
+            newErrors.startAt = 'Thời gian bắt đầu là bắt buộc.';
+        } else if (new Date(startAt) < now) {
+            newErrors.startAt = 'Thời gian bắt đầu không được trước thời điểm hiện tại.';
+        }
+        if (!endAt) {
+            newErrors.endAt = 'Thời gian kết thúc là bắt buộc.';
+        } else if (new Date(endAt) < now) {
+            newErrors.endAt = 'Thời gian kết thúc không được trước thời điểm hiện tại.';
+        } else if (new Date(endAt) <= new Date(startAt)) {
+            newErrors.endAt = 'Thời gian kết thúc phải sau thời gian bắt đầu.';
+        }
+        if (!eventLocation) {
+            newErrors.eventLocation = 'Vui lòng chọn địa điểm.';
+        }
+        if (!uploadedEventUrl) {
+            newErrors.uploadedEventUrl = 'Vui lòng tải lên ảnh sự kiện.';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSave = () => {
+        if (validateForm()) {
+            handleCreateEvent();
+        }
+    };
+
     const handleCreateEvent = async () => {
         const newErrors = {};
         if (!eventName) {
@@ -293,12 +332,12 @@ function ListLayout({ children }) {
         setShowViewImage(false);
     };
 
-    const handleGenerateDescription = async () => {
-        setIsGeneratingDescription(true);
-        const generatedText = await generateText(`Viết một đoạn mô tả dài 40 từ cho nhóm có tên là ${groupName}.`);
-        setGroupDescription(generatedText);
-        setIsGeneratingDescription(false);
-    };
+    // const handleGenerateDescription = async () => {
+    //     setIsGeneratingDescription(true);
+    //     const generatedText = await generateText(`Viết một đoạn mô tả dài 40 từ cho nhóm có tên là ${groupName}.`);
+    //     setGroupDescription(generatedText);
+    //     setIsGeneratingDescription(false);
+    // };
 
     return (
         <Container fluid className='container-main'>
@@ -441,15 +480,14 @@ function ListLayout({ children }) {
                                     handleClose={() => setShowEventModal(false)}
                                     title="Tạo sự kiện"
                                     saveButtonText="Tạo sự kiện"
-                                    handleSave={handleCreateEvent}
+                                    handleSave={handleSave}
                                     isSubmitting={isSubmitting}
-                                    isSubmitted={isSubmitted}
                                 >
                                     <Form>
                                         <Form.Group id="eventName" className="mb-3 mt-3">
-                                            <Form.Label className='fw-bold'>Tên sự kiện</Form.Label>
+                                            <Form.Label className="fw-bold">Tên sự kiện</Form.Label>
                                             <Form.Control
-                                                className='form-input'
+                                                className="form-input"
                                                 type="text"
                                                 placeholder="Nhập tên sự kiện"
                                                 value={eventName}
@@ -462,7 +500,7 @@ function ListLayout({ children }) {
                                         </Form.Group>
 
                                         <Form.Group id="eventDescription" className="mb-3">
-                                            <Form.Label className='fw-bold'>Mô tả sự kiện</Form.Label>
+                                            <Form.Label className="fw-bold">Mô tả sự kiện</Form.Label>
                                             <TextareaAutosize
                                                 minRows={3}
                                                 placeholder="Nhập mô tả sự kiện"
@@ -475,36 +513,45 @@ function ListLayout({ children }) {
                                             </Form.Control.Feedback>
                                         </Form.Group>
 
-                                        <div className='time-event d-flex align-items-center'>
+                                        <div className="time-event d-flex align-items-center">
                                             <Form.Group id="startAt" className="mb-3 mt-3">
-                                                <Form.Label className='fw-bold'>Thời gian bắt đầu</Form.Label>
+                                                <Form.Label className="fw-bold">Thời gian bắt đầu</Form.Label>
                                                 <Form.Control
-                                                    className='form-input'
+                                                    className="form-input"
                                                     required
                                                     type="datetime-local"
                                                     value={startAt}
                                                     onChange={(e) => setStartAt(e.target.value)}
+                                                    isInvalid={!!errors.startAt}
                                                 />
+                                                <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
+                                                    {errors.startAt}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
 
                                             <Form.Group id="endAt" className="mb-3 mt-3">
-                                                <Form.Label className='fw-bold'>Thời gian kết thúc</Form.Label>
+                                                <Form.Label className="fw-bold">Thời gian kết thúc</Form.Label>
                                                 <Form.Control
-                                                    className='form-input'
+                                                    className="form-input"
                                                     required
                                                     type="datetime-local"
                                                     value={endAt}
                                                     onChange={(e) => setEndAt(e.target.value)}
+                                                    isInvalid={!!errors.endAt}
                                                 />
+                                                <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
+                                                    {errors.endAt}
+                                                </Form.Control.Feedback>
                                             </Form.Group>
                                         </div>
 
                                         <Form.Group id="location" className="mb-3">
-                                            <Form.Label className='fw-bold'>Địa điểm</Form.Label>
+                                            <Form.Label className="fw-bold">Địa điểm</Form.Label>
                                             <Form.Select
-                                                className='form-input'
+                                                className="form-input"
                                                 value={eventLocation}
                                                 onChange={(e) => setEventLocation(e.target.value)}
+                                                isInvalid={!!errors.eventLocation}
                                             >
                                                 <option>Chọn địa điểm</option>
                                                 {locations.map((location) => (
@@ -513,12 +560,15 @@ function ListLayout({ children }) {
                                                     </option>
                                                 ))}
                                             </Form.Select>
+                                            <Form.Control.Feedback type="invalid" style={{ color: 'red' }}>
+                                                {errors.eventLocation}
+                                            </Form.Control.Feedback>
                                         </Form.Group>
 
                                         <Form.Group id="eventImage" className="mb-3">
                                             <Form.Label>Ảnh sự kiện</Form.Label>
                                             <Button onClick={triggerFileInputEvent} className="w-100 mb-2 upload-img">
-                                                Nhấn vào đây để <sapn className="upload">upload</sapn>
+                                                Nhấn vào đây để <span className="upload">tải ảnh</span>
                                             </Button>
                                             <Form.Control
                                                 type="file"
@@ -532,12 +582,10 @@ function ListLayout({ children }) {
                                                 </Placeholder>
                                             ) : (
                                                 uploadedEventUrl && (
-                                                    <div className="position-relative mt-3" style={{
-                                                        zIndex: '1',
-                                                    }}>
+                                                    <div className="position-relative mt-3" style={{ zIndex: '1' }}>
                                                         <div className="">
                                                             <img
-                                                                src={uploadedEventUrl || eventImage}
+                                                                src={uploadedEventUrl}
                                                                 alt="Ảnh đại diện sự kiện"
                                                                 className="ms-3 mt-3 event-image"
                                                                 style={{
@@ -547,7 +595,7 @@ function ListLayout({ children }) {
                                                             <ion-icon
                                                                 name="eye-outline"
                                                                 className="view-icon"
-                                                                onClick={() => handleView(uploadedEventUrl || eventImage)}
+                                                                onClick={() => handleView(uploadedEventUrl)}
                                                                 style={{ position: 'absolute', top: '50%', left: '80%', transform: 'translate(-50%, -50%)', fontSize: '24px', color: 'white' }}
                                                             ></ion-icon>
                                                             <ion-icon

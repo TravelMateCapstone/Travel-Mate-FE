@@ -65,11 +65,20 @@ function Contract() {
     const now = new Date();
     const timeDifference = (now - createdAt) / 1000 / 60; // time difference in minutes
 
+    const endDate = new Date(JSON.parse(contract.details).endDate);
+
     if (contract.status === 'Created' && timeDifference <= 3) {
       creactPayment(JSON.parse(contract.details));
     } else if (contract.status === 'Completed') {
       localStorage.setItem('contract_selected', JSON.stringify(contract));
-      navigate(RoutePath.FINISH_CONTRACT_TRAVELLER);
+
+      if (endDate <= now) {
+        navigate(RoutePath.FINISH_CONTRACT_TRAVELLER); // Điều hướng đến FINISH_CONTRACT_TRAVELLER
+      } else {
+        navigate(RoutePath.ONGOING_CONTRACT); // Điều hướng đến ONGOING_CONTRACT
+      }
+
+      // navigate(RoutePath.FINISH_CONTRACT_TRAVELLER);
       return;
     }
   }
@@ -120,8 +129,8 @@ function Contract() {
               {contract.status !== 'Created' && (
                 <Button variant='primary' className='text-nowrap d-flex justify-content-center align-items-center' onClick={() => viewCoptract(contract)}>
                   <ion-icon name="alert-circle-outline" style={{
-                  fontSize: '24px',
-                }}></ion-icon> 
+                    fontSize: '24px',
+                  }}></ion-icon>
                 </Button>
               )}
               <Button variant='success' className='text-nowrap d-flex justify-content-center align-items-center' onClick={() => verifyContract(contract)}>

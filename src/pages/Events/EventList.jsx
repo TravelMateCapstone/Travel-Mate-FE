@@ -29,19 +29,16 @@ function EventList() {
       try {
         setLoading(true);
 
-        // Fetch joined events
         const joinedResponse = await axios.get(joinedUrl, {
           headers: { Authorization: `${token}` },
         });
         setJoinedEvents(joinedResponse.data.$values);
 
-        // Fetch not-joined events
         const notJoinedResponse = await axios.get(notJoinedUrl, {
           headers: { Authorization: `${token}` },
         });
         setNotJoinedEvents(notJoinedResponse.data.$values);
 
-        // Fetch created events
         const createdResponse = await axios.get(createdUrl, {
           headers: { Authorization: `${token}` },
         });
@@ -58,7 +55,6 @@ function EventList() {
     }
   }, [token]);
 
-  // Determine which events to display based on the URL path
   const path = window.location.pathname;
   const eventData = path.includes('/event/joined')
     ? joinedEvents
@@ -84,7 +80,13 @@ function EventList() {
         {loading
           ? Array.from({ length: itemsPerPage }).map((_, index) => (
             <Col lg={4} md={6} sm={6} xs={12} key={index} className="mb-4 d-flex justify-content-center">
-              <EventCard loading={true} />
+              <div className="skeleton-card">
+                <Skeleton height={200} className="skeleton-image mb-3" />
+                <Skeleton height={20} width="80%" className="mb-2" />
+                <Skeleton height={15} width="60%" className="mb-2" />
+                <Skeleton height={15} width="90%" className="mb-2" />
+                <Skeleton height={15} width="70%" />
+              </div>
             </Col>
           ))
           : currentItems.map((card) => (

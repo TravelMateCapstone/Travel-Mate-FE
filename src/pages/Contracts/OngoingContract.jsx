@@ -16,21 +16,21 @@ function OngoingContract() {
         display: 'flex',
         justifyContent: 'center',
       }}>
-        
+
         <div className='d-flex flex-column'>
           <div className='d-flex flex-column align-items-center'><img src={car_mini} alt='icon' height={200} />
             <p>Dành thời gian để trải nghiệm chuyến đi tuyệt vời.</p>
           </div>
           <Button variant='outline-success' onClick={() => {
             console.log(localStorage.getItem('isLocal'))
-            if(localStorage.getItem('isLocal') === 'local') {
+            if (localStorage.getItem('isLocal') === 'local') {
               navigate(RoutePath.FINISH_CONTRACT_LOCAL)
-            } 
+            }
             else {
               navigate(RoutePath.FINISH_CONTRACT_TRAVELLER)
             }
           }}>
-            Đánh giá
+            Đánh giá sau khi hoàn thành chuyến đi
           </Button>
         </div>
       </div>
