@@ -147,23 +147,7 @@ function IncomeStatistic() {
                                     </Card.Body>
                                 </Card>
                             </Col>
-                            <Col xl={3} md={6} className="mb-4">
-                                <Card className="h-100">
-                                    <Card.Body>
-                                        <Row className="align-items-center">
-                                            <Col>
-                                                <Card.Title className="text-xs font-weight-bold text-uppercase mb-1">
-                                                    Số lượng báo cáo
-                                                </Card.Title>
-                                                <div className="h5 mb-0 font-weight-bold text-gray-800">{totalReports}</div>
-                                            </Col>
-                                            <Col className="col-auto">
-                                                <i className="fas fa-exclamation-circle fa-2x text-danger" />
-                                            </Col>
-                                        </Row>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
+                           
                         </Row>
                         <div className="container-fluid">
                             <Row>
