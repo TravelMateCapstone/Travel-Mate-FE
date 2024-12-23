@@ -9,7 +9,10 @@ function IncomeStatistic() {
     useEffect(() => {
         fetch('https://travelmateapp.azurewebsites.net/api/AdminDashboard')
             .then(response => response.json())
-            .then(data => setDashboardData(data))
+            .then(data => {
+                const totalRevenue = data.monthlyRevenues.$values.reduce((sum, item) => sum + item.revenue, 0);
+                setDashboardData({ ...data, totalRevenue });
+            })
             .catch(error => console.error('Error fetching dashboard data:', error));
     }, []);
 
@@ -79,7 +82,7 @@ function IncomeStatistic() {
         );
     }
 
-    const { revenue, totalTrips, totalUsers, totalReports, monthlyRevenues } = dashboardData;
+    const { totalRevenue, totalTrips, totalUsers, totalReports, monthlyRevenues } = dashboardData;
 
     return (
         <div id="wrapper">
@@ -103,7 +106,7 @@ function IncomeStatistic() {
                                                     Doanh thu (Tổng)
                                                 </Card.Title>
                                                 <div className="h5 mb-0 font-weight-bold text-gray-800">
-                                                    {formatCurrency(revenue)}
+                                                    {formatCurrency(totalRevenue)}
                                                 </div>
                                             </Col>
                                             <Col className="col-auto">
