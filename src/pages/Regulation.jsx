@@ -47,7 +47,8 @@ function Regulation() {
         <p>TravelMate có quyền thay đổi Điều khoản và Quy định bất kỳ lúc nào. Thông báo sẽ được cập nhật trên trang web hoặc qua email.</p>
         <h2>10. Luật Áp Dụng</h2>
         <p>Điều khoản và Quy định này được điều chỉnh theo pháp luật Việt Nam.</p>
-        
+        <h2>11. Chi phí</h2>
+        <p>Tổng doanh thu kiếm được từ tour thì travelmate nhận 10% hoa hồng.</p>
     </Container>
   )
 }
