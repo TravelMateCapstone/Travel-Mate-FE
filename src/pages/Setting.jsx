@@ -319,7 +319,7 @@ function Setting() {
         formData,
         {
           headers: {
-            'api-key': 'aHlapDPHrYrQuKWhKa0VsjcrTegwwamr',
+            'api-key': 'SMfzK5txeKNUgBiBRNebTxM4RRGdTqBP',
             'Content-Type': 'multipart/form-data',
           },
         }
@@ -411,7 +411,7 @@ function Setting() {
         formData,
         {
           headers: {
-            'api-key': 'aHlapDPHrYrQuKWhKa0VsjcrTegwwamr',
+            'api-key': 'SMfzK5txeKNUgBiBRNebTxM4RRGdTqBP',
             'Content-Type': 'multipart/form-data',
           },
         }
