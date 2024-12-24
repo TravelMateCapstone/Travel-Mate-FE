@@ -254,21 +254,21 @@ function Setting() {
       };
       console.log('dtad', updatedData);
 
-      // const response = await axios.put(
-      //   'https://travelmateapp.azurewebsites.net/api/Profile/edit-by-current-user',
-      //   updatedData,
-      //   {
-      //     headers: {
-      //       Authorization: `${token}`,
-      //     },
-      //   }
-      // );
+      const response = await axios.put(
+        'https://travelmateapp.azurewebsites.net/api/Profile/edit-by-current-user',
+        updatedData,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
 
-      // if (response.status === 200) {
-      //   toast.success("Cập nhật thông tin thành công.");
-      // } else {
-      //   throw new Error("Cập nhật thất bại.");
-      // }
+      if (response.status === 200) {
+        toast.success("Cập nhật thông tin thành công.");
+      } else {
+        throw new Error("Cập nhật thất bại.");
+      }
 
       try {
         const response = await axios.put(
