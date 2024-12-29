@@ -15,7 +15,7 @@ import MyFavorites from '../../components/Profile/MyProfile/MyFavorists';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { viewProfile } from '../../redux/actions/profileActions';
 import axios from "axios";
-import checkProfileCompletion from '../../utils/Profile/checkProfileCompletion';
+import { checkProfileCCCD_Signature, checkProfileCompletion } from '../../apis/profileApi';
 
 function MyProfile() {
     const [key, setKey] = useState('introduce');
@@ -79,11 +79,10 @@ function MyProfile() {
     useEffect(() => {
         const fetchProfileCompletion = async () => {
             try {
-                const { totalPercentage, incompleteModels } = await checkProfileCompletion(url, token);
-                setCompletionPercentage(totalPercentage);
-                setIncompleteModels(incompleteModels.$values);
-                console.log(totalPercentage, incompleteModels);
-
+                const response = await checkProfileCompletion();
+                console.log("Kiểm tra hoàn thành hồ sơ 22:", response);
+                setCompletionPercentage(response.totalPercentage);
+                
             } catch (error) {
                 console.error("Lỗi khi kiểm tra hoàn thành hồ sơ:", error);
             }

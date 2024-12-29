@@ -4,7 +4,6 @@ import { Container, Row, Col, Button } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
 import { viewProfile } from '../../../redux/actions/profileActions';
 
 
@@ -16,6 +15,7 @@ function AboutMe() {
     const [locations, setLocations] = useState([]);
     const [userLocations, setUserLocations] = useState([]);
     const [citys, setCitys] = useState([]);
+    
 
     const [profileData, setProfileData] = useState({
         city: '',
@@ -27,7 +27,6 @@ function AboutMe() {
     const token = useSelector((state) => state.auth.token);
     const user = useSelector((state) => state.auth.user);
     const dispatch = useDispatch();
-    const navigate = useNavigate();
 
     const toggleEdit = () => {
         setIsEditing(!isEditing);
@@ -54,6 +53,7 @@ function AboutMe() {
         fetchHobbies();
         fetchEducation();
         fetchCitys();
+        
     }, []);
 
     const fetchCitys = async () => {
@@ -99,7 +99,6 @@ function AboutMe() {
                 name: item.location?.locationName,
             }));
             setUserLocations(locationData);
-            console.log("data", locationData);
         } catch (error) {
             console.error("Error fetching locations:", error);
         }
@@ -282,7 +281,6 @@ function AboutMe() {
                             <option value="Chào đón khách">Chào đón khách</option>
                             <option value="Không nhận khách">Không nhận khách</option>
                         </Form.Select>
-
                     ) : (
                         renderDataOrFallback(dataProfile.profile?.hostingAvailability || null)
                     )}
