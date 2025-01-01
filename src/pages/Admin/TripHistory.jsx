@@ -11,7 +11,7 @@ import Modal from "react-modal";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { AgCharts } from "ag-charts-react";
-import { Col, Row } from "react-bootstrap";
+import { Col, Row, Table } from "react-bootstrap";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -429,22 +429,51 @@ const TripHistory = () => {
         <div className="d-flex">
           <Col lg={6}>
             <div style={{ marginBottom: "20px" }}>
-              <h2>{modalData?.tourName}</h2>
-              <p>
-                <strong>Địa điểm:</strong> {modalData?.location}
+              <h2 className="fw-bold">{modalData?.tourName}</h2>
+              <p className="gap-2" style={{
+                fontSize: "20px",
+                display: "flex",
+                alignItems: "center",
+              }}>
+                <ion-icon name="location-outline" ></ion-icon>{modalData?.location}
               </p>
-              <p>
-                <strong>Ngày bắt đầu:</strong> {new Date(modalData?.startDate).toLocaleDateString("vi-VN")}
-              </p>
-              <p>
-                <strong>Ngày kết thúc:</strong> {new Date(modalData?.endDate).toLocaleDateString("vi-VN")}
-              </p>
-              <p>
-                <strong>Giá:</strong> {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(modalData?.price)}
-              </p>
-              <p>
-                <strong>Trạng thái phê duyệt:</strong> {modalData?.approvalStatus === 0 ? "Đang xử lý" : modalData?.approvalStatus === 1 ? "Đã chấp nhận" : "Đã từ chối"}
-              </p>
+              <div className="border-1 rounded-4 p-3 d-flex flex-column gap-2" style={{ backgroundColor: "#f8f9fa" }}>
+                <h3 className="fw-semibold">Thông tin chuyến đi</h3>
+                <div className="d-flex align-items-center gap-2 jus">
+                  <ion-icon name="calendar-outline" style={{
+                    fontSize: "20px",
+                    display: "flex",
+                    alignItems: "center",
+                  }}></ion-icon>
+                  <p className="m-0 fw-medium">
+                    Bắt đầu: {new Date(modalData?.startDate).toLocaleDateString("vi-VN")}
+                  </p>
+                </div>
+                <div className="d-flex align-items-center gap-2">
+                  <ion-icon name="time-outline" style={{
+                    fontSize: "20px",
+                    display: "flex",
+                    alignItems: "center",
+                  }}></ion-icon>
+                  <p className="m-0 fw-medium">Ngày kết thúc: {new Date(modalData?.endDate).toLocaleDateString("vi-VN")}</p>
+                </div>
+                <div className="d-flex align-items-center gap-2">
+                  <ion-icon name="time-outline" style={{
+                    fontSize: "20px",
+                    display: "flex",
+                    alignItems: "center",
+                  }}></ion-icon>
+                  <p className="m-0 fw-medium">Giá: {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(modalData?.price)}</p>
+                </div>
+                <p className="d-flex gap-2 fw-medium">
+                  <strong><ion-icon name="checkmark-circle-outline" style={{
+                    fontSize: "20px",
+                    display: "flex",
+                    alignItems: "center",
+                    color: modalData?.approvalStatus === 1 ? "green" : modalData?.approvalStatus === 2 ? "red" : "orange"
+                  }}></ion-icon></strong> {modalData?.approvalStatus === 0 ? "Đang xử lý" : modalData?.approvalStatus === 1 ? "Đã chấp nhận" : "Đã từ chối"}
+                </p>
+              </div>
             </div></Col>
 
           <Col lg={6}>
@@ -453,23 +482,23 @@ const TripHistory = () => {
         </div>
 
         <div style={{ marginBottom: "20px" }}>
-          <h3>Mô tả</h3>
+          <h4 className="fw-medium">Mô tả</h4>
           <p>{modalData?.tourDescription}</p>
         </div>
 
         <div style={{ marginBottom: "20px" }}>
-          <h3>Lịch trình chi tiết</h3>
-          <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
+          <h3 className="fw-bold">Lịch trình chi tiết</h3>
+          <Table striped bordered hover>
             <thead>
               <tr>
-                <th style={{ border: "1px solid #ccc", padding: "8px" }}>Ngày</th>
-                <th style={{ border: "1px solid #ccc", padding: "8px" }}>Hoạt động</th>
-                <th style={{ border: "1px solid #ccc", padding: "8px" }}>Thời gian</th>
-                <th style={{ border: "1px solid #ccc", padding: "8px" }}>Địa điểm</th>
-                <th style={{ border: "1px solid #ccc", padding: "8px" }}>Chi phí</th>
-                <th style={{ border: "1px solid #ccc", padding: "8px" }}>Mô tả</th>
-                <th style={{ border: "1px solid #ccc", padding: "8px" }}>Lưu ý</th>
-                <th style={{ border: "1px solid #ccc", padding: "8px" }}>Ảnh</th>
+                <th>Ngày</th>
+                <th>Hoạt động</th>
+                <th>Thời gian</th>
+                <th>Địa điểm</th>
+                <th>Chi phí</th>
+                <th>Mô tả</th>
+                <th>Lưu ý</th>
+                <th>Ảnh</th>
               </tr>
             </thead>
             <tbody>
@@ -477,26 +506,26 @@ const TripHistory = () => {
                 day.activities?.$values.map((activity, index) => (
                   <tr key={`${day.day}-${index}`}>
                     {index === 0 && (
-                      <td style={{ border: "1px solid #ccc", padding: "8px", verticalAlign: "top" }} rowSpan={day.activities.$values.length}>
+                      <td rowSpan={day.activities.$values.length}>
                         Ngày {day.day} - {new Date(day.date).toLocaleDateString("vi-VN")}
                       </td>
                     )}
-                    <td style={{ border: "1px solid #ccc", padding: "8px" }}>{activity.title}</td>
-                    <td style={{ border: "1px solid #ccc", padding: "8px" }}>{activity.startTime} - {activity.endTime}</td>
-                    <td style={{ border: "1px solid #ccc", padding: "8px" }}>{activity.activityAddress}</td>
-                    <td style={{ border: "1px solid #ccc", padding: "8px" }}>{new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(activity.activityAmount)}</td>
-                    <td style={{ border: "1px solid #ccc", padding: "8px" }}>{activity.description}</td>
-                    <td style={{ border: "1px solid #ccc", padding: "8px" }}>{activity.note}</td>
-                    <td style={{ border: "1px solid #ccc", padding: "8px" }}><img src={activity.activityImage} alt={activity.title} style={{ width: "100px", maxHeight: "100px", objectFit: "cover" }} /></td>
+                    <td>{activity.title}</td>
+                    <td>{activity.startTime} - {activity.endTime}</td>
+                    <td>{activity.activityAddress}</td>
+                    <td>{new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(activity.activityAmount)}</td>
+                    <td>{activity.description}</td>
+                    <td>{activity.note}</td>
+                    <td><img src={activity.activityImage} alt={activity.title} style={{ width: "100px", maxHeight: "100px", objectFit: "cover" }} /></td>
                   </tr>
                 ))
               )}
             </tbody>
-          </table>
+          </Table>
         </div>
 
         <div style={{ marginBottom: "20px" }}>
-          <h3>Chi tiết chi phí</h3>
+          <h3 className="fw-bold">Chi tiết chi phí</h3>
           <ul>
             {modalData?.costDetails?.$values.map((cost) => (
               <li key={cost.title}>
@@ -509,7 +538,7 @@ const TripHistory = () => {
         </div>
 
         <div style={{ marginBottom: "20px" }}>
-          <h3>Thông tin bổ sung</h3>
+          <h3 className="fw-bold">Thông tin bổ sung</h3>
           <p>{modalData?.additionalInfo && modalData.additionalInfo.replace(/<[^>]+>/g, '')}</p>
         </div>
 
