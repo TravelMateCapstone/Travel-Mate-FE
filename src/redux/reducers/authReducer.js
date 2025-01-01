@@ -1,9 +1,8 @@
-import { LOGIN_SUCCESS, LOGOUT, UPDATE_USER_AVATAR } from "../actionTypes";
+import { LOGIN_SUCCESS } from '../actionTypes';
 
 const initialState = {
-  isAuthenticated: !!localStorage.getItem('token'),
+  token: null,
   user: null,
-  token: localStorage.getItem('token'),
 };
 
 const authReducer = (state = initialState, action) => {
@@ -11,28 +10,9 @@ const authReducer = (state = initialState, action) => {
     case LOGIN_SUCCESS:
       return {
         ...state,
-        isAuthenticated: true,
-        user: action.payload.user, // Thông tin người dùng
-        token: action.payload.token, // Lưu token
+        token: action.payload.token,
+        user: action.payload.user,
       };
-
-    case LOGOUT:
-      return {
-        ...state,
-        isAuthenticated: false,
-        user: null,
-        token: null, // Xóa token khi logout
-      };
-    case UPDATE_USER_AVATAR:
-      return {
-        ...state,
-        user: {
-          ...state.user,
-          avatarUrl: action.payload, // Cập nhật avatarUrl
-        },
-      };
-
-
     default:
       return state;
   }

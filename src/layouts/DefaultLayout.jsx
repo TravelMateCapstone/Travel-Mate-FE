@@ -1,7 +1,7 @@
-import React from 'react'
 import { Container } from 'react-bootstrap'
 import Navbar from '../components/Shared/Navbar'
 import Footer from '../components/Shared/Footer'
+import PropTypes from 'prop-types'
 
 function DefaultLayout({ children }) {
     return (
@@ -11,6 +11,9 @@ function DefaultLayout({ children }) {
             <Footer />
         </Container>
     )
+}
+DefaultLayout.propTypes = {
+    children: PropTypes.node.isRequired,
 }
 
 export default DefaultLayout

@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from "react";
-import vnMap from "../../assets/vn.svg";
+import  { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { use } from "react";
 import axios from "axios";
 
 const MapComponent = () => {
@@ -17,9 +15,9 @@ const MapComponent = () => {
           `https://travelmateapp.azurewebsites.net/api/BlockContract/get-Locations-History/${user.id}`,
         );
         setSelectedNames(response.data.data.$values);
-        localStorage.setItem("selectedNames", JSON.stringify(response.data.data.$values));
+      // eslint-disable-next-line no-unused-vars
       } catch (error) {
-        console.error("Error fetching data: ", error);
+        console.error("Không thể lấy dữ liệu từ server:", error.response.data.title);
       }
     };
 
@@ -33,7 +31,9 @@ const MapComponent = () => {
     return selectedNames.includes(name) ? "#ED6542" : "#979797";
   };
 
+  // eslint-disable-next-line no-unused-vars
   const [hovered, setHovered] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [hoveredElement, setHoveredElement] = useState("");
   const [tooltip, setTooltip] = useState({
     visible: false,

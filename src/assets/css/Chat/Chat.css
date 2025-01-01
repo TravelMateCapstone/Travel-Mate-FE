@@ -1,8 +1,0 @@
-.list-group-item:hover {
-  background-color: #f0f0f0;
-  cursor: pointer;
-}
-
-.chat-input-text-ctr:focus{
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
-}

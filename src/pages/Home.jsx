@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import MapComponent from '../components/Shared/MapComponent';
 import '../assets/css/Home/Home.css';
-import { Button, Col, Container, Row } from 'react-bootstrap';
-import Destination from './Destination/Destination';
+import { Col, Container, Row } from 'react-bootstrap';
 import DestinationCard from '../components/Home/DestinationCard';
 import ImageAccordionSlider from '../components/Home/ImageAccordionSlider';
-import { Typewriter } from 'react-simple-typewriter';
 import { useNavigate } from 'react-router-dom';
 import RoutePath from '../routes/RoutePath';
 import TextareaAutosize from 'react-textarea-autosize';
