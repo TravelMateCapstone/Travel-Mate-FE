@@ -37,7 +37,10 @@ const AccountList = () => {
 
   console.log(token);
 
-  const { data, isLoading, isError, error } = useQuery("users", fetchUserData);
+  const { data, isLoading, isError, error } = useQuery("users", fetchUserData, {
+    staleTime: 1000 * 60 * 10, // 10 minutes
+    cacheTime: 1000 * 60 * 60, // 1 hour
+  });
 
   const totalUsers = data?.value?.length || 0;
   const totalBannedUsers = Object.values(bannedUsers).filter((banned) => banned).length;
@@ -308,7 +311,7 @@ const AccountList = () => {
   
   
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <p>Đang tải dữ liệu...</p>;
   if (isError) return <p>Error: {error.message}</p>;
 
   return (
