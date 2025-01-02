@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Accordion from "react-bootstrap/Accordion";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
@@ -44,7 +44,7 @@ function TourDetail() {
                 return;
             }
 
-            const response = await axios.post(
+            await axios.post(
                 `https://travelmateapp.azurewebsites.net/api/Tour/join/${tourId}`,
                 {},
                 {
@@ -59,7 +59,7 @@ function TourDetail() {
             console.error("Error joining tour:", error);
             if (error.response && error.response.data === "You have joined this tour") {
                 toast.error("Bạn đã tham gia tour này. Vui lòng kiểm tra hợp đồng của bạn.");
-            } else if(error.response && error.response.data === "Access Denied! You are creator of this tour") {
+            } else if (error.response && error.response.data === "Access Denied! You are creator of this tour") {
                 toast.error("Bạn đã tạo tour này. Vui lòng kiểm tra hợp đồng của bạn trong phần quản lý chuyến đi.");
             }
         }
@@ -192,93 +192,91 @@ function TourDetail() {
                         padding: "0 150px",
                     }}>
                         <section className="flex flex-col py-4">
-                          <div className="d-flex gap-2 align-items-end">
-                               <h1>Tour/</h1>
-                               <h2 >
+                            <div className="d-flex gap-2 align-items-end">
+                                <h1>Tour/</h1>
+                                <h2 >
                                     {tourData.tourName}
                                 </h2>
-                          </div>
+                            </div>
                         </section>
                         <div className="row" style={{}}>
-                            <div className="col-md-9 ">
+                            <div className="col-md-8">
                                 <img
                                     alt="thumbnail"
                                     loading="lazy"
                                     width={'100%'}
-                                    height={600}
+                                    height={550}
                                     decoding="async"
                                     data-nimg={1}
                                     className="rounded-4 object-fit-cover"
                                     src={tourData.tourImage}
                                 />
                             </div>
-                            <div className="hidden lg:block col-md-3">
-                                <div className="tour_card_component bg-white p-3 rounded-4 d-flex flex-column align-items-center">
-                                    <img src={tourData.creator.avatarUrl} alt="" width={50} height={50} className="rounded-circle object-fit-cover mb-2" />
-                                    <h5 className="mb-0">{tourData.creator.fullname}</h5>
-                                    <h6 className="">{tourData.creator.address}</h6>
-                                    <div className="start_container mt-2 mb-0">
-                                        {[...Array(tourData.creator.rating)].map((_, i) => (
-                                            <ion-icon key={i} name="star"></ion-icon>
-                                        ))}
-                                        {[...Array(5 - tourData.creator.rating)].map((_, i) => (
-                                            <ion-icon key={i} name="star-outline"></ion-icon>
-                                        ))}
+                            <div className="hidden lg:block col-md-4">
+                                <div className="tour_card_component bg-white p-3 rounded-4">
+                                    <div className="d-flex justify-content-between mb-4">
+                                        <div className="d-flex gap-3">
+                                            <img src={tourData.creator.avatarUrl} alt="" width={60} height={60} className="rounded-circle object-fit-cover mb-2" />
+                                            <div className="">
+                                                <p className="mb-2 fw-medium">{tourData.creator.fullname}</p>
+                                                <p className="fw-medium">{tourData.creator.address}</p>
+                                            </div>
+                                        </div>
+                                        <div className="d-flex flex-column align-items-center fw-medium pr-4">
+                                            <div className="start_container mt-2 mb-0">
+                                                {[...Array(tourData.creator.rating || 0)].map((_, i) => (
+                                                    <ion-icon key={i} name="star"></ion-icon>
+                                                ))}
+                                                {[...Array(5 - (tourData.creator.rating || 0))].map((_, i) => (
+                                                    <ion-icon key={i} name="star-outline"></ion-icon>
+                                                ))}
+                                            </div>
+                                            <p className="mb-2">{tourData.creator.totalTrips || 0} chuyến đi</p>
+                                            <p className="mb-0">Tham gia từ {new Date(tourData.creator.joinedAt).getFullYear()}</p>
+                                        </div>
                                     </div>
-                                    <p className="mb-2">{tourData.creator.totalTrips} chuyến đi</p>
-                                    <p className="mb-0">Tham gia từ {new Date(tourData.creator.joinedAt).getFullYear()}</p>
-                                    <Button variant="outline-secondary" onClick={() => viewLocal(tourData.creator.id)}>Xem hồ sơ</Button>
-                                    <Button variant="outline-secondary" onClick={() => chatWithLocal(tourData.creator.id)}>🔥 Nhắn tin</Button>
+                                    <Button variant="outline-success" className="w-100" onClick={() => viewLocal(tourData.creator.id)}>Xem hồ sơ</Button>
                                 </div>
+
                                 <div className=" p-3 rounded-4 mt-3 tour_card_component bg-white">
-                                    <div className="flex flex-col tour-form_gap__N_UmA ">
-                                        <h5 className="fw-bold mb-3 text-center">Thông tin cơ bản</h5>
-                                        <Table borderless hover>
-                                            <tbody>
-                                                <tr>
-                                                    <td className="fw-medium">Khởi hành từ</td>
-                                                    <td>{tourData.location}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="fw-medium">Thời gian</td>
-                                                    <td>{tourData.numberOfDays} ngày, {tourData.numberOfNights} đêm</td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="fw-medium">Ngày khởi hành</td>
-                                                    <td><div className="border-1 p-2" style={{
-                                                        width: "fit-content",
-                                                        borderRadius: "10px",
-                                                    }}>
-                                                        {formatDateToVietnamese(tourData.startDate)}</div></td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="fw-medium">Ngày kết thúc</td>
-                                                    <td>  <div
-                                                        className="border-1 p-2"
-                                                        style={{
+                                    <div className="px-2">
+                                        <h4>Giá <span className="text-danger">*</span></h4>
+                                        <h2 className="fw-semibold text-success mb-4">{tourData.price.toLocaleString()}&nbsp;₫/ <sub className="text-dark">Khách</sub></h2>
+                                        <div className="flex flex-col tour-form_gap__N_UmA ">
+                                            <Table bordered hover style={{ overflow: 'hidden' }}>
+                                                <tbody>
+                                                    <tr>
+                                                        <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="location-outline"></ion-icon> Khởi hành</td>
+                                                        <td style={{ width: '50%' }}>{tourData.location}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="time-outline"></ion-icon> Thời gian</td>
+                                                        <td style={{ width: '50%' }}>{tourData.numberOfDays}N{tourData.numberOfNights}Đ</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="people-outline"></ion-icon> Số người tham gia</td>
+                                                        <td style={{ width: '50%' }}>{tourData.registeredGuests}/{tourData.maxGuests}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="calendar-outline"></ion-icon> Ngày khởi hành</td>
+                                                        <td style={{ width: '50%' }}><div className="" style={{
                                                             width: "fit-content",
                                                             borderRadius: "10px",
-                                                        }}
-                                                    >
-                                                        {formatDateToVietnamese(tourData.endDate)}
-                                                    </div></td>
-                                                </tr>
-                                                <tr>
-                                                
-                                                    <td className="p-0 ps-2"><h4 className="fw-bold text-success mb-0">{tourData.price.toLocaleString()}&nbsp;₫</h4></td>
-                                                    <td></td>
-                                                </tr>
-                                            </tbody>
-                                        </Table>
-                                        <div />
+                                                        }}>
+                                                            {formatDateToVietnamese(tourData.startDate)}</div></td>
+                                                    </tr>
+                                                </tbody>
+                                            </Table>
+                                            <div />
+                                        </div>
                                     </div>
 
-                                    <div className="d-flex gap-5 justify-content-center">
-                                        <Button variant="outline-secondary" onClick={() => chatWithLocal(tourData.creator.id)}>🔥 Nhắn tin</Button>
+                                    <div className="d-flex gap-2 ">
+                                        <Button variant="outline-success" className="text-nowrap" onClick={() => chatWithLocal(tourData.creator.id)}>Nhắn tin</Button>
                                         {(tourData.registeredGuests < tourData.maxGuests) ? (
-                                            <Button variant="outline-success" onClick={() => handelJointTour(tourData.tourId)}>🚀 Đặt chỗ ngay</Button>
+                                            <Button variant="success" className="w-100" onClick={() => handelJointTour(tourData.tourId)}>Đặt chỗ ngay</Button>
                                         ) : (
-                                            <Button variant="outline-dark" disabled><ion-icon name="sad-outline"></ion-icon> Đã đủ số lượng</Button>
+                                            <Button variant="dark" disabled><ion-icon name="sad-outline"></ion-icon> Đã đủ số lượng</Button>
                                         )}
                                     </div>
                                 </div>
@@ -291,35 +289,35 @@ function TourDetail() {
                             className="my-3 no-border-radius "
                         >
                             <Tab className="fixed-size-tabs" eventKey="home" title="Lịch trình">
-                                <Accordion defaultActiveKey="0">
+                                <Accordion defaultActiveKey="0" alwaysOpen>
                                     {tourData.itinerary.$values.map((day, index) => (
                                         <Accordion.Item eventKey={index.toString()} key={index}>
                                             <Accordion.Header><div className="d-flex flex-column"><strong>Ngày {day.day}</strong> <small className="mb-0 mt-2">{formatDateToVietnamese(day.date)}</small></div></Accordion.Header>
                                             <Accordion.Body>
                                                 <Table bordered hover>
                                                     <thead>
-                                                        <tr>
-                                                            <th>Thời gian</th>
-                                                            <th>Hoạt động</th>
-                                                            <th>Địa chỉ</th>
-                                                            <th>Chi phí</th>
-                                                            <th>Ghi chú</th>
-                                                            <th>Mô tả</th>
-                                                            <th>Hình ảnh</th>
+                                                        <tr >
+                                                            <th >Thời gian</th>
+                                                            <th >Hoạt động</th>
+                                                            <th >Địa chỉ</th>
+                                                            <th >Chi phí</th>
+                                                            <th >Ghi chú</th>
+                                                            <th >Mô tả</th>
+                                                            <th >Hình ảnh</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         {day.activities.$values.map((activity, idx) => (
-                                                            <tr key={idx}>
-                                                                <td>
+                                                            <tr key={idx} >
+                                                                <td >
                                                                     <strong>{activity.startTime} {activity.endTime}</strong>
                                                                 </td>
-                                                                <td>{activity.title}</td>
-                                                                <td>{activity.activityAddress}</td>
+                                                                <td >{activity.title}</td>
+                                                                <td >{activity.activityAddress}</td>
                                                                 <td className="fw-bold text-success">{activity.activityAmount.toLocaleString()}₫</td>
-                                                                <td>{activity.note}</td>
-                                                                <td>{activity.description}</td>
-                                                                <td>{activity.activityImage && <img src={activity.activityImage} alt="" className="activity-image fixed-size rounded-3" />}</td>
+                                                                <td >{activity.note}</td>
+                                                                <td >{activity.description}</td>
+                                                                <td >{activity.activityImage && <img src={activity.activityImage} alt={activity.title} className="activity-image fixed-size rounded-3" />}</td>
                                                             </tr>
                                                         ))}
                                                     </tbody>
@@ -332,7 +330,7 @@ function TourDetail() {
                             <Tab className="fixed-size-tabs" eventKey="profile" title="Chi phí">
                                 <ul>
                                     {tourData.costDetails.$values.map((cost, index) => (
-                                        <li key={index}>{cost.title}: {cost.amount.toLocaleString()}₫ - {cost.notes}</li>
+                                        <li key={index}><h5>{cost.title}: {cost.amount.toLocaleString()}₫</h5>{cost.notes}</li>
                                     ))}
                                 </ul>
                             </Tab>
@@ -340,6 +338,55 @@ function TourDetail() {
                                 <div dangerouslySetInnerHTML={{ __html: tourData.additionalInfo }} />
                             </Tab>
                         </Tabs>
+
+                        <h2 className="text-uppercase fw-semibold my-4">
+                            Những thông tin cần lưu ý
+                        </h2>
+
+                        <Accordion defaultActiveKey={['0']} alwaysOpen>
+                            <Accordion.Item eventKey="0">
+                                <Accordion.Header>
+                                    <strong>Điều kiện thanh toán</strong>
+                                </Accordion.Header>
+                                <Accordion.Body>
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                                    eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+                                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                                    aliquip ex ea commodo consequat. Duis aute irure dolor in
+                                    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+                                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+                                    culpa qui officia deserunt mollit anim id est laborum.
+                                </Accordion.Body>
+                            </Accordion.Item>
+                            <Accordion.Item eventKey="1">
+                                <Accordion.Header>
+                                    <strong>Điều kiện đăng ký</strong>
+                                </Accordion.Header>
+                                <Accordion.Body>
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                                    eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+                                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                                    aliquip ex ea commodo consequat. Duis aute irure dolor in
+                                    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+                                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+                                    culpa qui officia deserunt mollit anim id est laborum.
+                                </Accordion.Body>
+                            </Accordion.Item>
+                            <Accordion.Item eventKey="2">
+                                <Accordion.Header>
+                                    <strong>Các điều kiện hủy tour đối với ngày thường</strong>
+                                </Accordion.Header>
+                                <Accordion.Body>
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                                    eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+                                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                                    aliquip ex ea commodo consequat. Duis aute irure dolor in
+                                    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+                                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+                                    culpa qui officia deserunt mollit anim id est laborum.
+                                </Accordion.Body>
+                            </Accordion.Item>
+                        </Accordion>
                     </div>
                 </div>
             </main>

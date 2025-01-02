@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import ReactPaginate from 'react-paginate';
-import { ToastContainer } from 'react-toastify';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { viewProfile } from '../../redux/actions/profileActions';
