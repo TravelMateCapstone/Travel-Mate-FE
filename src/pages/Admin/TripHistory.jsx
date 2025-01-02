@@ -429,9 +429,9 @@ const TripHistory = () => {
           },
         }}
       >
-        <h2 className="fw-bold fs-4">{modalData?.tourName}</h2>
+        <h2 className="fw-bold fs-3 mb-4">{modalData?.tourName}</h2>
         <div className="d-flex">
-          <Col lg={6}>
+          <Col lg={6} className="ps-0">
           <div className="mb-4 rounded-4 p-3 d-flex flex-column gap-1 align-items-center" style={{
             boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
           }}>
@@ -505,12 +505,12 @@ const TripHistory = () => {
 
           
           </Col>
-          <Col lg={6} className="h-100">
+          <Col lg={6} className="h-100 pe-0">
             <img
               src={modalData?.tourImage}
               alt={modalData?.tourName}
               className="w-100 rounded mb-4"
-              style={{ maxHeight: "435px", objectFit: "cover" }}
+              style={{ maxHeight: "430px", objectFit: "cover" }}
             />
           </Col>
         </div>
@@ -518,7 +518,7 @@ const TripHistory = () => {
 
 
         <div className="mb-4">
-          <h3 className="fw-semibold fs-5"> <ion-icon name="calendar-outline"></ion-icon> Lịch trình chi tiết</h3>
+          <h3 className="fw-semibold fs-5 mb-3"> Lịch trình chi tiết</h3>
           <Table striped bordered hover>
             <thead>
               <tr>
@@ -537,7 +537,7 @@ const TripHistory = () => {
                 day.activities?.$values.map((activity, index) => (
                   <tr key={`${day.day}-${index}`}>
                     {index === 0 && (
-                      <td rowSpan={day.activities.$values.length} className=" text-nowrap">
+                      <td rowSpan={day.activities.$values.length} className=" text-nowrap fw-semibold">
                         Ngày {day.day}
                       </td>
                     )}
@@ -563,7 +563,7 @@ const TripHistory = () => {
         </div>
 
         <div className="mb-4">
-          <h3 className="fw-semibold fs-5"><ion-icon name="cash-outline"></ion-icon> Chi tiết chi phí</h3>
+          <h3 className="fw-semibold fs-5 mb-3"> Chi tiết chi phí</h3>
           <Table striped bordered hover>
             <thead>
               <tr>
@@ -585,8 +585,8 @@ const TripHistory = () => {
         </div>
 
         <div className="mb-4">
-          <h3 className="fw-medium fs-5"><ion-icon name="alert-circle-outline"></ion-icon> Thông tin bổ sung</h3>
-          <p>{modalData?.additionalInfo && modalData.additionalInfo.replace(/<[^>]+>/g, "")}</p>
+          <h3 className="fw-medium fs-5"> Thông tin bổ sung</h3>
+          <div dangerouslySetInnerHTML={{__html: modalData?.additionalInfo}}></div>
         </div>
 
         <div className="d-flex justify-content-end">
