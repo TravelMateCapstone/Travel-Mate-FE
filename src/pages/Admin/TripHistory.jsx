@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import "@ag-grid-community/styles/ag-theme-quartz.css";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
@@ -15,7 +15,8 @@ import { Col, Row, Table } from "react-bootstrap";
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { Spinner, Placeholder } from "react-bootstrap";
+import { Spinner, } from "react-bootstrap";
+import { data } from "jquery";
 
 
 ModuleRegistry.registerModules([
@@ -31,6 +32,8 @@ const fetchTours = async (token) => {
   const { data } = await axios.get("https://travelmateapp.azurewebsites.net/api/Tour", {
     headers: { Authorization: `${token}` },
   });
+  console.log(data);
+  
   return data.$values;
 };
 
@@ -414,7 +417,7 @@ const TripHistory = () => {
             transform: "translate(-50%, -50%)",
             backgroundColor: "#fff",
             padding: "30px",
-            maxWidth: "1200px",
+            maxWidth: "1600px",
             width: "100%",
             borderRadius: "10px",
             boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
@@ -426,79 +429,104 @@ const TripHistory = () => {
           },
         }}
       >
+        <h2 className="fw-bold fs-4">{modalData?.tourName}</h2>
         <div className="d-flex">
           <Col lg={6}>
-            <div style={{ marginBottom: "20px" }}>
-              <h2 className="fw-bold">{modalData?.tourName}</h2>
-              <p className="gap-2" style={{
-                fontSize: "20px",
-                display: "flex",
-                alignItems: "center",
-              }}>
-                <ion-icon name="location-outline" ></ion-icon>{modalData?.location}
+          <div className="mb-4 rounded-4 p-3 d-flex flex-column gap-1 align-items-center" style={{
+            boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+          }}>
+              <img height={50}  className="rounded-circle object-fit-cover" src={modalData.creator.avatarUrl} alt={modalData.creator.fullName} />
+              <h5 className="m-0">{modalData.creator.fullname}</h5>
+              <p className="m-0">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <ion-icon
+                    key={i}
+                    name="star"
+                    style={{ color: i < modalData.creator.rating ? "yellow" : "gray" }}
+                  ></ion-icon>
+                ))}
               </p>
-              <div className="border-1 rounded-4 p-3 d-flex flex-column gap-2" style={{ backgroundColor: "#f8f9fa" }}>
-                <h3 className="fw-semibold">Thông tin chuyến đi</h3>
-                <div className="d-flex align-items-center gap-2 jus">
-                  <ion-icon name="calendar-outline" style={{
-                    fontSize: "20px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}></ion-icon>
-                  <p className="m-0 fw-medium">
-                    Bắt đầu: {new Date(modalData?.startDate).toLocaleDateString("vi-VN")}
-                  </p>
+              <p>{modalData.creator.totalTrips == null ? 0 : modalData.creator.totalTrips} chuyến đi</p>
+
+            </div>
+
+            <div className="mb-4">
+              <div className="border rounded-4 p-3 d-flex flex-column gap-3" style={{
+                 boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+              }}>
+                <p className="d-flex gap-2 align-items-center fw-medium m-0">
+                  <ion-icon name="location-outline"></ion-icon>{modalData?.location}
+                </p>
+                <div className="d-flex align-items-center gap-2">
+                  <ion-icon name="calendar-outline"></ion-icon>
+                  <p className="m-0 fw-medium">Ngày bắt đầu: {new Date(modalData?.startDate).toLocaleDateString("vi-VN")}</p>
                 </div>
                 <div className="d-flex align-items-center gap-2">
-                  <ion-icon name="time-outline" style={{
-                    fontSize: "20px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}></ion-icon>
+                  <ion-icon name="time-outline"></ion-icon>
                   <p className="m-0 fw-medium">Ngày kết thúc: {new Date(modalData?.endDate).toLocaleDateString("vi-VN")}</p>
                 </div>
-                <div className="d-flex align-items-center gap-2">
-                  <ion-icon name="time-outline" style={{
-                    fontSize: "20px",
-                    display: "flex",
-                    alignItems: "center",
-                  }}></ion-icon>
-                  <p className="m-0 fw-medium">Giá: {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(modalData?.price)}</p>
-                </div>
-                <p className="d-flex gap-2 fw-medium">
-                  <strong><ion-icon name="checkmark-circle-outline" style={{
-                    fontSize: "20px",
-                    display: "flex",
-                    alignItems: "center",
-                    color: modalData?.approvalStatus === 1 ? "green" : modalData?.approvalStatus === 2 ? "red" : "orange"
-                  }}></ion-icon></strong> {modalData?.approvalStatus === 0 ? "Đang xử lý" : modalData?.approvalStatus === 1 ? "Đã chấp nhận" : "Đã từ chối"}
-                </p>
-              </div>
-            </div></Col>
 
-          <Col lg={6}>
-            <img src={modalData?.tourImage} alt={modalData?.tourName} style={{ width: "100%", borderRadius: "10px", marginBottom: "20px", maxHeight: '300px' }} />
+                <div className="d-flex align-items-start gap-2">
+                  <ion-icon
+                    name="document-text-outline"
+                    style={{
+                      fontSize: "16px",
+                      flexShrink: 0, // Ngăn co lại khi nội dung thay đổi
+                      width: "16px", // Đảm bảo kích thước cố định
+                      height: "16px", // Đảm bảo kích thước cố định
+                    }}
+                  ></ion-icon>
+                  <p className="m-0 fw-medium">Mô tả: {modalData?.tourDescription}</p>
+                </div>
+
+
+                <div className="d-flex align-items-center justify-content-between">
+                  <p className="d-flex gap-2 fw-medium text-muted align-items-center m-0">
+                    <strong>
+                      <ion-icon
+                        name="checkmark-circle-outline"
+                        style={{
+                          color: modalData?.approvalStatus === 1 ? "green" : modalData?.approvalStatus === 2 ? "red" : "orange",
+                        }}
+                      ></ion-icon>
+                    </strong>{" "}
+                    {modalData?.approvalStatus === 0 ? "Đang xử lý" : modalData?.approvalStatus === 1 ? "Đã chấp nhận" : "Đã từ chối"}
+                  </p>
+
+                  <h4 className="m-0 fw-medium text-success">{new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(modalData?.price)}</h4>
+                </div>
+
+
+              </div>
+            </div>
+
+          
+          </Col>
+          <Col lg={6} className="h-100">
+            <img
+              src={modalData?.tourImage}
+              alt={modalData?.tourName}
+              className="w-100 rounded mb-4"
+              style={{ maxHeight: "435px", objectFit: "cover" }}
+            />
           </Col>
         </div>
 
-        <div style={{ marginBottom: "20px" }}>
-          <h4 className="fw-medium">Mô tả</h4>
-          <p>{modalData?.tourDescription}</p>
-        </div>
 
-        <div style={{ marginBottom: "20px" }}>
-          <h3 className="fw-bold">Lịch trình chi tiết</h3>
+
+        <div className="mb-4">
+          <h3 className="fw-semibold fs-5"> <ion-icon name="calendar-outline"></ion-icon> Lịch trình chi tiết</h3>
           <Table striped bordered hover>
             <thead>
               <tr>
-                <th>Ngày</th>
-                <th>Hoạt động</th>
-                <th>Thời gian</th>
-                <th>Địa điểm</th>
-                <th>Chi phí</th>
-                <th>Mô tả</th>
-                <th>Lưu ý</th>
-                <th>Ảnh</th>
+                <th className="fw-semibold">Ngày</th>
+                <th className="fw-semibold">Hoạt động</th>
+                <th className="fw-semibold">Thời gian</th>
+                <th className="fw-semibold">Địa điểm</th>
+                <th className="fw-semibold">Chi phí</th>
+                <th className="fw-semibold">Mô tả</th>
+                <th className="fw-semibold">Lưu ý</th>
+                <th className="fw-semibold">Ảnh</th>
               </tr>
             </thead>
             <tbody>
@@ -506,17 +534,24 @@ const TripHistory = () => {
                 day.activities?.$values.map((activity, index) => (
                   <tr key={`${day.day}-${index}`}>
                     {index === 0 && (
-                      <td rowSpan={day.activities.$values.length}>
-                        Ngày {day.day} - {new Date(day.date).toLocaleDateString("vi-VN")}
+                      <td rowSpan={day.activities.$values.length} className=" text-nowrap">
+                        Ngày {day.day}
                       </td>
                     )}
                     <td>{activity.title}</td>
-                    <td>{activity.startTime} - {activity.endTime}</td>
+                    <td>{activity.startTime} đến {activity.endTime}</td>
                     <td>{activity.activityAddress}</td>
                     <td>{new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(activity.activityAmount)}</td>
                     <td>{activity.description}</td>
                     <td>{activity.note}</td>
-                    <td><img src={activity.activityImage} alt={activity.title} style={{ width: "100px", maxHeight: "100px", objectFit: "cover" }} /></td>
+                    <td>
+                      <img
+                        src={activity.activityImage}
+                        alt={activity.title}
+                        className="img-fluid"
+                        style={{ maxHeight: "100px", objectFit: "cover" }}
+                      />
+                    </td>
                   </tr>
                 ))
               )}
@@ -524,22 +559,31 @@ const TripHistory = () => {
           </Table>
         </div>
 
-        <div style={{ marginBottom: "20px" }}>
-          <h3 className="fw-bold">Chi tiết chi phí</h3>
-          <ul>
-            {modalData?.costDetails?.$values.map((cost) => (
-              <li key={cost.title}>
-                <strong>{cost.title}:</strong> {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(cost.amount)}
-                <br />
-                <strong>Ghi chú:</strong> {cost.notes}
-              </li>
-            ))}
-          </ul>
+        <div className="mb-4">
+          <h3 className="fw-semibold fs-5"><ion-icon name="cash-outline"></ion-icon> Chi tiết chi phí</h3>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th className="fw-semibold">Tiêu đề</th>
+                <th className="fw-semibold">Số tiền</th>
+                <th className="fw-semibold">Ghi chú</th>
+              </tr>
+            </thead>
+            <tbody>
+              {modalData?.costDetails?.$values.map((cost) => (
+                <tr key={cost.title}>
+                  <td>{cost.title}</td>
+                  <td>{new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(cost.amount)}</td>
+                  <td>{cost.notes}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         </div>
 
-        <div style={{ marginBottom: "20px" }}>
-          <h3 className="fw-bold">Thông tin bổ sung</h3>
-          <p>{modalData?.additionalInfo && modalData.additionalInfo.replace(/<[^>]+>/g, '')}</p>
+        <div className="mb-4">
+          <h3 className="fw-medium fs-5"><ion-icon name="alert-circle-outline"></ion-icon> Thông tin bổ sung</h3>
+          <p>{modalData?.additionalInfo && modalData.additionalInfo.replace(/<[^>]+>/g, "")}</p>
         </div>
 
         <div className="d-flex justify-content-end">
@@ -548,6 +592,7 @@ const TripHistory = () => {
           </button>
         </div>
       </Modal>
+
     </div>
   );
 };
