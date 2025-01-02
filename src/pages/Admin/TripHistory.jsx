@@ -435,19 +435,22 @@ const TripHistory = () => {
           <div className="mb-4 rounded-4 p-3 d-flex flex-column gap-1 align-items-center" style={{
             boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
           }}>
-              <img height={50}  className="rounded-circle object-fit-cover" src={modalData.creator.avatarUrl} alt={modalData.creator.fullName} />
-              <h5 className="m-0">{modalData.creator.fullname}</h5>
-              <p className="m-0">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <ion-icon
-                    key={i}
-                    name="star"
-                    style={{ color: i < modalData.creator.rating ? "yellow" : "gray" }}
-                  ></ion-icon>
-                ))}
-              </p>
-              <p>{modalData.creator.totalTrips == null ? 0 : modalData.creator.totalTrips} chuyến đi</p>
-
+            {modalData?.creator && (
+              <>
+                <img height={50}  className="rounded-circle object-fit-cover" src={modalData.creator.avatarUrl} alt={modalData.creator.fullName} />
+                <h5 className="m-0">{modalData?.creator.fullname}</h5>
+                <p className="m-0">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <ion-icon
+                      key={i}
+                      name="star"
+                      style={{ color: i < modalData?.creator.rating ? "yellow" : "gray" }}
+                    ></ion-icon>
+                  ))}
+                </p>
+                <p>{modalData?.creator.totalTrips == null ? 0 : modalData?.creator.totalTrips} chuyến đi</p>
+              </>
+            )}
             </div>
 
             <div className="mb-4">
