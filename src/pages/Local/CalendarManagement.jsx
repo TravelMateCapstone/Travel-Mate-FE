@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import axios from 'axios';
 import 'moment/locale/vi'; // Import ngôn ngữ tiếng Việt
 import { useSelector } from 'react-redux';
-  
-import {  parse, startOfWeek, getDay } from 'date-fns';
 import 'date-fns/locale/pt-BR';
-
-  
 
 // Cập nhật locale cho tiếng Việt
 moment.locale('vi');
@@ -22,16 +18,7 @@ moment.updateLocale('vi', {
 });
 const localizer = momentLocalizer(moment);
 
-const formats = {
-  dateFormat: 'dd',
 
-  dayFormat: (date, culture, localizer) =>
-    localizer.format(date, 'DDD', culture),
-
-  dayRangeHeaderFormat: ({ start, end }, culture, localizer) =>
-    localizer.format(start, { date: 'short' }, culture) + ' — ' +
-    localizer.format(end, { date: 'short' }, culture)
-}
 
 const messages = {
   allDay: 'Cả ngày',

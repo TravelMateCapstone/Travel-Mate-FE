@@ -13,6 +13,9 @@ import Table from 'react-bootstrap/Table';
 import checkProfileCompletion from "../../utils/Profile/checkProfileCompletion";
 import { useDispatch } from "react-redux";
 import { viewProfile } from "../../redux/actions/profileActions";
+import Modal from "react-modal";
+
+Modal.setAppElement('#root');
 
 function TourDetail() {
     const [key, setKey] = useState("home");
@@ -20,6 +23,8 @@ function TourDetail() {
     const navigate = useNavigate();
     const token = useSelector((state) => state.auth.token);
     const dispatch = useDispatch();
+    const [showModal, setShowModal] = useState(false);
+    const [selectedActivity, setSelectedActivity] = useState(null);
 
     console.log(tourData);
 
@@ -75,6 +80,16 @@ function TourDetail() {
             console.error("Error fetching chat user info:", error);
             toast.error("Không thể lấy thông tin người dùng để chat.");
         }
+    };
+
+    const handleShowModal = (activity) => {
+        setSelectedActivity(activity);
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setSelectedActivity(null);
     };
 
     if (!tourData) {
@@ -286,38 +301,36 @@ function TourDetail() {
                             id="controlled-tab-example"
                             activeKey={key}
                             onSelect={(k) => setKey(k)}
-                            className="my-3 no-border-radius "
+                            className="my-3 no-border-radius mt-5"
                         >
                             <Tab className="fixed-size-tabs" eventKey="home" title="Lịch trình">
                                 <Accordion defaultActiveKey="0" alwaysOpen>
                                     {tourData.itinerary.$values.map((day, index) => (
                                         <Accordion.Item eventKey={index.toString()} key={index}>
-                                            <Accordion.Header><div className="d-flex flex-column"><strong>Ngày {day.day}</strong> <small className="mb-0 mt-2">{formatDateToVietnamese(day.date)}</small></div></Accordion.Header>
+                                            <Accordion.Header><div className="d-flex flex-column"><strong>Ngày {day.day}</strong></div></Accordion.Header>
                                             <Accordion.Body>
                                                 <Table bordered hover>
                                                     <thead>
                                                         <tr >
                                                             <th >Thời gian</th>
                                                             <th >Hoạt động</th>
-                                                            <th >Địa chỉ</th>
                                                             <th >Chi phí</th>
-                                                            <th >Ghi chú</th>
-                                                            <th >Mô tả</th>
-                                                            <th >Hình ảnh</th>
+                                                            {/* <th >Hình ảnh</th> */}
+                                                            <th>Chi tiết</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         {day.activities.$values.map((activity, idx) => (
                                                             <tr key={idx} >
                                                                 <td >
-                                                                    <strong>{activity.startTime} {activity.endTime}</strong>
+                                                                    <strong>{activity.startTime} - {activity.endTime}</strong>
                                                                 </td>
                                                                 <td >{activity.title}</td>
-                                                                <td >{activity.activityAddress}</td>
                                                                 <td className="fw-bold text-success">{activity.activityAmount.toLocaleString()}₫</td>
-                                                                <td >{activity.note}</td>
-                                                                <td >{activity.description}</td>
-                                                                <td >{activity.activityImage && <img src={activity.activityImage} alt={activity.title} className="activity-image fixed-size rounded-3" />}</td>
+                                                                {/* <td >{activity.activityImage && <img src={activity.activityImage} alt={activity.title} className="activity-image fixed-size rounded-3" />}</td> */}
+                                                                <td>
+                                                                    <Button variant="info" onClick={() => handleShowModal(activity)}>Chi tiết</Button>
+                                                                </td>
                                                             </tr>
                                                         ))}
                                                     </tbody>
@@ -339,57 +352,92 @@ function TourDetail() {
                             </Tab>
                         </Tabs>
 
-                        <h2 className="text-uppercase fw-semibold my-4">
+                        <h3 className="text-uppercase fw-semibold my-4">
                             Những thông tin cần lưu ý
-                        </h2>
+                        </h3>
 
-                        <Accordion defaultActiveKey={['0']} alwaysOpen>
-                            <Accordion.Item eventKey="0">
-                                <Accordion.Header>
-                                    <strong>Điều kiện thanh toán</strong>
-                                </Accordion.Header>
-                                <Accordion.Body>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                                    eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                                    aliquip ex ea commodo consequat. Duis aute irure dolor in
-                                    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                                    culpa qui officia deserunt mollit anim id est laborum.
-                                </Accordion.Body>
-                            </Accordion.Item>
-                            <Accordion.Item eventKey="1">
-                                <Accordion.Header>
-                                    <strong>Điều kiện đăng ký</strong>
-                                </Accordion.Header>
-                                <Accordion.Body>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                                    eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                                    aliquip ex ea commodo consequat. Duis aute irure dolor in
-                                    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                                    culpa qui officia deserunt mollit anim id est laborum.
-                                </Accordion.Body>
-                            </Accordion.Item>
-                            <Accordion.Item eventKey="2">
-                                <Accordion.Header>
-                                    <strong>Các điều kiện hủy tour đối với ngày thường</strong>
-                                </Accordion.Header>
-                                <Accordion.Body>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                                    eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                                    minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                                    aliquip ex ea commodo consequat. Duis aute irure dolor in
-                                    reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                                    culpa qui officia deserunt mollit anim id est laborum.
-                                </Accordion.Body>
-                            </Accordion.Item>
-                        </Accordion>
+                        <div className="container_info_note">
+                            <Accordion defaultActiveKey={['0']} alwaysOpen>
+                                <Accordion.Item eventKey="0">
+                                    <Accordion.Header>
+                                        <strong>Điều kiện thanh toán</strong>
+                                    </Accordion.Header>
+                                    <Accordion.Body>
+                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                                        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+                                        minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                                        aliquip ex ea commodo consequat. Duis aute irure dolor in
+                                        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+                                        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+                                        culpa qui officia deserunt mollit anim id est laborum.
+                                    </Accordion.Body>
+                                </Accordion.Item>
+                                <Accordion.Item eventKey="1">
+                                    <Accordion.Header>
+                                        <strong>Điều kiện đăng ký</strong>
+                                    </Accordion.Header>
+                                    <Accordion.Body>
+                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                                        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+                                        minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                                        aliquip ex ea commodo consequat. Duis aute irure dolor in
+                                        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+                                        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+                                        culpa qui officia deserunt mollit anim id est laborum.
+                                    </Accordion.Body>
+                                </Accordion.Item>
+                                <Accordion.Item eventKey="2">
+                                    <Accordion.Header>
+                                        <strong>Các điều kiện hủy tour đối với ngày thường</strong>
+                                    </Accordion.Header>
+                                    <Accordion.Body>
+                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                                        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+                                        minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                                        aliquip ex ea commodo consequat. Duis aute irure dolor in
+                                        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+                                        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+                                        culpa qui officia deserunt mollit anim id est laborum.
+                                    </Accordion.Body>
+                                </Accordion.Item>
+                            </Accordion>
+                        </div>
                     </div>
                 </div>
             </main>
+            <Modal
+                isOpen={showModal}
+                onRequestClose={handleCloseModal}
+                contentLabel="Chi tiết hoạt động"
+                style={{
+                    content: {
+                        top: '54%',
+                        left: '50%',
+                        right: 'auto',
+                        bottom: 'auto',
+                        marginRight: '-50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '50%',
+                        maxHeight: '80vh', // Added to limit the height
+                        overflowY: 'auto', // Added to enable scrolling
+                    },
+                }}
+            >
+                <h2>Chi tiết hoạt động</h2>
+                {selectedActivity && (
+                    <>
+                        <p><strong>Thời gian:</strong> {selectedActivity.startTime} - {selectedActivity.endTime}</p>
+                        <p><strong>Hoạt động:</strong> {selectedActivity.title}</p>
+                        <p><strong>Địa chỉ:</strong> {selectedActivity.activityAddress}</p>
+                        <p><strong>Chi phí:</strong> {selectedActivity.activityAmount.toLocaleString()}₫</p>
+                        <p><strong>Mô tả:</strong> {selectedActivity.description}</p>
+                        {selectedActivity.activityImage && <img src={selectedActivity.activityImage} alt={selectedActivity.title} className="activity-image fixed-size rounded-3" />}
+                    </>
+                )}
+                <div className="mt-4 d-flex justify-content-end">
+                    <Button variant="secondary" onClick={handleCloseModal}>Đóng</Button>
+                </div>
+            </Modal>
         </div>
     );
 }

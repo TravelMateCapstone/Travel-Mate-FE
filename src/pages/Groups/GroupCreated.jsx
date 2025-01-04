@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import useApi from '../../hooks/useApi'
 import GroupCard from '../../components/Group/GroupCard'
 import '../../assets/css/Groups/GroupList.css'

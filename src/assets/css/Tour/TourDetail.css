@@ -80,3 +80,12 @@
   object-fit: cover;
 }
 
+.container_info_note .accordion-button {
+  background-color: #34A853;
+  color: #ffffff;
+}
+
+.container_info_note .accordion-button:not(.collapsed) {
+  background-color: #34A853 !important;
+  color: #ffffff;
+}

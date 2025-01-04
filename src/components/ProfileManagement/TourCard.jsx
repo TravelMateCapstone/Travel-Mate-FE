@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTour } from '../../redux/actions/tourActions';
@@ -19,6 +20,7 @@ import Switch from '../Shared/Switch';
 import ConfirmModal from '../Shared/ConfirmModal';
 Modal.setAppElement('#root');
 
+// eslint-disable-next-line react/prop-types
 function TourCard({ tour, onTourUpdated }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -31,7 +33,7 @@ function TourCard({ tour, onTourUpdated }) {
     const [locations, setLocations] = useState([]);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [tourToDelete, setTourToDelete] = useState(null);
-    const userProfile = useSelector((state) => state.profile);
+    // const userProfile = useSelector((state) => state.profile);
 
     const [tourDetails, setTourDetails] = useState({
         tourName: '',
@@ -46,7 +48,7 @@ function TourCard({ tour, onTourUpdated }) {
         tourImage: '',
         additionalInfo: '',
     });
-    const [key, setKey] = useState('schedule');
+    // const [key, setKey] = useState('schedule');
     const [isGlobalContract, setIsGlobalContract] = useState(true);
     const [filter, setFilter] = useState('paid');
     const [searchTerm, setSearchTerm] = useState('');
@@ -115,22 +117,22 @@ function TourCard({ tour, onTourUpdated }) {
             const end = new Date(tourDetails.endDate);
             const numberOfDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
             const numberOfNights = numberOfDays - 1;
-    
+
             setTourDetails((prevDetails) => ({
                 ...prevDetails,
                 numberOfDays,
                 numberOfNights,
             }));
-    
+
             // Cập nhật lại lịch trình
             setActivities((prevActivities) => {
                 const updatedActivities = [];
                 for (let i = 0; i < numberOfDays; i++) {
                     const currentDay = addDays(start, i);
-                    const existingDay = prevActivities.find((act) => 
+                    const existingDay = prevActivities.find((act) =>
                         new Date(act.date).toDateString() === currentDay.toDateString()
                     );
-    
+
                     if (existingDay) {
                         // Giữ lại ngày cũ nếu đã tồn tại
                         updatedActivities.push(existingDay);
@@ -147,8 +149,8 @@ function TourCard({ tour, onTourUpdated }) {
             });
         }
     }, [tourDetails.startDate, tourDetails.endDate]);
-    
-    
+
+
 
     const openModal = async () => {
         console.log(tour.tourId);
@@ -283,7 +285,7 @@ function TourCard({ tour, onTourUpdated }) {
                 ...updatedActivities[dayIndex].activities[actIndex],
                 [field]: value,
             };
-    
+
             const newActivity = updatedActivities[dayIndex].activities[actIndex];
             if (field === 'startTime' || field === 'endTime') {
                 const overlapActivity = getOverlapActivity(updatedActivities, dayIndex, newActivity, actIndex);
@@ -292,11 +294,11 @@ function TourCard({ tour, onTourUpdated }) {
                     return prevActivities; // Không cập nhật nếu trùng lặp
                 }
             }
-    
+
             return updatedActivities;
         });
     };
-    
+
     const getOverlapActivity = (activities, dayIndex, newActivity, actIndex = -1) => {
         const { startTime, endTime } = newActivity;
         for (let i = 0; i < activities[dayIndex].activities.length; i++) {
@@ -312,7 +314,7 @@ function TourCard({ tour, onTourUpdated }) {
         }
         return null;
     };
-    
+
 
     const handleImageUpload = async (event) => {
         const file = event.target.files[0];
@@ -355,23 +357,23 @@ function TourCard({ tour, onTourUpdated }) {
         return errors;
     };
 
-    const isTimeOverlap = (activities, dayIndex, newActivity, actIndex = -1) => {
-        const { startTime, endTime } = newActivity;
-        for (let i = 0; i < activities[dayIndex].activities.length; i++) {
-            if (i === actIndex) continue; // Bỏ qua chính hoạt động đang chỉnh sửa
-            const act = activities[dayIndex].activities[i];
-            if (
-                (startTime >= act.startTime && startTime < act.endTime) || // Trùng trong khoảng
-                (endTime > act.startTime && endTime <= act.endTime) || // Trùng cuối
-                (startTime <= act.startTime && endTime >= act.endTime) // Bao trùm cả hoạt động khác
-            ) {
-                return true;
-            }
-        }
-        return false;
-    };
-    
-    
+    // const isTimeOverlap = (activities, dayIndex, newActivity, actIndex = -1) => {
+    //     const { startTime, endTime } = newActivity;
+    //     for (let i = 0; i < activities[dayIndex].activities.length; i++) {
+    //         if (i === actIndex) continue; // Bỏ qua chính hoạt động đang chỉnh sửa
+    //         const act = activities[dayIndex].activities[i];
+    //         if (
+    //             (startTime >= act.startTime && startTime < act.endTime) || // Trùng trong khoảng
+    //             (endTime > act.startTime && endTime <= act.endTime) || // Trùng cuối
+    //             (startTime <= act.startTime && endTime >= act.endTime) // Bao trùm cả hoạt động khác
+    //         ) {
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // };
+
+
     const validateActivityFields = (activity) => {
         const errors = [];
         if (!activity.title.trim()) errors.push('Tên hoạt động không được để trống.');
@@ -382,7 +384,7 @@ function TourCard({ tour, onTourUpdated }) {
         if (!activity.description.trim()) errors.push('Mô tả không được để trống.');
         return errors;
     };
-    
+
     const validateCostDetailFields = (costDetail) => {
         const errors = [];
         if (!costDetail.title.trim()) errors.push('Tiêu đề không được để trống.');
@@ -390,19 +392,19 @@ function TourCard({ tour, onTourUpdated }) {
         if (!costDetail.notes.trim()) errors.push('Ghi chú không được để trống.');
         return errors;
     };
-    
+
     const handleSaveChanges = async (tourId) => {
         const errors = validateFields();
         if (errors.length > 0) {
             errors.forEach((error) => toast.error(error));
             return;
         }
-    
+
         if (new Date(tourDetails.startDate) >= new Date(tourDetails.endDate)) {
             toast.error('Ngày bắt đầu phải trước ngày kết thúc.');
             return;
         }
-    
+
         for (const activity of activities) {
             for (const act of activity.activities) {
                 const activityErrors = validateActivityFields(act);
@@ -416,7 +418,7 @@ function TourCard({ tour, onTourUpdated }) {
                 }
             }
         }
-    
+
         for (const costDetail of costDetails) {
             const costDetailErrors = validateCostDetailFields(costDetail);
             if (costDetailErrors.length > 0) {
@@ -424,7 +426,7 @@ function TourCard({ tour, onTourUpdated }) {
                 return;
             }
         }
-    
+
         // Upload tour image to Firebase if it exists
         let tourImageUrl = tourDetails.tourImage;
         if (tourDetails.tourImage && tourDetails.tourImage.startsWith('blob:')) {
@@ -433,7 +435,7 @@ function TourCard({ tour, onTourUpdated }) {
             await uploadBytes(tourImageRef, tourImageFile);
             tourImageUrl = await getDownloadURL(tourImageRef);
         }
-    
+
         // Upload activity images to Firebase if they exist
         const updatedActivities = await Promise.all(activities.map(async (activity) => {
             const updatedActivityImages = await Promise.all(activity.activities.map(async (act) => {
@@ -448,7 +450,7 @@ function TourCard({ tour, onTourUpdated }) {
             }));
             return { ...activity, activities: updatedActivityImages };
         }));
-    
+
         const tourData = {
             tourName: tourDetails.tourName,
             price: parseFloat(tourDetails.price),
@@ -483,9 +485,9 @@ function TourCard({ tour, onTourUpdated }) {
             additionalInfo: tourDetails.additionalInfo,
         };
         console.log('Tour data:', tourData);
-    
+
         try {
-            const response = await axios.put(`https://travelmateapp.azurewebsites.net/api/Tour/${tourId}`, tourData, {
+            await axios.put(`https://travelmateapp.azurewebsites.net/api/Tour/${tourId}`, tourData, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `${token}`,
@@ -499,7 +501,7 @@ function TourCard({ tour, onTourUpdated }) {
             toast.error('An error occurred. Please try again.');
         }
     };
-    
+
 
     const filteredParticipants = participants.filter(participant => {
         const matchesFilter = filter === 'paid' ? participant.paymentStatus : !participant.paymentStatus;
@@ -619,7 +621,7 @@ function TourCard({ tour, onTourUpdated }) {
                                                     console.log('Tour details:', tourDetails);
                                                 }}
                                             >
-                                               
+
                                                 {locations.map((location) => (
                                                     <option key={location.locationId} value={location.location.locationName}>
                                                         {location.location.locationName}
@@ -925,21 +927,27 @@ function TourCard({ tour, onTourUpdated }) {
                     }}>
                         <Col lg={6}>
                             <div>
-                                <div className='d-flex gap-5'>
-                                    <p className='w-25 m-0'>Tên tour du lịch</p>
+                                <div className='d-flex gap-2 align-items-center'>
                                     <p className='m-0'>{tour.tourName}</p>
                                 </div>
-                                <div className='d-flex gap-5'>
-                                    <p className='w-25 m-0'>Ngày bắt đầu</p>
+                                <div className='d-flex gap-2 align-items-center'>
+                                    <ion-icon name="time-outline"></ion-icon>
+                                    <p className='m-0'>{tour.numberOfDays}N{tour.numberOfNights}Đ</p>
+                                </div>
+                                <div className='d-flex gap-2 align-items-center'>
+                                    <ion-icon name="people-outline"></ion-icon>
+                                    <p className='m-0'> {participants.length}/{tour.maxGuests}</p>
+                                </div>
+                                {/* <div className='d-flex gap-2 align-items-center'>
+    
                                     <p className='m-0'>{format(new Date(tour.startDate), 'dd/MM/yyyy HH:mm', { locale: vi })}</p>
                                 </div>
-                                <div className='d-flex gap-5'>
-                                    <p className='w-25 m-0'>Ngày kết thúc</p>
+                                <div className='d-flex gap-2 align-items-center'>
                                     <p className='m-0'>{format(new Date(tour.endDate), 'dd/MM/yyyy HH:mm', { locale: vi })}</p>
-                                </div>
+                                </div> */}
 
-                                <div className='d-flex gap-5'>
-                                    <p className='w-25 m-0'>Địa điểm</p>
+                                <div className='d-flex gap-2 align-items-center'>
+                                    <ion-icon name="location-outline"></ion-icon>
                                     <p className='m-0'>{tour.location}</p>
                                 </div>
 
@@ -956,11 +964,10 @@ function TourCard({ tour, onTourUpdated }) {
                                         border: '1px solid #DCFAED'
                                     }}
                                 >
-                                    <h5>Tổng thu nhập</h5>
+                                    <h5>Tổng thu nhập tour</h5>
                                     <p style={{ fontSize: '24px', color: '#0EAD69', }}>{totalIncome.toLocaleString('vi-VN')} VNĐ</p>
                                 </div>
 
-                                {/* Số lượng khách */}
                                 <div
                                     className="gap-3 p-3 border-1"
                                     style={{
@@ -976,7 +983,7 @@ function TourCard({ tour, onTourUpdated }) {
                                                 marginRight: '8px'
                                             }}
                                         ></ion-icon>
-                                        <h5>Số lượng khách</h5>
+                                        <h5>Tổng thu nhập chuyển</h5>
                                     </div>
                                     <h5 style={{ fontSize: '24px' }}>{participants.length}/{tour.maxGuests}</h5>
                                 </div>
@@ -1074,5 +1081,21 @@ function TourCard({ tour, onTourUpdated }) {
         </tr>
     );
 }
+TourCard.propTypes = {
+    tour: PropTypes.shape({
+        tourImage: PropTypes.string.isRequired,
+        tourName: PropTypes.string.isRequired,
+        location: PropTypes.string.isRequired,
+        numberOfDays: PropTypes.number.isRequired,
+        numberOfNights: PropTypes.number.isRequired,
+        price: PropTypes.number.isRequired,
+        startDate: PropTypes.string.isRequired,
+        endDate: PropTypes.string.isRequired,
+        registeredGuests: PropTypes.number.isRequired,
+        maxGuests: PropTypes.number.isRequired,
+        tourId: PropTypes.string.isRequired,
+    }).isRequired,
+    onTourUpdated: PropTypes.func.isRequired,
+};
 
 export default TourCard;

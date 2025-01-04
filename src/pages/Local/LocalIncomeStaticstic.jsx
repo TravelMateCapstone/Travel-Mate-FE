@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Row, Col, Form } from 'react-bootstrap';
-import MonthlySpendingChart from '../../components/Local/MonthlySpendingChart';
+import { Row, Col, } from 'react-bootstrap';
 import TourChart from '../../components/Local/TourChart';
 import TourPieChart from '../../components/Local/TourPieChart';
 import { fetchTours } from '../../utils/UserDashBoard/statistical';
@@ -11,7 +10,7 @@ function LocalIncomeStatistics() {
   const token = useSelector(state => state.auth.token);
   const [transactions, setTransactions] = useState([]);
   const [tours, setTours] = useState([]);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  // eslint-disable-next-line no-unused-vars
   const [eventsData, setEventsData] = useState([]);
 
   useEffect(() => {

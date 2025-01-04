@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -19,13 +20,9 @@ const FormSubmit = React.lazy(() => import('../../components/Shared/FormSubmit')
 const GroupManagement = () => {
     const navigate = useNavigate();
     const groupDataRedux = useSelector((state) => state.group.selectedGroup);
-    const user = useSelector((state) => state.auth.user);
     const token = useSelector((state) => state.auth.token);
     const [groupData, setGroupData] = useState();
     const [selectedFiles, setSelectedFiles] = useState([]);
-    const [uploadedImageUrls, setUploadedImageUrls] = useState([]);
-    const [locations, setLocations] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
     const [description, setDescription] = useState(groupDataRedux?.description || groupDataRedux?.text || '');
     const [location, setLocation] = useState(groupDataRedux?.location || '');
     const [bannerImage, setBannerImage] = useState(groupDataRedux?.img || groupDataRedux.groupImageUrl || '');

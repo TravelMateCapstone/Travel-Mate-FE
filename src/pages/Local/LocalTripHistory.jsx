@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import CreateTour from '../../components/ProfileManagement/CreateTour'
 import TourCard from '../../components/ProfileManagement/TourCard'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
 import { useQuery, useQueryClient } from 'react-query'
-import { Form, Table, Placeholder, Dropdown } from 'react-bootstrap';
+import { Table, Placeholder, Dropdown, Tabs, Tab } from 'react-bootstrap';
 
 function LocalTripHistory() {
   const [approvalStatus, setApprovalStatus] = useState(1)
@@ -35,11 +35,16 @@ function LocalTripHistory() {
       <div className='mb-4 d-flex justify-content-between align-items-center'>
         <CreateTour onTourCreated={() => queryClient.invalidateQueries('tours')} />
         <div>
-          <Form.Select value={approvalStatus} onChange={(e) => setApprovalStatus(Number(e.target.value))}>
-            <option value={0}>Đang xử lý</option>
-            <option value={1}>Đã chấp nhận</option>
-            <option value={2}>Từ chối</option>
-          </Form.Select>
+          <Tabs
+          className='no-border-radius'
+            id="approval-status-tabs "
+            activeKey={approvalStatus}
+            onSelect={(k) => setApprovalStatus(Number(k))}
+          >
+            <Tab eventKey={0} title="Đang xử lý"></Tab>
+            <Tab eventKey={1} title="Đã chấp nhận"></Tab>
+            <Tab eventKey={2} title="Từ chối"></Tab>
+          </Tabs>
         </div>
       </div>
       <Table striped bordered hover>
