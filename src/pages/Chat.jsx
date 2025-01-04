@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { HttpTransportType, HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
 import { useSelector, useDispatch } from "react-redux";
 import { Container, Row, Col, Card, ListGroup, Form, Button } from 'react-bootstrap';

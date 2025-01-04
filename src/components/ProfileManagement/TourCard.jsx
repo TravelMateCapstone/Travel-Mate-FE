@@ -21,7 +21,7 @@ import ConfirmModal from '../Shared/ConfirmModal';
 Modal.setAppElement('#root');
 
 // eslint-disable-next-line react/prop-types
-function TourCard({ tour, onTourUpdated }) {
+function TourCard({ tour, onTourUpdated, approvalStatus }) {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const token = useSelector(state => state.auth.token);
@@ -502,6 +502,8 @@ function TourCard({ tour, onTourUpdated }) {
         }
     };
 
+    console.log('Tour:', tour);
+    
 
     const filteredParticipants = participants.filter(participant => {
         const matchesFilter = filter === 'paid' ? participant.paymentStatus : !participant.paymentStatus;
@@ -509,43 +511,69 @@ function TourCard({ tour, onTourUpdated }) {
         return matchesFilter && matchesSearch;
     });
     const totalIncome = participants.reduce((sum, participant) => sum + (participant.totalAmount || 0), 0);
+    const iconColor = approvalStatus === 1 ? 'green' : 'red';
     return (
-        <tr>
-            <td className='d-flex gap-3 align-items-center'>
-                <img src={tour.tourImage} alt="" width={150} height={100} className='rounded-3' />
-                <div className='d-flex flex-column justify-content-center'>
-                    <h6 className='m-0'>{tour.tourName}</h6>
-                    <p className='m-0'>{tour.location}</p>
-                    <p className='m-0'>{tour.numberOfDays} ngày {tour.numberOfNights} đêm</p>
+        <div className="tour-card d-flex justify-content-between mb-3 rounded-3" style={{
+            boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)',
+
+        }}>
+            <div className="tour-card-header d-flex gap-3">
+                <img src={tour.tourImage} alt="" width={274} height={174} className='rounded-3' />
+                <div className='d-flex flex-column my-3 gap-2'>
+                    <div className='d-flex gap-2'>
+                        <h5 className='m-0 fw-medium'>{tour.tourName}</h5>
+                        <small style={{
+                            display: 'block',
+                            marginTop: '0',
+                        }}>
+                            <ion-icon style={{ color: iconColor }} name="checkmark-circle-outline"></ion-icon>
+                        </small>
+
+                        
+                    </div>
+                    <p className='m-0 fw-medium'>{tour.location}</p>
+                    <p className='m-0 fw-medium'>{tour.numberOfDays}N{tour.numberOfNights}Đ</p>
+                    <div className='d-flex gap-2'>
+                        <p className='fw-medium'>Ngày khời hành</p>
+                        <Button variant='outline-success'>
+                            04/01
+                        </Button>
+                        <Button variant='outline-success'>
+                            04/01
+                        </Button>
+                        <Button variant='outline-success'>
+                            04/01
+                        </Button>
+                        <Button variant='outline-success'>
+                            04/01
+                        </Button>
+                    </div>
                 </div>
-            </td>
-            <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
-                <p className='m-0 fw-medium'>
-                    {(tour.price).toLocaleString('vi-VN')} VNĐ
-                </p>
-            </td>
-            <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
-                <div className='d-flex align-items-center gap-5' style={{ justifyContent: 'center' }} >
-                    <small className='fw-medium'>{format(new Date(tour.startDate), 'dd/MM/yyyy', { locale: vi })}</small> -
-                    <small className='fw-medium'>{format(new Date(tour.endDate), 'dd/MM/yyyy', { locale: vi })}</small>
+            </div>
+            <div className="tour-card-body d-flex gap-4">
+                <div className="tour-card-info d-flex align-items-end">
+                    <p className='fw-medium text-success'>
+                        {(tour.price).toLocaleString('vi-VN')} VNĐ
+                    </p>
                 </div>
-            </td>
-            <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
-                <small>{tour.registeredGuests}/{tour.maxGuests}</small>
-            </td>
-            <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
-                <Dropdown>
-                    <Dropdown.Toggle variant="success">
-                        <ion-icon name="settings-outline" style={{ textAlign: 'center', verticalAlign: 'middle' }}></ion-icon>
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                        <Dropdown.Item onClick={() => handleView(tour.tourId)}>Xem thêm</Dropdown.Item>
-                        <Dropdown.Item onClick={openModal}>Chỉnh sửa</Dropdown.Item>
-                        <Dropdown.Item onClick={handleOpenManagementModal}>Quản lý</Dropdown.Item>
-                        <Dropdown.Item onClick={() => confirmDelete(tour.tourId)}>Xóa</Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
-            </td>
+                <div className="tour-card-actions d-flex align-items-center">
+                    <Dropdown>
+                        <Dropdown.Toggle variant="" style={{
+                            border: '1px solid #ddd',
+                            height: '174px',
+                            width: '60px',
+                        }}>
+                            <ion-icon name="settings-outline" style={{ textAlign: 'center', verticalAlign: 'middle', }}></ion-icon>
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            <Dropdown.Item onClick={() => handleView(tour.tourId)}>Xem thêm</Dropdown.Item>
+                            <Dropdown.Item onClick={openModal}>Chỉnh sửa</Dropdown.Item>
+                            <Dropdown.Item onClick={handleOpenManagementModal}>Quản lý</Dropdown.Item>
+                            <Dropdown.Item onClick={() => confirmDelete(tour.tourId)}>Xóa</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </div>
+            </div>
             {/* Update tour */}
             <Modal
                 isOpen={modalIsOpen}
@@ -1078,7 +1106,7 @@ function TourCard({ tour, onTourUpdated }) {
                 title="Xác nhận xóa"
                 message="Bạn có chắc chắn muốn xóa tour này không?"
             />
-        </tr>
+        </div>
     );
 }
 TourCard.propTypes = {
@@ -1096,6 +1124,7 @@ TourCard.propTypes = {
         tourId: PropTypes.string.isRequired,
     }).isRequired,
     onTourUpdated: PropTypes.func.isRequired,
+    approvalStatus: PropTypes.number.isRequired,
 };
 
 export default TourCard;

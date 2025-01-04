@@ -4,7 +4,7 @@ import TourCard from '../../components/ProfileManagement/TourCard'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
 import { useQuery, useQueryClient } from 'react-query'
-import { Table, Placeholder, Dropdown, Tabs, Tab } from 'react-bootstrap';
+import { Table, Placeholder, Dropdown, Tabs, Tab, Button } from 'react-bootstrap';
 
 function LocalTripHistory() {
   const [approvalStatus, setApprovalStatus] = useState(1)
@@ -47,72 +47,63 @@ function LocalTripHistory() {
           </Tabs>
         </div>
       </div>
-      <Table striped bordered hover>
-        <thead>
-          <tr style={{ textAlign: 'center', verticalAlign: 'middle' }}>
-            <th>Thông tin</th>
-            <th>Kinh phí</th>
-            <th>Thời gian</th>
-            <th>Số lượng tham gia</th>
-            <th>Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {isLoading ? (
-            Array.from({ length: 5 }).map((_, index) => (
-              <tr key={index}>
-                <td className='d-flex gap-3 align-items-center'>
-                  <Placeholder as="div" animation="wave" style={{ width: '150px', height: '100px' }}>
-                    <Placeholder className="rounded-3 w-100 h-100" />
-                  </Placeholder>
-                  <div className='d-flex flex-column justify-content-center'>
-                    <Placeholder as="h6" animation="wave" className="mb-2">
+      <div className="tour-cards-container">
+        {isLoading ? (
+          Array.from({ length: 5 }).map((_, index) => (
+            <div key={index} className="tour-card d-flex justify-content-between mb-3 rounded-3" style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)' }}>
+              <div className="tour-card-header d-flex gap-3">
+                <Placeholder as="div" animation="wave" style={{ width: '274px', height: '174px' }}>
+                  <Placeholder className="rounded-3 w-100 h-100" />
+                </Placeholder>
+                <div className='d-flex flex-column my-3 gap-2'>
+                  <div className='d-flex gap-2'>
+                    <Placeholder as="h5" animation="wave" className="m-0 fw-medium">
                       <Placeholder xs={6} />
                     </Placeholder>
-                    <Placeholder as="p" animation="wave" className="mb-1">
-                      <Placeholder xs={4} />
-                    </Placeholder>
-                    <Placeholder as="p" animation="wave" className="mb-0">
-                      <Placeholder xs={3} />
-                    </Placeholder>
+                    <small style={{ display: 'block', marginTop: '0' }}>
+                      <ion-icon style={{ color: 'gray' }} name="checkmark-circle-outline"></ion-icon>
+                    </small>
                   </div>
-                </td>
-                <td>
-                  <Placeholder as="p" animation="wave" className="m-0">
-                    <Placeholder xs={5} />
+                  <Placeholder as="p" animation="wave" className="m-0 fw-medium">
+                    <Placeholder xs={4} />
                   </Placeholder>
-                </td>
-                <td>
-                  <Placeholder as="div" animation="wave" className="d-flex align-items-center gap-5">
-                    <div className='d-flex flex-column align-items-center'>
-                      <Placeholder xs={4} className="mb-1" />
-                      <Placeholder xs={4} />
-                    </div>
-                  </Placeholder>
-                </td>
-                <td>
-                  <Placeholder as="small" animation="wave">
+                  <Placeholder as="p" animation="wave" className="m-0 fw-medium">
                     <Placeholder xs={3} />
                   </Placeholder>
-                </td>
-                <td>
+                  <div className='d-flex gap-2'>
+                    <Placeholder as="p" animation="wave" className="fw-medium">
+                      <Placeholder xs={2} />
+                    </Placeholder>
+                    {Array.from({ length: 4 }).map((_, btnIndex) => (
+                      <Button key={btnIndex} variant='outline-success'>
+                        <Placeholder xs={1} />
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="tour-card-body d-flex gap-4">
+                <div className="tour-card-info d-flex align-items-end">
+                  <Placeholder as="p" animation="wave" className='fw-medium text-success'>
+                    <Placeholder xs={3} />
+                  </Placeholder>
+                </div>
+                <div className="tour-card-actions d-flex align-items-center">
                   <Dropdown>
-                    <Dropdown.Toggle variant="success" disabled>
-                      <Placeholder as="div" animation="wave" style={{ width: '20px', height: '20px' }}>
-                        <Placeholder className="w-100 h-100" />
-                      </Placeholder>
+                    <Dropdown.Toggle variant="" style={{ border: '1px solid #ddd', height: '174px', width: '60px' }}>
+                      <ion-icon name="settings-outline" style={{ textAlign: 'center', verticalAlign: 'middle' }}></ion-icon>
                     </Dropdown.Toggle>
                   </Dropdown>
-                </td>
-              </tr>
-            ))
-          ) : (
-            tours?.map((tour) => (
-              <TourCard key={tour.id} tour={tour} onTourUpdated={handleTourUpdated} />
-            ))
-          )}
-        </tbody>
-      </Table>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          tours?.map((tour) => (
+            <TourCard key={tour.id} tour={tour} onTourUpdated={handleTourUpdated} approvalStatus={approvalStatus} />
+          ))
+        )}
+      </div>
     </div>
   )
 }

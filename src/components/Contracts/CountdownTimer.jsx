@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
+// eslint-disable-next-line react/prop-types
 function CountdownTimer({ createdAt, duration = 3 * 60 * 1000 }) {
   const [timeLeft, setTimeLeft] = useState("");
 
