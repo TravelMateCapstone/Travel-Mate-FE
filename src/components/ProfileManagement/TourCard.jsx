@@ -101,7 +101,6 @@ function TourCard({ tour, onTourUpdated, approvalStatus }) {
                 }
             });
             setParticipants(response.data.$values);
-            console.log('participants', response.data.$values);
         } catch (error) {
             console.error("There was an error fetching the participants!", error);
         }
@@ -153,7 +152,6 @@ function TourCard({ tour, onTourUpdated, approvalStatus }) {
 
 
     const openModal = async () => {
-        console.log(tour.tourId);
 
         try {
             const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Tour/${tour.tourId}`, {
@@ -205,9 +203,6 @@ function TourCard({ tour, onTourUpdated, approvalStatus }) {
     };
 
     const handleSwitchToggle = (isOn) => {
-        console.log('Switch is now', isOn ? 'ON' : 'OFF');
-        console.log(isOn);
-
         setIsGlobalContract(isOn);
     };
 
@@ -484,8 +479,6 @@ function TourCard({ tour, onTourUpdated, approvalStatus }) {
             })),
             additionalInfo: tourDetails.additionalInfo,
         };
-        console.log('Tour data:', tourData);
-
         try {
             await axios.put(`https://travelmateapp.azurewebsites.net/api/Tour/${tourId}`, tourData, {
                 headers: {
@@ -501,10 +494,6 @@ function TourCard({ tour, onTourUpdated, approvalStatus }) {
             toast.error('An error occurred. Please try again.');
         }
     };
-
-    console.log('Tour:', tour);
-    
-
     const filteredParticipants = participants.filter(participant => {
         const matchesFilter = filter === 'paid' ? participant.paymentStatus : !participant.paymentStatus;
         const matchesSearch = participant.fullName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -645,8 +634,6 @@ function TourCard({ tour, onTourUpdated, approvalStatus }) {
                                                 value={tourDetails.location}
                                                 onChange={(e) => {
                                                     setTourDetails({ ...tourDetails, location: e.target.value })
-                                                    console.log('Location:', e.target.value);
-                                                    console.log('Tour details:', tourDetails);
                                                 }}
                                             >
 
@@ -1082,8 +1069,6 @@ function TourCard({ tour, onTourUpdated, approvalStatus }) {
                                                     localStorage.setItem('isLocal', 'local');
                                                     localStorage.setItem('participant', JSON.stringify(participant));
                                                     localStorage.setItem('tourSelected', JSON.stringify(tour));
-                                                    console.log(participant);
-
                                                     navigate(RoutePath.ONGOING_CONTRACT)
                                                 }}>
                                                 Xem hợp đồng

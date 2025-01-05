@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { addDays, format, set } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { storage } from '../../../firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Button, Form, Row, Col, Tabs, Tab, Card, Accordion, Modal as BootstrapModal } from 'react-bootstrap';
@@ -18,18 +18,18 @@ import RoutePath from '../../routes/RoutePath';
 import { useDispatch } from 'react-redux';
 import { viewProfile } from '../../redux/actions/profileActions';
 Modal.setAppElement('#root');
+// eslint-disable-next-line react/prop-types
 function CreateTour({ onTourCreated }) {
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [activities, setActivities] = useState([]);
     const [costDetails, setCostDetails] = useState([]);
-    const [locationCurent, setLocationCurent] = useState('');
     const [isGlobalContract, setIsGlobalContract] = useState(true);
     const [termsAccepted, setTermsAccepted] = useState(false);
-    const userProfile = useSelector((state) => state.profile);
     const user = useSelector((state) => state.auth.user);
     const dispatch = useDispatch();
     const [incompleteModels, setIncompleteModels] = useState([]);
     const [isModalOpenIncompleteModels, setIsModalOpenIncompleteModels] = useState(false);
+    const [schedule, setSchedule] = useState([]);
     const openModalIncompleteModels = () => {
         setIsModalOpenIncompleteModels(true);
     };
@@ -50,10 +50,6 @@ function CreateTour({ onTourCreated }) {
         additionalInfo: '',
     });
     const token = useSelector((state) => state.auth.token);
-
-
-
-    const [key, setKey] = useState('schedule');
     const [locations, setLocations] = useState([]);
     useEffect(() => {
         if (tourDetails.startDate && tourDetails.endDate) {
@@ -75,6 +71,9 @@ function CreateTour({ onTourCreated }) {
                 numberOfDays,
                 numberOfNights,
             }));
+
+            // Add default schedule entry
+            setSchedule([{ date: format(start, 'yyyy-MM-dd') }]);
         }
     }, [tourDetails.startDate, tourDetails.endDate]);
 
@@ -347,7 +346,7 @@ function CreateTour({ onTourCreated }) {
         };
 
         try {
-            const response = await axios.post('https://travelmateapp.azurewebsites.net/api/Tour', tourData, {
+            await axios.post('https://travelmateapp.azurewebsites.net/api/Tour', tourData, {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `${token}`,
@@ -372,6 +371,38 @@ function CreateTour({ onTourCreated }) {
 
     const handleActivityImageUploadClick = (dayIndex, actIndex) => {
         document.getElementById(`activity_image_${dayIndex}_${actIndex}`).click();
+    };
+
+    const handleAddSchedule = (date) => {
+        const newDate = new Date(date);
+        const startDate = new Date(tourDetails.startDate);
+        const endDate = new Date(tourDetails.endDate);
+        const duration = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+    
+        console.log(duration);
+        console.log((newDate - new Date(schedule[schedule.length - 1].date)) / (1000 * 60 * 60 * 24) + 1);
+        if(duration > ((newDate - new Date(schedule[schedule.length - 1].date)) / (1000 * 60 * 60 * 24) + 1)){
+            toast.error('Ngày lịch trình không hợp lệ.');
+            return;
+        }
+    
+        if (schedule.some((item) => new Date(item.date).toDateString() === newDate.toDateString())) {
+            toast.error('Ngày lịch trình đã tồn tại.');
+            return;
+        }
+    
+        const newSchedule = {
+            date: format(newDate, 'yyyy-MM-dd'),
+        };
+    
+        setSchedule([...schedule, newSchedule]);
+        document.getElementById('date_schedule').value = ''; // Reset the date input field
+    };
+
+    const handleRemoveSchedule = (index) => {
+        const updatedSchedule = [...schedule];
+        updatedSchedule.splice(index, 1);
+        setSchedule(updatedSchedule);
     };
 
     return (
@@ -466,6 +497,25 @@ function CreateTour({ onTourCreated }) {
                                                     onChange={(e) => setTourDetails({ ...tourDetails, tourDescription: e.target.value })}
                                                     className="form-control"
                                                 />
+                                            </Form.Group>
+                                            <Form.Group className="mb-3 form-group-custom-create-tour">
+                                                <Form.Label>Lịch trình</Form.Label>
+                                                <div className='d-flex gap-2'>
+                                                    {
+                                                        schedule.map((item, index) => (
+                                                            <div className='border-1 p-2 border-success bg-white rounded-2 d-flex align-items-center gap-2' key={index}>
+                                                                <div className='text-success'>{format(new Date(item.date), 'dd/MM')}</div>
+                                                                <ion-icon name="close-outline" onClick={() => handleRemoveSchedule(index)}></ion-icon>
+                                                            </div>
+                                                        ))
+                                                    }
+                                                </div>
+                                                <input type="date" id='date_schedule' onChange={(e) => handleAddSchedule(e.target.value)} className='ms-2' style={{
+                                                    border: '1px solid #ced4da',
+                                                    height: '43px',
+                                                    padding: '10px',
+                                                    borderRadius: '10px'
+                                                }}/>
                                             </Form.Group>
                                         </Form>
                                     </div>
