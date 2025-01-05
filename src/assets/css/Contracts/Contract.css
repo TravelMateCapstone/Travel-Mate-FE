@@ -1,0 +1,13 @@
+.table_contract_list input{
+    border: 1px solid #ccc;
+    height: 30px;
+    padding: 0 10px;
+    border-radius: 5px;
+}
+
+.table_contract_list select{
+    border: 1px solid #ccc;
+    height: 30px;
+    padding: 0 10px;
+    border-radius: 5px;
+}

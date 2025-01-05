@@ -1,10 +1,8 @@
-import React from 'react';
 import { useLocation } from 'react-router-dom';
 import RoutePath from '../routes/RoutePath';
 import TopBar from '../components/Dashboard/TopBar';
 import Sidebar from '../components/Dashboard/Sidebar';
-import Navbar from '../components/Shared/Navbar'
-import { is } from 'date-fns/locale';
+// eslint-disable-next-line react/prop-types
 function AdminLayout({ children }) {
   const location = useLocation();
   const sidebarItemsAdmin = [

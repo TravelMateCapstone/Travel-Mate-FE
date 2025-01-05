@@ -8,45 +8,60 @@ import PropTypes from 'prop-types';
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, Title, Tooltip, Legend);
 
 function TourChart({ tours, token }) {
-  const [chartData, setChartData] = useState(null);
+  const [chartData, setChartData] = useState({
+    labels: [],
+    datasets: [
+      {
+        type: 'bar',
+        label: 'Dự tính',
+        data: [],
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1,
+      },
+      {
+        type: 'line',
+        label: 'Thực tế',
+        data: [],
+        borderColor: 'rgba(153, 102, 255, 1)',
+        borderWidth: 2,
+        fill: false,
+      },
+    ],
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const tourAmounts = await fetchTourData(tours, token);
-        if (tourAmounts.length === 0) {
-          setChartData(null); // Không có dữ liệu
-        } else {
-          const labels = tourAmounts.map(tour => tour.tourName);
-          const dataBar = tourAmounts.map(tour => tour.amount);
-          const dataLine = tourAmounts.map(tour => tour.totalPaid);
+        const labels = tourAmounts.map(tour => tour.tourName);
+        const dataBar = tourAmounts.map(tour => tour.amount);
+        const dataLine = tourAmounts.map(tour => tour.totalPaid);
 
-          setChartData({
-            labels,
-            datasets: [
-              {
-                type: 'bar',
-                label: 'Dự tính',
-                data: dataBar,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1,
-              },
-              {
-                type: 'line',
-                label: 'Thực tế',
-                data: dataLine,
-                borderColor: 'rgba(153, 102, 255, 1)',
-                borderWidth: 2,
-                fill: false,
-              },
-            ],
-          });
-        }
+        setChartData({
+          labels,
+          datasets: [
+            {
+              type: 'bar',
+              label: 'Dự tính',
+              data: dataBar,
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1,
+            },
+            {
+              type: 'line',
+              label: 'Thực tế',
+              data: dataLine,
+              borderColor: 'rgba(153, 102, 255, 1)',
+              borderWidth: 2,
+              fill: false,
+            },
+          ],
+        });
       } catch (error) {
         console.error('Error fetching chart data:', error);
-        setChartData(null); // Lỗi, không có dữ liệu
       } finally {
         setLoading(false);
       }
@@ -55,7 +70,6 @@ function TourChart({ tours, token }) {
     if (tours.length > 0) {
       fetchData();
     } else {
-      setChartData(null);
       setLoading(false);
     }
   }, [tours, token]);
@@ -90,11 +104,17 @@ function TourChart({ tours, token }) {
     return <div>Đang tải...</div>;
   }
 
-  if (!chartData) {
-    return <div>Chưa có dữ liệu thống kê</div>;
-  }
-
-  return <Bar data={chartData} options={options} />;
+  return (
+    <div style={{
+      border: '1px solid #ccc',
+      width: '100%',
+      flex: 1,
+      borderRadius: '10px',
+      height: '500px',
+    }}>
+      <Bar data={chartData} options={options} />
+    </div>
+  );
 }
 
 TourChart.propTypes = {

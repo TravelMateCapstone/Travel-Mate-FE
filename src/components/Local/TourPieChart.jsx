@@ -1,16 +1,38 @@
 import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { AgCharts } from 'ag-charts-react';
+import { Pie } from 'react-chartjs-2';
+import 'chart.js/auto';
 
 function TourPieChart({ tours }) {
   const [loading, setLoading] = useState(true);
-  const [pieChartData, setPieChartData] = useState([]);
+  const [pieChartData, setPieChartData] = useState({});
 
   const calculateData = async () => {
-    return tours.map(tour => ({
-      label: tour.tourName,
-      value: tour.price,
-    }));
+    if (tours.length === 0) {
+      return {
+        labels: ['No Data'],
+        datasets: [{
+          data: [1],
+          backgroundColor: ['#E0E0E0'],
+        }]
+      };
+    }
+    const labels = tours.map(tour => tour.tourName);
+    const data = tours.map(tour => tour.price);
+    return {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: [
+          '#FF6384',
+          '#36A2EB',
+          '#FFCE56',
+          '#4BC0C0',
+          '#9966FF',
+          '#FF9F40'
+        ],
+      }]
+    };
   };
 
   useEffect(() => {
@@ -23,29 +45,34 @@ function TourPieChart({ tours }) {
   }, [tours]);
 
   const options = {
-    data: pieChartData,
-    series: [{
-      type: 'pie',
-      angleKey: 'value',
-      labelKey: 'label',
-      calloutLabelKey: 'label',
-      calloutLabel: { enabled: true },
-      sectorLabelKey: 'value',
-      sectorLabel: {
-        enabled: true,
-        formatter: ({ datum }) => `${datum.value} VNĐ`,
+    plugins: {
+      legend: {
+        position: 'bottom',
       },
-    }],
-    title: { text: 'Tổng doanh thu kiếm được từ tour' },
-    legend: { enabled: true, position: 'bottom' },
+      title: {
+        display: true,
+        text: 'Tổng doanh thu kiếm được từ tour',
+      },
+    },
   };
 
   if (loading) {
     return <div>Đang tải...</div>;
   }
 
-  return <AgCharts options={options} />;
+  return (
+    <div style={{
+      border: '1px solid #ccc',
+      flex: 1,
+      borderRadius: '10px',
+      padding: '10px',
+      height: '500px',
+    }}>
+      <Pie data={pieChartData} options={options} />
+    </div>
+  );
 }
+
 TourPieChart.propTypes = {
   tours: PropTypes.arrayOf(
     PropTypes.shape({

@@ -25,6 +25,7 @@
   "@google/generative-ai": "^0.21.0",
   "@microsoft/signalr": "^8.0.7",
   "@react-oauth/google": "^0.12.1",
+  "@tanstack/react-table": "^8.20.6",
   "ag-charts-react": "^10.3.3",
   "ag-grid-community": "^32.3.2",
   "ag-grid-react": "^32.3.2",
