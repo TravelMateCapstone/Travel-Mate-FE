@@ -23,6 +23,7 @@ function WalletManagement() {
       try {
         const transactions = await fetchTransactions(user.id);
         setRowData(transactions);
+        setTransactions(transactions);
       } catch (error) {
         console.error('Error fetching transactions:', error);
       }
@@ -44,7 +45,7 @@ function WalletManagement() {
   const columnDefs = [
     { headerName: 'Khách Du Lịch', field: 'name', filter: 'agTextColumnFilter', sortable: true },
     { headerName: 'Tên Tour', field: 'tourName', filter: 'agTextColumnFilter', sortable: true },
-    { headerName: 'Tên Địa Phương', field: 'localName', filter: 'agTextColumnFilter', sortable: true },
+    { headerName: 'Tên Người Địa Phương', field: 'localName', filter: 'agTextColumnFilter', sortable: true },
     { headerName: 'Thời Gian Giao Dịch', field: 'date', filter: 'agDateColumnFilter', sortable: true },
     {
       headerName: 'Số Tiền (VND)',

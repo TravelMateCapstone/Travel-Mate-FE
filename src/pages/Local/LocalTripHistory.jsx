@@ -4,7 +4,7 @@ import TourCard from '../../components/ProfileManagement/TourCard'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
 import { useQuery, useQueryClient } from 'react-query'
-import { Table, Placeholder, Dropdown, Tabs, Tab, Button } from 'react-bootstrap';
+import { Placeholder, Dropdown, Tabs, Tab, Button } from 'react-bootstrap';
 
 function LocalTripHistory() {
   const [approvalStatus, setApprovalStatus] = useState(1)

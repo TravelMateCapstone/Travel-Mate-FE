@@ -1,9 +1,13 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import PropTypes from 'prop-types';
 import { AgCharts } from 'ag-charts-react';
 
 function MonthlySpendingChart({ transactions, selectedYear }) {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  console.log(transactions, selectedYear);
+  
 
   const calculateData = useMemo(() => {
     const filteredTransactions = transactions.filter(transaction =>
@@ -41,7 +45,7 @@ function MonthlySpendingChart({ transactions, selectedYear }) {
       yKey: 'spending',
       yName: 'Spending',
     }],
-    title: { text: 'Tổng chi hàng háng' },
+    title: { text: 'Tổng chi hàng tháng' },
   };
 
   if (loading) {
@@ -50,5 +54,12 @@ function MonthlySpendingChart({ transactions, selectedYear }) {
 
   return <AgCharts options={options} />;
 }
+MonthlySpendingChart.propTypes = {
+  transactions: PropTypes.arrayOf(PropTypes.shape({
+    transactionTime: PropTypes.string.isRequired,
+    amount: PropTypes.number.isRequired,
+  })).isRequired,
+  selectedYear: PropTypes.number.isRequired,
+};
 
 export default MonthlySpendingChart;

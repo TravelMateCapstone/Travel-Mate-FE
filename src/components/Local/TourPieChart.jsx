@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { AgCharts } from 'ag-charts-react';
 
 function TourPieChart({ tours }) {
@@ -45,5 +46,13 @@ function TourPieChart({ tours }) {
 
   return <AgCharts options={options} />;
 }
+TourPieChart.propTypes = {
+  tours: PropTypes.arrayOf(
+    PropTypes.shape({
+      tourName: PropTypes.string.isRequired,
+      price: PropTypes.number.isRequired,
+    })
+  ).isRequired,
+};
 
 export default TourPieChart;
