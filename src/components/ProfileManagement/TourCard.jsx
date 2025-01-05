@@ -501,6 +501,7 @@ function TourCard({ tour, onTourUpdated, approvalStatus }) {
     });
     const totalIncome = participants.reduce((sum, participant) => sum + (participant.totalAmount || 0), 0);
     const iconColor = approvalStatus === 1 ? 'green' : 'red';
+    const contentApproveStatus = approvalStatus === 1 ? 'Đã được duyệt' : 'Chưa được duyệt';
     return (
         <div className="tour-card d-flex justify-content-between mb-3 rounded-3" style={{
             boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)',
@@ -512,10 +513,10 @@ function TourCard({ tour, onTourUpdated, approvalStatus }) {
                     <div className='d-flex gap-2'>
                         <h5 className='m-0 fw-medium'>{tour.tourName}</h5>
                         <small style={{
-                            display: 'block',
                             marginTop: '0',
+                            display: 'flex',
                         }}>
-                            <ion-icon style={{ color: iconColor }} name="checkmark-circle-outline"></ion-icon>
+                            <ion-icon style={{ color: iconColor, fontSize: '16px' }} name="checkmark-circle-outline"></ion-icon> {contentApproveStatus}
                         </small>
 
                         
