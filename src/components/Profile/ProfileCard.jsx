@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { Button, Container, Dropdown, DropdownButton, Form, Spinner } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,9 +12,9 @@ import { storage } from "../../../firebaseConfig";
 import { updateUserAvatar } from "../../redux/actions/authActions";
 import { toast } from "react-toastify";
 import FormModal from '../../components/Shared/FormModal'
-import AnswerQuestion from '../../components/Profile/FormBuilder/AnswerQuestion'
 import TextareaAutosize from 'react-textarea-autosize';
 import checkProfileCompletion from '../../utils/Profile/checkProfileCompletion';
+import { checkProfileCompletionAzure } from "../../apis/profileApi";
 
 function ProfileCard() {
   const [profile, setProfile] = useState(null);
@@ -46,9 +46,9 @@ function ProfileCard() {
   useEffect(() => {
     const fetchProfileCompletion = async () => {
       try {
-        const { totalPercentage, incompleteModels } = await checkProfileCompletion(url, token);
-        setCompletionPercentage(totalPercentage);
-        setIncompleteModels(incompleteModels.$values);
+        const data = await checkProfileCompletionAzure();
+        setCompletionPercentage(data.totalPercentage);
+        
       } catch (error) {
         console.error("Lỗi khi kiểm tra hoàn thành hồ sơ:", error);
       }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Accordion from "react-bootstrap/Accordion";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
@@ -25,14 +25,27 @@ function TourDetail() {
     const dispatch = useDispatch();
     const [showModal, setShowModal] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState(null);
+    const [selectedSchedule, setSelectedSchedule] = useState(null);
+
+    useEffect(() => {
+        if (tourData && tourData.schedules && tourData.schedules.$values.length > 0) {
+            setSelectedSchedule(tourData.schedules.$values[0]);
+        }
+    }, [tourData]);
+
+    const handleScheduleSelect = (schedule) => {
+        setSelectedSchedule(schedule);
+    };
+
+    console.log("Tour detail:", tourData);
+
 
     console.log(tourData);
 
     const formatDateToVietnamese = (date) => {
         return new Date(date).toLocaleString('vi-VN', {
-            year: 'numeric',
-            month: '2-digit',
             day: '2-digit',
+            month: '2-digit',
         });
     };
 
@@ -41,24 +54,25 @@ function TourDetail() {
         window.open(RoutePath.OTHERS_PROFILE, '_blank');
     }
 
-    const handelJointTour = async (tourId) => {
+    const handelJointTour = async (tourId, scheduleId) => {
         try {
             const profileCompletion = await checkProfileCompletion("https://travelmateapp.azurewebsites.net", token);
             if (!profileCompletion) {
                 toast.error("Bạn phải hoàn thành cả chữ kí số và CCCD. Vui lòng cập nhật hồ sơ của bạn.");
                 return;
             }
-
             await axios.post(
-                `https://travelmateapp.azurewebsites.net/api/Tour/join/${tourId}`,
-                {},
+                `https://travelmateapp.azurewebsites.net/api/TourParticipant/join`,
+                {
+                    tourId: tourId,
+                    scheduleId: scheduleId,
+                },
                 {
                     headers: {
                         Authorization: `${token}`,
                     },
                 }
             );
-
             navigate(RoutePath.CREATE_CONTRACT);
         } catch (error) {
             console.error("Error joining tour:", error);
@@ -228,7 +242,9 @@ function TourDetail() {
                                 />
                             </div>
                             <div className="hidden lg:block col-md-4">
-                                <div className="tour_card_component bg-white p-3 rounded-4">
+                                <div className="tour_card_component bg-white p-3 rounded-4 border-1" style={{
+                                    borderColor: "rgba(0, 0, 0, 0.3)",
+                                }}>
                                     <div className="d-flex justify-content-between mb-4">
                                         <div className="d-flex gap-3">
                                             <img src={tourData.creator.avatarUrl} alt="" width={60} height={60} className="rounded-circle object-fit-cover mb-2" />
@@ -253,12 +269,14 @@ function TourDetail() {
                                     <Button variant="outline-success" className="w-100" onClick={() => viewLocal(tourData.creator.id)}>Xem hồ sơ</Button>
                                 </div>
 
-                                <div className=" p-3 rounded-4 mt-3 tour_card_component bg-white">
+                                <div className=" p-3 rounded-4 mt-3 tour_card_component bg-white border-1" style={{
+                                    borderColor: "rgba(0, 0, 0, 0.3)",
+                                }}>
                                     <div className="px-2">
                                         <h4>Giá <span className="text-danger">*</span></h4>
                                         <h2 className="fw-semibold text-success mb-4">{tourData.price.toLocaleString()}&nbsp;₫/ <sub className="text-dark">Khách</sub></h2>
                                         <div className="flex flex-col tour-form_gap__N_UmA ">
-                                            <Table bordered hover style={{ overflow: 'hidden' }}>
+                                            <Table bordered hover style={{ overflow: 'hidden', }}>
                                                 <tbody>
                                                     <tr>
                                                         <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="location-outline"></ion-icon> Khởi hành</td>
@@ -266,19 +284,35 @@ function TourDetail() {
                                                     </tr>
                                                     <tr>
                                                         <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="time-outline"></ion-icon> Thời gian</td>
-                                                        <td style={{ width: '50%' }}>{tourData.numberOfDays}N{tourData.numberOfNights}Đ</td>
+                                                        <td style={{ width: '50%' }}>{selectedSchedule?.participants?.$values.startDate}N{tourData.numberOfNights}Đ</td>
                                                     </tr>
                                                     <tr>
                                                         <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="people-outline"></ion-icon> Số người tham gia</td>
-                                                        <td style={{ width: '50%' }}>{tourData.registeredGuests}/{tourData.maxGuests}</td>
+                                                        <td style={{ width: '50%' }}>{selectedSchedule && (
+                                                            <div >
+                                                                {selectedSchedule?.participants?.$values.length}/{tourData.maxGuests}
+                                                            </div>
+                                                        )}</td>
                                                     </tr>
                                                     <tr>
                                                         <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="calendar-outline"></ion-icon> Ngày khởi hành</td>
                                                         <td style={{ width: '50%' }}><div className="" style={{
                                                             width: "fit-content",
                                                             borderRadius: "10px",
+                                                            display: "flex",
+                                                            gap: "5px",
                                                         }}>
-                                                            {formatDateToVietnamese(tourData.startDate)}</div></td>
+                                                            {tourData.schedules.$values.map((schedule, index) => (
+                                                                <Button variant="outline-success"
+                                                                    key={index}
+                                                                    action
+                                                                    onClick={() => handleScheduleSelect(schedule)}
+                                                                >
+                                                                    {formatDateToVietnamese(schedule.startDate)}
+                                                                </Button>
+                                                            ))}
+                                                        </div>
+                                                        </td>
                                                     </tr>
                                                 </tbody>
                                             </Table>
@@ -288,13 +322,14 @@ function TourDetail() {
 
                                     <div className="d-flex gap-2 ">
                                         <Button variant="outline-success" className="text-nowrap" onClick={() => chatWithLocal(tourData.creator.id)}>Nhắn tin</Button>
-                                        {(tourData.registeredGuests < tourData.maxGuests) ? (
-                                            <Button variant="success" className="w-100" onClick={() => handelJointTour(tourData.tourId)}>Đặt chỗ ngay</Button>
+                                        {(selectedSchedule?.participants?.$values.length < tourData.maxGuests) ? (
+                                            <Button variant="success" className="w-100" onClick={() => handelJointTour(tourData.tourId, selectedSchedule?.scheduleId)}>Đặt chỗ ngay</Button>
                                         ) : (
                                             <Button variant="dark" disabled><ion-icon name="sad-outline"></ion-icon> Đã đủ số lượng</Button>
                                         )}
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                         <Tabs

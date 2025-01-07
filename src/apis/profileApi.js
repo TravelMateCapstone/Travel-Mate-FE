@@ -34,6 +34,20 @@ export const checkProfileCompletion = async () => {
     }
 }
 
+export const checkProfileCompletionAzure = async () => {
+    try{
+        const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Profile/checkCompleteCurrent', {
+            headers: {
+                Authorization: `${token}`,
+            },
+        });
+        console.log("Kiểm tra hoàn thành hồ sơ Azure:", response.data.value);
+        return response.data.value
+    } catch (error) {
+        console.error("Lỗi khi kiểm tra hoàn thành hồ sơ Azure:", error);
+    }
+}
+
 export const getUserLocation = async () => {
     try{
         const response = await axios.get(`${url}/api/UserLocationsWOO/get-current-user`, {

@@ -62,7 +62,6 @@ function CreateContract() {
       location: tourInfo.location,
       details: JSON.stringify(tourInfo),
       travelerSignature: travlerrSignature,
-      // localSignature: "chuky8",
     };
     console.log(contractInfo);
     localStorage.setItem("contractInfo", JSON.stringify(contractInfo));
@@ -76,12 +75,12 @@ function CreateContract() {
       );
       if (response.data.data.isCompleted) {
         const infoPayment = {
-          tourName: 'Tour du lịch',
+          // tourName: 'Tour du lịch',
           tourId: tourInfo.tourId,
-          localId: tourInfo.creator.id,
+          // localId: tourInfo.creator.id,
           travelerId: user.id,
-          // amount: tourInfo.price,
           amount: tourInfo.price,
+          scheduleId: '677d60dc434496be977aa327'
         };
         // Redirect to payment form submission
         const form = document.createElement("form");
@@ -224,14 +223,14 @@ function CreateContract() {
             }}
           ></ion-icon>{" "}
           <p className="py-2 m-0">Thời gian diễn ra</p>
-          <p className="p-2 m-0 fw-medium">{formatDate(tourInfo.startDate)}</p>
+          {/* <p className="p-2 m-0 fw-medium">{formatDate(tourInfo.startDate)}</p> */}
           <div
             className="py-2 px-3 rounded-5 text-danger fw-medium"
             style={{
               backgroundColor: "#f9f9f9",
             }}
           >
-            {formatDate(tourInfo.endDate)}
+            {/* {formatDate(tourInfo.endDate)} */}
           </div>
         </Col>
       </Row>
@@ -259,8 +258,8 @@ function CreateContract() {
             <h6 className="fw-normal m-0">Chi phí thanh toán</h6>
           </div>
           <div className="d-flex justify-content-between flex-column gap-2 mt-2">
-            {tourInfo.costDetails.$values.map((cost) => (
-              <div className="d-flex justify-content-between">
+            {tourInfo.costDetails.$values.map((cost, index) => (
+              <div key={index} className="d-flex justify-content-between">
                 <strong>{cost.title}</strong>{" "}
                 <div className="m-0 d-flex gap-1">
                   <p className="m-0">{cost.amount}</p>{" "}
@@ -288,11 +287,11 @@ function CreateContract() {
           <div className="mt-2 d-flex flex-column">
             <div className="d-flex flex-column">
               {tourInfo.itinerary.$values.map((day) => (
-                <div>
+                <div key={day.day}>
                   <h6>Ngày {day.day}: {day.title}</h6>
                   <ul>
                     {day.activities.$values.map((activity) => (
-                      <li>{activity.description}</li>
+                      <li key={activity.id}>{activity.description}</li>
                     ))}
                   </ul>
                 </div>
