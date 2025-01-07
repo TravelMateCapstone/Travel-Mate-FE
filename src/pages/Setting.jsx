@@ -140,7 +140,7 @@ function Setting() {
 
     console.log("Dữ liệu CCCD:", cccdData);
     console.log("Dữ liệu Profile:", profileData);
-    
+
 
     const { firstName, lastName } = splitFullName(cccdData.name);
     const payload = {
@@ -230,6 +230,50 @@ function Setting() {
     fetchEmergencyContact();
   }, [token]);
 
+
+  // thông tin tk ngân hàng
+  const [bankInformation, setBBankInformation] = useState({
+    bankName: '',
+    bankNumber: '',
+    ownerName: '',
+  });
+
+  useEffect(() => {
+    const fetchBankInformation = async () => {
+      try {
+        const response = await axios.get(
+          'https://travelmateapp.azurewebsites.net/api/UserBank/current-user',
+          {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }
+        );
+        const bankData = response.data;
+        console.log("bank data", bankData);
+        setBBankInformation({
+          bankName: bankData.bankName || '',
+          bankNumber: bankData.bankNumber || '',
+          ownerName: bankData.ownerName || '',
+        });
+      } catch (error) {
+        console.error('Error fetching bank data:', error);
+        toast.error('Không thể tải thông tin ngân hàng.');
+      }
+    };
+
+    fetchBankInformation();
+  }, [token]);
+
+  const handleBankInformationChange = (e) => {
+    const { name, value } = e.target;
+    setBBankInformation((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+
   // Handle input changes
   const handleEmergencyContactChange = (e) => {
     const { name, value } = e.target;
@@ -256,9 +300,9 @@ function Setting() {
         birthdate: profile.birthdate || '',
         imageUser: user?.avatarUrl || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg',
       };
-      console.log('dtad', updatedData);
 
-      const response = await axios.put(
+      // Update profile information
+      const profileResponse = await axios.put(
         'https://travelmateapp.azurewebsites.net/api/Profile/edit-by-current-user',
         updatedData,
         {
@@ -268,37 +312,51 @@ function Setting() {
         }
       );
 
-      if (response.status === 200) {
-        toast.success("Cập nhật thông tin thành công.");
+      if (profileResponse.status === 200) {
+        toast.success('Cập nhật thông tin cá nhân thành công.');
       } else {
-        throw new Error("Cập nhật thất bại.");
+        throw new Error('Cập nhật thông tin cá nhân thất bại.');
       }
 
-      try {
-        const response = await axios.put(
-          'https://travelmateapp.azurewebsites.net/api/UserContact/Update-Contact-CurrentUser',
-          emergencyContact,
-          {
-            headers: {
-              Authorization: `${token}`,
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          toast.success('Cập nhật thông tin liên hệ khẩn cấp thành công.');
-        } else {
-          throw new Error('Cập nhật thất bại.');
+      // Update emergency contact
+      const contactResponse = await axios.put(
+        'https://travelmateapp.azurewebsites.net/api/UserContact/Update-Contact-CurrentUser',
+        emergencyContact,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
         }
-      } catch (error) {
-        console.error('Error saving emergency contact:', error);
-        toast.error('Lỗi khi lưu thông tin liên hệ khẩn cấp.');
+      );
+
+      if (contactResponse.status === 200) {
+        toast.success('Cập nhật thông tin liên hệ khẩn cấp thành công.');
+      } else {
+        throw new Error('Cập nhật thông tin liên hệ khẩn cấp thất bại.');
+      }
+
+      // Update bank information
+      const bankResponse = await axios.put(
+        'https://travelmateapp.azurewebsites.net/api/UserBank/current-user',
+        bankInformation,
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      if (bankResponse.status === 200) {
+        toast.success('Cập nhật thông tin ngân hàng thành công.');
+      } else {
+        throw new Error('Cập nhật thông tin ngân hàng thất bại.');
       }
     } catch (error) {
-      console.error("Lỗi khi lưu thông tin:", error);
-      toast.error("Lỗi khi cập nhật thông tin.");
+      console.error('Lỗi khi lưu thông tin:', error);
+      toast.error('Lỗi khi cập nhật thông tin.');
     }
   };
+
 
 
   const handleFrontImageUpload = async (event) => {
@@ -707,6 +765,43 @@ function Setting() {
                 name="noteContact"
                 value={emergencyContact.noteContact}
                 onChange={handleEmergencyContactChange}
+              />
+            </Form.Group>
+          </section>
+
+          <section id="emergency-contact" className="mb-4">
+            <h5 style={{ color: "#E65C00" }}>Thông tin tài khoản ngân hàng</h5>
+            <p className="text-muted">
+              Bạn cung cấp cho chúng tôi thông tin tài khoản ngân hàng của bạn để chúng tôi có thể thực hiện những tác vụ liên quan đến hoàn tiền cho bạn. Thông tin sẽ đảm bảo bảo mật tuyệt đối.
+            </p>
+            <Form.Group className="d-flex align-items-center">
+              <Form.Label>Tên ngân hàng</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Tên ngân hàng"
+                name="bankName"
+                value={bankInformation.bankName}
+                onChange={handleBankInformationChange}
+              />
+            </Form.Group>
+            <Form.Group className="d-flex align-items-center mt-3">
+              <Form.Label>Số tài khoản</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Số tài khoản"
+                name="bankNumber"
+                value={bankInformation.bankNumber}
+                onChange={handleBankInformationChange}
+              />
+            </Form.Group>
+            <Form.Group className="d-flex align-items-center mt-3">
+              <Form.Label>Chủ tài khoản</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Nguyen Van A"
+                name="ownerName"
+                value={bankInformation.ownerName}
+                onChange={handleBankInformationChange}
               />
             </Form.Group>
           </section>
