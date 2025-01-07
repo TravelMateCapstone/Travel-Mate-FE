@@ -33,6 +33,19 @@ const fetchTourByStatus = async (approvalStatus) => {
     }
 }
 
+const getTourById = async (id) => {
+    try {
+        const response = await axios.get(`${url}/api/Tour/${id}`, {
+            headers: {
+                Authorization: `${token}`,
+            },
+        });
+        console.log("Thông tin tour:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi lấy thông tin tour:", error);
+    }
+}
 
 const createTour = async (tour) => {
     console.log("tour data", tour);
@@ -50,17 +63,21 @@ const createTour = async (tour) => {
     }
 }
 
-const updateTour = async (tour) => {
+const updateTour = async (tour, tourid) => {
     try {
-        await axios.put(`${url}/api/Tour/${tour.id}`, tour, {
+        console.log("tour data", tour);
+        await axios.put(`${url}/api/Tour/${tourid}`, tour, {
             headers: {
                 Authorization: `${token}`,
             },
         });
+        
         toast.success("Cập nhật tour thành công");
     }
     catch (error) {
         toast.error("Cập nhật tour thất bại");
+        console.log("tour data err", tour);
+        
         console.error("Lỗi khi cập nhật tour:", error);
     }
 }
@@ -79,5 +96,18 @@ const deleteTour = async (id) => {
     }
 }
 
+const fetchTourParticipants = async (tourId) => {
+    try {
+        const response = await axios.get(`${url}/api/Tour/tourParticipants/${tourId}`, {
+            headers: {
+                Authorization: `${token}`,
+            },
+        });
+        console.log("Danh sách participant:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi lấy danh sách participant:", error);
+    }
+}
 
-export { fetchTours, fetchTourByStatus, createTour, updateTour, deleteTour };
+export { fetchTours, fetchTourByStatus, createTour, updateTour, deleteTour, getTourById, fetchTourParticipants };

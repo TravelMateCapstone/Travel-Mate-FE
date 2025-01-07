@@ -8,6 +8,7 @@ import 'react-quill/dist/quill.snow.css';
 import TextareaAutosize from 'react-textarea-autosize';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../../firebaseConfig';
+import { getUserLocation } from '../../apis/profileApi';
 
 function CreateTour() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -24,6 +25,21 @@ function CreateTour() {
     additionalInfo: ""
   });
   const [isCreating, setIsCreating] = useState(false);
+  const [locations, setLocations] = useState([]);
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      const locationsData = await getUserLocation();
+      setLocations(locationsData);
+      if (locationsData?.$values.length > 0) {
+        setTourData((prevData) => ({
+          ...prevData,
+          location: locationsData.$values[0].location.locationName,
+        }));
+      }
+    };
+    fetchLocations();
+  }, [])
 
   useEffect(() => {
     const totalActivityCost = tourData.itinerary.reduce((total, day) => {
@@ -100,6 +116,14 @@ function CreateTour() {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleFileButtonClick = () => {
+    document.getElementById('tourImageInput').click();
+  };
+
+  const handleActivityFileButtonClick = (dayIndex, activityIndex) => {
+    document.getElementById(`activityImageInput-${dayIndex}-${activityIndex}`).click();
   };
 
   const handleCreateTour = async () => {
@@ -183,7 +207,11 @@ function CreateTour() {
               <label>Tên tour</label>
               <input type="text" name="tourName" placeholder="Tên tour" value={tourData.tourName} onChange={handleInputChange} />
               <label>Địa điểm</label>
-              <input type="text" name="location" placeholder="Địa điểm" value={tourData.location} onChange={handleInputChange} />
+              <select name="location" value={tourData.location} onChange={handleInputChange}>
+                {locations?.$values?.map((location) => (
+                  <option key={location.locationId} value={location.location.locationName}>{location.location.locationName}</option>
+                ))}
+              </select>
               <label>Số khách tối đa</label>
               <input type="number" name="maxGuests" placeholder="Số khách tối đa" value={tourData.maxGuests} onChange={handleInputChange} />
               <label>Mô tả tour</label>
@@ -191,8 +219,9 @@ function CreateTour() {
             </div>
             <div className='col col-6 d-flex flex-column flex-grow-1 img'>
               <label>Hình ảnh tour</label>
-              <input type="file" accept="image/*" onChange={handleFileChange} />
-              <img src={tourData.tourImage} alt="ảnh tour" className='w-100' />
+              <button className='mb-2' onClick={handleFileButtonClick}>Chọn hình ảnh tour</button>
+              <input id="tourImageInput" type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+              {tourData.tourImage && <img src={tourData.tourImage} alt="ảnh tour" className='w-100' />}
               <div>
                 Giá: {tourData.price.toLocaleString()} ₫
               </div>
@@ -281,7 +310,8 @@ function CreateTour() {
                             </div>
                             <div className='col col-6 d-flex flex-column gap-2'>
                               <label>Hình ảnh hoạt động</label>
-                              <input type="file" accept="image/*" onChange={(e) => handleActivityFileChange(e, dayIndex, activityIndex)} />
+                              <button onClick={() => handleActivityFileButtonClick(dayIndex, activityIndex)}>Chọn hình ảnh hoạt động</button>
+                              <input id={`activityImageInput-${dayIndex}-${activityIndex}`} type="file" accept="image/*" onChange={(e) => handleActivityFileChange(e, dayIndex, activityIndex)} style={{ display: 'none' }} />
                               {activity.activityImage && <img src={activity.activityImage} alt="ảnh hoạt động" className='w-100' />}
                             </div>
                             <div className='my-3'>
@@ -303,18 +333,20 @@ function CreateTour() {
               <div>
                 <button className='mb-3' onClick={handleAddCostDetail}>Thêm chi phí</button>
                 {tourData.costDetails.map((cost, costIndex) => (
-                  <div key={costIndex} className='mb-3 d-flex gap-2'>
-                    <input type="text" placeholder="Tiêu đề chi phí" value={cost.title} onChange={(e) => {
-                      const newCostDetails = [...tourData.costDetails];
-                      newCostDetails[costIndex].title = e.target.value;
-                      setTourData({ ...tourData, costDetails: newCostDetails });
-                    }} />
-                    <input type="number" placeholder="Số tiền" value={cost.amount} onChange={(e) => {
-                      const newCostDetails = [...tourData.costDetails];
-                      newCostDetails[costIndex].amount = parseInt(e.target.value);
-                      setTourData({ ...tourData, costDetails: newCostDetails });
-                    }} />
-                    <input type="text" placeholder="Ghi chú" value={cost.notes} onChange={(e) => {
+                  <div key={costIndex} className='mb-3'>
+                    <div className='d-flex gap-2 mb-2'>
+                      <input type="text" className='w-100' placeholder="Tiêu đề chi phí" value={cost.title} onChange={(e) => {
+                        const newCostDetails = [...tourData.costDetails];
+                        newCostDetails[costIndex].title = e.target.value;
+                        setTourData({ ...tourData, costDetails: newCostDetails });
+                      }} />
+                      <input type="number" placeholder="Số tiền" value={cost.amount} onChange={(e) => {
+                        const newCostDetails = [...tourData.costDetails];
+                        newCostDetails[costIndex].amount = parseInt(e.target.value);
+                        setTourData({ ...tourData, costDetails: newCostDetails });
+                      }} />
+                    </div>
+                    <TextareaAutosize minRows={2} placeholder="Ghi chú" className='w-100' value={cost.notes} onChange={(e) => {
                       const newCostDetails = [...tourData.costDetails];
                       newCostDetails[costIndex].notes = e.target.value;
                       setTourData({ ...tourData, costDetails: newCostDetails });

@@ -33,3 +33,17 @@ export const checkProfileCompletion = async () => {
         console.error("Lỗi khi kiểm tra hoàn thành hồ sơ:", error);
     }
 }
+
+export const getUserLocation = async () => {
+    try{
+        const response = await axios.get(`${url}/api/UserLocationsWOO/get-current-user`, {
+            headers: {
+                Authorization: `${token}`,
+            },
+        });
+        console.log("Lấy thông tin địa chỉ:", response.data);
+        return response.data
+    } catch (error) {
+        console.error("Lỗi khi lấy thông tin địa chỉ:", error);
+    }
+}

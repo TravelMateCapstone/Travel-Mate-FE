@@ -6,11 +6,16 @@ import Button from "react-bootstrap/Button";
 import { useState } from "react";
 import { deleteTour } from "../../apis/local_trip_history";
 import Modal from "react-modal"; // Import react-modal
+import UpdateTour from "./UpdateTour";
+import { Spinner } from "react-bootstrap";
+import ParticipantTour from "./ParticipantTour";
 
 Modal.setAppElement('#root'); // Set the app element for accessibility
 
 function TourCard({ tour }) {
     const [showModal, setShowModal] = useState(false);
+    const [isCreating, setIsCreating] = useState(false);
+    const [showManageModal, setShowManageModal] = useState(false); // New state for manage modal
 
     const handleDelete = async () => {
         if (window.confirm("Bạn có chắc chắn muốn xóa tour này không?")) {
@@ -24,6 +29,14 @@ function TourCard({ tour }) {
 
     const handleClose = () => {
         setShowModal(false);
+    };
+
+    const handleManage = () => {
+        setShowManageModal(true);
+    };
+
+    const handleManageClose = () => {
+        setShowManageModal(false);
     };
 
     return (
@@ -64,7 +77,7 @@ function TourCard({ tour }) {
                             <Dropdown.Menu>
                                 <Dropdown.Item >Xem chi tiết</Dropdown.Item>
                                 <Dropdown.Item onClick={handleEdit}>Chỉnh sửa</Dropdown.Item>
-                                <Dropdown.Item >Quản lý</Dropdown.Item>
+                                <Dropdown.Item onClick={handleManage}>Quản lý</Dropdown.Item>
                                 <Dropdown.Item onClick={handleDelete}>Xóa</Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>
@@ -75,6 +88,11 @@ function TourCard({ tour }) {
                 isOpen={showModal}
                 onRequestClose={handleClose}
                 contentLabel="Chỉnh sửa tour"
+                style={{
+                    overlay: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                    },
+                }}
             >
                 <h2 style={{
                     height: "50px",
@@ -83,20 +101,66 @@ function TourCard({ tour }) {
                     height: "calc(100% - 100px)",
                     overflowY: "auto",
                 }}>
-                    {/* Form chỉnh sửa tour */}
-                    
+                    <UpdateTour tour={tour} onClose={handleClose} isCreating={isCreating} setIsCreating={setIsCreating} />
                 </div>
                 <div style={{
                     height: "50px",
                     display: "flex",
                     justifyContent: "end",
                     alignItems: "center",
+                    gap: "10px",
                 }}>
                     <Button variant="secondary" onClick={handleClose}>
                         Đóng
                     </Button>
-                    <Button variant="primary">
-                        Lưu thay đổi
+                    <Button variant="success" onClick={() => document.getElementById('updateTourButton').click()} disabled={isCreating}>
+                        {isCreating && <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />}
+                        {isCreating ? ' Đang cập nhật...' : 'Cập nhật tour'}
+                    </Button>
+                </div>
+            </Modal>
+            <Modal
+                isOpen={showManageModal}
+                onRequestClose={handleManageClose}
+                contentLabel="Quản lý tour"
+                style={{
+                    content: {
+                        top: '50%',
+                        left: '50%',
+                        right: 'auto',
+                        bottom: 'auto',
+                        marginRight: '-50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '85%',
+                        height: '800px',
+                        overflowY: 'auto',
+                        backgroundColor: 'white',
+                        display: 'flex',
+                        flexDirection: 'column',
+                    },
+                    overlay: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                    },
+                }}
+            >
+                <h2 style={{
+                    height: "50px",
+                }}>Quản lý tour</h2>
+                <div style={{
+                    height: "calc(100% - 100px)",
+                    overflowY: "auto",
+                }}>
+                    <ParticipantTour />
+                </div>
+                <div style={{
+                    height: "50px",
+                    display: "flex",
+                    justifyContent: "end",
+                    alignItems: "center",
+                    gap: "10px",
+                }}>
+                    <Button variant="secondary" onClick={handleManageClose}>
+                        Đóng
                     </Button>
                 </div>
             </Modal>
