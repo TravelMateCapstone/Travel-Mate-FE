@@ -26,6 +26,8 @@ function TourDetail() {
     const [showModal, setShowModal] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState(null);
 
+    const user = useSelector((state) => state.auth.user);
+
     console.log(tourData);
 
     const formatDateToVietnamese = (date) => {
@@ -37,8 +39,13 @@ function TourDetail() {
     };
 
     const viewLocal = (localId) => {
-        dispatch(viewProfile(localId, token));
-        window.open(RoutePath.OTHERS_PROFILE, '_blank');
+        if (parseInt(localId) === parseInt(user.id)) {
+            dispatch(viewProfile(localId, token));
+            window.open(RoutePath.PROFILE_MY_PROFILE, '_blank');
+        } else {
+            dispatch(viewProfile(localId, token));
+            window.open(RoutePath.OTHERS_PROFILE, '_blank');
+        }
     }
 
     const handelJointTour = async (tourId) => {
