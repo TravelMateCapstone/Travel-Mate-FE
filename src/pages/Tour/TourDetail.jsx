@@ -14,6 +14,7 @@ import checkProfileCompletion from "../../utils/Profile/checkProfileCompletion";
 import { useDispatch } from "react-redux";
 import { viewProfile } from "../../redux/actions/profileActions";
 import Modal from "react-modal";
+import { setSelectedSchedule_redux } from "../../redux/actions/tourActions";
 
 Modal.setAppElement('#root');
 
@@ -35,6 +36,9 @@ function TourDetail() {
 
     const handleScheduleSelect = (schedule) => {
         setSelectedSchedule(schedule);
+        console.log("Selected schedule:", schedule.scheduleId);
+        
+        dispatch(setSelectedSchedule_redux(schedule.scheduleId));
     };
 
     console.log("Tour detail:", tourData);

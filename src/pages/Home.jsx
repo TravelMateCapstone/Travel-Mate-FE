@@ -9,6 +9,7 @@ import { Typewriter } from 'react-simple-typewriter';
 import { useNavigate } from 'react-router-dom';
 import RoutePath from '../routes/RoutePath';
 import TextareaAutosize from 'react-textarea-autosize';
+import { useSelector } from 'react-redux';
 function Home() {
   const [destinations, setDestinations] = useState([]);
   const [wordIndex, setWordIndex] = useState(0);
@@ -24,6 +25,8 @@ function Home() {
   ];
   const [placeholder, setPlaceholder] = useState('');
 
+const selectScheid = useSelector((state) => state.tour.selectedScheduleId);
+console.log(selectScheid);
 
 
   useEffect(() => {

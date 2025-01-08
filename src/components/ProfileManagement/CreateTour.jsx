@@ -9,15 +9,19 @@ import TextareaAutosize from 'react-textarea-autosize';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../../firebaseConfig';
 import { getUserLocation } from '../../apis/profileApi';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function CreateTour() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [duration, setDuration] = useState(0);
   const [tourData, setTourData] = useState({
     tourName: "",
     tourDescription: "",
     price: 0,
     location: "",
     maxGuests: 0,
+    numberOfDays: 0,
     tourImage: "",
     itinerary: [],
     costDetails: [],
@@ -26,6 +30,7 @@ function CreateTour() {
   });
   const [isCreating, setIsCreating] = useState(false);
   const [locations, setLocations] = useState([]);
+  const [isChecked, setIsChecked] = useState(false);
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -49,6 +54,8 @@ function CreateTour() {
     const totalCostDetails = tourData.costDetails.reduce((total, cost) => total + parseFloat(cost.amount || 0), 0);
 
     setTourData({ ...tourData, price: totalActivityCost + totalCostDetails });
+    console.log(tourData);
+    
   }, [tourData.itinerary, tourData.costDetails]);
 
   const openModal = () => {
@@ -61,7 +68,12 @@ function CreateTour() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setTourData({ ...tourData, [name]: name === 'maxGuests' ? parseInt(value) : value });
+    if (name === 'maxNumberOfDay') {
+      setDuration(parseInt(value));
+      setTourData({ ...tourData, numberOfDays: parseInt(value) });
+    } else {
+      setTourData({ ...tourData, [name]: name === 'maxGuests' ? parseInt(value) : value });
+    }
   };
 
   const handleQuillChange = (value) => {
@@ -91,7 +103,22 @@ function CreateTour() {
   };
 
   const handleAddSchedule = () => {
-    setTourData({ ...tourData, schedules: [...tourData.schedules, { startDate: "2025-01-10T08:00:00Z", endDate: "2025-01-10T08:00:00Z" }] });
+    setTourData({ ...tourData, schedules: [...tourData.schedules, { startDate: "", endDate: "" }] });
+  };
+
+  const handleScheduleChange = (e, scheduleIndex) => {
+    const { name, value } = e.target;
+    const newSchedules = [...tourData.schedules];
+    newSchedules[scheduleIndex][name] = value;
+
+    if (name === "startDate" && duration > 0) {
+      const startDate = new Date(value);
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + parseInt(duration));
+      newSchedules[scheduleIndex].endDate = endDate.toISOString().slice(0, 16);
+    }
+
+    setTourData({ ...tourData, schedules: newSchedules });
   };
 
   const handleFileChange = (e) => {
@@ -127,6 +154,37 @@ function CreateTour() {
   };
 
   const handleCreateTour = async () => {
+    let errors = [];
+
+    if (!isChecked) {
+      errors.push("Bạn phải đồng ý với các điều khoản và điều kiện trước khi tạo tour.");
+    }
+
+    if (!tourData.tourName) {
+      errors.push("Vui lòng nhập tên tour.");
+    }
+
+    if (!tourData.location) {
+      errors.push("Vui lòng chọn địa điểm.");
+    }
+
+    if (!tourData.maxGuests) {
+      errors.push("Vui lòng nhập số khách tối đa.");
+    }
+
+    if (!tourData.tourImage) {
+      errors.push("Vui lòng chọn hình ảnh tour.");
+    }
+
+    if (!duration) {
+      errors.push("Vui lòng nhập số ngày đi.");
+    }
+
+    if (errors.length > 0) {
+      errors.forEach(error => toast.error(error));
+      return;
+    }
+
     setIsCreating(true);
     const uploadImage = async (imageData, path) => {
       const storageRef = ref(storage, path);
@@ -167,6 +225,10 @@ function CreateTour() {
     setTourData({ ...tourData, costDetails: newCostDetails });
   };
 
+  const handleCheckboxChange = () => {
+    setIsChecked(!isChecked);
+  };
+
   return (
     <div>
       <button className='btn btn-success mb-2' onClick={openModal}>Tạo tour du lịch</button>
@@ -205,60 +267,54 @@ function CreateTour() {
 
             <div className='col col-6 d-flex flex-column flex-grow-1'>
               <label>Tên tour</label>
-              <input type="text" name="tourName" placeholder="Tên tour" value={tourData.tourName} onChange={handleInputChange} />
+              <input type="text" name="tourName" placeholder="Tên tour" value={tourData.tourName} onChange={handleInputChange} className="form-control" />
               <label>Địa điểm</label>
-              <select name="location" value={tourData.location} onChange={handleInputChange}>
+              <select name="location" value={tourData.location} onChange={handleInputChange} className="form-select">
                 {locations?.$values?.map((location) => (
                   <option key={location.locationId} value={location.location.locationName}>{location.location.locationName}</option>
                 ))}
               </select>
               <label>Số khách tối đa</label>
-              <input type="number" name="maxGuests" placeholder="Số khách tối đa" value={tourData.maxGuests} onChange={handleInputChange} />
+              <input type="number" name="maxGuests" placeholder="Số khách tối đa" value={tourData.maxGuests} onChange={handleInputChange} className="form-control" />
+              <label>Số ngày đi</label>
+              <input type="number" name="maxNumberOfDay" placeholder="Số ngày đi" value={duration} onChange={handleInputChange} className="form-control" />
               <label>Mô tả tour</label>
-              <TextareaAutosize minRows={3} name="tourDescription" placeholder="Mô tả tour" value={tourData.tourDescription} onChange={handleInputChange} />
+              <TextareaAutosize minRows={3} name="tourDescription" placeholder="Mô tả tour" value={tourData.tourDescription} onChange={handleInputChange} className="form-control" />
             </div>
             <div className='col col-6 d-flex flex-column flex-grow-1 img'>
               <label>Hình ảnh tour</label>
-              <button className='mb-2' onClick={handleFileButtonClick}>Chọn hình ảnh tour</button>
+              <button className='btn btn-primary mb-2' onClick={handleFileButtonClick}>Chọn hình ảnh tour</button>
               <input id="tourImageInput" type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
               {tourData.tourImage && <img src={tourData.tourImage} alt="ảnh tour" className='w-100' />}
-              <div>
-                Giá: {tourData.price.toLocaleString()} ₫
-              </div>
+             
             </div>
           </div>
           <div>
             <h5 className='text-uppercase fw-bold'>Lịch trình diễn ra</h5>
-            <button onClick={handleAddSchedule}>Thêm lịch trình</button>
-            {tourData.schedules.map((schedule, scheduleIndex) => (
-              <div key={scheduleIndex}>
-                <input type="datetime-local" placeholder="Ngày bắt đầu" value={schedule.startDate} onChange={(e) => {
-                  const newSchedules = [...tourData.schedules];
-                  newSchedules[scheduleIndex].startDate = e.target.value;
-                  setTourData({ ...tourData, schedules: newSchedules });
-                }} />
-                <input type="datetime-local" placeholder="Ngày kết thúc" value={schedule.endDate} onChange={(e) => {
-                  const newSchedules = [...tourData.schedules];
-                  newSchedules[scheduleIndex].endDate = e.target.value;
-                  setTourData({ ...tourData, schedules: newSchedules });
-                }} />
-              </div>
-            ))}
+            <div className='d-flex gap-2 align-items-end'>
+              <button onClick={handleAddSchedule} className='btn btn-primary mb-2'>Thêm lịch trình</button>
+              {tourData.schedules.map((schedule, scheduleIndex) => (
+                <div key={scheduleIndex}>
+                  <input type="datetime-local" name="startDate" placeholder="Ngày bắt đầu" value={schedule.startDate} onChange={(e) => handleScheduleChange(e, scheduleIndex)} className="mb-2" />
+                  <input type="datetime-local" name="endDate" placeholder="Ngày kết thúc" value={schedule.endDate} readOnly className="" />
+                </div>
+              ))}
+            </div>
           </div>
 
           <Tabs defaultActiveKey="itinerary" id="uncontrolled-tab-example" className="mb-3 no-border-radius">
             <Tab eventKey="itinerary" title="Lịch trình cụ thể">
               <div>
-                <button onClick={handleAddItinerary}>Thêm lịch trình cụ thể</button>
+                <button onClick={handleAddItinerary} className='btn btn-primary'>Thêm lịch trình cụ thể</button>
                 <Accordion defaultActiveKey="0">
                   {tourData.itinerary.map((day, dayIndex) => (
                     <Accordion.Item eventKey={dayIndex.toString()} key={dayIndex}>
                       <Accordion.Header>
                         Ngày {dayIndex + 1}
-                        <button style={{ marginLeft: '10px' }} onClick={() => handleDeleteItinerary(dayIndex)}>Xóa lịch trình cụ thể</button>
+                        <button style={{ marginLeft: '10px' }} onClick={() => handleDeleteItinerary(dayIndex)} className='btn btn-danger'>Xóa lịch trình cụ thể</button>
                       </Accordion.Header>
                       <Accordion.Body>
-                        <button onClick={() => handleAddActivity(dayIndex)}>Thêm hoạt động</button>
+                        <button onClick={() => handleAddActivity(dayIndex)} className='btn btn-primary'>Thêm hoạt động</button>
                         {day.activities.map((activity, activityIndex) => (
                           <div key={activityIndex} className='row'>
                             <div className='col col-6 d-flex flex-column gap-2'>
@@ -267,14 +323,14 @@ function CreateTour() {
                                 const newItinerary = [...tourData.itinerary];
                                 newItinerary[dayIndex].activities[activityIndex].title = e.target.value;
                                 setTourData({ ...tourData, itinerary: newItinerary });
-                              }} />
+                              }} className="form-control" />
 
                               <label>Địa chỉ hoạt động</label>
                               <input type="text" placeholder="Địa chỉ hoạt động" value={activity.activityAddress} onChange={(e) => {
                                 const newItinerary = [...tourData.itinerary];
                                 newItinerary[dayIndex].activities[activityIndex].activityAddress = e.target.value;
                                 setTourData({ ...tourData, itinerary: newItinerary });
-                              }} />
+                              }} className="form-control" />
                               <div className='d-flex gap-2'>
                                 <div className='d-flex flex-column gap-2'>
                                   <label>Thời gian bắt đầu</label>
@@ -282,7 +338,7 @@ function CreateTour() {
                                     const newItinerary = [...tourData.itinerary];
                                     newItinerary[dayIndex].activities[activityIndex].startTime = e.target.value + ":00";
                                     setTourData({ ...tourData, itinerary: newItinerary });
-                                  }} />
+                                  }} className="form-control" />
                                 </div>
                                 <div className='d-flex flex-column gap-2'>
                                   <label>Thời gian kết thúc</label>
@@ -290,7 +346,7 @@ function CreateTour() {
                                     const newItinerary = [...tourData.itinerary];
                                     newItinerary[dayIndex].activities[activityIndex].endTime = e.target.value + ":00";
                                     setTourData({ ...tourData, itinerary: newItinerary });
-                                  }} />
+                                  }} className="form-control" />
                                 </div>
                                 <div className='d-flex flex-column gap-2'>
                                   <label>Chi phí hoạt động</label>
@@ -298,7 +354,7 @@ function CreateTour() {
                                     const newItinerary = [...tourData.itinerary];
                                     newItinerary[dayIndex].activities[activityIndex].activityAmount = parseInt(e.target.value);
                                     setTourData({ ...tourData, itinerary: newItinerary });
-                                  }} />
+                                  }} className="form-control" />
                                 </div>
                               </div>
                               <label>Mô tả hoạt động</label>
@@ -306,18 +362,18 @@ function CreateTour() {
                                 const newItinerary = [...tourData.itinerary];
                                 newItinerary[dayIndex].activities[activityIndex].description = e.target.value;
                                 setTourData({ ...tourData, itinerary: newItinerary });
-                              }} />
+                              }} className="form-control" />
                             </div>
                             <div className='col col-6 d-flex flex-column gap-2'>
                               <label>Hình ảnh hoạt động</label>
-                              <button onClick={() => handleActivityFileButtonClick(dayIndex, activityIndex)}>Chọn hình ảnh hoạt động</button>
+                              <button onClick={() => handleActivityFileButtonClick(dayIndex, activityIndex)} className='btn btn-primary'>Chọn hình ảnh hoạt động</button>
                               <input id={`activityImageInput-${dayIndex}-${activityIndex}`} type="file" accept="image/*" onChange={(e) => handleActivityFileChange(e, dayIndex, activityIndex)} style={{ display: 'none' }} />
                               {activity.activityImage && <img src={activity.activityImage} alt="ảnh hoạt động" className='w-100' />}
                             </div>
                             <div className='my-3'>
                               <button style={{
                                 width: 'fit-content',
-                              }} onClick={() => handleDeleteActivity(dayIndex, activityIndex)}>Xóa hoạt động</button>
+                              }} onClick={() => handleDeleteActivity(dayIndex, activityIndex)} className='btn btn-danger'>Xóa hoạt động</button>
 
                             </div>
                             <hr />
@@ -331,27 +387,27 @@ function CreateTour() {
             </Tab>
             <Tab eventKey="cost" title="Chi phí">
               <div>
-                <button className='mb-3' onClick={handleAddCostDetail}>Thêm chi phí</button>
+                <button className='btn btn-primary mb-3' onClick={handleAddCostDetail}>Thêm chi phí</button>
                 {tourData.costDetails.map((cost, costIndex) => (
                   <div key={costIndex} className='mb-3'>
                     <div className='d-flex gap-2 mb-2'>
-                      <input type="text" className='w-100' placeholder="Tiêu đề chi phí" value={cost.title} onChange={(e) => {
+                      <input type="text" className='form-control w-100' placeholder="Tiêu đề chi phí" value={cost.title} onChange={(e) => {
                         const newCostDetails = [...tourData.costDetails];
                         newCostDetails[costIndex].title = e.target.value;
                         setTourData({ ...tourData, costDetails: newCostDetails });
                       }} />
-                      <input type="number" placeholder="Số tiền" value={cost.amount} onChange={(e) => {
+                      <input type="number" className='form-control' placeholder="Số tiền" value={cost.amount} onChange={(e) => {
                         const newCostDetails = [...tourData.costDetails];
                         newCostDetails[costIndex].amount = parseInt(e.target.value);
                         setTourData({ ...tourData, costDetails: newCostDetails });
                       }} />
                     </div>
-                    <TextareaAutosize minRows={2} placeholder="Ghi chú" className='w-100' value={cost.notes} onChange={(e) => {
+                    <TextareaAutosize minRows={2} className='form-control w-100' placeholder="Ghi chú" value={cost.notes} onChange={(e) => {
                       const newCostDetails = [...tourData.costDetails];
                       newCostDetails[costIndex].notes = e.target.value;
                       setTourData({ ...tourData, costDetails: newCostDetails });
                     }} />
-                    <button onClick={() => handleDeleteCostDetail(costIndex)}>Xóa chi phí</button>
+                    <button onClick={() => handleDeleteCostDetail(costIndex)} className='btn btn-danger'>Xóa chi phí</button>
                   </div>
                 ))}
               </div>
@@ -367,16 +423,33 @@ function CreateTour() {
             </Tab>
           </Tabs>
         </div>
+
         <div className="modal-footer" style={{
-          height: '50px',
+          height: '60px',
+          display: 'flex',
+          justifyContent: 'space-between',
         }}>
-          <button className='btn btn-secondary' onClick={closeModal}>Đóng</button>
-          <button className='btn btn-success' onClick={handleCreateTour} disabled={isCreating}>
-            {isCreating && <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />}
-            {isCreating ? ' Đang tạo...' : 'Tạo tour'}
-          </button>
+          <div className='d-flex align-items-center gap-2'>
+            <input type="checkbox" checked={isChecked} onChange={handleCheckboxChange} />
+            Bằng cách tạo tour này, bạn xác nhận rằng đã đọc, hiểu và đồng ý với các <a href="https://travelmatefe.netlify.app/regulation" target="_blank" style={{
+              color: 'green',
+              textDecoration: 'underline',
+            }}>Điều khoản và quy định</a> của chúng tôi
+          </div>
+
+          <div className='d-flex flex-column align-items-end gap-2'>
+            <h5 className='m-0'>Tổng chi phí: {tourData.price.toLocaleString()} ₫</h5>
+            <div className='d-flex gap-2'>
+              <button className='btn btn-secondary' onClick={closeModal}>Đóng</button>
+              <button className='btn btn-success' onClick={handleCreateTour} disabled={isCreating}>
+                {isCreating && <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />}
+                {isCreating ? ' Đang tạo...' : 'Tạo tour'}
+              </button>
+            </div>
+          </div>
         </div>
       </Modal>
+
     </div>
   );
 }

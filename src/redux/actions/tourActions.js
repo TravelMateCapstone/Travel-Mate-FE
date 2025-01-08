@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { FETCH_TOUR_SUCCESS, FETCH_TOUR_ERROR } from '../actionTypes';
+import { FETCH_TOUR_SUCCESS, FETCH_TOUR_ERROR, SET_SELECTED_SCHEDULE } from '../actionTypes';
 
 export const fetchTour = (tourId, token) => async (dispatch) => {
     try {
@@ -21,3 +21,8 @@ export const fetchTour = (tourId, token) => async (dispatch) => {
         });
     }
 };
+
+export const setSelectedSchedule_redux = (scheduleId) => ({
+    type: SET_SELECTED_SCHEDULE,
+    payload: scheduleId,
+});

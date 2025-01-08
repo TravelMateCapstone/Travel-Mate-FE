@@ -19,6 +19,7 @@ function CreateContract() {
   const travlerrSignature = useSelector((state) => state.signature.signature);
   const [isValidSignature, setIsValidSignature] = useState(false);
   const token = useSelector((state) => state.auth.token);
+  const selectedScheduleId = useSelector((state) => state.tour.selectedScheduleId);
   const formatDate = (date) => {
     return format(new Date(date), "dd/MM/yyyy", { locale: vi });
   };
@@ -62,8 +63,10 @@ function CreateContract() {
       location: tourInfo.location,
       details: JSON.stringify(tourInfo),
       travelerSignature: travlerrSignature,
+      scheduleId: selectedScheduleId,
     };
-    console.log(contractInfo);
+    console.log('selectedScheduleId', selectedScheduleId);
+    console.log('contractInfo', contractInfo);
     localStorage.setItem("contractInfo", JSON.stringify(contractInfo));
     console.log("contractInfo", contractInfo);
     
@@ -80,8 +83,10 @@ function CreateContract() {
           // localId: tourInfo.creator.id,
           travelerId: user.id,
           amount: tourInfo.price,
-          scheduleId: '677d60dc434496be977aa327'
+          scheduleId: '677d6558434496be977aa333'
         };
+        console.log("infoPayment", infoPayment);
+        
         // Redirect to payment form submission
         const form = document.createElement("form");
         form.action = "https://travelmateapp.azurewebsites.net/api/order";

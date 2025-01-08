@@ -4,7 +4,7 @@ import "../../assets/css/Tour/TourCard.css";
 import Dropdown from "react-bootstrap/Dropdown";
 import Button from "react-bootstrap/Button";
 import { useState } from "react";
-import { deleteTour } from "../../apis/local_trip_history";
+import { deleteTour, getTourById } from "../../apis/local_trip_history"; // Import getTourById
 import Modal from "react-modal"; // Import react-modal
 import UpdateTour from "./UpdateTour";
 import { Spinner } from "react-bootstrap";
@@ -16,6 +16,7 @@ function TourCard({ tour }) {
     const [showModal, setShowModal] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
     const [showManageModal, setShowManageModal] = useState(false); // New state for manage modal
+    const [tourData, setTourData] = useState(null); // New state for tour data
 
     const handleDelete = async () => {
         if (window.confirm("Bạn có chắc chắn muốn xóa tour này không?")) {
@@ -23,7 +24,9 @@ function TourCard({ tour }) {
         }
     };
 
-    const handleEdit = () => {
+    const handleEdit = async () => {
+        const data = await getTourById(tour.tourId); // Fetch tour data by ID
+        setTourData(data); // Set the fetched data to state
         setShowModal(true);
     };
 
@@ -52,14 +55,44 @@ function TourCard({ tour }) {
                         }}
                     />
                 </div>
-                <div className="col-md-10 d-flex align-items-center">
-                    <div className="card-body flex-grow-1">
-                        <h5 className="card-title">{tour.tourName}</h5>
-                        <p className="card-text">{tour.tourDescription}</p>
-                        <div className="card-text">
-                            <small className="text-muted">
-                                Địa điểm: {tour.location} | Giá: {tour.price.toLocaleString()}₫
-                            </small>
+                <div className="col-md-10 d-flex ">
+                    <div className="card-body flex-grow-1 d-flex flex-column justify-content-between">
+                        <div className="d-flex gap-2 align-items-center">
+                            <h5 className="card-title mb-0">{tour.tourName}</h5>
+                            <div className="d-flex align-items-center gap-1">
+                                {tour.approvalStatus == 0 && (
+                                    <small className="text-dark d-flex align-items-center gap-1"><ion-icon name="time-outline" style={{
+                                        color: "red",
+                                    }}></ion-icon> Chờ duyệt</small>
+                                )}
+                                {tour.approvalStatus == 1 && (
+                                    <small className="text-dark d-flex align-items-center gap-1"><ion-icon name="checkmark-circle-outline" style={{
+                                        color: "green",
+                                    }}></ion-icon> Đã duyệt</small>
+                                )}
+                            </div>
+                        </div>
+                        <p className="card-text mb-0 d-flex align-items-center gap-1"><ion-icon name="location-outline"></ion-icon> {tour.location}</p>
+                        <p className="card-text mb-0 d-flex align-items-center gap-1"><ion-icon name="time-outline"></ion-icon> {tour.numberOfDays}N{(tour.numberOfDays - 1 == 0) ? '' : (tour.numberOfDays-1) + 'Đ'}</p>
+                        <p className="card-text mb-0 d-flex align-items-center gap-1"><ion-icon name="people-outline"></ion-icon> {tour.maxGuests}</p>
+                        <div className="d-flex justify-content-between align-items-center">
+                            <div className="d-flex gap-2 align-items-center">
+                                <div>
+                                    <p className="card-text mb-0 align-items-center gap-1"> <ion-icon name="calendar-outline"></ion-icon> Ngày khời hành</p>
+                                </div>
+                                {tour?.schedules?.$values.map((schedule, index) => (
+                                    <div key={index}>
+                                        <div className="card-text mb-0">
+                                            <Button variant="outline-success" size="sm">
+                                                {new Date(schedule.startDate).toLocaleDateString()}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="card-text fs-4 fw-semibold text-success">
+                                {tour.price.toLocaleString()}₫
+                            </div>
                         </div>
                     </div>
                     <div className="d-flex align-items-center border-1 h-100 px-2" style={{
@@ -76,7 +109,9 @@ function TourCard({ tour }) {
                             </Dropdown.Toggle>
                             <Dropdown.Menu>
                                 <Dropdown.Item >Xem chi tiết</Dropdown.Item>
-                                <Dropdown.Item onClick={handleEdit}>Chỉnh sửa</Dropdown.Item>
+                                {tour.approvalStatus == 0 && (
+                                    <Dropdown.Item onClick={handleEdit}>Chỉnh sửa</Dropdown.Item>
+                                )}
                                 <Dropdown.Item onClick={handleManage}>Quản lý</Dropdown.Item>
                                 <Dropdown.Item onClick={handleDelete}>Xóa</Dropdown.Item>
                             </Dropdown.Menu>
@@ -101,7 +136,7 @@ function TourCard({ tour }) {
                     height: "calc(100% - 100px)",
                     overflowY: "auto",
                 }}>
-                    <UpdateTour tour={tour} onClose={handleClose} isCreating={isCreating} setIsCreating={setIsCreating} />
+                    {tourData && <UpdateTour tour={tourData} onClose={handleClose} isCreating={isCreating} setIsCreating={setIsCreating} />} {/* Pass tourData to UpdateTour */}
                 </div>
                 <div style={{
                     height: "50px",

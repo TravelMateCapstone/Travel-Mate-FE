@@ -11,13 +11,13 @@
   
   .tour-card .card-title {
     font-size: 1.25rem;
-    font-weight: bold;
-    color: #2a7ae2;
+    font-weight: 600;
   }
   
   .tour-card .card-text {
-    font-size: 0.95rem;
-    color: #555;
+    font-size: 14px;
+    color: black;
+    font-weight: 500;
   }
   
   .tour-card .text-muted {

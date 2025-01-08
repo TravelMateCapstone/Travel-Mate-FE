@@ -24,6 +24,7 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
     additionalInfo: ""
   });
   const [locations, setLocations] = useState([]);
+  const [duration, setDuration] = useState(0);
   const quillRef = useRef(null);
 
   console.log('tour-update', tour);
@@ -44,7 +45,11 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
           activities: day.activities.$values || []
         })),
         costDetails: tourData.costDetails.$values,
-        schedules: tourData.schedules.$values,
+        schedules: tourData.schedules.$values.map(schedule => ({
+          ...schedule,
+          startDate: new Date(schedule.startDate).toISOString().slice(0, 16),
+          endDate: new Date(schedule.endDate).toISOString().slice(0, 16)
+        })),
         additionalInfo: tourData.additionalInfo
       });
     }
@@ -74,11 +79,17 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
     const totalCostDetails = tourData.costDetails.reduce((total, cost) => total + parseFloat(cost.amount || 0), 0);
 
     setTourData({ ...tourData, price: totalActivityCost + totalCostDetails });
+    setDuration(tourData.itinerary.length);
   }, [tourData.itinerary, tourData.costDetails]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setTourData({ ...tourData, [name]: name === 'maxGuests' ? parseInt(value) : value });
+    if (name === 'maxNumberOfDay') {
+      setDuration(parseInt(value));
+      setTourData({ ...tourData, numberOfDays: parseInt(value) });
+    } else {
+      setTourData({ ...tourData, [name]: name === 'maxGuests' ? parseInt(value) : value });
+    }
   };
 
   const handleQuillChange = (value) => {
@@ -198,6 +209,21 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
     setTourData({ ...tourData, costDetails: newCostDetails });
   };
 
+  const handleScheduleChange = (e, scheduleIndex) => {
+    const { name, value } = e.target;
+    const newSchedules = [...tourData.schedules];
+    newSchedules[scheduleIndex][name] = value;
+  
+    if (name === "startDate" && duration > 0) {
+      const startDate = new Date(value);
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + parseInt(duration));
+      newSchedules[scheduleIndex].endDate = endDate.toISOString().slice(0, 16);
+    }
+  
+    setTourData({ ...tourData, schedules: newSchedules });
+  };
+
   return (
     <div>
       <h2 className='text-center' style={{ height: '50px' }}>Cập nhật Tour</h2>
@@ -214,6 +240,8 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
             </select>
             <label>Số khách tối đa</label>
             <input type="number" name="maxGuests" placeholder="Số khách tối đa" value={tourData.maxGuests} onChange={handleInputChange} />
+            <label>Số ngày đi</label>
+            <input type="number" name="maxNumberOfDay" placeholder="Số ngày đi" value={duration} onChange={handleInputChange} />
             <label>Mô tả tour</label>
             <TextareaAutosize minRows={3} name="tourDescription" placeholder="Mô tả tour" value={tourData.tourDescription} onChange={handleInputChange} />
           </div>
@@ -232,16 +260,8 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
           <button onClick={handleAddSchedule}>Thêm lịch trình</button>
           {tourData.schedules.map((schedule, scheduleIndex) => (
             <div key={scheduleIndex}>
-              <input type="datetime-local" placeholder="Ngày bắt đầu" value={schedule.startDate} onChange={(e) => {
-                const newSchedules = [...tourData.schedules];
-                newSchedules[scheduleIndex].startDate = e.target.value;
-                setTourData({ ...tourData, schedules: newSchedules });
-              }} />
-              <input type="datetime-local" placeholder="Ngày kết thúc" value={schedule.endDate} onChange={(e) => {
-                const newSchedules = [...tourData.schedules];
-                newSchedules[scheduleIndex].endDate = e.target.value;
-                setTourData({ ...tourData, schedules: newSchedules });
-              }} />
+              <input type="datetime-local" name="startDate" placeholder="Ngày bắt đầu" value={schedule.startDate} onChange={(e) => handleScheduleChange(e, scheduleIndex)} />
+              <input type="datetime-local" name="endDate" placeholder="Ngày kết thúc" value={schedule.endDate} readOnly />
             </div>
           ))}
         </div>
@@ -258,6 +278,14 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
                       <button style={{ marginLeft: '10px' }} onClick={() => handleDeleteItinerary(dayIndex)}>Xóa lịch trình cụ thể</button>
                     </Accordion.Header>
                     <Accordion.Body>
+                      <div>
+                        <label>Ngày bắt đầu</label>
+                        <input type="datetime-local" value={tourData.schedules[dayIndex]?.startDate || ''} readOnly />
+                      </div>
+                      <div>
+                        <label>Ngày kết thúc</label>
+                        <input type="datetime-local" value={tourData.schedules[dayIndex]?.endDate || ''} readOnly />
+                      </div>
                       <button onClick={() => handleAddActivity(dayIndex)}>Thêm hoạt động</button>
                       {day.activities.map((activity, activityIndex) => (
                         <div key={activityIndex} className='row'>

@@ -1,8 +1,9 @@
-import { FETCH_TOUR_SUCCESS, FETCH_TOUR_ERROR } from '../actionTypes';
+import { FETCH_TOUR_SUCCESS, FETCH_TOUR_ERROR, SET_SELECTED_SCHEDULE } from '../actionTypes';
 
 const initialState = {
     tour: null,
     error: null,
+    selectedScheduleId: null,
 };
 
 const tourReducer = (state = initialState, action) => {
@@ -18,6 +19,11 @@ const tourReducer = (state = initialState, action) => {
                 ...state,
                 tour: null,
                 error: action.payload,
+            };
+        case SET_SELECTED_SCHEDULE:
+            return {
+                ...state,
+                selectedScheduleId: action.payload,
             };
         default:
             return state;
