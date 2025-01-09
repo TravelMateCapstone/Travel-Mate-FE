@@ -31,7 +31,7 @@ const ChatHeader = () => {
         <Dropdown.Menu>
           <Dropdown.Item onClick={() => {
             dispatch(viewProfile(selectedItem?.travelerId, token));
-            navigation(RoutePath.PROFILE);
+            navigation(RoutePath.OTHERS_PROFILE);
           }}>Xem hồ sơ</Dropdown.Item>
           <Dropdown.Item >Báo cáo</Dropdown.Item>
         </Dropdown.Menu>
