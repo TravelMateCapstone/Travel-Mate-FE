@@ -83,7 +83,7 @@ function CreateContract() {
           // localId: tourInfo.creator.id,
           travelerId: user.id,
           amount: tourInfo.price,
-          scheduleId: '677d6558434496be977aa333'
+          scheduleId: selectedScheduleId
         };
         console.log("infoPayment", infoPayment);
         

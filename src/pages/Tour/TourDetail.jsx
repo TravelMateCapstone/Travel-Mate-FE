@@ -84,6 +84,7 @@ function TourDetail() {
                     },
                 }
             );
+            dispatch(setSelectedSchedule_redux(scheduleId))
             navigate(RoutePath.CREATE_CONTRACT);
         } catch (error) {
             console.error("Error joining tour:", error);
