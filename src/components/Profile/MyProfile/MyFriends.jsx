@@ -72,7 +72,7 @@ function MyFriends() {
     const handleViewProfile = (friendId) => {
         if (parseInt(friendId) === parseInt(user.id)) {
             dispatch(viewProfile(friendId, token));
-            navigate(RoutePath.PROFILE);
+            navigate(RoutePath.PROFILE_MY_PROFILE);
         } else {
             console.log("id", friendId);
             dispatch(viewProfile(friendId, token));
