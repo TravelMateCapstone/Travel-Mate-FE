@@ -55,8 +55,20 @@ function CreateTour() {
 
     setTourData({ ...tourData, price: totalActivityCost + totalCostDetails });
     console.log(tourData);
-    
+
   }, [tourData.itinerary, tourData.costDetails]);
+
+  useEffect(() => {
+    const newItinerary = [];
+    for (let i = 0; i < duration; i++) {
+      if (tourData.itinerary[i]) {
+        newItinerary.push(tourData.itinerary[i]);
+      } else {
+        newItinerary.push({ day: i + 1, activities: [] });
+      }
+    }
+    setTourData({ ...tourData, itinerary: newItinerary });
+  }, [duration]);
 
   const openModal = () => {
     setModalIsOpen(true);
@@ -103,7 +115,35 @@ function CreateTour() {
   };
 
   const handleAddSchedule = () => {
-    setTourData({ ...tourData, schedules: [...tourData.schedules, { startDate: "", endDate: "" }] });
+    if (duration > 0) {
+      if (tourData.schedules.length > 0) {
+        const lastSchedule = tourData.schedules[tourData.schedules.length - 1];
+        const lastEndDate = new Date(lastSchedule.endDate);
+        const newStartDate = new Date(lastEndDate);
+        newStartDate.setDate(lastEndDate.getDate() + 1);
+        const newEndDate = new Date(newStartDate);
+        newEndDate.setDate(newStartDate.getDate() + parseInt(duration));
+        setTourData({ ...tourData, schedules: [...tourData.schedules, { startDate: newStartDate.toISOString().slice(0, 16), endDate: newEndDate.toISOString().slice(0, 16) }] });
+      } else {
+        const newStartDate = new Date();
+        const newEndDate = new Date(newStartDate);
+        newEndDate.setDate(newStartDate.getDate() + parseInt(duration));
+        setTourData({ ...tourData, schedules: [...tourData.schedules, { startDate: newStartDate.toISOString().slice(0, 16), endDate: newEndDate.toISOString().slice(0, 16) }] });
+      }
+    } else {
+      toast.error("Vui lòng nhập số ngày đi trước khi thêm lịch trình.");
+    }
+  };
+
+  const isScheduleOverlapping = (newSchedule, schedules) => {
+    const newStart = new Date(newSchedule.startDate);
+    const newEnd = new Date(newSchedule.endDate);
+
+    return schedules.some(schedule => {
+      const start = new Date(schedule.startDate);
+      const end = new Date(schedule.endDate);
+      return (newStart < end && newEnd > start);
+    });
   };
 
   const handleScheduleChange = (e, scheduleIndex) => {
@@ -116,6 +156,11 @@ function CreateTour() {
       const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + parseInt(duration));
       newSchedules[scheduleIndex].endDate = endDate.toISOString().slice(0, 16);
+    }
+
+    if (isScheduleOverlapping(newSchedules[scheduleIndex], newSchedules.filter((_, index) => index !== scheduleIndex))) {
+      toast.error("Lịch trình này bị trùng với lịch trình khác.");
+      return;
     }
 
     setTourData({ ...tourData, schedules: newSchedules });
@@ -229,6 +274,11 @@ function CreateTour() {
     setIsChecked(!isChecked);
   };
 
+  const handleDeleteSchedule = (scheduleIndex) => {
+    const newSchedules = tourData.schedules.filter((_, index) => index !== scheduleIndex);
+    setTourData({ ...tourData, schedules: newSchedules });
+  };
+
   return (
     <div>
       <button className='btn btn-success mb-2' onClick={openModal}>Tạo tour du lịch</button>
@@ -256,7 +306,7 @@ function CreateTour() {
           },
         }}
       >
-        <h2 className='text-center' style={{
+        <h2 className='' style={{
           height: '50px',
         }}>Tạo Tour</h2>
         <div className='mymodal_body d-flex flex-column gap-3' style={{
@@ -286,19 +336,24 @@ function CreateTour() {
               <button className='btn btn-primary mb-2' onClick={handleFileButtonClick}>Chọn hình ảnh tour</button>
               <input id="tourImageInput" type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
               {tourData.tourImage && <img src={tourData.tourImage} alt="ảnh tour" className='w-100' />}
-             
+
             </div>
           </div>
           <div>
             <h5 className='text-uppercase fw-bold'>Lịch trình diễn ra</h5>
-            <div className='d-flex gap-2 align-items-end'>
-              <button onClick={handleAddSchedule} className='btn btn-primary mb-2'>Thêm lịch trình</button>
-              {tourData.schedules.map((schedule, scheduleIndex) => (
-                <div key={scheduleIndex}>
-                  <input type="datetime-local" name="startDate" placeholder="Ngày bắt đầu" value={schedule.startDate} onChange={(e) => handleScheduleChange(e, scheduleIndex)} className="mb-2" />
-                  <input type="datetime-local" name="endDate" placeholder="Ngày kết thúc" value={schedule.endDate} readOnly className="" />
+            <div className='d-flex gap-2 flex-column'>
+              <div>
+                <button onClick={handleAddSchedule} className='btn btn-primary mb-2'>Thêm lịch trình</button>
+                <div className='d-flex gap-2 flex-wrap'>
+                {tourData.schedules.map((schedule, scheduleIndex) => (
+                  <div key={scheduleIndex} className='d-flex align-items-center gap-2'>
+                    <input type="datetime-local" name="startDate" placeholder="Ngày bắt đầu" value={schedule.startDate} onChange={(e) => handleScheduleChange(e, scheduleIndex)} className="mb-2" />
+                    <input type="datetime-local" name="endDate" placeholder="Ngày kết thúc" value={schedule.endDate} readOnly className="" />
+                    <button onClick={() => handleDeleteSchedule(scheduleIndex)} className='btn btn-danger'>Xóa lịch trình</button>
+                  </div>
+                ))}
                 </div>
-              ))}
+                </div>
             </div>
           </div>
 
@@ -311,7 +366,7 @@ function CreateTour() {
                     <Accordion.Item eventKey={dayIndex.toString()} key={dayIndex}>
                       <Accordion.Header>
                         Ngày {dayIndex + 1}
-                        <button style={{ marginLeft: '10px' }} onClick={() => handleDeleteItinerary(dayIndex)} className='btn btn-danger'>Xóa lịch trình cụ thể</button>
+                        <button style={{ marginLeft: '10px' }} onClick={() => handleDeleteItinerary(dayIndex)} className='btn fw-bold text-danger'>Xóa lịch trình cụ thể</button>
                       </Accordion.Header>
                       <Accordion.Body>
                         <button onClick={() => handleAddActivity(dayIndex)} className='btn btn-primary'>Thêm hoạt động</button>

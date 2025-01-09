@@ -82,6 +82,17 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
     setDuration(tourData.itinerary.length);
   }, [tourData.itinerary, tourData.costDetails]);
 
+  useEffect(() => {
+    const updateItineraryBasedOnDays = () => {
+      const newItinerary = Array.from({ length: duration }, (_, index) => ({
+        day: index + 1,
+        activities: tourData.itinerary[index]?.activities || []
+      }));
+      setTourData({ ...tourData, itinerary: newItinerary });
+    };
+    updateItineraryBasedOnDays();
+  }, [duration]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === 'maxNumberOfDay') {
@@ -278,14 +289,14 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
                       <button style={{ marginLeft: '10px' }} onClick={() => handleDeleteItinerary(dayIndex)}>Xóa lịch trình cụ thể</button>
                     </Accordion.Header>
                     <Accordion.Body>
-                      <div>
+                      {/* <div>
                         <label>Ngày bắt đầu</label>
                         <input type="datetime-local" value={tourData.schedules[dayIndex]?.startDate || ''} readOnly />
                       </div>
                       <div>
                         <label>Ngày kết thúc</label>
                         <input type="datetime-local" value={tourData.schedules[dayIndex]?.endDate || ''} readOnly />
-                      </div>
+                      </div> */}
                       <button onClick={() => handleAddActivity(dayIndex)}>Thêm hoạt động</button>
                       {day.activities.map((activity, activityIndex) => (
                         <div key={activityIndex} className='row'>
