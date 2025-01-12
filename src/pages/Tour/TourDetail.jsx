@@ -85,6 +85,8 @@ function TourDetail() {
                 toast.error("Bạn đã tham gia tour này. Vui lòng kiểm tra hợp đồng của bạn.");
             } else if (error.response && error.response.data === "Access Denied! You are creator of this tour") {
                 toast.error("Bạn đã tạo tour này. Vui lòng kiểm tra hợp đồng của bạn trong phần quản lý chuyến đi.");
+            } else if(error.response && error.response.data === "Access Denied! Tour've already done!"){
+                toast.error("Tour đã hoàn thành. Vui lòng chọn tour khác.");
             }
         }
     };
@@ -308,10 +310,11 @@ function TourDetail() {
                                                             }}>
                                                                 {tourData.schedules.$values.map((schedule, index) => (
                                                                     <Button
-                                                                        variant={selectedSchedule?.scheduleId === schedule.scheduleId ? "success" : "outline-success"}
+                                                                        variant={schedule.activeStatus ? (selectedSchedule?.scheduleId === schedule.scheduleId ? "success" : "outline-success") : "outline-secondary"}
                                                                         key={index}
                                                                         action
                                                                         onClick={() => handleScheduleSelect(schedule)}
+                                                                        disabled={!schedule.activeStatus}
                                                                     >
                                                                         {formatDateToVietnamese(schedule.startDate)}
                                                                     </Button>

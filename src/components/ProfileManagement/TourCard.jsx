@@ -12,7 +12,7 @@ import ParticipantTour from "./ParticipantTour";
 
 Modal.setAppElement('#root'); // Set the app element for accessibility
 
-function TourCard({ tour }) {
+function TourCard({ tour, onTourDeleted }) {
     const [showModal, setShowModal] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
     const [showManageModal, setShowManageModal] = useState(false); // New state for manage modal
@@ -20,6 +20,7 @@ function TourCard({ tour }) {
     const handleDelete = async () => {
         if (window.confirm("Bạn có chắc chắn muốn xóa tour này không?")) {
             await deleteTour(tour.tourId);
+            onTourDeleted(); // Call the callback to update the tour list
         }
     };
 
@@ -186,7 +187,7 @@ function TourCard({ tour }) {
                     height: "calc(100% - 100px)",
                     overflowY: "auto",
                 }}>
-                    <ParticipantTour tourId={tour.tourId} schedules={tour.schedules.$values} totalIncome={tour.maxGuests*tour.price}/>
+                    <ParticipantTour tour={tour} tourId={tour.tourId} schedules={tour.schedules.$values} totalIncome={tour.maxGuests*tour.price}/>
                 </div>
                 <div style={{
                     height: "50px",

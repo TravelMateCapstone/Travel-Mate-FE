@@ -8,6 +8,7 @@ import { useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Placeholder from 'react-bootstrap/Placeholder';
 import axios from 'axios';
+import { da } from 'date-fns/locale';
 
 function Destination() {
     const [originalTours, setOriginalTours] = useState([]); // Dữ liệu gốc từ API
@@ -48,15 +49,23 @@ function Destination() {
                 interests: filters.interests.join(',') || '',
             });
 
+            console.log('queryParams', queryParams.toString());
+            
+
             const response = await fetch(
                 `https://travelmateapp.azurewebsites.net/api/FilterToursWOO/GetAllTour-WithUserDetails-ByLocation?${queryParams}`
             );
+        
+            
 
             if (!response.ok) {
                 throw new Error('Failed to fetch tours');
             }
 
             const data = await response.json();
+
+            console.log('respone data', data);
+            
             setOriginalTours(data || []);
             setFilteredTours(data || []);
         } catch (err) {

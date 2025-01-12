@@ -12,7 +12,7 @@ import { getUserLocation } from '../../apis/profileApi';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-function CreateTour() {
+function CreateTour({ onTourCreated }) {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [duration, setDuration] = useState(0);
   const [tourData, setTourData] = useState({
@@ -252,6 +252,8 @@ function CreateTour() {
     const updatedTourData = { ...tourData, tourImage: tourImageUrl, itinerary };
     await createTour(updatedTourData);
     setIsCreating(false);
+    setModalIsOpen(false);
+    onTourCreated();
   };
 
   const handleDeleteItinerary = (dayIndex) => {
