@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom';
 import Routepath from '../../routes/RoutePath';
 import { fetchTour } from '../../redux/actions/tourActions';
-import { Form, InputGroup, Dropdown, Button, } from 'react-bootstrap'; // Import React Bootstrap components
+import { Form, InputGroup, Dropdown, } from 'react-bootstrap'; 
 
 function TourList() {
     const navigate = useNavigate();
@@ -16,32 +16,26 @@ function TourList() {
     const [endDate, setEndDate] = useState('');
     const token = useSelector(state => state.auth.token);
     const profileTourData = useSelector(state => state.profile.tour.$values);
-
     useEffect(() => {
         setTourData(profileTourData);
-        console.log("Danh sách tour:", profileTourData);
-        
     }, [profileTourData]);
-
     const filteredTours = tourdata.filter(tour => {
+        const matchesApprovalStatus = tour.approvalStatus === 1;
         const matchesSearchTerm = tour.tourName.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesPriceRange = (!minPrice || tour.price >= minPrice) && (!maxPrice || tour.price <= maxPrice);
         const matchesDateRange = (!startDate || new Date(tour.startDate) >= new Date(startDate)) && (!endDate || new Date(tour.endDate) <= new Date(endDate));
-        return matchesSearchTerm && matchesPriceRange && matchesDateRange;
+        return matchesApprovalStatus && matchesSearchTerm && matchesPriceRange && matchesDateRange;
     });
-
     // eslint-disable-next-line no-unused-vars
     const joinTour = async (tourId, tourName) => {
         dispatch(fetchTour(tourId, token));
         navigate(Routepath.TOUR_DETAIL);
     };
-
     const formatCurrency = (price) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
     };
-
     return (
-        <div style={{ background: '#f9f9f9', }} className='rounded-5 py-3 px-0 item-container'>
+        <div style={{ background: '#f9f9f9', }} className='rounded-5 py-3 px-0 item-container overflow-y-auto'>
             <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">Danh sách tour</h2>
             <div className='mx-5'>
                 <div style={{ marginBottom: '20px' }} className='d-flex align-items-center justify-content-between'>
@@ -105,7 +99,7 @@ function TourList() {
                 </div>
                 <div className='d-flex flex-column gap-3'>
                     {filteredTours.map(tour => (
-                        <div key={tour.tourId} style={{ display: 'flex', borderBottom: '1px solid #d9d9d9', }}>
+                        <div key={tour.tourId} style={{ display: 'flex', borderBottom: '1px solid #d9d9d9', padding: '20px 0', overflow: 'hidden' }}>
                             <div className='d-flex align-items-center' style={{
                                 flex: '5'
                             }}><img src={tour.tourImage} alt={tour.tourName} width="136" height={92} style={{ marginRight: '20px', borderRadius: '10px' }} />

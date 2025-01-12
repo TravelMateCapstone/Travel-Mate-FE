@@ -2,10 +2,10 @@ import axios from 'axios';
 import store from '../redux/store'
 import { toast } from 'react-toastify';
 
-const token = store.getState().auth.token
 const url = import.meta.env.VITE_BASE_API_URL
 
 const fetchTours = async () => {
+    const token = store.getState().auth.token;
     try {
         const response = await axios.get(`${url}/api/tours`, {
             headers: {
@@ -20,6 +20,7 @@ const fetchTours = async () => {
 }
 
 const fetchTourByStatus = async (approvalStatus) => {
+    const token = store.getState().auth.token;
     try {
         const response = await axios.get(`${url}/api/Tour/toursStatus/${approvalStatus}`, {
             headers: {
@@ -34,6 +35,7 @@ const fetchTourByStatus = async (approvalStatus) => {
 }
 
 const getTourById = async (id) => {
+    const token = store.getState().auth.token;
     try {
         const response = await axios.get(`${url}/api/Tour/${id}`, {
             headers: {
@@ -48,6 +50,7 @@ const getTourById = async (id) => {
 }
 
 const createTour = async (tour) => {
+    const token = store.getState().auth.token;
     console.log("tour data", tour);
     
     try {
@@ -64,6 +67,7 @@ const createTour = async (tour) => {
 }
 
 const updateTour = async (tour, tourid) => {
+    const token = store.getState().auth.token;
     try {
         console.log("tour data", tour);
         await axios.put(`${url}/api/Tour/${tourid}`, tour, {
@@ -83,6 +87,7 @@ const updateTour = async (tour, tourid) => {
 }
 
 const deleteTour = async (id) => {
+    const token = store.getState().auth.token;
     try {
         await axios.delete(`${url}/api/Tour/${id}`, {
             headers: {
@@ -97,6 +102,7 @@ const deleteTour = async (id) => {
 }
 
 const fetchTourParticipants = async (tourId) => {
+    const token = store.getState().auth.token;
     try {
         const response = await axios.get(`${url}/api/Tour/tourParticipants/${tourId}`, {
             headers: {

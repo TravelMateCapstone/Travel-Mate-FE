@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
-import { Card, Container } from 'react-bootstrap';
+import { useState } from 'react';
 import '../../assets/css/Profile/Profile.css';
 import AboutMe from '../../components/Profile/AboutMe';
-import Favorites from '../../components/Profile/Favorites';
 import Friends from '../../components/Profile/Friends';
 import MyHome from '../../components/Profile/MyHome';
 import PastTrips from '../../components/Profile/PastTrips';
@@ -17,12 +15,12 @@ function Profile() {
 
   // Component array for mapping
   const tabComponents = [
-    <AboutMe />,
-    <MyHome />,
-    <PastTrips />,
-    <Friends />,
-    // <Favorites />,
-    <TourList />
+    <AboutMe key="about-me" />,
+    <MyHome key="my-home" />,
+    <PastTrips key="past-trips" />,
+    <Friends key="friends" />,
+    // <Favorites key="favorites" />,
+    <TourList key="tour-list" />
   ];
 
   const tabIcons = [

@@ -102,7 +102,10 @@ function Contract() {
     {
       accessorKey: 'tourName', // Simplified accessorKey
       header: 'Tên tour',
-      cell: (info) => info.getValue(), // Directly display the value
+      cell: (info) => {
+        const tourName = info.getValue();
+        return tourName.length > 50 ? `${tourName.substring(0, 50)}...` : tourName;
+      },
       meta: {
         filterVariant: 'text', // Ensure it's a text filter
       },
