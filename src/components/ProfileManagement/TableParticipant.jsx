@@ -6,34 +6,50 @@ import {
     getPaginationRowModel,
     flexRender,
 } from '@tanstack/react-table';
+import Modal from 'react-modal';
+import Button from 'react-bootstrap/Button';
 
-function TableParticipant() {
+// eslint-disable-next-line react/prop-types
+function TableParticipant({ participants }) {
     const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
     const [search, setSearch] = useState('');
+    const [showModal, setShowModal] = useState(false);
+    const [selectedParticipant, setSelectedParticipant] = useState(null);
 
-    const participants = [
-        { name: 'John Doe', email: 'john@example.com', phone: '1234567890', status: 'Active' },
-        { name: 'Jane Smith', email: 'jane@example.com', phone: '0987654321', status: 'Inactive' },
-        // Add more hardcoded participants as needed
-    ];
+    const handleShowModal = (participant) => {
+        setSelectedParticipant(participant);
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setSelectedParticipant(null);
+    };
 
     const filteredParticipants = useMemo(() => 
         participants.filter(participant =>
-            participant.name.toLowerCase().includes(search.toLowerCase()) ||
-            participant.email.toLowerCase().includes(search.toLowerCase()) ||
+            participant.fullName.toLowerCase().includes(search.toLowerCase()) ||
             participant.phone.includes(search) ||
-            participant.status.toLowerCase().includes(search.toLowerCase())
-        ), [search]);
+            participant.address.toLowerCase().includes(search.toLowerCase()) ||
+            participant.orderCode.toString().includes(search) ||
+            participant.paymentStatus.toString().includes(search)
+        ), [search, participants]);
 
     const columns = [
+      
         {
-            accessorKey: 'name',
+            accessorKey: 'fullName',
             header: 'Tên',
             cell: (info) => info.getValue(),
         },
         {
-            accessorKey: 'email',
-            header: 'Email',
+            accessorKey: 'gender',
+            header: 'Giới tính',
+            cell: (info) => info.getValue(),
+        },
+        {
+            accessorKey: 'address',
+            header: 'Địa chỉ',
             cell: (info) => info.getValue(),
         },
         {
@@ -42,25 +58,44 @@ function TableParticipant() {
             cell: (info) => info.getValue(),
         },
         {
-            accessorKey: 'status',
-            header: 'Trạng thái',
-            cell: (info) => (
-                <span
-                    className={`text-nowrap ${info.getValue() === 'Active'
-                        ? 'text-success'
-                        : 'text-secondary'
-                        }`}
-                >
-                    {info.getValue()}
-                </span>
-            ),
+            accessorKey: 'registeredAt',
+            header: 'Ngày đăng ký',
+            cell: (info) => new Date(info.getValue()).toLocaleString(),
         },
+        {
+            accessorKey: 'transactionTime',
+            header: 'Thời gian giao dịch',
+            cell: (info) => new Date(info.getValue()).toLocaleString(),
+        },
+        {
+            accessorKey: 'totalAmount',
+            header: 'Tổng số tiền',
+            cell: (info) => info.getValue(),
+        },
+        // {
+        //     accessorKey: 'paymentStatus',
+        //     header: 'Trạng thái thanh toán',
+        //     cell: (info) => (
+        //         <span
+        //             className={`text-nowrap ${info.getValue() === 1
+        //                 ? 'text-success'
+        //                 : info.getValue() === 2
+        //                 ? 'text-warning'
+        //                 : 'text-secondary'
+        //                 }`}
+        //         >
+        //             {info.getValue() === 1 ? 'Đã thanh toán' : info.getValue() === 2 ? 'Hoàn tiền' : 'Chưa thanh toán'}
+        //         </span>
+        //     ),
+        // },
         {
             accessorKey: 'actions',
             header: 'Hành động',
             cell: (info) => (
                 <div className="d-flex gap-2">
-                    <button className="btn btn-success"><ion-icon name="eye-outline"></ion-icon></button>
+                    <button className="btn btn-success" onClick={() => handleShowModal(info.row.original)}>
+                        <ion-icon name="eye-outline"></ion-icon>
+                    </button>
                     <button className="btn btn-danger"><ion-icon name="chatbubbles-outline"></ion-icon></button>
                 </div>
             ),
@@ -79,7 +114,6 @@ function TableParticipant() {
 
     return (
         <div className='table_participant_list'>
-
             <input
                 type="text"
                 className='my-3'
@@ -87,7 +121,6 @@ function TableParticipant() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
             />
-
             <table className="table">
                 <thead>
                     {table.getHeaderGroups().map((headerGroup) => (
@@ -122,7 +155,6 @@ function TableParticipant() {
                 <span>
                     Trang {table.getState().pagination.pageIndex + 1} của {table.getPageCount()}
                 </span>
-
                 <span className="flex items-center gap-1">
                     | Chuyển đến trang:
                     <input
@@ -150,6 +182,40 @@ function TableParticipant() {
                     ))}
                 </select>
             </div>
+            <Modal
+                isOpen={showModal}
+                onRequestClose={handleCloseModal}
+                contentLabel="Thông tin người tham gia"
+                ariaHideApp={false}
+                style={{
+                    content: {
+                        width: '50%',
+                        height: '50%',
+                        margin: 'auto',
+                    },
+                    overlay: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                    },
+                }}
+            >
+                <h2>Thông tin người tham gia</h2>
+                {selectedParticipant && (
+                    <div>
+                        <p><strong>Tên:</strong> {selectedParticipant.fullName}</p>
+                        <p><strong>Giới tính:</strong> {selectedParticipant.gender}</p>
+                        <p><strong>Địa chỉ:</strong> {selectedParticipant.address}</p>
+                        <p><strong>Số điện thoại:</strong> {selectedParticipant.phone}</p>
+                        <p><strong>Ngày đăng ký:</strong> {new Date(selectedParticipant.registeredAt).toLocaleString()}</p>
+                        <p><strong>Mã đơn hàng:</strong> {selectedParticipant.orderCode}</p>
+                        <p><strong>Trạng thái thanh toán:</strong> {selectedParticipant.paymentStatus === 1 ? 'Đã thanh toán' : selectedParticipant.paymentStatus === 2 ? 'Hoàn tiền' : 'Chưa thanh toán'}</p>
+                        <p><strong>Thời gian giao dịch:</strong> {new Date(selectedParticipant.transactionTime).toLocaleString()}</p>
+                        <p><strong>Tổng số tiền:</strong> {selectedParticipant.totalAmount}</p>
+                    </div>
+                )}
+                <Button variant="secondary" onClick={handleCloseModal}>
+                    Đóng
+                </Button>
+            </Modal>
         </div>
     );
 }

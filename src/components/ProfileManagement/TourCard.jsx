@@ -17,12 +17,13 @@ function TourCard({ tour }) {
     const [isCreating, setIsCreating] = useState(false);
     const [showManageModal, setShowManageModal] = useState(false); // New state for manage modal
     const [tourData, setTourData] = useState(null); // New state for tour data
-
     const handleDelete = async () => {
         if (window.confirm("Bạn có chắc chắn muốn xóa tour này không?")) {
             await deleteTour(tour.tourId);
         }
     };
+
+
 
     const handleEdit = async () => {
         const data = await getTourById(tour.tourId); // Fetch tour data by ID
@@ -73,7 +74,7 @@ function TourCard({ tour }) {
                             </div>
                         </div>
                         <p className="card-text mb-0 d-flex align-items-center gap-1"><ion-icon name="location-outline"></ion-icon> {tour.location}</p>
-                        <p className="card-text mb-0 d-flex align-items-center gap-1"><ion-icon name="time-outline"></ion-icon> {tour.numberOfDays}N{(tour.numberOfDays - 1 == 0) ? '' : (tour.numberOfDays-1) + 'Đ'}</p>
+                        <p className="card-text mb-0 d-flex align-items-center gap-1"><ion-icon name="time-outline"></ion-icon> {tour.numberOfDays}N{(tour.numberOfDays - 1 == 0) ? '' : (tour.numberOfDays - 1) + 'Đ'}</p>
                         <p className="card-text mb-0 d-flex align-items-center gap-1"><ion-icon name="people-outline"></ion-icon> {tour.maxGuests}</p>
                         <div className="d-flex justify-content-between align-items-center">
                             <div className="d-flex gap-2 align-items-center">
@@ -185,7 +186,7 @@ function TourCard({ tour }) {
                     height: "calc(100% - 100px)",
                     overflowY: "auto",
                 }}>
-                    <ParticipantTour />
+                    <ParticipantTour tourId={tour.tourId} schedules={tour.schedules.$values} totalIncome={tour.maxGuests*tour.price}/>
                 </div>
                 <div style={{
                     height: "50px",

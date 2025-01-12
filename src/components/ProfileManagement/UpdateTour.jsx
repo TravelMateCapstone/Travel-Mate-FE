@@ -242,23 +242,23 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
         <div className='row'>
           <div className='col col-6 d-flex flex-column flex-grow-1'>
             <label>Tên tour</label>
-            <input type="text" name="tourName" placeholder="Tên tour" value={tourData.tourName} onChange={handleInputChange} />
+            <input type="text" name="tourName" placeholder="Tên tour" value={tourData.tourName} onChange={handleInputChange} className="form-control" />
             <label>Địa điểm</label>
-            <select name="location" value={tourData.location} onChange={handleInputChange}>
+            <select name="location" value={tourData.location} onChange={handleInputChange} className="form-select">
               {locations?.$values?.map((location) => (
                 <option key={location.locationId} value={location.location.locationName}>{location.location.locationName}</option>
               ))}
             </select>
             <label>Số khách tối đa</label>
-            <input type="number" name="maxGuests" placeholder="Số khách tối đa" value={tourData.maxGuests} onChange={handleInputChange} />
+            <input type="number" name="maxGuests" placeholder="Số khách tối đa" value={tourData.maxGuests} onChange={handleInputChange} className="form-control" />
             <label>Số ngày đi</label>
-            <input type="number" name="maxNumberOfDay" placeholder="Số ngày đi" value={duration} onChange={handleInputChange} />
+            <input type="number" name="maxNumberOfDay" placeholder="Số ngày đi" value={duration} onChange={handleInputChange} className="form-control" />
             <label>Mô tả tour</label>
-            <TextareaAutosize minRows={3} name="tourDescription" placeholder="Mô tả tour" value={tourData.tourDescription} onChange={handleInputChange} />
+            <TextareaAutosize minRows={3} name="tourDescription" placeholder="Mô tả tour" value={tourData.tourDescription} onChange={handleInputChange} className="form-control" />
           </div>
           <div className='col col-6 d-flex flex-column flex-grow-1 img'>
             <label>Hình ảnh tour</label>
-            <button className='mb-2' onClick={handleFileButtonClick}>Chọn hình ảnh tour</button>
+            <button className='mb-2 btn btn-primary' onClick={handleFileButtonClick}>Chọn hình ảnh tour</button>
             <input id="tourImageInput" type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
             {tourData.tourImage && <img src={tourData.tourImage} alt="ảnh tour" className='w-100' />}
             <div>
@@ -268,11 +268,11 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
         </div>
         <div>
           <h5 className='text-uppercase fw-bold'>Lịch trình diễn ra</h5>
-          <button onClick={handleAddSchedule}>Thêm lịch trình</button>
+          <button className='btn btn-primary mb-2' onClick={handleAddSchedule}>Thêm lịch trình</button>
           {tourData.schedules.map((schedule, scheduleIndex) => (
             <div key={scheduleIndex}>
-              <input type="datetime-local" name="startDate" placeholder="Ngày bắt đầu" value={schedule.startDate} onChange={(e) => handleScheduleChange(e, scheduleIndex)} />
-              <input type="datetime-local" name="endDate" placeholder="Ngày kết thúc" value={schedule.endDate} readOnly />
+              <input type="datetime-local" name="startDate" placeholder="Ngày bắt đầu" value={schedule.startDate} onChange={(e) => handleScheduleChange(e, scheduleIndex)}/>
+              <input type="datetime-local" name="endDate" placeholder="Ngày kết thúc" value={schedule.endDate} readOnly  />
             </div>
           ))}
         </div>
@@ -280,13 +280,13 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
         <Tabs defaultActiveKey="itinerary" id="uncontrolled-tab-example" className="mb-3 no-border-radius">
           <Tab eventKey="itinerary" title="Lịch trình cụ thể">
             <div>
-              <button onClick={handleAddItinerary}>Thêm lịch trình cụ thể</button>
+              <button className='btn btn-primary' onClick={handleAddItinerary}>Thêm lịch trình cụ thể</button>
               <Accordion defaultActiveKey="0">
                 {tourData.itinerary.map((day, dayIndex) => (
                   <Accordion.Item eventKey={dayIndex.toString()} key={dayIndex}>
                     <Accordion.Header>
                       Ngày {dayIndex + 1}
-                      <button style={{ marginLeft: '10px' }} onClick={() => handleDeleteItinerary(dayIndex)}>Xóa lịch trình cụ thể</button>
+                      <button style={{ marginLeft: '10px' }} className='btn btn-danger' onClick={() => handleDeleteItinerary(dayIndex)}>Xóa lịch trình cụ thể</button>
                     </Accordion.Header>
                     <Accordion.Body>
                       {/* <div>
@@ -297,7 +297,7 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
                         <label>Ngày kết thúc</label>
                         <input type="datetime-local" value={tourData.schedules[dayIndex]?.endDate || ''} readOnly />
                       </div> */}
-                      <button onClick={() => handleAddActivity(dayIndex)}>Thêm hoạt động</button>
+                      <button className='btn btn-primary' onClick={() => handleAddActivity(dayIndex)}>Thêm hoạt động</button>
                       {day.activities.map((activity, activityIndex) => (
                         <div key={activityIndex} className='row'>
                           <div className='col col-6 d-flex flex-column gap-2'>
@@ -306,14 +306,14 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
                               const newItinerary = [...tourData.itinerary];
                               newItinerary[dayIndex].activities[activityIndex].title = e.target.value;
                               setTourData({ ...tourData, itinerary: newItinerary });
-                            }} />
+                            }} className="form-control" />
 
                             <label>Địa chỉ hoạt động</label>
                             <input type="text" placeholder="Địa chỉ hoạt động" value={activity.activityAddress} onChange={(e) => {
                               const newItinerary = [...tourData.itinerary];
                               newItinerary[dayIndex].activities[activityIndex].activityAddress = e.target.value;
                               setTourData({ ...tourData, itinerary: newItinerary });
-                            }} />
+                            }} className="form-control" />
                             <div className='d-flex gap-2'>
                               <div className='d-flex flex-column gap-2'>
                                 <label>Thời gian bắt đầu</label>
@@ -321,7 +321,7 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
                                   const newItinerary = [...tourData.itinerary];
                                   newItinerary[dayIndex].activities[activityIndex].startTime = e.target.value + ":00";
                                   setTourData({ ...tourData, itinerary: newItinerary });
-                                }} />
+                                }} className="form-control" />
                               </div>
                               <div className='d-flex flex-column gap-2'>
                                 <label>Thời gian kết thúc</label>
@@ -329,7 +329,7 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
                                   const newItinerary = [...tourData.itinerary];
                                   newItinerary[dayIndex].activities[activityIndex].endTime = e.target.value + ":00";
                                   setTourData({ ...tourData, itinerary: newItinerary });
-                                }} />
+                                }} className="form-control" />
                               </div>
                               <div className='d-flex flex-column gap-2'>
                                 <label>Chi phí hoạt động</label>
@@ -337,7 +337,7 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
                                   const newItinerary = [...tourData.itinerary];
                                   newItinerary[dayIndex].activities[activityIndex].activityAmount = parseInt(e.target.value);
                                   setTourData({ ...tourData, itinerary: newItinerary });
-                                }} />
+                                }} className="form-control" />
                               </div>
                             </div>
                             <label>Mô tả hoạt động</label>
@@ -345,16 +345,16 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
                               const newItinerary = [...tourData.itinerary];
                               newItinerary[dayIndex].activities[activityIndex].description = e.target.value;
                               setTourData({ ...tourData, itinerary: newItinerary });
-                            }} />
+                            }} className="form-control" />
                           </div>
                           <div className='col col-6 d-flex flex-column gap-2'>
                             <label>Hình ảnh hoạt động</label>
-                            <button onClick={() => handleActivityFileButtonClick(dayIndex, activityIndex)}>Chọn hình ảnh hoạt động</button>
+                            <button className='btn btn-primary' onClick={() => handleActivityFileButtonClick(dayIndex, activityIndex)}>Chọn hình ảnh hoạt động</button>
                             <input id={`activityImageInput-${dayIndex}-${activityIndex}`} type="file" accept="image/*" onChange={(e) => handleActivityFileChange(e, dayIndex, activityIndex)} style={{ display: 'none' }} />
                             {activity.activityImage && <img src={activity.activityImage} alt="ảnh hoạt động" className='w-100' />}
                           </div>
                           <div className='my-3'>
-                            <button style={{ width: 'fit-content' }} onClick={() => handleDeleteActivity(dayIndex, activityIndex)}>Xóa hoạt động</button>
+                            <button className='btn btn-danger' style={{ width: 'fit-content' }} onClick={() => handleDeleteActivity(dayIndex, activityIndex)}>Xóa hoạt động</button>
                           </div>
                           <hr />
                         </div>
@@ -367,11 +367,11 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
           </Tab>
           <Tab eventKey="cost" title="Chi phí">
             <div>
-              <button className='mb-3' onClick={handleAddCostDetail}>Thêm chi phí</button>
+              <button className='btn btn-primary mb-3' onClick={handleAddCostDetail}>Thêm chi phí</button>
               {tourData.costDetails.map((cost, costIndex) => (
                 <div key={costIndex} className='mb-3'>
                   <div className='d-flex gap-2 mb-2'>
-                    <input type="text" className='w-100' placeholder="Tiêu đề chi phí" value={cost.title} onChange={(e) => {
+                    <input type="text" className='w-100 form-control' placeholder="Tiêu đề chi phí" value={cost.title} onChange={(e) => {
                       const newCostDetails = [...tourData.costDetails];
                       newCostDetails[costIndex].title = e.target.value;
                       setTourData({ ...tourData, costDetails: newCostDetails });
@@ -380,14 +380,14 @@ function UpdateTour({ tour, onClose, isCreating, setIsCreating }) {
                       const newCostDetails = [...tourData.costDetails];
                       newCostDetails[costIndex].amount = parseInt(e.target.value);
                       setTourData({ ...tourData, costDetails: newCostDetails });
-                    }} />
+                    }} className="form-control" />
                   </div>
-                  <TextareaAutosize minRows={2} placeholder="Ghi chú" className='w-100' value={cost.notes} onChange={(e) => {
+                  <TextareaAutosize minRows={2} placeholder="Ghi chú" className='w-100 form-control' value={cost.notes} onChange={(e) => {
                     const newCostDetails = [...tourData.costDetails];
                     newCostDetails[costIndex].notes = e.target.value;
                     setTourData({ ...tourData, costDetails: newCostDetails });
                   }} />
-                  <button onClick={() => handleDeleteCostDetail(costIndex)}>Xóa chi phí</button>
+                  <button className='btn btn-danger' onClick={() => handleDeleteCostDetail(costIndex)}>Xóa chi phí</button>
                 </div>
               ))}
             </div>

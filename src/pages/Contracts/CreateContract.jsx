@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "../../assets/css/Contracts/CreateContract.css";
 import { Button, Col, Row } from "react-bootstrap";
 import { useSelector } from "react-redux";
@@ -65,11 +65,7 @@ function CreateContract() {
       travelerSignature: travlerrSignature,
       scheduleId: selectedScheduleId,
     };
-    console.log('selectedScheduleId', selectedScheduleId);
-    console.log('contractInfo', contractInfo);
     localStorage.setItem("contractInfo", JSON.stringify(contractInfo));
-    console.log("contractInfo", contractInfo);
-    
     localStorage.setItem("isLocal", 'traveler');
     try {
       const response = await axios.post(
@@ -87,7 +83,6 @@ function CreateContract() {
         };
         console.log("infoPayment", infoPayment);
         
-        // Redirect to payment form submission
         const form = document.createElement("form");
         form.action = "https://travelmateapp.azurewebsites.net/api/order";
         form.method = "GET";

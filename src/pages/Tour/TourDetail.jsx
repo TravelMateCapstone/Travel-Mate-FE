@@ -27,6 +27,8 @@ function TourDetail() {
     const [showModal, setShowModal] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [selectedSchedule, setSelectedSchedule] = useState(null);
+    console.log(tourData);
+    
 
     useEffect(() => {
         if (tourData && tourData.schedules && tourData.schedules.$values.length > 0) {
@@ -36,18 +38,9 @@ function TourDetail() {
 
     const handleScheduleSelect = (schedule) => {
         setSelectedSchedule(schedule);
-        console.log("Selected schedule:", schedule.scheduleId);
-        
         dispatch(setSelectedSchedule_redux(schedule.scheduleId));
     };
-
-    console.log("Tour detail:", tourData);
-
-
     const user = useSelector((state) => state.auth.user);
-
-    console.log(tourData);
-
     const formatDateToVietnamese = (date) => {
         return new Date(date).toLocaleString('vi-VN', {
             day: '2-digit',
@@ -99,7 +92,6 @@ function TourDetail() {
     const chatWithLocal = async (localId) => {
         try {
             const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Chat/UserInfo/${localId}`);
-            console.log("Chat user info:", response.data);
             const userData = response.data;
             navigate(RoutePath.CHAT, { state: { user: userData } });
         } catch (error) {
@@ -254,7 +246,7 @@ function TourDetail() {
                                 />
                             </div>
                             <div className="hidden lg:block col-md-4">
-                                <div className="tour_card_component bg-white p-3 rounded-4 border-1" style={{
+                                <div className="bg-white p-3 rounded-4 border-1" style={{
                                     borderColor: "rgba(0, 0, 0, 0.3)",
                                 }}>
                                     <div className="d-flex justify-content-between mb-4">
@@ -280,7 +272,6 @@ function TourDetail() {
                                     </div>
                                     <Button variant="outline-success" className="w-100" onClick={() => viewLocal(tourData.creator.id)}>Xem hồ sơ</Button>
                                 </div>
-
                                 <div className=" p-3 rounded-4 mt-3 tour_card_component bg-white border-1" style={{
                                     borderColor: "rgba(0, 0, 0, 0.3)",
                                 }}>
@@ -296,7 +287,7 @@ function TourDetail() {
                                                     </tr>
                                                     <tr>
                                                         <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="time-outline"></ion-icon> Thời gian</td>
-                                                        <td style={{ width: '50%' }}>{selectedSchedule?.participants?.$values.startDate}N{tourData.numberOfNights}Đ</td>
+                                                        <td style={{ width: '50%' }}>{tourData.numberOfDays}N{tourData.numberOfDays-1}Đ</td>
                                                     </tr>
                                                     <tr>
                                                         <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="people-outline"></ion-icon> Số người tham gia</td>
@@ -308,22 +299,24 @@ function TourDetail() {
                                                     </tr>
                                                     <tr>
                                                         <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="calendar-outline"></ion-icon> Ngày khởi hành</td>
-                                                        <td style={{ width: '50%' }}><div className="" style={{
-                                                            width: "fit-content",
-                                                            borderRadius: "10px",
-                                                            display: "flex",
-                                                            gap: "5px",
-                                                        }}>
-                                                            {tourData.schedules.$values.map((schedule, index) => (
-                                                                <Button variant="outline-success"
-                                                                    key={index}
-                                                                    action
-                                                                    onClick={() => handleScheduleSelect(schedule)}
-                                                                >
-                                                                    {formatDateToVietnamese(schedule.startDate)}
-                                                                </Button>
-                                                            ))}
-                                                        </div>
+                                                        <td style={{ width: '50%' }}>
+                                                            <div className="" style={{
+                                                                width: "fit-content",
+                                                                borderRadius: "10px",
+                                                                display: "flex",
+                                                                gap: "5px",
+                                                            }}>
+                                                                {tourData.schedules.$values.map((schedule, index) => (
+                                                                    <Button
+                                                                        variant={selectedSchedule?.scheduleId === schedule.scheduleId ? "success" : "outline-success"}
+                                                                        key={index}
+                                                                        action
+                                                                        onClick={() => handleScheduleSelect(schedule)}
+                                                                    >
+                                                                        {formatDateToVietnamese(schedule.startDate)}
+                                                                    </Button>
+                                                                ))}
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 </tbody>
@@ -354,7 +347,7 @@ function TourDetail() {
                                 <Accordion defaultActiveKey="0" alwaysOpen>
                                     {tourData.itinerary.$values.map((day, index) => (
                                         <Accordion.Item eventKey={index.toString()} key={index}>
-                                            <Accordion.Header><div className="d-flex flex-column"><strong>Ngày {day.day}</strong></div></Accordion.Header>
+                                            <Accordion.Header><div className="d-flex flex-column"><strong>Ngày {index+1}</strong></div></Accordion.Header>
                                             <Accordion.Body>
                                                 <Table bordered hover>
                                                     <thead>
