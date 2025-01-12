@@ -12,7 +12,6 @@ function TourCard({ tour }) {
     const token = useSelector((state) => state.auth.token);
     const navigate = useNavigate();
     console.log('Tour data', tour);
-    
 
     const renderStars = (rating) => {
         const stars = [];
@@ -40,7 +39,7 @@ function TourCard({ tour }) {
     const handleTourClick = () => {
         disPatch(fetchTour(tour.TourId, token));
         navigate(RoutePath.TOUR_DETAIL);
-    }
+    };
 
     return (
         <div className='tour_card_component d-flex justify-content-between gap-3' onClick={handleTourClick} style={{ transition: 'background-color 0.3s, box-shadow 0.3s', marginBottom: '30px' }}>
@@ -51,21 +50,40 @@ function TourCard({ tour }) {
                 justifyContent: 'space-between',
                 marginTop: '10px',
             }}>
-                <div className='d-flex justify-content-between w-100 pe-3' style={{
-                   
-                  
-                }}>
+                <div className='d-flex justify-content-between w-100 pe-3' style={{}}>
                     <div style={{
-                          height: '70%',
+                        height: '70%',
                     }}>
                         <h5 className='mb-3' style={{
                             fontWeight: '550'
                         }}>{tour.TourName}</h5>
                         <p className='mb-1 fw-medium'><ion-icon name="location-outline"></ion-icon> {tour.Location}</p>
                         <p className='mb-1 fw-medium'><ion-icon name="time-outline"></ion-icon> {formatDaysNights(tour.NumberOfDays, tour.NumberOfNights)}</p>
-                        <p className='fw-medium' style={{
+                        <div className='fw-medium d-flex align-items-center' style={{
                             marginBottom: '12px',
-                        }}><ion-icon name="people-outline"></ion-icon> {tour.RegisteredGuests}/{tour.MaxGuests}</p>
+                            gap: '10px'
+                        }}>
+                            <ion-icon name="calendar-outline"></ion-icon>
+                            <p className='m-0'>Ngày khởi hành:</p>
+                            <div className='d-flex flex-wrap gap-2'>
+                                {tour.StartDates.map((date, index) => (
+                                    <p key={index} style={{
+                                        border: '1px solid green',
+                                        borderRadius: '5px',
+                                        padding: '5px 10px',
+                                        textAlign: 'center',
+                                        margin: '0'
+                                    }}>
+                                        {new Date(date).toLocaleDateString('vi-VN', {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric'
+                                        })}
+                                    </p>
+                                ))}
+                            </div>
+                        </div>
+
                         <p className='mb-4' style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden' }}>{tour.TourDescription}</p>
                     </div>
                     <div className='d-flex flex-column justify-content-end'>
@@ -75,7 +93,7 @@ function TourCard({ tour }) {
                     </div>
                 </div>
             </div>
-           <div className='d-flex flex-column justify-content-center'>
+            <div className='d-flex flex-column justify-content-center'>
                 <div style={{
                     width: '322px',
                     display: 'flex',
@@ -84,19 +102,19 @@ function TourCard({ tour }) {
                     gap: '2px',
                     borderLeft: '1px solid #e0e0e0',
                 }}>
-                     <img src={tour.User.Profile.ImageUser || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'} className='rounded-5 mb-2' alt="" width={50} height={50} />
-                        
-                  <div className='d-flex flex-column align-items-center mb-2'>
-                       <h5 className='m-0'>{tour.User.FullName}</h5>
-                       <small>{tour.User.LocationIds[0]}</small>
-                  </div>
-                   
+                    <img src={tour.User.Profile.ImageUser || 'https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg'} className='rounded-5 mb-2' alt="" width={50} height={50} />
+
+                    <div className='d-flex flex-column align-items-center mb-2'>
+                        <h5 className='m-0'>{tour.User.FullName}</h5>
+                        <small>{tour.User.LocationIds[0]}</small>
+                    </div>
+
                     <div className='d-flex align-items-center flex-column'>
                         <div>{renderStars(tour.User.Star)}</div>
                         <p className='m-0'>{tour.User.CountConnect} chuyến đi</p>
                     </div>
                 </div>
-           </div>
+            </div>
         </div>
     );
 }
