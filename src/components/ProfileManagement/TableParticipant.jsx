@@ -10,7 +10,7 @@ import Modal from 'react-modal';
 import Button from 'react-bootstrap/Button';
 
 // eslint-disable-next-line react/prop-types
-function TableParticipant({ participants }) {
+function TableParticipant({ participants, tab }) {
     const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
     const [search, setSearch] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -72,22 +72,6 @@ function TableParticipant({ participants }) {
             header: 'Tổng số tiền',
             cell: (info) => info.getValue(),
         },
-        // {
-        //     accessorKey: 'paymentStatus',
-        //     header: 'Trạng thái thanh toán',
-        //     cell: (info) => (
-        //         <span
-        //             className={`text-nowrap ${info.getValue() === 1
-        //                 ? 'text-success'
-        //                 : info.getValue() === 2
-        //                 ? 'text-warning'
-        //                 : 'text-secondary'
-        //                 }`}
-        //         >
-        //             {info.getValue() === 1 ? 'Đã thanh toán' : info.getValue() === 2 ? 'Hoàn tiền' : 'Chưa thanh toán'}
-        //         </span>
-        //     ),
-        // },
         {
             accessorKey: 'actions',
             header: 'Hành động',
@@ -120,6 +104,11 @@ function TableParticipant({ participants }) {
                 placeholder='Tìm kiếm...'
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                style={{
+                    padding: '5px 10px',
+                    borderRadius: '10px',
+                    border: '1px solid #ccc',
+                }}
             />
             <table className="table">
                 <thead>
@@ -134,15 +123,25 @@ function TableParticipant({ participants }) {
                     ))}
                 </thead>
                 <tbody>
-                    {table.getRowModel().rows.map((row) => (
-                        <tr key={row.id}>
-                            {row.getVisibleCells().map((cell) => (
-                                <td key={cell.id} style={{ whiteSpace: 'nowrap' }}>
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                </td>
-                            ))}
+                    {table.getRowModel().rows.length === 0 ? (
+                        <tr>
+                            <td colSpan={columns.length} className="text-center">
+                                {tab === 'paid' && 'Chưa có người đã thanh toán'}
+                                {tab === 'unpaid' && 'Chưa có người chưa thanh toán'}
+                                {tab === 'refunded' && 'Chưa có người hoàn tiền'}
+                            </td>
                         </tr>
-                    ))}
+                    ) : (
+                        table.getRowModel().rows.map((row) => (
+                            <tr key={row.id}>
+                                {row.getVisibleCells().map((cell) => (
+                                    <td key={cell.id} style={{ whiteSpace: 'nowrap' }}>
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))
+                    )}
                 </tbody>
             </table>
             <div className='d-flex align-items-center gap-2'>

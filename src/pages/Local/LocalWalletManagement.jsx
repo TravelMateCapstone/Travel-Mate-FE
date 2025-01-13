@@ -3,12 +3,10 @@ import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { useSelector } from 'react-redux';
-import { Form, Button, Spinner } from 'react-bootstrap';
+import { Form, Button, Spinner, Badge } from 'react-bootstrap';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { fetchTourByStatus } from '../../apis/local_trip_history';
-
 
 function WalletManagement() {
 
@@ -21,6 +19,7 @@ function WalletManagement() {
   const [isLoading, setIsLoading] = useState(false);
   const token = useSelector((state) => state.auth.token);
   const [acceptedTours, setAcceptedTours] = useState([]);
+  const [quickFilterText, setQuickFilterText] = useState('');
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -137,7 +136,7 @@ function WalletManagement() {
 
   const handleCancelTour = async (tourId, scheduleId) => {
     try {
-      const response = await axios.post(
+      await axios.post(
         'https://travelmateapp.azurewebsites.net/api/TourParticipant/cancelTour',
         {
           scheduleId: scheduleId,
@@ -199,6 +198,7 @@ function WalletManagement() {
       field: 'tourName', 
       filter: 'agTextColumnFilter', 
       sortable: true,
+      flex: 2,
       cellRenderer: (params) => <strong>{params.value}</strong> 
     },
     { 
@@ -223,9 +223,9 @@ function WalletManagement() {
       cellRenderer: (params) => {
         const status = params.value;
         if (status === 1) {
-          return <span className='text-success'>Đã thanh toán</span>;
+          return <Badge bg="success">Đã thanh toán</Badge>;
         } else if (status === 2) {
-          return <span className='text-warning'>Yêu cầu hoàn tiền</span>;
+          return <Badge bg="warning">Yêu cầu hoàn tiền</Badge>;
         } else {
           return status;
         }
@@ -245,11 +245,13 @@ function WalletManagement() {
       field: 'actions', 
       cellRenderer: (params) => {
         const tourStatus = getTourStatus(params.data.startDate, params.data.endDate);
-        if (params.data.paymentStatus != 2 && tourStatus === 'Chưa diễn ra') { // Check if payment status is not "Yêu cầu hoàn tiền" and tour has not started
+        if (params.data.paymentStatus != 2 && tourStatus === 'Chưa diễn ra') { 
           return (
-            <Button variant="danger" size='sm' className='rounded-5' onClick={() => handleCancelTour(params.data.tourId, params.data.scheduleId)}>
-              Hủy Tham Gia
-            </Button>
+            <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+              <Button variant="danger" size='sm' className='rounded-5' onClick={() => handleCancelTour(params.data.tourId, params.data.scheduleId)}>
+                Hủy Tham Gia
+              </Button>
+            </div>
           );
         }
         return null;
@@ -335,7 +337,16 @@ function WalletManagement() {
         )}
       </div>
 
-      
+      <div className="mb-3 w-25">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Tìm kiếm nhanh..."
+          value={quickFilterText}
+          onChange={(e) => setQuickFilterText(e.target.value)}
+        />
+      </div>
+
       <div className="ag-theme-alpine" style={{ height: 400, width: '100%' }}>
         <AgGridReact
           rowData={acceptedTours}
@@ -345,6 +356,7 @@ function WalletManagement() {
           paginationPageSize={5}
           domLayout="autoHeight"
           animateRows={true}
+          quickFilterText={quickFilterText}
         />
       </div>
       
