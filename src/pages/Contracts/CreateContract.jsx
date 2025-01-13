@@ -65,6 +65,8 @@ function CreateContract() {
       travelerSignature: travlerrSignature,
       scheduleId: selectedScheduleId,
     };
+    console.log('contractInfo', contractInfo);
+    
     localStorage.setItem("contractInfo", JSON.stringify(contractInfo));
     localStorage.setItem("isLocal", 'traveler');
     try {

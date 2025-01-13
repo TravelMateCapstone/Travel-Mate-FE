@@ -9,6 +9,7 @@ import { Col, Form, Row, Button, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { fetchTourByStatus } from '../../apis/local_trip_history';
 
 
 function WalletManagement() {
@@ -25,6 +26,7 @@ function WalletManagement() {
   const [accountName, setAccountName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const token = useSelector((state) => state.auth.token);
+  const [acceptedTours, setAcceptedTours] = useState([]);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -52,9 +54,25 @@ function WalletManagement() {
       }
     };
 
+    const fetcTourAccepted = async () => {
+      try {
+        const data = await fetchTourByStatus(1);
+        setAcceptedTours(data);
+        console.log("Danh sách tour đã được chấp nhận:", data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+    fetcTourAccepted();
     fetchInitialData();
+
+    console.log("Danh sách tour đã được chấp nhận:", acceptedTours);
+    
   }, [token]);
 
+
+  
 
   const handleAccountNumberBlur = async () => {
     if (!selectedBank || !accountNumber) {
@@ -120,7 +138,7 @@ function WalletManagement() {
 
       if (response.status === 200) {
         toast.success('Lưu thành công!');
-        setDisplayAccountNumber(accountNumber); // Cập nhật trạng thái hiển thị
+        setDisplayAccountNumber(accountNumber); 
       } else {
         toast.error('Không thể lưu thông tin.');
       }
@@ -143,6 +161,25 @@ function WalletManagement() {
       sortable: true,
       valueFormatter: (params) => `${params.value.toLocaleString('vi-VN')} VND`,
     },
+  ];
+
+  const handleCancelParticipation = (tourId) => {
+    // Logic to cancel participation
+    console.log(`Cancel participation for tour ID: ${tourId}`);
+  };
+
+  const tourColumnDefs = [
+    { headerName: 'Tên Tour', field: 'tourName', filter: 'agTextColumnFilter', sortable: true },
+    { headerName: 'Mô Tả', field: 'tourDescription', filter: 'agTextColumnFilter', sortable: true },
+    { headerName: 'Địa Điểm', field: 'location', filter: 'agTextColumnFilter', sortable: true },
+    { headerName: 'Số Khách Tối Đa', field: 'maxGuests', filter: 'agNumberColumnFilter', sortable: true },
+    { headerName: 'Giá (VND)', field: 'price', filter: 'agNumberColumnFilter', sortable: true, valueFormatter: (params) => `${params.value.toLocaleString('vi-VN')} VND` },
+    { headerName: 'Hình Ảnh', field: 'tourImage', cellRenderer: (params) => `<img src="${params.value}" alt="Tour Image" style="width: 100px; height: auto;" />` },
+    { headerName: 'Hành Động', field: 'actions', cellRenderer: (params) => (
+      <Button variant="danger" onClick={() => handleCancelParticipation(params.data.tourId)}>
+        Hủy Tham Gia
+      </Button>
+    ) },
   ];
 
   const defaultColDef = {
@@ -223,7 +260,20 @@ function WalletManagement() {
         )}
       </div>
 
-      <Row>
+      <h2>Danh sách tour đã được chấp nhận</h2>
+      <div className="ag-theme-alpine" style={{ height: 400, width: '100%' }}>
+        <AgGridReact
+          rowData={acceptedTours}
+          columnDefs={tourColumnDefs}
+          defaultColDef={defaultColDef}
+          pagination={true}
+          paginationPageSize={5}
+          domLayout="autoHeight"
+          animateRows={true}
+        />
+      </div>
+
+      {/* <Row>
         <Col lg={12}>
           <Form.Select value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))} style={{ width: 'fit-content' }}>
             {[2021, 2022, 2023, 2024, 2025].map(year => (
@@ -232,9 +282,9 @@ function WalletManagement() {
           </Form.Select>
           <MonthlySpendingChart transactions={transactions} selectedYear={selectedYear} />
         </Col>
-      </Row>
+      </Row> */}
 
-      <div>
+      {/* <div>
         <input
           type="text"
           className='form-control'
@@ -254,7 +304,9 @@ function WalletManagement() {
             animateRows={true}
           />
         </div>
-      </div>
+      </div> */}
+
+      
     </div>
   );
 }

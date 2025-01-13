@@ -27,7 +27,6 @@ const fetchTourByStatus = async (approvalStatus) => {
                 Authorization: `${token}`,
             },
         });
-        console.log("Danh sách tour theo trạng thái:", response.data);
         return response.data.$values
     } catch (error) {
         console.error("Lỗi khi lấy danh sách tour theo trạng thái:", error);
