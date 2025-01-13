@@ -3,9 +3,7 @@ import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { useSelector } from 'react-redux';
-import MonthlySpendingChart from '../../components/Local/MonthlySpendingChart';
-import { fetchTransactions } from '../../utils/UserDashBoard/statistical';
-import { Col, Form, Row, Button, Spinner } from 'react-bootstrap';
+import { Form, Button, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -13,11 +11,7 @@ import { fetchTourByStatus } from '../../apis/local_trip_history';
 
 
 function WalletManagement() {
-  const [rowData, setRowData] = useState([]);
-  const [quickFilterText, setQuickFilterText] = useState('');
-  const user = useSelector((state) => state.auth.user);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [transactions, setTransactions] = useState([]);
+
   const [showSettings, setShowSettings] = useState(false);
   const [banks, setBanks] = useState([]);
   const [selectedBank, setSelectedBank] = useState('');
@@ -31,9 +25,14 @@ function WalletManagement() {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const [banksResponse, userBankResponse] = await Promise.all([
+        const [banksResponse, userBankResponse, transactionsResponse] = await Promise.all([
           axios.get('https://api.banklookup.net/api/bank/list'),
           axios.get('https://travelmateapp.azurewebsites.net/api/UserBank/current-user', {
+            headers: {
+              Authorization: `${token}`,
+            },
+          }),
+          axios.get('https://travelmateapp.azurewebsites.net/api/TourParticipant/transactionList', {
             headers: {
               Authorization: `${token}`,
             },
@@ -49,30 +48,17 @@ function WalletManagement() {
           setDisplayAccountNumber(userBank.bankNumber);
           setAccountName(userBank.ownerName);
         }
+
+        if (transactionsResponse.data) {
+          setAcceptedTours(transactionsResponse.data.$values);
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
 
-    const fetcTourAccepted = async () => {
-      try {
-        const data = await fetchTourByStatus(1);
-        setAcceptedTours(data);
-        console.log("Danh sách tour đã được chấp nhận:", data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    }
-
-    fetcTourAccepted();
     fetchInitialData();
-
-    console.log("Danh sách tour đã được chấp nhận:", acceptedTours);
-    
   }, [token]);
-
-
-  
 
   const handleAccountNumberBlur = async () => {
     if (!selectedBank || !accountNumber) {
@@ -149,37 +135,126 @@ function WalletManagement() {
     }
   };
 
-  const columnDefs = [
-    { headerName: 'Khách Du Lịch', field: 'name', filter: 'agTextColumnFilter', sortable: true },
-    { headerName: 'Tên Tour', field: 'tourName', filter: 'agTextColumnFilter', sortable: true },
-    { headerName: 'Tên Người Địa Phương', field: 'localName', filter: 'agTextColumnFilter', sortable: true },
-    { headerName: 'Thời Gian Giao Dịch', field: 'date', filter: 'agDateColumnFilter', sortable: true },
-    {
-      headerName: 'Số Tiền (VND)',
-      field: 'amount',
-      filter: 'agNumberColumnFilter',
-      sortable: true,
-      valueFormatter: (params) => `${params.value.toLocaleString('vi-VN')} VND`,
-    },
-  ];
+  const handleCancelTour = async (tourId, scheduleId) => {
+    try {
+      const response = await axios.post(
+        'https://travelmateapp.azurewebsites.net/api/TourParticipant/cancelTour',
+        {
+          scheduleId: scheduleId,
+          tourId: tourId,
+        },
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+  
+      toast.success('Hủy tham gia tour thành công!');
+        // Fetch the updated transaction list
+        const transactionsResponse = await axios.get('https://travelmateapp.azurewebsites.net/api/TourParticipant/transactionList', {
+          headers: {
+            Authorization: `${token}`,
+          },
+        });
+        setAcceptedTours(transactionsResponse.data.$values);
+    } catch (error) {
+      if (error.response.data == 'Access Denied! You cannot cancel the tour within 2 days of its scheduled start.') {
+        toast.error('Không thể hủy tour trong vòng 2 ngày trước ngày khởi hành.');
+      } else {
+        toast.error('Không thể hủy tham gia tour.');
+      }
+      // console.error('Error cancelling tour:', error);
+      // toast.error('Không thể hủy tham gia tour.');
+    }
+  };
 
-  const handleCancelParticipation = (tourId) => {
-    // Logic to cancel participation
-    console.log(`Cancel participation for tour ID: ${tourId}`);
+  const getTourStatus = (startDate, endDate) => {
+    const currentDate = new Date();
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+  
+    if (currentDate < start) {
+      return 'Chưa diễn ra';
+    } else if (currentDate > end) {
+      return 'Đã kết thúc';
+    } else {
+      return 'Đang diễn ra';
+    }
+  };
+
+  const formatDateToVietnamese = (dateString) => {
+    const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+    return new Date(dateString).toLocaleDateString('vi-VN', options);
+  };
+
+  const formatDateTimeToVietnamese = (dateString) => {
+    const options = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(dateString).toLocaleDateString('vi-VN', options);
   };
 
   const tourColumnDefs = [
-    { headerName: 'Tên Tour', field: 'tourName', filter: 'agTextColumnFilter', sortable: true },
-    { headerName: 'Mô Tả', field: 'tourDescription', filter: 'agTextColumnFilter', sortable: true },
-    { headerName: 'Địa Điểm', field: 'location', filter: 'agTextColumnFilter', sortable: true },
-    { headerName: 'Số Khách Tối Đa', field: 'maxGuests', filter: 'agNumberColumnFilter', sortable: true },
-    { headerName: 'Giá (VND)', field: 'price', filter: 'agNumberColumnFilter', sortable: true, valueFormatter: (params) => `${params.value.toLocaleString('vi-VN')} VND` },
-    { headerName: 'Hình Ảnh', field: 'tourImage', cellRenderer: (params) => `<img src="${params.value}" alt="Tour Image" style="width: 100px; height: auto;" />` },
-    { headerName: 'Hành Động', field: 'actions', cellRenderer: (params) => (
-      <Button variant="danger" onClick={() => handleCancelParticipation(params.data.tourId)}>
-        Hủy Tham Gia
-      </Button>
-    ) },
+    { 
+      headerName: 'Tên Tour', 
+      field: 'tourName', 
+      filter: 'agTextColumnFilter', 
+      sortable: true,
+      cellRenderer: (params) => <strong>{params.value}</strong> 
+    },
+    { 
+      headerName: 'Ngày Bắt Đầu', 
+      field: 'startDate', 
+      filter: 'agDateColumnFilter', 
+      sortable: true,
+      valueFormatter: (params) => formatDateToVietnamese(params.value)
+    },
+    { 
+      headerName: 'Ngày Kết Thúc', 
+      field: 'endDate', 
+      filter: 'agDateColumnFilter', 
+      sortable: true,
+      valueFormatter: (params) => formatDateToVietnamese(params.value)
+    },
+    { 
+      headerName: 'Trạng Thái Thanh Toán', 
+      field: 'paymentStatus', 
+      filter: 'agTextColumnFilter', 
+      sortable: true,
+      cellRenderer: (params) => {
+        const status = params.value;
+        if (status === 1) {
+          return <span className='text-success'>Đã thanh toán</span>;
+        } else if (status === 2) {
+          return <span className='text-warning'>Yêu cầu hoàn tiền</span>;
+        } else {
+          return status;
+        }
+      }
+    },
+    { 
+      headerName: 'Thời Gian Giao Dịch', 
+      field: 'transactionTime', 
+      filter: 'agDateColumnFilter', 
+      sortable: true,
+      valueFormatter: (params) => formatDateTimeToVietnamese(params.value)
+    },
+    { headerName: 'Tổng Số Tiền (VND)', field: 'totalAmount', filter: 'agNumberColumnFilter', sortable: true, valueFormatter: (params) => `${params.value.toLocaleString('vi-VN')} VND` },
+    { headerName: 'Tình trạng tour', field: 'tourStatus', valueGetter: (params) => getTourStatus(params.data.startDate, params.data.endDate), filter: 'agTextColumnFilter', sortable: true },
+    { 
+      headerName: 'Hành Động', 
+      field: 'actions', 
+      cellRenderer: (params) => {
+        const tourStatus = getTourStatus(params.data.startDate, params.data.endDate);
+        if (params.data.paymentStatus != 2 && tourStatus === 'Chưa diễn ra') { // Check if payment status is not "Yêu cầu hoàn tiền" and tour has not started
+          return (
+            <Button variant="danger" size='sm' className='rounded-5' onClick={() => handleCancelTour(params.data.tourId, params.data.scheduleId)}>
+              Hủy Tham Gia
+            </Button>
+          );
+        }
+        return null;
+      } 
+    },
   ];
 
   const defaultColDef = {
@@ -260,7 +335,7 @@ function WalletManagement() {
         )}
       </div>
 
-      <h2>Danh sách tour đã được chấp nhận</h2>
+      
       <div className="ag-theme-alpine" style={{ height: 400, width: '100%' }}>
         <AgGridReact
           rowData={acceptedTours}
@@ -272,40 +347,6 @@ function WalletManagement() {
           animateRows={true}
         />
       </div>
-
-      {/* <Row>
-        <Col lg={12}>
-          <Form.Select value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))} style={{ width: 'fit-content' }}>
-            {[2021, 2022, 2023, 2024, 2025].map(year => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </Form.Select>
-          <MonthlySpendingChart transactions={transactions} selectedYear={selectedYear} />
-        </Col>
-      </Row> */}
-
-      {/* <div>
-        <input
-          type="text"
-          className='form-control'
-          placeholder="Tìm kiếm nhanh..."
-          onChange={(e) => setQuickFilterText(e.target.value)}
-          style={{ marginBottom: '10px', padding: '10px', width: '100%', border: '1px solid #ccc', borderRadius: '5px' }}
-        />
-        <div className="ag-theme-alpine" style={{ height: 400, width: '100%' }}>
-          <AgGridReact
-            rowData={rowData}
-            columnDefs={columnDefs}
-            defaultColDef={defaultColDef}
-            pagination={true}
-            paginationPageSize={5}
-            quickFilterText={quickFilterText}
-            domLayout="autoHeight"
-            animateRows={true}
-          />
-        </div>
-      </div> */}
-
       
     </div>
   );
