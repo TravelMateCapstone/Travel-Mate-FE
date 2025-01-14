@@ -35,6 +35,8 @@ const confirmTransaction = async (transactionId) => {
 };
 
 const refundTransaction = async (transactionId) => {
+    console.log('Refunding transaction:', transactionId);
+    
     try {
         await axios.post('https://travelmateapp.azurewebsites.net/api/Transaction/completeRefund', null, {
             params: {
@@ -50,4 +52,18 @@ const refundTransaction = async (transactionId) => {
     }
 };
 
-export { fetchTransactionData, confirmTransaction, refundTransaction };
+const fetchUserBankData = async (userId) => {
+    try {
+        const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/UserBank/${userId}`, {
+            headers: {
+                Authorization: `${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching user bank data:', error);
+        throw error;
+    }
+};
+
+export { fetchTransactionData, confirmTransaction, refundTransaction, fetchUserBankData };

@@ -5,7 +5,7 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Card, Row, Col, Tabs, Tab, Button, Badge, Modal, InputGroup, FormControl } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
-import { fetchTransactionData, confirmTransaction, refundTransaction } from "../../apis/transaction_admin";
+import { fetchTransactionData, confirmTransaction, refundTransaction, fetchUserBankData } from "../../apis/transaction_admin";
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { toast } from "react-toastify";
@@ -77,7 +77,7 @@ const Transaction = () => {
 			field: "actions",
 			cellRenderer: (params) => (
 				<div className="d-flex gap-1">
-					<Button variant="" size="sm" onClick={() => handleViewBankInfo(params.data)}><ion-icon name="ellipsis-vertical-outline"></ion-icon></Button>
+					<Button variant="" size="sm" onClick={() => handleViewBankInfo(params.data, false)}><ion-icon name="ellipsis-vertical-outline"></ion-icon></Button>
 					{params.data.transactionStatus !== 1 && (
 						<Button variant="success" size="sm" onClick={() => handleConfirm(params.data)}>Xác Nhận</Button>
 					)}
@@ -104,7 +104,7 @@ const Transaction = () => {
 			field: "actions",
 			cellRenderer: (params) => (
 				<div className="d-flex gap-1">
-					<Button variant="" size="sm" onClick={() => handleViewBankInfo(params.data)}><ion-icon name="ellipsis-vertical-outline"></ion-icon></Button>
+					<Button variant="" size="sm" onClick={() => handleViewBankInfo(params.data, true)}><ion-icon name="ellipsis-vertical-outline"></ion-icon></Button>
 					{params.data.transactionStatus !== 3 && (
 						<Button variant="success" size="sm" onClick={() => handleConfirmRefund(params.data)}>Xác Nhận</Button>
 					)}
@@ -115,9 +115,19 @@ const Transaction = () => {
 
 
 
-	const handleViewBankInfo = (data) => {
-		setModalData(data);
-		setShowModal(true);
+	const handleViewBankInfo = async (data, isRefund) => {
+		try {
+			const bankData = await fetchUserBankData(isRefund ? data.travelerId : data.localId);
+			setModalData({
+				travelerName: data.travelerName,
+				bankName: bankData.bankName,
+				bankNumber: bankData.bankNumber,
+				ownerName: bankData.ownerName
+			});
+			setShowModal(true);
+		} catch (error) {
+			toast.error("Lỗi khi lấy thông tin ngân hàng: " + error.message);
+		}
 	};
 
 	const handleCloseModal = () => {
@@ -145,6 +155,8 @@ const Transaction = () => {
 	};
 
 	const handleConfirmRefund = async (data) => {
+		console.log('Refunding transaction:', data);
+		
 		try {
 			await refundTransaction(data.id);
 			toast.success("Xác nhận hoàn tiền cho: " + data.travelerName);
@@ -181,6 +193,8 @@ const Transaction = () => {
 	const filteredTransactions = rowData.filter(item => item.transactionStatus === 0 || item.transactionStatus === 1);
 	const filteredRefunds = rowData.filter(item => item.transactionStatus === 2 || item.transactionStatus === 3);
 
+	console.log(filteredRefunds);
+	
 	return (
 		<div >
 			<div className="mb-4">
@@ -257,16 +271,14 @@ const Transaction = () => {
 			</Tabs>
 
 			<Modal show={showModal} onHide={handleCloseModal} centered>
-				<Modal.Header closeButton>
-					<Modal.Title>Thông Tin Ngân Hàng</Modal.Title>
-				</Modal.Header>
+				
 				<Modal.Body>
 					{modalData && (
-						<div>
-							<p>Tên Khách Du Lịch: {modalData.travelerName}</p>
-							<p>Số Tài Khoản: {modalData.bankAccount}</p>
+						<div className="text-center">
+							{/* <p>Tên Khách Du Lịch: {modalData.travelerName}</p> */}
+							<p>Tên chủ TK: {modalData.ownerName}</p>
+							<p>Số TK: {modalData.bankNumber}</p>
 							<p>Ngân Hàng: {modalData.bankName}</p>
-							{/* Add more bank information fields as needed */}
 						</div>
 					)}
 				</Modal.Body>
