@@ -100,7 +100,9 @@ const Auth = () => {
         setIsSignUpMode(false);
       }
     } catch (error) {
-      setErrorMessage(error.response?.data?.error || "Sai tài khoản hoặc mật khẩu.");
+      console.log(error);
+      toast.error(error.response?.data || "Sai tài khoản hoặc mật khẩu.");
+      setErrorMessage(error.response?.data || "Sai tài khoản hoặc mật khẩu.");
     }
   };
 
@@ -128,6 +130,8 @@ const Auth = () => {
         setIsSignUpMode(false);
       }
     } catch (error) {
+      console.log(error);
+      
       const errorMessage = error.response?.data?.error || "Đăng ký thất bại. Vui lòng thử lại.";
       toast.error(errorMessage);
     }
