@@ -6,7 +6,6 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../../firebaseConfig';
 import { toast } from 'react-toastify';
 import { updateUserAvatar } from '../../redux/actions/authActions';
-import CreateTour from '../../components/ProfileManagement/CreateTour';
 import AboutMe from '../../components/Profile/MyProfile/AboutMe';
 import MyHome from '../../components/Profile/MyProfile/MyHome';
 import MyPastTrip from '../../components/Profile/MyProfile/MyPastTrip';
@@ -20,12 +19,10 @@ import { checkProfileCCCD_Signature, checkProfileCompletion } from '../../apis/p
 function MyProfile() {
     const [key, setKey] = useState('introduce');
     const dispatch = useDispatch();
-    const location = useLocation();
 
     const [profile, setProfile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
     const [completionPercentage, setCompletionPercentage] = useState(0);
-    const [incompleteModels, setIncompleteModels] = useState([]);
     const token = useSelector((state) => state.auth.token);
     const user = useSelector((state) => state.auth.user);
     const dataProfile = useSelector((state) => state.profile);

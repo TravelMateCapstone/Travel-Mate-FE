@@ -1,21 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import '../../assets/css/Destination/Destination.css';
 import Navbar from '../../components/Shared/Navbar';
 import { Button, Col, Row, Dropdown, Form } from 'react-bootstrap';
 import TourCard from '../../components/Destination/TourCard';
-import Tag from '../../components/Destination/Tag';
 import { useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import Placeholder from 'react-bootstrap/Placeholder';
 import axios from 'axios';
-import { da } from 'date-fns/locale';
 
 function Destination() {
     const [originalTours, setOriginalTours] = useState([]); // Dữ liệu gốc từ API
     const [filteredTours, setFilteredTours] = useState([]); // Dữ liệu đã lọc
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [tags, setTags] = useState([]); // Sở thích người dùng
     const [allHobbies, setAllHobbies] = useState([]); // Danh sách tất cả sở thích
     const [selectedHobbies, setSelectedHobbies] = useState([]); // Sở thích đã chọn
     const location = useLocation();
@@ -30,8 +26,6 @@ function Destination() {
         connectionsRange: [1, 10000],
         interests: [],
     });
-
-
     // Hàm lấy danh sách tour
     const fetchTours = async () => {
         try {
@@ -48,10 +42,6 @@ function Destination() {
                 maxConnections: filters.connectionsRange[1].toString(),
                 interests: filters.interests.join(',') || '',
             });
-
-            console.log('queryParams', queryParams.toString());
-            
-
             const response = await fetch(
                 `https://travelmateapp.azurewebsites.net/api/FilterToursWOO/GetAllTour-WithUserDetails-ByLocation?${queryParams}`
             );
@@ -64,7 +54,6 @@ function Destination() {
 
             const data = await response.json();
 
-            console.log('respone data', data);
             
             setOriginalTours(data || []);
             setFilteredTours(data || []);

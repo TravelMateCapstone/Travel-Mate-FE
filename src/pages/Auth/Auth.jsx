@@ -63,6 +63,7 @@ const Auth = () => {
         toast.error('Đăng nhập thất bại. Vui lòng thử lại!');
       }
     } catch (error) {
+      console.error(error);
       toast.error('Đăng nhập thất bại. Vui lòng thử lại!');
     }
   };

@@ -1,17 +1,15 @@
-import React from 'react';
-import { Col, Row } from 'react-bootstrap';
 import '../../assets/css/Tour/TourCard.css';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import { fetchTour } from '../../redux/actions/tourActions';
 import { useNavigate } from 'react-router-dom';
 import RoutePath from '../../routes/RoutePath';
+import PropTypes from 'prop-types';
 
 function TourCard({ tour }) {
     const disPatch = useDispatch();
     const token = useSelector((state) => state.auth.token);
     const navigate = useNavigate();
-    console.log('Tour data', tour);
 
     const renderStars = (rating) => {
         const stars = [];
@@ -118,5 +116,27 @@ function TourCard({ tour }) {
         </div>
     );
 }
+TourCard.propTypes = {
+    tour: PropTypes.shape({
+        TourId: PropTypes.string.isRequired,
+        TourImage: PropTypes.string.isRequired,
+        TourName: PropTypes.string.isRequired,
+        Location: PropTypes.string.isRequired,
+        NumberOfDays: PropTypes.number.isRequired,
+        NumberOfNights: PropTypes.number.isRequired,
+        StartDates: PropTypes.arrayOf(PropTypes.string).isRequired,
+        TourDescription: PropTypes.string.isRequired,
+        Price: PropTypes.number.isRequired,
+        User: PropTypes.shape({
+            Profile: PropTypes.shape({
+                ImageUser: PropTypes.string,
+            }),
+            FullName: PropTypes.string.isRequired,
+            LocationIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+            Star: PropTypes.number.isRequired,
+            CountConnect: PropTypes.number.isRequired,
+        }).isRequired,
+    }).isRequired,
+};
 
 export default TourCard;
