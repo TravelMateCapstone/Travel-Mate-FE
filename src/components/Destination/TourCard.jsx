@@ -39,6 +39,13 @@ function TourCard({ tour }) {
         navigate(RoutePath.TOUR_DETAIL);
     };
 
+    const formatDateToVietnamese = (date) => {
+        const parsedDate = new Date(date); // Chuyển chuỗi date về dạng Date object
+        const day = String(parsedDate.getUTCDate()).padStart(2, '0'); // Lấy ngày theo UTC
+        const month = String(parsedDate.getUTCMonth() + 1).padStart(2, '0'); // Lấy tháng theo UTC (cộng thêm 1)
+        return `${day}/${month}`;
+    };
+
     return (
         <div className='tour_card_component d-flex justify-content-between gap-3' onClick={handleTourClick} style={{ transition: 'background-color 0.3s, box-shadow 0.3s', marginBottom: '30px' }}>
             <img src={tour.TourImage} alt={tour.TourName} width={322} height={210} className='rounded-3' />
@@ -72,11 +79,7 @@ function TourCard({ tour }) {
                                         textAlign: 'center',
                                         margin: '0'
                                     }}>
-                                        {new Date(date).toLocaleDateString('vi-VN', {
-                                            day: '2-digit',
-                                            month: '2-digit',
-                                            year: 'numeric'
-                                        })}
+                                        {formatDateToVietnamese(date)}
                                     </p>
                                 ))}
                             </div>

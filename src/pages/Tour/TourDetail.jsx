@@ -42,10 +42,10 @@ function TourDetail() {
     };
     const user = useSelector((state) => state.auth.user);
     const formatDateToVietnamese = (date) => {
-        return new Date(date).toLocaleString('vi-VN', {
-            day: '2-digit',
-            month: '2-digit',
-        });
+        const parsedDate = new Date(date); // Chuyển chuỗi date về dạng Date object
+        const day = String(parsedDate.getUTCDate()).padStart(2, '0'); // Lấy ngày theo UTC
+        const month = String(parsedDate.getUTCMonth() + 1).padStart(2, '0'); // Lấy tháng theo UTC (cộng thêm 1)
+        return `${day}/${month}`;
     };
 
     const viewLocal = (localId) => {
