@@ -84,12 +84,13 @@ function TourDetail() {
             if (error.response && error.response.data === "You have joined this tour") {
                 toast.error("Bạn đã tham gia tour này. Vui lòng kiểm tra hợp đồng của bạn.");
             } else if (error.response && error.response.data === "Access Denied! You are creator of this tour") {
-                toast.error("Bạn đã tạo tour này. Vui lòng kiểm tra hợp đồng của bạn trong phần quản lý chuyến đi.");
+                toast.error("Bạn là người tạo tour này. Vui lòng kiểm tra danh sách tour của bạn.");
             } else if (error.response && error.response.data === "Access Denied! Tour've already done!") {
                 toast.error("Tour đã hoàn thành. Vui lòng chọn tour khác.");
             } else if (error.response && error.response.data === "Access Denied! Finish your tour booking process before booking another tour") {
                 toast.error("Hoàn tất quy trình đặt tour trước khi đặt tour khác");
-
+            } else if(error.response && error.response.data === "You have already joined this tour ."){
+                toast.error("Bạn đã tham gia tour này. Vui lòng kiểm tra hợp đồng của bạn.");
             }
         }
     };

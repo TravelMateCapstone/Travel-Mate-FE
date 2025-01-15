@@ -9,6 +9,11 @@ import Modal from "react-modal"; // Import react-modal
 import UpdateTour from "./UpdateTour";
 import { Spinner } from "react-bootstrap";
 import ParticipantTour from "./ParticipantTour";
+import { useDispatch } from "react-redux";
+import { fetchTour } from "../../redux/actions/tourActions";
+import RoutePath from "../../routes/RoutePath";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 Modal.setAppElement('#root'); // Set the app element for accessibility
 
@@ -17,6 +22,11 @@ function TourCard({ tour, onTourDeleted }) {
     const [isCreating, setIsCreating] = useState(false);
     const [showManageModal, setShowManageModal] = useState(false); // New state for manage modal
     const [tourData, setTourData] = useState(null); // New state for tour data
+    const token = useSelector((state) => state.auth.token);
+
+    const disPatch = useDispatch();
+    const navigate = useNavigate();
+
     const handleDelete = async () => {
         if (window.confirm("Bạn có chắc chắn muốn xóa tour này không?")) {
             await deleteTour(tour.tourId);
@@ -24,6 +34,9 @@ function TourCard({ tour, onTourDeleted }) {
         }
     };
 
+  
+    
+    
 
 
     const handleEdit = async () => {
@@ -110,7 +123,10 @@ function TourCard({ tour, onTourDeleted }) {
                                 ></ion-icon>
                             </Dropdown.Toggle>
                             <Dropdown.Menu>
-                                <Dropdown.Item >Xem chi tiết</Dropdown.Item>
+                                <Dropdown.Item onClick={() => {
+                                      disPatch(fetchTour(tour.tourId, token));
+                                      navigate(RoutePath.TOUR_DETAIL);
+                                }}>Xem chi tiết</Dropdown.Item>
                                 {tour.approvalStatus == 0 && (
                                     <Dropdown.Item onClick={handleEdit}>Chỉnh sửa</Dropdown.Item>
                                 )}
