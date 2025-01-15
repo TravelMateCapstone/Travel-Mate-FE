@@ -39,24 +39,22 @@ function ProfileCard() {
   const [reportReason, setReportReason] = useState("");
   const [reportImage, setReportImage] = useState(null);
   const [reportType, setReportType] = useState("User");
-  const [reportStatus, setReportStatus] = useState("Created");
 
   const [completionPercentage, setCompletionPercentage] = useState(0);
-  const [incompleteModels, setIncompleteModels] = useState([]);
 
   useEffect(() => {
     const fetchProfileCompletion = async () => {
       try {
         const data = await checkProfileCompletionAzure();
         setCompletionPercentage(data.totalPercentage);
-        
       } catch (error) {
         console.error("Lỗi khi kiểm tra hoàn thành hồ sơ:", error);
       }
     };
 
     fetchProfileCompletion();
-  }, [token, url]);
+    
+  }, [token]);
 
   useEffect(() => {
     setIsLoadingFormData(true);

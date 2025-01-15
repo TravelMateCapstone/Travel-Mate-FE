@@ -1,10 +1,10 @@
 import axios from 'axios';
 import store from '../redux/store'
 
-const token = store.getState().auth.token
 const url = import.meta.env.VITE_BASE_API_URL
 
 export const checkProfileCCCD_Signature = async () => {
+    const token = store.getState().auth.token;
     try{
         const response = await axios.get(`${url}/api/CCCD/verify-cccd-signature`, {
             headers: {
@@ -20,6 +20,7 @@ export const checkProfileCCCD_Signature = async () => {
 
 
 export const checkProfileCompletion = async () => {
+    const token = store.getState().auth.token;
     try{
         const response = await axios.get(`${url}/api/Profile/checkCompleteCurrent`, {
             headers: {
@@ -28,13 +29,14 @@ export const checkProfileCompletion = async () => {
         });
         console.log("Kiểm tra hoàn thành hồ sơ 2:", response.data.value);
         return response.data.value
-        // Your logic here
+        
     } catch (error) {
         console.error("Lỗi khi kiểm tra hoàn thành hồ sơ:", error);
     }
 }
 
 export const checkProfileCompletionAzure = async () => {
+    const token = store.getState().auth.token;
     try{
         const response = await axios.get('https://travelmateapp.azurewebsites.net/api/Profile/checkCompleteCurrent', {
             headers: {
@@ -49,6 +51,7 @@ export const checkProfileCompletionAzure = async () => {
 }
 
 export const getUserLocation = async () => {
+    const token = store.getState().auth.token;
     try{
         const response = await axios.get(`${url}/api/UserLocationsWOO/get-current-user`, {
             headers: {

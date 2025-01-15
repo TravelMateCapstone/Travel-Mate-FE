@@ -17,6 +17,8 @@ import axios from "axios";
 import { checkProfileCCCD_Signature, checkProfileCompletion } from '../../apis/profileApi';
 
 function MyProfile() {
+    console.log("MyProfile component is called");
+
     const [key, setKey] = useState('introduce');
     const dispatch = useDispatch();
 
@@ -74,19 +76,20 @@ function MyProfile() {
         : "Không rõ";
 
     useEffect(() => {
+        console.log("useEffect is called");
+
         const fetchProfileCompletion = async () => {
             try {
                 const response = await checkProfileCompletion();
-                console.log("Kiểm tra hoàn thành hồ sơ 22:", response);
                 setCompletionPercentage(response.totalPercentage);
-                
             } catch (error) {
                 console.error("Lỗi khi kiểm tra hoàn thành hồ sơ:", error);
             }
         };
-
         fetchProfileCompletion();
-    }, [token, url]);
+        console.log('Profile percentage:', completionPercentage);
+        
+    }, [token]);
 
     return (
         <Container>
