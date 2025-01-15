@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Navbar as BootstrapNavbar, Nav, Row, Col, Container, Dropdown, Button, Offcanvas, Badge } from 'react-bootstrap';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
@@ -11,31 +12,25 @@ import Register from './Register';
 import { openLoginModal, closeLoginModal, openRegisterModal, closeRegisterModal } from "../../redux/actions/modalActions";
 import axios from 'axios';
 import NotifyItem from "../Shared/NotifyItem";
-import MessengerItem from "../Shared/MessengerItem";
 import { logout } from "../../redux/actions/authActions";
 import { toast } from 'react-toastify';
 import { viewProfile } from '../../redux/actions/profileActions';
 import * as signalR from '@microsoft/signalr';
 
-const Navbar = React.memo(() => {
+const Navbar = () => {
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const [showOffcanvas, setShowOffcanvas] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const [messages, setMessages] = useState([]); // Added messages state
   const [showMoreNotifications, setShowMoreNotifications] = useState(false);
   const [displayedNotifications, setDisplayedNotifications] = useState([]);
   const connectionRef = useRef(null);
-  const [chats, setChats] = useState([]);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const isLoginModalOpen = useSelector((state) => state.modal.isLoginModalOpen);
   const isRegisterModalOpen = useSelector((state) => state.modal.isRegisterModalOpen);
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
 
-  const SIGNALR_HUB_URL = 'https://travelmateapp.azurewebsites.net/serviceHub';
 
   const handelShowOffcanvas = useCallback(() => {
     setShowOffcanvas(true);
@@ -47,22 +42,13 @@ const Navbar = React.memo(() => {
   }, [navigate]);
 
   const handleSearchLocal = useCallback(() => {
-    navigate(RoutePath.SEARCH_LIST_LOCAL); // Điều hướng đến trang "Người địa phương"
+    navigate(RoutePath.SEARCH_LIST_LOCAL); 
   }, [navigate]);
 
-  const handleSearchTraveller = useCallback(() => {
-    navigate(RoutePath.SEARCH_LIST_TRAVELLER); // Điều hướng đến trang "Khách du lịch"
-  }, [navigate]);
-
+ 
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
-  const fetchChats = async () => {
-    try {
 
-    } catch (error) {
-      console.error('Error fetching chats:', error);
-    }
-  };
 
   // Fetch thông báo từ API
   const fetchNotifications = async () => {
@@ -132,7 +118,6 @@ const Navbar = React.memo(() => {
 
   useEffect(() => {
     setupSignalRConnection();
-    fetchChats();
     fetchNotifications();
     return () => {
       if (connectionRef.current) {
@@ -198,8 +183,6 @@ const Navbar = React.memo(() => {
       );
       if (response.status === 200) {
         toast.success("Chấp nhận kết bạn thành công!");
-
-        // Gọi API PUT để cập nhật thông báo
         try {
           const putResponse = await axios.put(
             `https://travelmateapp.azurewebsites.net/api/Notification/${notificationId}/message`,
@@ -646,6 +629,6 @@ const Navbar = React.memo(() => {
 
     </BootstrapNavbar>
   );
-});
+};
 
-export default Navbar;
+export default React.memo(Navbar);
