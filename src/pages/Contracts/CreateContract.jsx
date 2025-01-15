@@ -6,8 +6,6 @@ import { useNavigate } from "react-router-dom";
 import RoutePath from "../../routes/RoutePath";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
 import VerifySignatureRSA from "../../components/Tour/VerifySignatureRSA";
 import TimeLine from "../../components/Contracts/TimeLine";
 
@@ -20,9 +18,7 @@ function CreateContract() {
   const [isValidSignature, setIsValidSignature] = useState(false);
   const token = useSelector((state) => state.auth.token);
   const selectedScheduleId = useSelector((state) => state.tour.selectedScheduleId);
-  const formatDate = (date) => {
-    return format(new Date(date), "dd/MM/yyyy", { locale: vi });
-  };
+ 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
