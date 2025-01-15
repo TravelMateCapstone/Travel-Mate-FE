@@ -12,6 +12,13 @@ function LocalIncomeStatistics() {
   const [tours, setTours] = useState([]);
   // eslint-disable-next-line no-unused-vars
   const [eventsData, setEventsData] = useState([]);
+  const [dashboardData, setDashboardData] = useState({
+    revenue: 0,
+    totalAmount: 0,
+    totalTour: 0,
+    totalTraveler: 0,
+    monthlyRevenues: []
+  });
 
   useEffect(() => {
     fetchToursData();
@@ -59,35 +66,64 @@ function LocalIncomeStatistics() {
     fetchTransactions();
   }, [user]);
 
+  useEffect(() => {
+    fetchDashboardData();
+  }, [user]);
+
+  const fetchDashboardData = async () => {
+    try {
+      const response = await fetch(`https://travelmateapp.azurewebsites.net/api/UserDashboard`, {
+        headers: {
+          Authorization: `${token}`
+        }
+      });
+      const data = await response.json();
+      setDashboardData({
+        revenue: data.revenue,
+        totalAmount: data.totalAmount,
+        totalTour: data.totalTour,
+        totalTraveler: data.totalTraveler,
+        monthlyRevenues: data.monthlyRevenues.$values
+      });
+      console.log('Dashboard data:', data);
+      
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    }
+  };
+
   return (
     <div className='bg-light'>
       <h4 className='text-uppercase fw-bold'>Thống kê</h4>
       <div className='d-flex justify-content-between gap-4'>
         <div className='statics_card'>
-          <small className='text-uppercase fw-semibold'>Tổng số tour</small>
-          <h3 className='statics_card_data'>{tours.length}</h3>
-        </div>
-        <div className='statics_card'>
-          <small className='text-uppercase fw-semibold'>Tổng doanh thu</small>
-          <h3 className='statics_card_data'>{transactions.reduce((total, transaction) => total + transaction.amount, 0).toLocaleString('vi-VN')} VND</h3>
+          <small className='text-uppercase fw-semibold'>Tổng số chuyến đi</small>
+          <h3 className='statics_card_data'>{dashboardData.totalTour}</h3>
         </div>
 
         <div className='statics_card'>
-          <small className='text-uppercase fw-semibold'>Tổng số giao dịch</small>
-          <h3 className='statics_card_data'>{transactions.length}</h3>
+          <small className='text-uppercase fw-semibold'>Tổng số tiền tour</small>
+          <h3 className='statics_card_data'>{dashboardData.totalAmount.toLocaleString('vi-VN')} VNĐ</h3>
+        </div>
+        <div className='statics_card bg-success text-white'>
+          <small className='text-uppercase fw-semibold'>Tổng doanh thu</small>
+          <h3 className='statics_card_data'>{dashboardData.revenue.toLocaleString('vi-VN')} VNĐ</h3>
         </div>
 
         <div className='statics_card'>
           <small className='text-uppercase fw-semibold'>Tổng số khách hàng</small>
-          <h3 className='statics_card_data'>{transactions.length}</h3>
+          <h3 className='statics_card_data'>{dashboardData.totalTraveler}</h3>
         </div>
       </div>
 
       <div className='d-flex justify-content-between gap-4 mt-5'>
-        <TourChart tours={tours} token={token} />
-        <TourPieChart tours={tours} />
+        <div className='w-50'>
+          <TourChart monthlyRevenues={dashboardData.monthlyRevenues} />
+        </div>
+        <div className='w-50'>
+          <TourPieChart tours={tours} />
+        </div>
       </div>
-
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Pie } from 'react-chartjs-2';
 import 'chart.js/auto';
+import Spinner from 'react-bootstrap/Spinner';
 
 function TourPieChart({ tours }) {
   const [loading, setLoading] = useState(true);
@@ -57,7 +58,7 @@ function TourPieChart({ tours }) {
   };
 
   if (loading) {
-    return <div>Đang tải...</div>;
+    return <Spinner animation="border" />;
   }
 
   return (

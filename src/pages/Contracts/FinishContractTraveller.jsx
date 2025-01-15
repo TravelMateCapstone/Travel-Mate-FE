@@ -47,7 +47,6 @@ function FinishContractTraveller() {
             toast.error("Vui lòng upload ít nhất một ảnh chuyến đi.");
             return;
         }
-        console.log(user.id)
         const tripImages = images.map(image => image);
         const formData = {
             tourId: contract_selected.tourId || contractInfo.tourId,
@@ -55,6 +54,7 @@ function FinishContractTraveller() {
             caption: caption,
             star: star,
             tripImages: tripImages,
+            scheduleId: contract_selected.scheduleId || contractInfo.scheduleId,
         };
         console.log(formData);
         
