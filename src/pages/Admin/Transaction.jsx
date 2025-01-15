@@ -2,7 +2,7 @@ import { ModuleRegistry } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { Card, Row, Col, Tabs, Tab, Button, Badge, Modal, InputGroup, FormControl } from "react-bootstrap";
+import { Card, Row, Col, Tabs, Tab, Button, Badge, Modal, InputGroup, FormControl, Container } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import { fetchTransactionData, confirmTransaction, refundTransaction, fetchUserBankData } from "../../apis/transaction_admin";
@@ -98,7 +98,7 @@ const Transaction = () => {
 		{ headerName: "Tên Địa Người Phương", field: "localName" },
 		{ headerName: "Tên Khách Du Lịch", field: "travelerName" },
 		{ headerName: "Số Tiền", field: "amount", valueFormatter: (params) => formatCurrency(params.value), flex: 0.75 },
-		{ headerName: "Số Tiền Còn Lại", field: "lastAmount", valueFormatter: (params) => formatCurrency(params.value), flex: 0.75 },
+		{ headerName: "Số Tiền Còn Lại", field: "amount", valueFormatter: (params) => formatCurrency(params.value), flex: 0.75 },
 		{
 			headerName: "Hành Động",
 			field: "actions",
@@ -156,7 +156,7 @@ const Transaction = () => {
 
 	const handleConfirmRefund = async (data) => {
 		console.log('Refunding transaction:', data);
-		
+
 		try {
 			await refundTransaction(data.id);
 			toast.success("Xác nhận hoàn tiền cho: " + data.travelerName);
@@ -173,7 +173,7 @@ const Transaction = () => {
 			}
 		}
 	};
-		
+
 
 
 	const exportToExcel = () => {
@@ -194,31 +194,59 @@ const Transaction = () => {
 	const filteredRefunds = rowData.filter(item => item.transactionStatus === 2 || item.transactionStatus === 3);
 
 	console.log(filteredRefunds);
-	
+
 	return (
 		<div >
 			<div className="mb-4">
-				<Row>
-					<Col md={4}>
-						<Card>
-							<Card.Body>
-								<Card.Title>Tổng Số Giao Dịch</Card.Title>
-								<h3>{rowData.length}</h3>
-							</Card.Body>
-						</Card>
-					</Col>
-					<Col md={4}>
-						<Card>
-							<Card.Body>
-								<Card.Title>Tổng Số Tiền Giao Dịch</Card.Title>
-								<h3>{formatCurrency(rowData.reduce((acc, curr) => acc + curr.amount, 0))}</h3>
-							</Card.Body>
-						</Card>
-					</Col>
-				</Row>
+				<Container fluid className="p-0">
+					<Row>
+						<Col md={4} className="mb-2">
+								<Card className="">
+									<Card.Body>
+										<Card.Title>Tổng Số Giao Dịch</Card.Title>
+										<h3>{rowData.length}</h3>
+									</Card.Body>
+								</Card>
+							</Col>
+							<Col md={8}>
+								<Card className="bg-success text-white">
+									<Card.Body>
+										<Card.Title>Tổng Số Doanh Thu</Card.Title>
+										<h3>{formatCurrency((rowData.reduce((acc, curr) => acc + curr.amount, 0) - rowData.reduce((acc, curr) => curr.transactionStatus === 3 ? acc + curr.amount : acc, 0)) * 0.1)}</h3>
+									</Card.Body>
+								</Card>
+							</Col>
+						</Row>
+						<Row>
+							<Col md={4}>
+								<Card className="">
+									<Card.Body>
+										<Card.Title>Tổng Số Tiền Đã Nhận</Card.Title>
+										<h3>{formatCurrency(rowData.reduce((acc, curr) => acc + curr.amount, 0))}</h3>
+									</Card.Body>
+								</Card>
+							</Col>
+							<Col md={4}>
+								<Card className="bg-warning text-white">
+									<Card.Body>
+										<Card.Title>Tổng Số Tiền Đã Thanh Toán</Card.Title>
+										<h3>{formatCurrency((rowData.reduce((acc, curr) => acc + curr.amount, 0) - rowData.reduce((acc, curr) => curr.transactionStatus === 3 ? acc + curr.amount : acc, 0)) * 0.9)}</h3>
+									</Card.Body>
+								</Card>
+							</Col>
+							<Col md={4}>
+								<Card className="bg-danger text-white">
+									<Card.Body>
+										<Card.Title>Tổng Số Tiền Đã Hoàn</Card.Title>
+										<h3>{formatCurrency(rowData.reduce((acc, curr) => curr.transactionStatus === 3 ? acc + curr.amount : acc, 0))}</h3>
+									</Card.Body>
+								</Card>
+							</Col>
+						</Row>
+				</Container>
 			</div>
 
-			
+
 
 			<Tabs
 				id="controlled-tab-example"
@@ -227,18 +255,18 @@ const Transaction = () => {
 				className="mb-3 no-border-radius"
 			>
 				<Tab eventKey="transactions" title={<span>Danh Sách Giao Dịch <Badge bg="primary">{filteredTransactions.length}</Badge></span>}>
-				<div className="d-flex justify-content-between align-items-center">
-				<InputGroup className="mb-3 w-25">
-					<FormControl
-						placeholder="Tìm kiếm nhanh..."
-						aria-label="Tìm kiếm nhanh"
-						aria-describedby="basic-addon2"
-						value={quickFilter}
-						onChange={onQuickFilterChange}
-					/>
-				</InputGroup>
-				<Button variant="success" onClick={exportToExcel}>Xuất file excel</Button>
-			</div>
+					<div className="d-flex justify-content-between align-items-center">
+						<InputGroup className="mb-3 w-25">
+							<FormControl
+								placeholder="Tìm kiếm nhanh..."
+								aria-label="Tìm kiếm nhanh"
+								aria-describedby="basic-addon2"
+								value={quickFilter}
+								onChange={onQuickFilterChange}
+							/>
+						</InputGroup>
+						<Button variant="success" onClick={exportToExcel}>Xuất file excel</Button>
+					</div>
 					<div className="ag-theme-alpine" style={{ height: 400, width: "100%" }}>
 						<AgGridReact
 							rowData={filteredTransactions} // Use filtered transactions
@@ -248,19 +276,19 @@ const Transaction = () => {
 					</div>
 				</Tab>
 				<Tab eventKey="refunds" title={<span>Danh Sách Hoàn Tiền <Badge bg="danger">{filteredRefunds.length}</Badge></span>}>
-				<div className="d-flex justify-content-between align-items-center">
-				<InputGroup className="mb-3 w-25">
-					<FormControl
-						placeholder="Tìm kiếm nhanh..."
-						aria-label="Tìm kiếm nhanh"
-						aria-describedby="basic-addon2"
-						value={quickFilter}
-						onChange={onQuickFilterChange}
-					/>
-				</InputGroup>
-				<Button variant="success" onClick={exportRefundsToExcel}>Xuất file excel</Button>
-			</div>
-				<div className="ag-theme-alpine" style={{ height: 400, width: "100%" }}>
+					<div className="d-flex justify-content-between align-items-center">
+						<InputGroup className="mb-3 w-25">
+							<FormControl
+								placeholder="Tìm kiếm nhanh..."
+								aria-label="Tìm kiếm nhanh"
+								aria-describedby="basic-addon2"
+								value={quickFilter}
+								onChange={onQuickFilterChange}
+							/>
+						</InputGroup>
+						<Button variant="success" onClick={exportRefundsToExcel}>Xuất file excel</Button>
+					</div>
+					<div className="ag-theme-alpine" style={{ height: 400, width: "100%" }}>
 						<AgGridReact
 							rowData={filteredRefunds} // Use filtered refunds
 							columnDefs={columnDefsRefund}
@@ -271,7 +299,7 @@ const Transaction = () => {
 			</Tabs>
 
 			<Modal show={showModal} onHide={handleCloseModal} centered>
-				
+
 				<Modal.Body>
 					{modalData && (
 						<div className="text-center">

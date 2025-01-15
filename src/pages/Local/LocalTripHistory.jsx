@@ -9,6 +9,7 @@ function LocalTripHistory() {
   const [pendingTours, setPendingTours] = useState([]);
   const [approvedTours, setApprovedTours] = useState([]);
   const [rejectedTours, setRejectedTours] = useState([]);
+  const [activeKey, setActiveKey] = useState('pending');
   const token = useSelector((state) => state.auth.token);
 
   const fetchData = async () => {
@@ -22,14 +23,19 @@ function LocalTripHistory() {
 
   useEffect(() => {
     fetchData();
-  }, [token]);
+  }, [token, activeKey]);
 
   return (
     <div >
       <h1>Quản lý chuyến đi</h1>
       <CreateTour onTourCreated={fetchData} />
       <div className=''>
-        <Tabs defaultActiveKey="pending" id="local-trip-history-tabs" className='no-border-radius'>
+        <Tabs 
+          activeKey={activeKey} 
+          onSelect={(k) => setActiveKey(k)} 
+          id="local-trip-history-tabs" 
+          className='no-border-radius'
+        >
           <Tab eventKey="pending" title="Đang chờ duyệt">
             {pendingTours.map(tour => (
               <TourCard key={tour.tourId} tour={tour} onTourDeleted={fetchData} />

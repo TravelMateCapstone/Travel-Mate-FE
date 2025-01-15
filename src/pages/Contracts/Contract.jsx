@@ -39,6 +39,9 @@ function Contract() {
             return 0;
           });
           setContracts(sortedContracts);
+
+          console.log('Contracts:', sortedContracts);
+          
         }
       })
       .catch((error) => {
@@ -88,7 +91,7 @@ function Contract() {
   const verifyContract = async (contract) => {
     try {
       const response = await axios.get(
-        `https://travelmateapp.azurewebsites.net/api/BlockContract/verify-contract?travelerId=${user.id}&localId=${contract.localId}&tourId=${contract.tourId}`
+        `https://travelmateapp.azurewebsites.net/api/BlockContract/verify-contract?travelerId=${user.id}&localId=${contract.localId}&tourId=${contract.tourId}&scheduleId=${contract.scheduleId}`
       );
       if (response.data.isValid) {
         toast.success('Hợp đồng đã được xác nhận');
@@ -114,22 +117,22 @@ function Contract() {
       accessorKey: 'location',
       header: 'Địa điểm',
     },
-    {
-      accessorKey: 'details.startDate',
-      header: 'Ngày bắt đầu',
-      cell: (info) => new Date(JSON.parse(info.row.original.details).startDate).toLocaleDateString(),
-      meta: {
-        filterVariant: 'date',
-      },
-    },
-    {
-      accessorKey: 'details.endDate',
-      header: 'Ngày kết thúc',
-      cell: (info) => new Date(JSON.parse(info.row.original.details).endDate).toLocaleDateString(),
-      meta: {
-        filterVariant: 'date',
-      },
-    },
+    // {
+    //   accessorKey: 'details.startDate',
+    //   header: 'Ngày bắt đầu',
+    //   cell: (info) => new Date(JSON.parse(info.row.original.details).startDate).toLocaleDateString(),
+    //   meta: {
+    //     filterVariant: 'date',
+    //   },
+    // },
+    // {
+    //   accessorKey: 'details.endDate',
+    //   header: 'Ngày kết thúc',
+    //   cell: (info) => new Date(JSON.parse(info.row.original.details).endDate).toLocaleDateString(),
+    //   meta: {
+    //     filterVariant: 'date',
+    //   },
+    // },
     {
       accessorKey: 'status',
       header: 'Trạng thái',

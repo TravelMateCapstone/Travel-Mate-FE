@@ -225,7 +225,9 @@ function WalletManagement() {
         if (status === 1) {
           return <Badge bg="success">Đã thanh toán</Badge>;
         } else if (status === 2) {
-          return <Badge bg="warning">Yêu cầu hoàn tiền</Badge>;
+          return <Badge bg="warning">Đang hoàn tiền</Badge>;
+        } else if (status === 3) {
+          return <Badge bg="info">Hoàn tiền thành công</Badge>;
         } else {
           return status;
         }

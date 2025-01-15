@@ -51,11 +51,13 @@ function FinishContractTraveller() {
         const tripImages = images.map(image => image);
         const formData = {
             tourId: contract_selected.tourId || contractInfo.tourId,
-            travelerId: user.id,
+            travelerId: parseInt(user.id),
             caption: caption,
             star: star,
             tripImages: tripImages,
         };
+        console.log(formData);
+        
         try {
             const response = await axios.post(
                 "https://travelmateapp.azurewebsites.net/api/PastTripPost",

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import ChartComponent from '../../components/Admin/ChartComponent';
 import PieChartComponent from '../../components/Admin/PieChartComponent';
 import { Card, Placeholder, Row, Col, Spinner } from 'react-bootstrap';
@@ -97,25 +97,7 @@ function IncomeStatistic() {
                             </ol>
                         </div>
                         <Row className="mb-3">
-                            <Col xl={3} md={6} className="mb-4">
-                                <Card className="h-100">
-                                    <Card.Body>
-                                        <Row className="align-items-center">
-                                            <Col>
-                                                <Card.Title className="text-xs font-weight-bold text-uppercase mb-1">
-                                                    Doanh thu (Tổng)
-                                                </Card.Title>
-                                                <div className="h5 mb-0 font-weight-bold text-gray-800">
-                                                    {formatCurrency(totalRevenue)}
-                                                </div>
-                                            </Col>
-                                            <Col className="col-auto">
-                                                <i className="fas fa-calendar fa-2x text-primary" />
-                                            </Col>
-                                        </Row>
-                                    </Card.Body>
-                                </Card>
-                            </Col>
+                           
                             <Col xl={3} md={6} className="mb-4">
                                 <Card className="h-100">
                                     <Card.Body>

@@ -19,8 +19,12 @@ ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 ReactModal.setAppElement("#root"); // Đặt phần tử gốc của ứng dụng
 
-const fetchUserData = async () => {
-  const response = await fetch("https://travelmateapp.azurewebsites.net/odata/ApplicationUsers");
+const fetchUserData = async (token) => {
+  const response = await fetch("https://travelmateapp.azurewebsites.net/odata/ApplicationUsers", {
+    headers: {
+      Authorization: `${token}`,
+    },
+  });
   if (!response.ok) {
     throw new Error("Error fetching data");
   }
@@ -33,14 +37,16 @@ const AccountList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [quickFilter, setQuickFilter] = useState("");
   const [bannedUsers, setBannedUsers] = useState({}); // Lưu trạng thái "Cấm" theo userId
-  const token = useSelector((state) => state.auth.token); 
+  const token = useSelector((state) => state.auth.token);
 
   console.log(token);
 
-  const { data, isLoading, isError, error } = useQuery("users", fetchUserData, {
-    staleTime: 1000 * 60 * 10, // 10 minutes
-    cacheTime: 1000 * 60 * 60, // 1 hour
-  });
+  const { data, isLoading, isError, error } = useQuery(
+    {
+      queryKey: ["users"],
+      queryFn: () => fetchUserData(token)
+    },
+  );
 
   const totalUsers = data?.value?.length || 0;
   const totalBannedUsers = Object.values(bannedUsers).filter((banned) => banned).length;
@@ -183,9 +189,9 @@ const AccountList = () => {
         );
       },
     },
-    
+
   ];
-  
+
 
   const getLocationCounts = (data) => {
     const counts = {};
@@ -289,7 +295,7 @@ const AccountList = () => {
       throw new Error(error.response?.data?.message || "Cấm tài khoản thất bại");
     }
   };
-  
+
 
   const handleToggleBan = async (userId) => {
     try {
@@ -307,9 +313,9 @@ const AccountList = () => {
       toast.error(error.message || "Có lỗi xảy ra");
     }
   };
-  
-  
-  
+
+
+
 
   if (isLoading) return <p>Đang tải dữ liệu...</p>;
   if (isError) return <p>Error: {error.message}</p>;
@@ -317,7 +323,7 @@ const AccountList = () => {
   return (
     <div style={containerStyle}>
 
-<Row className="mb-4">
+      <Row className="mb-4">
         <Col md={6}>
           <Card className="text-center">
             <Card.Body>
@@ -334,21 +340,21 @@ const AccountList = () => {
             </Card.Body>
           </Card>
         </Col>
-        
+
       </Row>
-       <Row className="mb-2">
-          <Col lg={8}>
-            <div style={{ width: "100%", }}>
-              <AgCharts options={options} />
-            </div>
-          </Col>
-  
-          <Col lg={4}>
-            <div style={{ width: "100%",}}>
-              <AgCharts options={optionsRoles} />
-            </div>
-          </Col>
-       </Row>
+      <Row className="mb-2">
+        <Col lg={8}>
+          <div style={{ width: "100%", }}>
+            <AgCharts options={options} />
+          </div>
+        </Col>
+
+        <Col lg={4}>
+          <div style={{ width: "100%", }}>
+            <AgCharts options={optionsRoles} />
+          </div>
+        </Col>
+      </Row>
       <div className="example-wrapper">
         <div className="d-flex justify-content-between mb-2">
           <FormControl
@@ -386,7 +392,7 @@ const AccountList = () => {
           />
         </div>
 
-      
+
       </div>
 
       <ReactModal

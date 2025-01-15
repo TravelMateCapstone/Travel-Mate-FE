@@ -33,8 +33,13 @@ const fetchTours = async (token) => {
     headers: { Authorization: `${token}` },
   });
   console.log(data);
-  
-  return data.$values;
+
+  // Map through the tours and extract the start and end dates from schedules
+  return data.$values.map(tour => ({
+    ...tour,
+    startDate: tour.schedules.$values[0]?.startDate,
+    endDate: tour.schedules.$values[0]?.endDate,
+  }));
 };
 
 const TripHistory = () => {
@@ -77,34 +82,6 @@ const TripHistory = () => {
       resizable: true,
     },
     {
-      headerName: "Ngày bắt đầu",
-      field: "startDate",
-      width: 100,
-      chartDataType: "time",
-      filter: "agDateColumnFilter",
-      valueFormatter: (params) => {
-        return new Date(params.value).toLocaleDateString("vi-VN", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        });
-      },
-    },
-    {
-      headerName: "Ngày kết thúc",
-      field: "endDate",
-      width: 100,
-      chartDataType: "time",
-      filter: "agDateColumnFilter",
-      valueFormatter: (params) => {
-        return new Date(params.value).toLocaleDateString("vi-VN", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        });
-      },
-    },
-    {
       headerName: "Giá",
       field: "price",
       width: 100,
@@ -140,16 +117,26 @@ const TripHistory = () => {
         values: [0, 1, 2], // Giá trị số để lọc
       },
       cellRenderer: (params) => {
+        let badgeClass = "";
+        let badgeText = "";
         switch (params.value) {
           case 0:
-            return <span>Đang xử lý</span>;
+            badgeClass = "badge bg-warning";
+            badgeText = "Đang xử lý";
+            break;
           case 1:
-            return <span>Đã chấp nhận</span>;
+            badgeClass = "badge bg-success";
+            badgeText = "Đã chấp nhận";
+            break;
           case 2:
-            return <span>Đã từ chối</span>;
+            badgeClass = "badge bg-danger";
+            badgeText = "Đã từ chối";
+            break;
           default:
-            return <span>Không xác định</span>;
+            badgeClass = "badge bg-secondary";
+            badgeText = "Không xác định";
         }
+        return <span className={badgeClass}>{badgeText}</span>;
       },
     },
     {
@@ -493,7 +480,9 @@ const TripHistory = () => {
                         }}
                       ></ion-icon>
                     </strong>{" "}
-                    {modalData?.approvalStatus === 0 ? "Đang xử lý" : modalData?.approvalStatus === 1 ? "Đã chấp nhận" : "Đã từ chối"}
+                    <span className={`badge ${modalData?.approvalStatus === 0 ? "bg-warning" : modalData?.approvalStatus === 1 ? "bg-success" : "bg-danger"}`}>
+                      {modalData?.approvalStatus === 0 ? "Đang xử lý" : modalData?.approvalStatus === 1 ? "Đã chấp nhận" : "Đã từ chối"}
+                    </span>
                   </p>
 
                   <h4 className="m-0 fw-medium text-success">{new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(modalData?.price)}</h4>
