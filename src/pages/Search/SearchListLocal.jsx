@@ -35,7 +35,13 @@ function SearchListLocal() {
   };
 
   const fetchLocals = async () => {
-    const response = await axios.get('https://travelmateapp.azurewebsites.net/GetUsersWithDetail');
+    const response = await axios.get('https://travelmateapp.azurewebsites.net/GetUsersWithDetail',
+      {
+        headers: {
+            Authorization: `${token}`,
+        },
+    }
+    );
     return response.data.$values.map((user) => ({
       id: user.userId,
       avatar: user.profile?.imageUser || 'https://img.freepik.com/premium-vector/default-avatar-profile-icon_561158-3467.jpg',

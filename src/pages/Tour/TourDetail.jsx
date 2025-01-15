@@ -28,7 +28,7 @@ function TourDetail() {
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [selectedSchedule, setSelectedSchedule] = useState(null);
     console.log(tourData);
-    
+
 
     useEffect(() => {
         if (tourData && tourData.schedules && tourData.schedules.$values.length > 0) {
@@ -85,9 +85,9 @@ function TourDetail() {
                 toast.error("Bạn đã tham gia tour này. Vui lòng kiểm tra hợp đồng của bạn.");
             } else if (error.response && error.response.data === "Access Denied! You are creator of this tour") {
                 toast.error("Bạn đã tạo tour này. Vui lòng kiểm tra hợp đồng của bạn trong phần quản lý chuyến đi.");
-            } else if(error.response && error.response.data === "Access Denied! Tour've already done!"){
+            } else if (error.response && error.response.data === "Access Denied! Tour've already done!") {
                 toast.error("Tour đã hoàn thành. Vui lòng chọn tour khác.");
-            } else if(error.response && error.response.data === "Access Denied! Finish your tour booking process before booking another tour"){
+            } else if (error.response && error.response.data === "Access Denied! Finish your tour booking process before booking another tour") {
                 toast.error("Hoàn tất quy trình đặt tour trước khi đặt tour khác");
 
             }
@@ -292,7 +292,7 @@ function TourDetail() {
                                                     </tr>
                                                     <tr>
                                                         <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="time-outline"></ion-icon> Thời gian</td>
-                                                        <td style={{ width: '50%' }}>{tourData.numberOfDays}N{tourData.numberOfDays-1}Đ</td>
+                                                        <td style={{ width: '50%' }}>{tourData.numberOfDays}N{tourData.numberOfDays - 1}Đ</td>
                                                     </tr>
                                                     <tr>
                                                         <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="people-outline"></ion-icon> Số người tham gia</td>
@@ -353,7 +353,7 @@ function TourDetail() {
                                 <Accordion defaultActiveKey="0" alwaysOpen>
                                     {tourData.itinerary.$values.map((day, index) => (
                                         <Accordion.Item eventKey={index.toString()} key={index}>
-                                            <Accordion.Header><div className="d-flex flex-column"><strong>Ngày {index+1}</strong></div></Accordion.Header>
+                                            <Accordion.Header><div className="d-flex flex-column"><strong>Ngày {index + 1}</strong></div></Accordion.Header>
                                             <Accordion.Body>
                                                 <Table bordered hover>
                                                     <thead>
@@ -361,7 +361,6 @@ function TourDetail() {
                                                             <th >Thời gian</th>
                                                             <th >Hoạt động</th>
                                                             <th >Chi phí</th>
-                                                            {/* <th >Hình ảnh</th> */}
                                                             <th>Chi tiết</th>
                                                         </tr>
                                                     </thead>
@@ -373,9 +372,8 @@ function TourDetail() {
                                                                 </td>
                                                                 <td >{activity.title}</td>
                                                                 <td className="fw-bold text-success">{activity.activityAmount.toLocaleString()}₫</td>
-                                                                {/* <td >{activity.activityImage && <img src={activity.activityImage} alt={activity.title} className="activity-image fixed-size rounded-3" />}</td> */}
                                                                 <td>
-                                                                    <Button variant="info" onClick={() => handleShowModal(activity)}>Chi tiết</Button>
+                                                                    <Button variant="outline-secondary" onClick={() => handleShowModal(activity)}>Chi tiết</Button>
                                                                 </td>
                                                             </tr>
                                                         ))}
@@ -398,9 +396,9 @@ function TourDetail() {
                             </Tab>
                         </Tabs>
 
-                        <h3 className="text-uppercase fw-semibold my-4">
+                        <h4 className="text-uppercase fw-semibold my-4 text-center">
                             Những thông tin cần lưu ý
-                        </h3>
+                        </h4>
 
                         <div className="container_info_note">
                             <Accordion defaultActiveKey={['0']} alwaysOpen>
@@ -409,13 +407,7 @@ function TourDetail() {
                                         <strong>Điều kiện thanh toán</strong>
                                     </Accordion.Header>
                                     <Accordion.Body>
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                                        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                                        minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                                        aliquip ex ea commodo consequat. Duis aute irure dolor in
-                                        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                                        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                                        culpa qui officia deserunt mollit anim id est laborum.
+                                        Thanh toán đầy đủ 100% giá trị tour ngay tại thời điểm đăng ký để đảm bảo giữ chỗ và các dịch vụ trong tour.
                                     </Accordion.Body>
                                 </Accordion.Item>
                                 <Accordion.Item eventKey="1">
@@ -423,13 +415,12 @@ function TourDetail() {
                                         <strong>Điều kiện đăng ký</strong>
                                     </Accordion.Header>
                                     <Accordion.Body>
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                                        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                                        minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                                        aliquip ex ea commodo consequat. Duis aute irure dolor in
-                                        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                                        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                                        culpa qui officia deserunt mollit anim id est laborum.
+                                        <ul>
+                                            <li> Đăng ký tour sớm để đảm bảo chỗ, đặc biệt trong mùa cao điểm hoặc lễ, Tết. </li>
+                                            <li>Cung cấp đầy đủ thông tin cá nhân cần thiết (CMND/CCCD/Hộ chiếu) khi đăng ký.</li>
+                                            <li>Thanh toán đúng theo điều kiện thanh toán quy định để giữ chỗ.</li>
+                                            <li>Đọc kỹ các thông tin về chính sách hủy, đổi tour trước khi xác nhận đăng ký.</li>
+                                        </ul>
                                     </Accordion.Body>
                                 </Accordion.Item>
                                 <Accordion.Item eventKey="2">
@@ -437,13 +428,15 @@ function TourDetail() {
                                         <strong>Các điều kiện hủy tour đối với ngày thường</strong>
                                     </Accordion.Header>
                                     <Accordion.Body>
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                                        eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-                                        minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                                        aliquip ex ea commodo consequat. Duis aute irure dolor in
-                                        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                                        pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                                        culpa qui officia deserunt mollit anim id est laborum.
+                                        <ul>
+                                            <li>Trước ngày khởi hành từ 2 ngày trở lên: Phí hủy tour là 50% giá trị tour.</li>
+                                            <li>Trong vòng 2 ngày trước ngày khởi hành: Phí hủy tour là 100% giá trị tour (không hoàn tiền).</li>
+                                        </ul>
+                                        <ul>
+                                            <li>Việc hủy tour cần được thông báo qua email hoặc văn bản chính thức.</li>
+                                            <li>Các chi phí phát sinh (vé máy bay, dịch vụ đã đặt trước) sẽ không được hoàn trả.</li>
+                                            <li>Đối với các tour lễ, Tết, áp dụng chính sách không hoàn tiền ngay khi đăng ký.</li>
+                                        </ul>
                                     </Accordion.Body>
                                 </Accordion.Item>
                             </Accordion>

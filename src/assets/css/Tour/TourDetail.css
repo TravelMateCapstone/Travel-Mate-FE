@@ -81,11 +81,9 @@
 }
 
 .container_info_note .accordion-button {
-  background-color: #34A853;
-  color: #ffffff;
+  background-color: #f8f8f8;
 }
 
 .container_info_note .accordion-button:not(.collapsed) {
-  background-color: #34A853 !important;
-  color: #ffffff;
+  background-color: #f8f8f8 !important;
 }
