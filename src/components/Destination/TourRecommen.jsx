@@ -39,16 +39,16 @@ function TourRecommen({ tour }) {
     };
 
     return (
-        <Card className="tour-card" onClick={handleTourClick}>
+        <Card className="recommen-tour-card" onClick={handleTourClick}>
             <Card.Img
                 variant="top"
                 src={tour.tourImage}
                 alt={tour.tourName}
-                className="tour-card-img"
+                className="recommen-tour-card-img"
             />
-            <Card.Body className="tour-card-body">
-                <Card.Title className="tour-card-title">{tour.tourName}</Card.Title>
-                <Card.Text className="tour-card-text">
+            <Card.Body className="recommen-tour-card-body">
+                <Card.Title className="recommen-tour-card-title">{tour.tourName}</Card.Title>
+                <Card.Text className="recommen-tour-card-text">
                     <strong>Địa điểm:</strong> {tour.location} <br />
                     <strong>Mô tả:</strong> {tour.tourDescription} <br />
                     <strong>Ngày khởi hành:</strong> {tour.startDates.$values.map(formatDateToVietnamese).join(', ')} <br />
@@ -57,8 +57,8 @@ function TourRecommen({ tour }) {
                     <strong>Giá:</strong> {formatPrice(tour.price)}
                 </Card.Text>
             </Card.Body>
-            <div className="tour-card-footer m-2">
-                <Button className="tour-card-button">Đặt ngay</Button>
+            <div className="recommen-tour-card-footer m-2">
+                <Button className="recommen-tour-card-button">Đặt ngay</Button>
             </div>
         </Card>
     );
