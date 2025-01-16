@@ -249,7 +249,7 @@ function WalletManagement() {
       field: 'actions', 
       cellRenderer: (params) => {
         const tourStatus = getTourStatus(params.data.startDate, params.data.endDate);
-        if (params.data.paymentStatus !== 0 && params.data.paymentStatus == 1 && tourStatus === 'Chưa diễn ra') { 
+        if ( params.data.paymentStatus == 1 && tourStatus === 'Chưa diễn ra') { 
           return (
             <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
               <Button variant="danger" size='sm' className='rounded-5' onClick={() => handleCancelTour(params.data.tourId, params.data.scheduleId)}>
