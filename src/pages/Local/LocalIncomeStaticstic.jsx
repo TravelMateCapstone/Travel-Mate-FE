@@ -17,6 +17,7 @@ function LocalIncomeStatistics() {
     totalAmount: 0,
     totalTour: 0,
     totalTraveler: 0,
+    receivedAmount: 0,
     monthlyRevenues: []
   });
 
@@ -77,12 +78,16 @@ function LocalIncomeStatistics() {
           Authorization: `${token}`
         }
       });
+      
       const data = await response.json();
+      console.log(data);
+      
       setDashboardData({
         revenue: data.revenue,
         totalAmount: data.totalAmount,
         totalTour: data.totalTour,
         totalTraveler: data.totalTraveler,
+        receivedAmount: data.receivedAmount,
         monthlyRevenues: data.monthlyRevenues.$values
       });
       console.log('Dashboard data:', data);
@@ -100,13 +105,16 @@ function LocalIncomeStatistics() {
           <small className='text-uppercase fw-semibold'>Tổng số chuyến đi</small>
           <h3 className='statics_card_data'>{dashboardData.totalTour}</h3>
         </div>
-
         <div className='statics_card'>
           <small className='text-uppercase fw-semibold'>Tổng số tiền tour</small>
           <h3 className='statics_card_data'>{dashboardData.totalAmount.toLocaleString('vi-VN')} VNĐ</h3>
         </div>
+        <div className='statics_card'>
+          <small className='text-uppercase fw-semibold'>Tổng doanh thu đã nhận</small>
+          <h3 className='statics_card_data'>{dashboardData.receivedAmount.toLocaleString('vi-VN')} VNĐ</h3>
+        </div>
         <div className='statics_card bg-success text-white'>
-          <small className='text-uppercase fw-semibold'>Tổng doanh thu</small>
+          <small className='text-uppercase fw-semibold'>Tổng doanh thu dự kiến</small>
           <h3 className='statics_card_data'>{dashboardData.revenue.toLocaleString('vi-VN')} VNĐ</h3>
         </div>
 
