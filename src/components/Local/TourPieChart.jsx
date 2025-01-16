@@ -52,7 +52,7 @@ function TourPieChart({ tours }) {
       },
       title: {
         display: true,
-        text: 'Tổng doanh thu kiếm được từ tour',
+        text: 'Giá tiền của từng tour',
       },
     },
   };
