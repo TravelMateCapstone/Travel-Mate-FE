@@ -72,6 +72,7 @@ function FinishContractTraveller() {
 
             toast.success("Tạo bài viết thành công.");
             console.log(response.data);
+            // navigate(RoutePath.DONE_CONTRACT)
         } catch (error) {
             console.error("Error:", error);
             if (error.response.data == 'You have already create post about this tour') {
