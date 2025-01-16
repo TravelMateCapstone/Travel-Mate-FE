@@ -1,12 +1,17 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import MapComponent from '../components/Shared/MapComponent';
 import '../assets/css/Home/Home.css';
-import { Col, Container, Row } from 'react-bootstrap';
+import { Button, Col, Container, Row } from 'react-bootstrap';
+import Destination from './Destination/Destination';
 import DestinationCard from '../components/Home/DestinationCard';
 import ImageAccordionSlider from '../components/Home/ImageAccordionSlider';
+import { Typewriter } from 'react-simple-typewriter';
 import { useNavigate } from 'react-router-dom';
 import RoutePath from '../routes/RoutePath';
 import TextareaAutosize from 'react-textarea-autosize';
+import { useSelector } from 'react-redux';
+import TourCard from '../components/Destination/TourCard';
+import TourRecommen from '../components/Destination/TourRecommen';
 function Home() {
   const [destinations, setDestinations] = useState([]);
   const [wordIndex, setWordIndex] = useState(0);
@@ -21,6 +26,12 @@ function Home() {
     'Chúng tôi sẽ chọn lọc điểm đến phù hợp với bạn...',
   ];
   const [placeholder, setPlaceholder] = useState('');
+
+  const token = useSelector((state) => state.auth.token);
+  const [recommendedTours, setRecommendedTours] = useState([]);
+
+
+
   useEffect(() => {
     fetch('https://travelmateapp.azurewebsites.net/api/Locations')
       .then(response => response.json())
@@ -34,6 +45,24 @@ function Home() {
       })
       .catch(error => console.error('Error fetching destinations:', error));
   }, []);
+
+  // Gọi API lấy danh sách tour đề xuất
+  useEffect(() => {
+    fetch('https://travelmateapp.azurewebsites.net/api/RecommenTour/current-user2/1-4', {
+      headers: {
+        Authorization: `${token}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Dữ liệu đề xuất tour:', data); // Log dữ liệu để kiểm tra
+        setRecommendedTours(data.$values); // Lưu danh sách tour vào state
+      })
+      .catch(error => console.error('Error fetching recommended tours:', error));
+  }, []);
+
+
+
   useEffect(() => {
     const typeWriterEffect = () => {
       const currentWord = words[wordIndex]; // Lấy câu hiện tại trong mảng `words`
@@ -141,15 +170,15 @@ function Home() {
                 Nhập từ khóa và để tính năng gợi ý thông minh của chúng tôi giúp bạn nhanh chóng tìm thấy điểm đến lý tưởng một cách dễ dàng và tiện lợi!</p></div>
             <div className='mt-4 d-flex gap-3'>
               <TextareaAutosize
-              style={{
-              }}
+                style={{
+                }}
                 minRows={3}
                 type="text"
                 className="w-100 search_AI_input"
                 placeholder={placeholder}
                 value={query}
                 onChange={handleInputChange}
-                onKeyPress={handleKeyPress} 
+                onKeyPress={handleKeyPress}
               />
 
             </div>
@@ -191,6 +220,11 @@ function Home() {
         </Row>
 
       </div>
+
+
+
+
+
       <div className='' style={{
         backgroundColor: '#F9F9F9',
         height: '740px',
@@ -210,7 +244,44 @@ function Home() {
           </Row>
         </Container>
       </div>
-
+      <div className="recommended-tours-section py-5" style={{ backgroundColor: '#f9f9f9' }}>
+        <h2 className="text-center fw-bold">Đề xuất Tour cho bạn</h2>
+        <p className="text-center">Dựa trên sở thích và địa điểm bạn quan tâm.</p>
+        <Container>
+          <Row className="justify-content-center">
+            {recommendedTours.length > 0 ? (
+              recommendedTours.map((tour, index) => {
+                // Điều chỉnh kích thước Col dựa vào số lượng tours
+                const colSize = recommendedTours.length === 1
+                  ? 12 // 1 tour: chiếm toàn bộ
+                  : recommendedTours.length === 2
+                    ? 6 // 2 tours: chia đôi
+                    : recommendedTours.length === 3
+                      ? 4 // 3 tours: chia ba
+                      : 3; // >=4 tours: chia bốn
+                return (
+                  <Col
+                    lg={colSize}
+                    md={colSize}
+                    sm={12}
+                    key={tour.tourId}
+                    className="mb-4"
+                    style={
+                      recommendedTours.length === 1
+                        ? { display: 'flex', justifyContent: 'center' } // 1 tour: căn giữa
+                        : {}
+                    }
+                  >
+                    <TourRecommen tour={tour} />
+                  </Col>
+                );
+              })
+            ) : (
+              <p className="text-center">Không có tour đề xuất nào.</p>
+            )}
+          </Row>
+        </Container>
+      </div>
       <div style={{
         marginBottom: '50px',
       }}> <ImageAccordionSlider /></div>

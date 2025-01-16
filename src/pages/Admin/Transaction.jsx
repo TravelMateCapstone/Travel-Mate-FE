@@ -201,48 +201,57 @@ const Transaction = () => {
 				<Container fluid className="p-0">
 					<Row>
 						<Col md={4} className="mb-2">
-								<Card className="">
-									<Card.Body>
-										<Card.Title>Tổng Số Giao Dịch</Card.Title>
-										<h3>{rowData.length}</h3>
-									</Card.Body>
-								</Card>
-							</Col>
-							<Col md={8}>
-								<Card className="bg-success text-white">
-									<Card.Body>
-										<Card.Title>Tổng Số Doanh Thu</Card.Title>
-										<h3>{formatCurrency((rowData.reduce((acc, curr) => acc + curr.amount, 0) - rowData.reduce((acc, curr) => curr.transactionStatus === 3 ? acc + curr.amount : acc, 0)) * 0.1)}</h3>
-									</Card.Body>
-								</Card>
-							</Col>
-						</Row>
-						<Row>
-							<Col md={4}>
-								<Card className="">
-									<Card.Body>
-										<Card.Title>Tổng Số Tiền Đã Nhận</Card.Title>
-										<h3>{formatCurrency(rowData.reduce((acc, curr) => acc + curr.amount, 0))}</h3>
-									</Card.Body>
-								</Card>
-							</Col>
-							<Col md={4}>
-								<Card className="bg-warning text-white">
-									<Card.Body>
-										<Card.Title>Tổng Số Tiền Đã Thanh Toán</Card.Title>
-										<h3>{formatCurrency((rowData.reduce((acc, curr) => acc + curr.amount, 0) - rowData.reduce((acc, curr) => curr.transactionStatus === 3 ? acc + curr.amount : acc, 0)) * 0.9)}</h3>
-									</Card.Body>
-								</Card>
-							</Col>
-							<Col md={4}>
-								<Card className="bg-danger text-white">
-									<Card.Body>
-										<Card.Title>Tổng Số Tiền Đã Hoàn</Card.Title>
-										<h3>{formatCurrency(rowData.reduce((acc, curr) => curr.transactionStatus === 3 ? acc + curr.amount : acc, 0))}</h3>
-									</Card.Body>
-								</Card>
-							</Col>
-						</Row>
+							<Card className="">
+								<Card.Body>
+									<Card.Title>Tổng Số Giao Dịch</Card.Title>
+									<h3>{rowData.length}</h3>
+								</Card.Body>
+							</Card>
+						</Col>
+						<Col md={4}>
+							<Card className="bg-info text-white">
+								<Card.Body>
+									<Card.Title>Tổng Số Tiền Đã Nhận</Card.Title>
+									<h3>{formatCurrency(rowData.reduce((acc, curr) => acc + curr.amount, 0))}</h3>
+								</Card.Body>
+							</Card>
+						</Col>
+						<Col md={4}>
+							<Card className="bg-success text-white">
+								<Card.Body>
+									<Card.Title>Tổng Số Doanh Thu</Card.Title>
+									<h3>{formatCurrency((rowData.reduce((acc, curr) => acc + curr.amount, 0) - rowData.reduce((acc, curr) => curr.transactionStatus === 3 ? acc + curr.amount : acc, 0)) * 0.1)}</h3>
+								</Card.Body>
+							</Card>
+						</Col>
+					</Row>
+					<Row>
+						<Col md={4}>
+							<Card className="bg-danger text-white">
+								<Card.Body>
+									<Card.Title>Tổng Số Tiền Đã Hoàn</Card.Title>
+									<h3>{formatCurrency(rowData.reduce((acc, curr) => curr.transactionStatus === 3 ? acc + curr.amount : acc, 0))}</h3>
+								</Card.Body>
+							</Card>
+						</Col>
+						<Col md={4}>
+							<Card className="bg-warning text-white">
+								<Card.Body>
+									<Card.Title>Tổng Số Tiền Đã Chuyển cho Local</Card.Title>
+									<h3>{formatCurrency((rowData.reduce((acc, curr) => curr.transactionStatus === 1 ? acc + curr.amount : acc, 0)) * 0.9)}</h3>
+								</Card.Body>
+							</Card>
+						</Col>
+						<Col md={4}>
+							<Card className="bg-warning text-white">
+								<Card.Body>
+									<Card.Title>Tổng Số Tiền sẽ chuyển cho Local</Card.Title>
+									<h3>{formatCurrency((rowData.reduce((acc, curr) => acc + curr.amount, 0) - rowData.reduce((acc, curr) => curr.transactionStatus === 3 ? acc + curr.amount : acc, 0)) * 0.9 - ((rowData.reduce((acc, curr) => curr.transactionStatus === 1 ? acc + curr.amount : acc, 0)) * 0.9))}</h3>
+								</Card.Body>
+							</Card>
+						</Col>
+
+					</Row>
 				</Container>
 			</div>
 
