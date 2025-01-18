@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { Button, Container, Dropdown, DropdownButton, Form, Spinner } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,9 +12,10 @@ import { storage } from "../../../firebaseConfig";
 import { updateUserAvatar } from "../../redux/actions/authActions";
 import { toast } from "react-toastify";
 import FormModal from '../../components/Shared/FormModal'
-import AnswerQuestion from '../../components/Profile/FormBuilder/AnswerQuestion'
 import TextareaAutosize from 'react-textarea-autosize';
 import checkProfileCompletion from '../../utils/Profile/checkProfileCompletion';
+import { checkProfileCompletionAzure } from "../../apis/profileApi";
+import { viewProfile } from "../../redux/actions/profileActions";
 
 function ProfileCard() {
   const [profile, setProfile] = useState(null);
@@ -38,24 +39,22 @@ function ProfileCard() {
   const [reportReason, setReportReason] = useState("");
   const [reportImage, setReportImage] = useState(null);
   const [reportType, setReportType] = useState("User");
-  const [reportStatus, setReportStatus] = useState("Created");
 
   const [completionPercentage, setCompletionPercentage] = useState(0);
-  const [incompleteModels, setIncompleteModels] = useState([]);
 
   useEffect(() => {
     const fetchProfileCompletion = async () => {
       try {
-        const { totalPercentage, incompleteModels } = await checkProfileCompletion(url, token);
-        setCompletionPercentage(totalPercentage);
-        setIncompleteModels(incompleteModels.$values);
+        const data = await checkProfileCompletionAzure();
+        setCompletionPercentage(data.totalPercentage);
       } catch (error) {
         console.error("Lỗi khi kiểm tra hoàn thành hồ sơ:", error);
       }
     };
 
     fetchProfileCompletion();
-  }, [token, url]);
+    
+  }, [token]);
 
   useEffect(() => {
     setIsLoadingFormData(true);
@@ -282,37 +281,15 @@ function ProfileCard() {
     }
   };
 
-  const handleUnfriend = async (userIdRequest) => {
-    console.log(" ufr id ", userIdRequest);
-    try {
-      const response = await axios.delete(
-        `${url}/api/Friendship/remove?friendUserId=${userIdRequest}`,
-        {
-          headers: {
-            Authorization: `${token}`,
-          },
-        }
-      );
-      if (response.status === 200) {
-        dispatch(viewProfile(userIdRequest, token));
-        toast.success("Hủy kết bạn thành công!");
-        setFriendshipStatus(2);
-      }
-    } catch (error) {
-      console.error("Lỗi khi hủy kết bạn:", error);
-      toast.error("Lỗi khi hủy kết bạn!");
-    }
-  };
-
   const handleAcceptFriendRequest = async (senderId) => {
     try {
       const response = await axios.post(
-        `${url}/api/Friendship/accept?fromUserId=${senderId}`,
+        `https://travelmateapp.azurewebsites.net/api/Friendship/accept?fromUserId=${senderId}`,
         {},
         {
           headers: {
-            Authorization: `${token}`,
-          },
+            Authorization: `${token}`
+          }
         }
       );
       if (response.status === 200) {

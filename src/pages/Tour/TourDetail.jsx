@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Accordion from "react-bootstrap/Accordion";
 import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
@@ -14,6 +14,7 @@ import checkProfileCompletion from "../../utils/Profile/checkProfileCompletion";
 import { useDispatch } from "react-redux";
 import { viewProfile } from "../../redux/actions/profileActions";
 import Modal from "react-modal";
+import { setSelectedSchedule_redux } from "../../redux/actions/tourActions";
 
 Modal.setAppElement('#root');
 
@@ -25,40 +26,58 @@ function TourDetail() {
     const dispatch = useDispatch();
     const [showModal, setShowModal] = useState(false);
     const [selectedActivity, setSelectedActivity] = useState(null);
-
+    const [selectedSchedule, setSelectedSchedule] = useState(null);
     console.log(tourData);
+    
 
+    useEffect(() => {
+        if (tourData && tourData.schedules && tourData.schedules.$values.length > 0) {
+            setSelectedSchedule(tourData.schedules.$values[0]);
+        }
+    }, [tourData]);
+
+    const handleScheduleSelect = (schedule) => {
+        setSelectedSchedule(schedule);
+        dispatch(setSelectedSchedule_redux(schedule.scheduleId));
+    };
+    const user = useSelector((state) => state.auth.user);
     const formatDateToVietnamese = (date) => {
-        return new Date(date).toLocaleString('vi-VN', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-        });
+        const parsedDate = new Date(date); // Chuyển chuỗi date về dạng Date object
+        const day = String(parsedDate.getUTCDate()).padStart(2, '0'); // Lấy ngày theo UTC
+        const month = String(parsedDate.getUTCMonth() + 1).padStart(2, '0'); // Lấy tháng theo UTC (cộng thêm 1)
+        return `${day}/${month}`;
     };
 
     const viewLocal = (localId) => {
-        dispatch(viewProfile(localId, token));
-        window.open(RoutePath.OTHERS_PROFILE, '_blank');
+        if (parseInt(localId) === parseInt(user.id)) {
+            dispatch(viewProfile(localId, token));
+            window.open(RoutePath.PROFILE_MY_PROFILE, '_blank');
+        } else {
+            dispatch(viewProfile(localId, token));
+            window.open(RoutePath.OTHERS_PROFILE, '_blank');
+        }
     }
 
-    const handelJointTour = async (tourId) => {
+    const handelJointTour = async (tourId, scheduleId) => {
         try {
             const profileCompletion = await checkProfileCompletion("https://travelmateapp.azurewebsites.net", token);
             if (!profileCompletion) {
                 toast.error("Bạn phải hoàn thành cả chữ kí số và CCCD. Vui lòng cập nhật hồ sơ của bạn.");
                 return;
             }
-
             await axios.post(
-                `https://travelmateapp.azurewebsites.net/api/Tour/join/${tourId}`,
-                {},
+                `https://travelmateapp.azurewebsites.net/api/TourParticipant/join`,
+                {
+                    tourId: tourId,
+                    scheduleId: scheduleId,
+                },
                 {
                     headers: {
                         Authorization: `${token}`,
                     },
                 }
             );
-
+            dispatch(setSelectedSchedule_redux(scheduleId))
             navigate(RoutePath.CREATE_CONTRACT);
         } catch (error) {
             console.error("Error joining tour:", error);
@@ -66,6 +85,11 @@ function TourDetail() {
                 toast.error("Bạn đã tham gia tour này. Vui lòng kiểm tra hợp đồng của bạn.");
             } else if (error.response && error.response.data === "Access Denied! You are creator of this tour") {
                 toast.error("Bạn đã tạo tour này. Vui lòng kiểm tra hợp đồng của bạn trong phần quản lý chuyến đi.");
+            } else if(error.response && error.response.data === "Access Denied! Tour've already done!"){
+                toast.error("Tour đã hoàn thành. Vui lòng chọn tour khác.");
+            } else if(error.response && error.response.data === "Access Denied! Finish your tour booking process before booking another tour"){
+                toast.error("Hoàn tất quy trình đặt tour trước khi đặt tour khác");
+
             }
         }
     };
@@ -73,7 +97,6 @@ function TourDetail() {
     const chatWithLocal = async (localId) => {
         try {
             const response = await axios.get(`https://travelmateapp.azurewebsites.net/api/Chat/UserInfo/${localId}`);
-            console.log("Chat user info:", response.data);
             const userData = response.data;
             navigate(RoutePath.CHAT, { state: { user: userData } });
         } catch (error) {
@@ -228,7 +251,9 @@ function TourDetail() {
                                 />
                             </div>
                             <div className="hidden lg:block col-md-4">
-                                <div className="tour_card_component bg-white p-3 rounded-4">
+                                <div className="bg-white p-3 rounded-4 border-1" style={{
+                                    borderColor: "rgba(0, 0, 0, 0.3)",
+                                }}>
                                     <div className="d-flex justify-content-between mb-4">
                                         <div className="d-flex gap-3">
                                             <img src={tourData.creator.avatarUrl} alt="" width={60} height={60} className="rounded-circle object-fit-cover mb-2" />
@@ -252,13 +277,14 @@ function TourDetail() {
                                     </div>
                                     <Button variant="outline-success" className="w-100" onClick={() => viewLocal(tourData.creator.id)}>Xem hồ sơ</Button>
                                 </div>
-
-                                <div className=" p-3 rounded-4 mt-3 tour_card_component bg-white">
+                                <div className=" p-3 rounded-4 mt-3 tour_card_component bg-white border-1" style={{
+                                    borderColor: "rgba(0, 0, 0, 0.3)",
+                                }}>
                                     <div className="px-2">
                                         <h4>Giá <span className="text-danger">*</span></h4>
                                         <h2 className="fw-semibold text-success mb-4">{tourData.price.toLocaleString()}&nbsp;₫/ <sub className="text-dark">Khách</sub></h2>
                                         <div className="flex flex-col tour-form_gap__N_UmA ">
-                                            <Table bordered hover style={{ overflow: 'hidden' }}>
+                                            <Table bordered hover style={{ overflow: 'hidden', }}>
                                                 <tbody>
                                                     <tr>
                                                         <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="location-outline"></ion-icon> Khởi hành</td>
@@ -266,19 +292,38 @@ function TourDetail() {
                                                     </tr>
                                                     <tr>
                                                         <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="time-outline"></ion-icon> Thời gian</td>
-                                                        <td style={{ width: '50%' }}>{tourData.numberOfDays}N{tourData.numberOfNights}Đ</td>
+                                                        <td style={{ width: '50%' }}>{tourData.numberOfDays}N{tourData.numberOfDays-1}Đ</td>
                                                     </tr>
                                                     <tr>
                                                         <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="people-outline"></ion-icon> Số người tham gia</td>
-                                                        <td style={{ width: '50%' }}>{tourData.registeredGuests}/{tourData.maxGuests}</td>
+                                                        <td style={{ width: '50%' }}>{selectedSchedule && (
+                                                            <div >
+                                                                {selectedSchedule?.participants?.$values.length}/{tourData.maxGuests}
+                                                            </div>
+                                                        )}</td>
                                                     </tr>
                                                     <tr>
                                                         <td className="fw-medium" style={{ width: '50%' }}><ion-icon name="calendar-outline"></ion-icon> Ngày khởi hành</td>
-                                                        <td style={{ width: '50%' }}><div className="" style={{
-                                                            width: "fit-content",
-                                                            borderRadius: "10px",
-                                                        }}>
-                                                            {formatDateToVietnamese(tourData.startDate)}</div></td>
+                                                        <td style={{ width: '50%' }}>
+                                                            <div className="" style={{
+                                                                width: "fit-content",
+                                                                borderRadius: "10px",
+                                                                display: "flex",
+                                                                gap: "5px",
+                                                            }}>
+                                                                {tourData.schedules.$values.map((schedule, index) => (
+                                                                    <Button
+                                                                        variant={schedule.activeStatus ? (selectedSchedule?.scheduleId === schedule.scheduleId ? "success" : "outline-success") : "outline-secondary"}
+                                                                        key={index}
+                                                                        action
+                                                                        onClick={() => handleScheduleSelect(schedule)}
+                                                                        disabled={!schedule.activeStatus}
+                                                                    >
+                                                                        {formatDateToVietnamese(schedule.startDate)}
+                                                                    </Button>
+                                                                ))}
+                                                            </div>
+                                                        </td>
                                                     </tr>
                                                 </tbody>
                                             </Table>
@@ -288,13 +333,14 @@ function TourDetail() {
 
                                     <div className="d-flex gap-2 ">
                                         <Button variant="outline-success" className="text-nowrap" onClick={() => chatWithLocal(tourData.creator.id)}>Nhắn tin</Button>
-                                        {(tourData.registeredGuests < tourData.maxGuests) ? (
-                                            <Button variant="success" className="w-100" onClick={() => handelJointTour(tourData.tourId)}>Đặt chỗ ngay</Button>
+                                        {(selectedSchedule?.participants?.$values.length < tourData.maxGuests) ? (
+                                            <Button variant="success" className="w-100" onClick={() => handelJointTour(tourData.tourId, selectedSchedule?.scheduleId)}>Đặt chỗ ngay</Button>
                                         ) : (
                                             <Button variant="dark" disabled><ion-icon name="sad-outline"></ion-icon> Đã đủ số lượng</Button>
                                         )}
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                         <Tabs
@@ -307,7 +353,7 @@ function TourDetail() {
                                 <Accordion defaultActiveKey="0" alwaysOpen>
                                     {tourData.itinerary.$values.map((day, index) => (
                                         <Accordion.Item eventKey={index.toString()} key={index}>
-                                            <Accordion.Header><div className="d-flex flex-column"><strong>Ngày {day.day}</strong></div></Accordion.Header>
+                                            <Accordion.Header><div className="d-flex flex-column"><strong>Ngày {index+1}</strong></div></Accordion.Header>
                                             <Accordion.Body>
                                                 <Table bordered hover>
                                                     <thead>

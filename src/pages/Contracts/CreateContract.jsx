@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "../../assets/css/Contracts/CreateContract.css";
 import { Button, Col, Row } from "react-bootstrap";
 import { useSelector } from "react-redux";
@@ -6,8 +6,6 @@ import { useNavigate } from "react-router-dom";
 import RoutePath from "../../routes/RoutePath";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
 import VerifySignatureRSA from "../../components/Tour/VerifySignatureRSA";
 import TimeLine from "../../components/Contracts/TimeLine";
 
@@ -19,9 +17,8 @@ function CreateContract() {
   const travlerrSignature = useSelector((state) => state.signature.signature);
   const [isValidSignature, setIsValidSignature] = useState(false);
   const token = useSelector((state) => state.auth.token);
-  const formatDate = (date) => {
-    return format(new Date(date), "dd/MM/yyyy", { locale: vi });
-  };
+  const selectedScheduleId = useSelector((state) => state.tour.selectedScheduleId);
+ 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -62,12 +59,9 @@ function CreateContract() {
       location: tourInfo.location,
       details: JSON.stringify(tourInfo),
       travelerSignature: travlerrSignature,
-      // localSignature: "chuky8",
+      scheduleId: selectedScheduleId,
     };
-    console.log(contractInfo);
     localStorage.setItem("contractInfo", JSON.stringify(contractInfo));
-    console.log("contractInfo", contractInfo);
-    
     localStorage.setItem("isLocal", 'traveler');
     try {
       const response = await axios.post(
@@ -76,14 +70,15 @@ function CreateContract() {
       );
       if (response.data.data.isCompleted) {
         const infoPayment = {
-          tourName: 'Tour du lịch',
+          // tourName: 'Tour du lịch',
           tourId: tourInfo.tourId,
-          localId: tourInfo.creator.id,
+          // localId: tourInfo.creator.id,
           travelerId: user.id,
-          // amount: tourInfo.price,
           amount: tourInfo.price,
+          scheduleId: selectedScheduleId
         };
-        // Redirect to payment form submission
+        console.log("infoPayment", infoPayment);
+        
         const form = document.createElement("form");
         form.action = "https://travelmateapp.azurewebsites.net/api/order";
         form.method = "GET";
@@ -224,14 +219,14 @@ function CreateContract() {
             }}
           ></ion-icon>{" "}
           <p className="py-2 m-0">Thời gian diễn ra</p>
-          <p className="p-2 m-0 fw-medium">{formatDate(tourInfo.startDate)}</p>
+          {/* <p className="p-2 m-0 fw-medium">{formatDate(tourInfo.startDate)}</p> */}
           <div
             className="py-2 px-3 rounded-5 text-danger fw-medium"
             style={{
               backgroundColor: "#f9f9f9",
             }}
           >
-            {formatDate(tourInfo.endDate)}
+            {/* {formatDate(tourInfo.endDate)} */}
           </div>
         </Col>
       </Row>
@@ -259,8 +254,8 @@ function CreateContract() {
             <h6 className="fw-normal m-0">Chi phí thanh toán</h6>
           </div>
           <div className="d-flex justify-content-between flex-column gap-2 mt-2">
-            {tourInfo.costDetails.$values.map((cost) => (
-              <div className="d-flex justify-content-between">
+            {tourInfo.costDetails.$values.map((cost, index) => (
+              <div key={index} className="d-flex justify-content-between">
                 <strong>{cost.title}</strong>{" "}
                 <div className="m-0 d-flex gap-1">
                   <p className="m-0">{cost.amount}</p>{" "}
@@ -288,11 +283,11 @@ function CreateContract() {
           <div className="mt-2 d-flex flex-column">
             <div className="d-flex flex-column">
               {tourInfo.itinerary.$values.map((day) => (
-                <div>
+                <div key={day.day}>
                   <h6>Ngày {day.day}: {day.title}</h6>
                   <ul>
                     {day.activities.$values.map((activity) => (
-                      <li>{activity.description}</li>
+                      <li key={activity.id}>{activity.description}</li>
                     ))}
                   </ul>
                 </div>

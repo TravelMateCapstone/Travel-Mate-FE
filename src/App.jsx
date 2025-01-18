@@ -63,7 +63,6 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <ToastContainer
-          position="bottom-right"
           autoClose={3000}
           hideProgressBar={false}
           newestOnTop={false}

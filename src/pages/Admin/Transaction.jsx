@@ -1,240 +1,224 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import axios from "axios";
-import { AgGridReact } from "@ag-grid-community/react";
 import { ModuleRegistry } from "@ag-grid-community/core";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
-import * as XLSX from "xlsx";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { Button, Card, Row, Col, Form, Tabs, Tab } from "react-bootstrap";
+import { Card, Row, Col, Tabs, Tab, Button, Badge, Modal, InputGroup, FormControl } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { AgGridReact } from "@ag-grid-community/react";
+import { fetchTransactionData, confirmTransaction, refundTransaction, fetchUserBankData } from "../../apis/transaction_admin";
+import { format } from 'date-fns';
+import { vi } from 'date-fns/locale';
 import { toast } from "react-toastify";
+import * as XLSX from 'xlsx';
 
 ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
-const Transaction = () => {
-	const gridRef = useRef();
-	const refundGridRef = useRef(); // Add a new ref for the refund grid
-
-	const containerStyle = useMemo(() => ({ width: "100%", height: "100%" }), []);
-	const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
-
-	const [rowData, setRowData] = useState([]);
-	const [loading, setLoading] = useState(false);
-	const [totalTransactions, setTotalTransactions] = useState(0);
-	const [totalAmount, setTotalAmount] = useState(0);
-	const [key, setKey] = useState('transactions');
-
-	const fetchTransactions = useCallback(async () => {
-		setLoading(true);
-		try {
-			const response = await axios.get(
-				"https://travelmateapp.azurewebsites.net/api/Transaction"
-			);
-			const data = response.data?.$values || [];
-			const transformedData = data.map((item) => ({
-				id: item.id,
-				sender: item.localName,
-				receiver: item.travelerName,
-				status: "Đã hoàn thành",
-				transactionTime: new Date(item.transactionTime).toLocaleString("vi-VN"),
-				amount: item.price,
-				formattedAmount: `${item.price.toLocaleString("vi-VN")} VND`,
-			}));
-
-			setRowData(transformedData);
-
-			// Calculate summary data
-			setTotalTransactions(data.length);
-			setTotalAmount(data.reduce((sum, item) => sum + item.price, 0));
-		} catch (error) {
-			toast.error("Không thể tải dữ liệu giao dịch!");
-			console.error("API error:", error);
-		} finally {
-			setLoading(false);
-		}
-	}, []);
-
-	useEffect(() => {
-		fetchTransactions();
-	}, [fetchTransactions]);
-
-	const columnDefs = [
-		{
-			headerName: "Người gửi",
-			field: "sender",
-			editable: false,
-			filter: "agTextColumnFilter",
-		},
-		{
-			headerName: "Người nhận",
-			field: "receiver",
-			editable: false,
-			filter: "agTextColumnFilter",
-		},
-		{
-			headerName: "Tình trạng",
-			field: "status",
-			editable: true,
-			cellEditor: "agSelectCellEditor",
-			cellEditorParams: {
-				values: ["Đã hoàn thành", "Đang giao dịch"],
-			},
-			filter: "agSetColumnFilter",
-		},
-		{
-			headerName: "Thời gian giao dịch",
-			field: "transactionTime",
-			editable: false,
-			filter: "agDateColumnFilter",
-		},
-		{
-			headerName: "Số tiền",
-			field: "formattedAmount",
-			editable: false,
-			filter: "agNumberColumnFilter",
-		},
-	];
-
-	const refundData = [
-    {
-        tourId: "52d8ec8b-c1b8-4df5-aad1-18d5c516b2e1",
-        user: "Trần Duy",
-        reason: "Không thể tham gia tour",
-        tourStatus: "Chưa diễn ra",
-        refundStatus: "Đã hoàn tiền",
-        transferTime: "30-03-2025 12:00",
-        amount: 1000000,
-        formattedAmount: "1,000,000 VND",
-        action: "Xác nhận",
-    },
-    {
-        tourId: "52d8ec8b-c1b8-4df5-aad1-18d5c516b2e2",
-        user: "Trần Hải Đăng",
-        reason: "Không thể thực hiện tour",
-        tourStatus: "Chưa diễn ra",
-        refundStatus: "Chưa hoàn tiền",
-        transferTime: "",
-        amount: 1000000,
-        formattedAmount: "1,000,000 VND",
-        action: "Xác nhận",
-    },
-];
-
-const refundColumnDefs = [
-    {
-        headerName: "TourID",
-        field: "tourId",
-        editable: false,
-        filter: "agTextColumnFilter",
-    },
-    {
-        headerName: "Người dùng",
-        field: "user",
-        editable: false,
-        filter: "agTextColumnFilter",
-    },
-    {
-        headerName: "Lý do hoàn tiền",
-        field: "reason",
-        editable: false,
-        filter: "agTextColumnFilter",
-    },
-    {
-        headerName: "Tình trạng tour",
-        field: "tourStatus",
-        editable: false,
-        filter: "agTextColumnFilter",
-    },
-    {
-        headerName: "Tình trạng hoàn tiền",
-        field: "refundStatus",
-        editable: false,
-        cellClassRules: {
-            "text-success": (params) => params.value === "Đã hoàn tiền",
-            "text-danger": (params) => params.value === "Chưa hoàn tiền",
-        },
-        filter: "agTextColumnFilter",
-    },
-    {
-        headerName: "Thời gian chuyển tiền",
-        field: "transferTime",
-        editable: false,
-        filter: "agDateColumnFilter",
-    },
-    {
-        headerName: "Số tiền cần chuyển",
-        field: "formattedAmount",
-        editable: false,
-        filter: "agNumberColumnFilter",
-    },
-    {
-        headerName: "Hành động",
-        field: "action",
-        editable: false,
-        cellRenderer: (params) => (
-            <Button
-                variant="success"
-                size="sm"
-                onClick={() => handleConfirmRefund(params.data.tourId)}
-            >
-                {params.value}
-            </Button>
-        ),
-    },
-];
-
-const handleConfirmRefund = (tourId) => {
-    alert(`Xác nhận: ${tourId}`);
+const formatDate = (date) => {
+	return format(new Date(date), 'dd/MM/yyyy', { locale: vi });
 };
 
-const exportRefundsToExcel = () => {
-	try {
-		const ws = XLSX.utils.json_to_sheet(refundData.map(({ formattedAmount, ...rest }) => rest));
-		const wb = XLSX.utils.book_new();
-		XLSX.utils.book_append_sheet(wb, ws, "Refunds");
-		XLSX.writeFile(wb, "Refunds.xlsx");
-		toast.success("Xuất file Excel thành công!");
-	} catch (error) {
-		toast.error("Không thể xuất file Excel!");
-		console.error("Excel export error:", error);
+const formatCurrency = (amount) => {
+	return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+};
+
+const getStatusBadge = (status) => {
+	switch (status) {
+		case 0:
+			return <Badge bg="danger">Chưa trả tiền</Badge>;
+		case 1:
+			return <Badge bg="success">Đã trả tiền</Badge>;
+		case 2:
+			return <Badge bg="warning">Đang hoàn tiền</Badge>;
+		case 3:
+			return <Badge bg="info">Đã hoàn tiền</Badge>;
+		default:
+			return <Badge bg="dark">Không xác định</Badge>;
 	}
 };
 
-	const exportToExcel = () => {
+const Transaction = () => {
+	const [key, setKey] = useState('transactions');
+	const [rowData, setRowData] = useState([]);
+	const [showModal, setShowModal] = useState(false);
+	const [modalData, setModalData] = useState(null);
+	const [quickFilter, setQuickFilter] = useState("");
+
+	const onQuickFilterChange = (event) => {
+		setQuickFilter(event.target.value);
+	};
+
+	useEffect(() => {
+		const getTransactionData = async () => {
+			try {
+				const data = await fetchTransactionData();
+				setRowData(data.$values);
+			} catch (error) {
+				console.error("Lỗi khi lấy dữ liệu giao dịch:", error);
+			}
+		};
+		getTransactionData();
+	}, []);
+
+	const columnDefs = [
+		{ headerName: "Tên Tour", field: "tourName" },
+		{ headerName: "Ngày Bắt Đầu", field: "startDate", valueFormatter: (params) => formatDate(params.value), flex: 0.75 },
+		{ headerName: "Ngày Kết Thúc", field: "endDate", valueFormatter: (params) => formatDate(params.value), flex: 0.75 },
+		{
+			headerName: "Trạng Thái Giao Dịch",
+			field: "transactionStatus",
+			cellRenderer: (params) => getStatusBadge(params.value)
+		},
+		{ headerName: "Tên Địa Người Phương", field: "localName" },
+		{ headerName: "Tên Khách Du Lịch", field: "travelerName" },
+		{ headerName: "Số Tiền", field: "amount", valueFormatter: (params) => formatCurrency(params.value) },
+		{ headerName: "Số Tiền Còn Lại", field: "lastAmount", valueFormatter: (params) => formatCurrency(params.value) },
+		{
+			headerName: "Hành Động",
+			field: "actions",
+			cellRenderer: (params) => (
+				<div className="d-flex gap-1">
+					<Button variant="" size="sm" onClick={() => handleViewBankInfo(params.data, false)}><ion-icon name="ellipsis-vertical-outline"></ion-icon></Button>
+					{params.data.transactionStatus !== 1 && (
+						<Button variant="success" size="sm" onClick={() => handleConfirm(params.data)}>Xác Nhận</Button>
+					)}
+				</div>
+			),
+		},
+	];
+
+	const columnDefsRefund = [
+		{ headerName: "Tên Tour", field: "tourName" },
+		{ headerName: "Ngày Bắt Đầu", field: "startDate", valueFormatter: (params) => formatDate(params.value), flex: 0.75 },
+		{ headerName: "Ngày Kết Thúc", field: "endDate", valueFormatter: (params) => formatDate(params.value), flex: 0.75 },
+		{
+			headerName: "Tình Trạng Hoàn tiền",
+			field: "transactionStatus",
+			cellRenderer: (params) => getStatusBadge(params.value)
+		},
+		{ headerName: "Tên Địa Người Phương", field: "localName" },
+		{ headerName: "Tên Khách Du Lịch", field: "travelerName" },
+		{ headerName: "Số Tiền", field: "amount", valueFormatter: (params) => formatCurrency(params.value), flex: 0.75 },
+		{ headerName: "Số Tiền Còn Lại", field: "lastAmount", valueFormatter: (params) => formatCurrency(params.value), flex: 0.75 },
+		{
+			headerName: "Hành Động",
+			field: "actions",
+			cellRenderer: (params) => (
+				<div className="d-flex gap-1">
+					<Button variant="" size="sm" onClick={() => handleViewBankInfo(params.data, true)}><ion-icon name="ellipsis-vertical-outline"></ion-icon></Button>
+					{params.data.transactionStatus !== 3 && (
+						<Button variant="success" size="sm" onClick={() => handleConfirmRefund(params.data)}>Xác Nhận</Button>
+					)}
+				</div>
+			),
+		},
+	];
+
+
+
+	const handleViewBankInfo = async (data, isRefund) => {
 		try {
-			const ws = XLSX.utils.json_to_sheet(rowData.map(({ formattedAmount, ...rest }) => rest));
-			const wb = XLSX.utils.book_new();
-			XLSX.utils.book_append_sheet(wb, ws, "Transactions");
-			XLSX.writeFile(wb, "Transactions.xlsx");
-			toast.success("Xuất file Excel thành công!");
+			const bankData = await fetchUserBankData(isRefund ? data.travelerId : data.localId);
+			setModalData({
+				travelerName: data.travelerName,
+				bankName: bankData.bankName,
+				bankNumber: bankData.bankNumber,
+				ownerName: bankData.ownerName
+			});
+			setShowModal(true);
 		} catch (error) {
-			toast.error("Không thể xuất file Excel!");
-			console.error("Excel export error:", error);
+			toast.error("Lỗi khi lấy thông tin ngân hàng: " + error.message);
 		}
 	};
 
+	const handleCloseModal = () => {
+		setShowModal(false);
+		setModalData(null);
+	};
+
+	const handleConfirm = async (data) => {
+		try {
+			await confirmTransaction(data.id);
+			toast.success("Xác nhận giao dịch cho: " + data.travelerName);
+			setRowData((prevData) =>
+				prevData.map((item) =>
+					item.id === data.id ? { ...item, transactionStatus: 1 } : item
+				)
+			);
+		} catch (error) {
+			if (error.response.data === "Access Denied! Tour does not finish!") {
+				toast.error("Tour chưa kết thúc, không thể xác nhận giao dịch");
+			}
+			else {
+				toast.error("Lỗi khi xác nhận giao dịch: " + error.message);
+			}
+		}
+	};
+
+	const handleConfirmRefund = async (data) => {
+		console.log('Refunding transaction:', data);
+		
+		try {
+			await refundTransaction(data.id);
+			toast.success("Xác nhận hoàn tiền cho: " + data.travelerName);
+			setRowData((prevData) =>
+				prevData.map((item) =>
+					item.id === data.id ? { ...item, transactionStatus: 3 } : item
+				)
+			);
+		} catch (error) {
+			if (error.response.data === "Access Denied! Tour does not finish!") {
+				toast.error("Tour chưa kết thúc, không thể xác nhận hoàn tiền");
+			} else {
+				toast.error("Lỗi khi xác nhận hoàn tiền: " + error.message);
+			}
+		}
+	};
+		
+
+
+	const exportToExcel = () => {
+		const worksheet = XLSX.utils.json_to_sheet(rowData);
+		const workbook = XLSX.utils.book_new();
+		XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
+		XLSX.writeFile(workbook, "transactions.xlsx");
+	};
+
+	const exportRefundsToExcel = () => {
+		const worksheet = XLSX.utils.json_to_sheet(filteredRefunds);
+		const workbook = XLSX.utils.book_new();
+		XLSX.utils.book_append_sheet(workbook, worksheet, "Refunds");
+		XLSX.writeFile(workbook, "refunds.xlsx");
+	};
+
+	const filteredTransactions = rowData.filter(item => item.transactionStatus === 0 || item.transactionStatus === 1);
+	const filteredRefunds = rowData.filter(item => item.transactionStatus === 2 || item.transactionStatus === 3);
+
+	console.log(filteredRefunds);
+	
 	return (
-		<div style={containerStyle}>
+		<div >
 			<div className="mb-4">
 				<Row>
 					<Col md={4}>
 						<Card>
 							<Card.Body>
-								<Card.Title>Tổng số giao dịch</Card.Title>
-								<h3>{totalTransactions}</h3>
+								<Card.Title>Tổng Số Giao Dịch</Card.Title>
+								<h3>{rowData.length}</h3>
 							</Card.Body>
 						</Card>
 					</Col>
 					<Col md={4}>
 						<Card>
 							<Card.Body>
-								<Card.Title>Tổng số tiền giao dịch</Card.Title>
-								<h3>{totalAmount.toLocaleString("vi-VN")} VND</h3>
+								<Card.Title>Tổng Số Tiền Giao Dịch</Card.Title>
+								<h3>{formatCurrency(rowData.reduce((acc, curr) => acc + curr.amount, 0))}</h3>
 							</Card.Body>
 						</Card>
 					</Col>
 				</Row>
 			</div>
+
+			
 
 			<Tabs
 				id="controlled-tab-example"
@@ -242,94 +226,68 @@ const exportRefundsToExcel = () => {
 				onSelect={(k) => setKey(k)}
 				className="mb-3 no-border-radius"
 			>
-				<Tab eventKey="transactions" title="Danh sách giao dịch">
-					<div>
-						<div
-							className="d-flex align-items-center justify-content-between my-3"
-							style={{ height: "38px" }}
-						>
-							<Form.Control
-								style={{ height: "38px", width: "25%" }}
-								type="text"
-								placeholder="Tìm kiếm"
-								onInput={(e) => gridRef.current.api.setQuickFilter(e.target.value)} // Use gridRef for transactions
-							/>
-							<Button
-								variant="success"
-								className="text-nowrap"
-								onClick={exportToExcel}
-								style={{ height: "38px" }}
-							>
-								Xuất file Excel
-							</Button>
-						</div>
-
-						{loading ? (
-							<p>Đang tải dữ liệu...</p>
-						) : (
-							<div style={gridStyle} className={"ag-theme-alpine"}>
-								<AgGridReact
-									ref={gridRef} // Use gridRef for transactions
-									rowData={rowData}
-									columnDefs={columnDefs}
-									defaultColDef={{
-										sortable: true,
-										filter: true,
-										resizable: true,
-									}}
-									pagination={true}
-									paginationPageSize={10}
-									rowSelection="multiple"
-									suppressRowClickSelection={true}
-									domLayout="autoHeight"
-									animateRows={true}
-								/>
-							</div>
-						)}
+				<Tab eventKey="transactions" title={<span>Danh Sách Giao Dịch <Badge bg="primary">{filteredTransactions.length}</Badge></span>}>
+				<div className="d-flex justify-content-between align-items-center">
+				<InputGroup className="mb-3 w-25">
+					<FormControl
+						placeholder="Tìm kiếm nhanh..."
+						aria-label="Tìm kiếm nhanh"
+						aria-describedby="basic-addon2"
+						value={quickFilter}
+						onChange={onQuickFilterChange}
+					/>
+				</InputGroup>
+				<Button variant="success" onClick={exportToExcel}>Xuất file excel</Button>
+			</div>
+					<div className="ag-theme-alpine" style={{ height: 400, width: "100%" }}>
+						<AgGridReact
+							rowData={filteredTransactions} // Use filtered transactions
+							columnDefs={columnDefs}
+							quickFilterText={quickFilter} // Add quick filter text
+						/>
 					</div>
 				</Tab>
-				<Tab eventKey="refunds" title="Danh sách hoàn tiền">
-					<div>
-							<div
-								className="d-flex align-items-center justify-content-between my-3"
-								style={{ height: "38px" }}
-							>
-								<Form.Control
-									style={{ height: "38px", width: "25%" }}
-									type="text"
-									placeholder="Tìm kiếm"
-									onInput={(e) => refundGridRef.current.api.setQuickFilter(e.target.value)} // Use refundGridRef for refunds
-								/>
-								<Button
-									variant="success"
-									className="text-nowrap"
-									onClick={exportRefundsToExcel}
-									style={{ height: "38px" }}
-								>
-									Xuất file Excel
-								</Button>
-							</div>
-						<div style={gridStyle} className={"ag-theme-alpine"}>
-							<AgGridReact
-								ref={refundGridRef} // Use refundGridRef for refunds
-								rowData={refundData}
-								columnDefs={refundColumnDefs}
-								defaultColDef={{
-									sortable: true,
-									filter: true,
-									resizable: true,
-								}}
-								pagination={true}
-								paginationPageSize={10}
-								rowSelection="multiple"
-								suppressRowClickSelection={true}
-								domLayout="autoHeight"
-								animateRows={true}
-							/>
-						</div>
+				<Tab eventKey="refunds" title={<span>Danh Sách Hoàn Tiền <Badge bg="danger">{filteredRefunds.length}</Badge></span>}>
+				<div className="d-flex justify-content-between align-items-center">
+				<InputGroup className="mb-3 w-25">
+					<FormControl
+						placeholder="Tìm kiếm nhanh..."
+						aria-label="Tìm kiếm nhanh"
+						aria-describedby="basic-addon2"
+						value={quickFilter}
+						onChange={onQuickFilterChange}
+					/>
+				</InputGroup>
+				<Button variant="success" onClick={exportRefundsToExcel}>Xuất file excel</Button>
+			</div>
+				<div className="ag-theme-alpine" style={{ height: 400, width: "100%" }}>
+						<AgGridReact
+							rowData={filteredRefunds} // Use filtered refunds
+							columnDefs={columnDefsRefund}
+							quickFilterText={quickFilter} // Add quick filter text
+						/>
 					</div>
 				</Tab>
 			</Tabs>
+
+			<Modal show={showModal} onHide={handleCloseModal} centered>
+				
+				<Modal.Body>
+					{modalData && (
+						<div className="text-center">
+							{/* <p>Tên Khách Du Lịch: {modalData.travelerName}</p> */}
+							<p>Tên chủ TK: {modalData.ownerName}</p>
+							<p>Số TK: {modalData.bankNumber}</p>
+							<p>Ngân Hàng: {modalData.bankName}</p>
+						</div>
+					)}
+				</Modal.Body>
+				<Modal.Footer>
+					<Button variant="secondary" onClick={handleCloseModal}>
+						Đóng
+					</Button>
+				</Modal.Footer>
+			</Modal>
 		</div>
 	);
 };

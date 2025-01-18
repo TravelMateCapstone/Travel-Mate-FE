@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import MapComponent from '../components/Shared/MapComponent';
 import '../assets/css/Home/Home.css';
-import { Button, Col, Container, Row } from 'react-bootstrap';
-import Destination from './Destination/Destination';
+import { Col, Container, Row } from 'react-bootstrap';
 import DestinationCard from '../components/Home/DestinationCard';
 import ImageAccordionSlider from '../components/Home/ImageAccordionSlider';
-import { Typewriter } from 'react-simple-typewriter';
 import { useNavigate } from 'react-router-dom';
 import RoutePath from '../routes/RoutePath';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -23,9 +21,6 @@ function Home() {
     'Chúng tôi sẽ chọn lọc điểm đến phù hợp với bạn...',
   ];
   const [placeholder, setPlaceholder] = useState('');
-
-
-
   useEffect(() => {
     fetch('https://travelmateapp.azurewebsites.net/api/Locations')
       .then(response => response.json())
@@ -39,8 +34,6 @@ function Home() {
       })
       .catch(error => console.error('Error fetching destinations:', error));
   }, []);
-
-
   useEffect(() => {
     const typeWriterEffect = () => {
       const currentWord = words[wordIndex]; // Lấy câu hiện tại trong mảng `words`

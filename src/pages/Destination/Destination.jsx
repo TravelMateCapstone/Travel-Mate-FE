@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import '../../assets/css/Destination/Destination.css';
 import Navbar from '../../components/Shared/Navbar';
 import { Button, Col, Row, Dropdown, Form } from 'react-bootstrap';
 import TourCard from '../../components/Destination/TourCard';
-import Tag from '../../components/Destination/Tag';
 import { useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import Placeholder from 'react-bootstrap/Placeholder';
 import axios from 'axios';
 
@@ -14,7 +12,6 @@ function Destination() {
     const [filteredTours, setFilteredTours] = useState([]); // Dữ liệu đã lọc
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [tags, setTags] = useState([]); // Sở thích người dùng
     const [allHobbies, setAllHobbies] = useState([]); // Danh sách tất cả sở thích
     const [selectedHobbies, setSelectedHobbies] = useState([]); // Sở thích đã chọn
     const location = useLocation();
@@ -29,48 +26,59 @@ function Destination() {
         connectionsRange: [1, 10000],
         interests: [],
     });
-
-
     // Hàm lấy danh sách tour
     const fetchTours = async () => {
         try {
             const queryParams = new URLSearchParams({
-                location: selectedLocation.locationName,
-                tourName: filters.tourName,
-                startDate: filters.startDate,
-                minPrice: filters.priceRange[0],
-                maxPrice: filters.priceRange[1],
-                gender: filters.gender,
-                rating: filters.rating,
-                minConnections: filters.connectionsRange[0],
-                maxConnections: filters.connectionsRange[1],
-                interests: filters.interests.join(','),
+                location: selectedLocation?.locationName || '',
+                tourName: filters.tourName || '',
+                startDate: filters.startDate || '',
+                minPrice: filters.priceRange[0].toString(),
+                maxPrice: filters.priceRange[1].toString(),
+                gender: filters.gender || '',
+                minRating: filters.ratingRange[0].toString(),
+                maxRating: filters.ratingRange[1].toString(),
+                minConnections: filters.connectionsRange[0].toString(),
+                maxConnections: filters.connectionsRange[1].toString(),
+                interests: filters.interests.join(',') || '',
             });
-
             const response = await fetch(
                 `https://travelmateapp.azurewebsites.net/api/FilterToursWOO/GetAllTour-WithUserDetails-ByLocation?${queryParams}`
             );
+        
+            
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch tours');
+            }
+
             const data = await response.json();
+
+            
             setOriginalTours(data || []);
             setFilteredTours(data || []);
-            setLoading(false);
         } catch (err) {
+            console.error(err);
             setError('Có lỗi xảy ra khi tải dữ liệu');
+        } finally {
             setLoading(false);
         }
     };
+
 
     // Hàm áp dụng các bộ lọc
     const applyFilters = () => {
         const filtered = originalTours.filter((tour) => {
             const matchesTourName = tour.TourName.toLowerCase().includes(filters.tourName.toLowerCase());
             const matchesStartDate =
-                !filters.startDate || new Date(tour.StartDate).toISOString().split('T')[0] === filters.startDate;
+                !filters.startDate ||
+                tour.StartDates.some(
+                    (startDate) => new Date(startDate).toISOString().split('T')[0] === filters.startDate
+                );
             const matchesPrice = tour.Price >= filters.priceRange[0] && tour.Price <= filters.priceRange[1];
             const matchesGender = !filters.gender || tour.User.CCCD.Sex === filters.gender;
             const matchesRating =
                 tour.User.Star >= filters.ratingRange[0] && tour.User.Star <= filters.ratingRange[1];
-
             const matchesConnections =
                 tour.User.CountConnect >= filters.connectionsRange[0] &&
                 tour.User.CountConnect <= filters.connectionsRange[1];
@@ -91,6 +99,7 @@ function Destination() {
 
         setFilteredTours(filtered);
     };
+
 
     // Lấy danh sách sở thích từ API
     const fetchActivities = async () => {
@@ -133,7 +142,6 @@ function Destination() {
         setSelectedHobbies([]);
         fetchTours();
     };
-
 
     // Cập nhật sở thích và lọc ngay
     const handleHobbySelect = (hobbyName) => {

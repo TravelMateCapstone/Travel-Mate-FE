@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import  { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import axios from 'axios'
-import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import Routepath from '../../routes/RoutePath';
 import { fetchTour } from '../../redux/actions/tourActions';
-import { Form, InputGroup, Dropdown, DropdownButton } from 'react-bootstrap'; // Import React Bootstrap components
+import { Form, InputGroup, Dropdown, } from 'react-bootstrap'; 
 
 function TourList() {
     const navigate = useNavigate();
@@ -18,30 +16,27 @@ function TourList() {
     const [endDate, setEndDate] = useState('');
     const token = useSelector(state => state.auth.token);
     const profileTourData = useSelector(state => state.profile.tour.$values);
-
     useEffect(() => {
         setTourData(profileTourData);
     }, [profileTourData]);
-
     const filteredTours = tourdata.filter(tour => {
+        const matchesApprovalStatus = tour.approvalStatus === 1;
         const matchesSearchTerm = tour.tourName.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesPriceRange = (!minPrice || tour.price >= minPrice) && (!maxPrice || tour.price <= maxPrice);
         const matchesDateRange = (!startDate || new Date(tour.startDate) >= new Date(startDate)) && (!endDate || new Date(tour.endDate) <= new Date(endDate));
-        return matchesSearchTerm && matchesPriceRange && matchesDateRange;
+        return matchesApprovalStatus && matchesSearchTerm && matchesPriceRange && matchesDateRange;
     });
-
+    // eslint-disable-next-line no-unused-vars
     const joinTour = async (tourId, tourName) => {
         dispatch(fetchTour(tourId, token));
         navigate(Routepath.TOUR_DETAIL);
     };
-
     const formatCurrency = (price) => {
         return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
     };
-
     return (
-        <div style={{ background: '#f9f9f9', }} className='rounded-5 py-3 px-0 item-container'>
-            <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">TOURS</h2>
+        <div style={{ background: '#f9f9f9', }} className='rounded-5 py-3 px-0 item-container overflow-y-auto'>
+            <h2 className="mb-4 text-success fw-bold text-header-profile mt-3">Danh sách tour</h2>
             <div className='mx-5'>
                 <div style={{ marginBottom: '20px' }} className='d-flex align-items-center justify-content-between'>
                     <InputGroup className="mb-3 w-50">
@@ -102,37 +97,29 @@ function TourList() {
                         </Dropdown.Menu>
                     </Dropdown>
                 </div>
-                <ul style={{ listStyleType: 'none', padding: 0 }}>
+                <div className='d-flex flex-column gap-3'>
                     {filteredTours.map(tour => (
-                        <li key={tour.tourId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #d9d9d9', }}>
-                            <div className='d-flex' style={{
-                                flex: '3'
+                        <div key={tour.tourId} style={{ display: 'flex', borderBottom: '1px solid #d9d9d9', padding: '20px 0', overflow: 'hidden' }}>
+                            <div className='d-flex align-items-center' style={{
+                                flex: '5'
                             }}><img src={tour.tourImage} alt={tour.tourName} width="136" height={92} style={{ marginRight: '20px', borderRadius: '10px' }} />
                                 <div>
                                     <strong>{tour.tourName}</strong>
-                                    <p className='m-0'>Địa điểm: {tour.location}</p>
-                                    <p>{tour.numberOfDays} ngày {tour.numberOfNights} đêm </p>
+                                    <p className='m-0 d-flex align-items-center gap-2'><ion-icon name="location-outline"></ion-icon> {tour.location}</p>
+                                    <p className='m-0 d-flex align-items-center gap-2'><ion-icon name="cash-outline"></ion-icon> {formatCurrency(tour.price)}</p>
                                 </div>
                             </div>
-
-                            <div style={{
-                                flex: '1'
-                            }} className='d-flex align-items-center fw-medium text-success'><p>{formatCurrency(tour.price)}</p></div>
-                            <div style={{
-                                flex: '1'
-                            }} className='d-flex align-items-center flex-column'>
-                                <p className='m-0'>5/{tour.maxGuests}</p>
-                                <small className='fw-medium'>{new Date(tour.startDate).toLocaleDateString()}</small>
-                                <small className='fw-medium'>{new Date(tour.endDate).toLocaleDateString()}</small>
-                            </div>
-                            <button className='rounded-5 border-0 text-light fw-normal' style={{
+                            <div className='d-flex align-items-center'>
+                            <button className='rounded-5 border-0 text-light fw-normal p-0' style={{
                                 height: '44px',
-                                width: '176px',
+                                width: '120px',
                                 backgroundColor: '#34A853',
+                                fontSize: '15px',
                             }} onClick={() => joinTour(tour.tourId, tour.tourName)}>Xem chi tiết</button>
-                        </li>
+                            </div>
+                        </div>
                     ))}
-                </ul>
+                </div>
             </div>
         </div>
     )

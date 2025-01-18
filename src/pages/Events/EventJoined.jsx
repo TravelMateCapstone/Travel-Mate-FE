@@ -96,13 +96,12 @@ function EventJoined() {
         }
     };
 
+
     const handleViewProfile = (memberId) => {
-        console.log("id", memberId);
-        console.log("id", user.id);
         if (parseInt(memberId) === parseInt(user.id)) {
             console.log("idp");
             dispatch(viewProfile(memberId, token));
-            navigate(RoutePath.PROFILE);
+            navigate(RoutePath.PROFILE_MY_PROFILE);
         } else {
             console.log("ido");
             dispatch(viewProfile(memberId, token));
